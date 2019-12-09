@@ -1,0 +1,22 @@
+@charset "utf-8";
+
+.h {
+    font-weight: bold;
+    color: var(--red);
+}
+
+.h--1 {
+    font-size: 3.0rem;
+}
+
+.h--2 {
+    font-size: 2.0rem;
+}
+
+.h--3 {
+    font-size: 1.5rem;
+}
+
+.h--4 {
+    font-size: 1rem;
+}

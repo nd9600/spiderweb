@@ -1,0 +1,39 @@
+@charset "utf-8";
+
+.btn {
+    display: inline-block;
+
+    padding: 5px 10px;
+
+    border-radius: .25rem;
+    font-weight: bold;
+    font-size: 15px;
+    letter-spacing: 1px;
+
+    border-radius: 2px;
+    transition: all 0.2s ease;
+
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+/*------------------------------------*\
+  #BUTTONS-COLOURS
+\*------------------------------------*/
+
+.btn--primary {
+    border: 1px solid var(--red);
+    background: var(--red);
+    color: var(--white);
+}
+
+.btn--primary:hover {
+    background: var(--red-dark);
+    box-shadow: 1px 2px 3px var(--grey-light);
+}

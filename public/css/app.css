@@ -1,3 +1,6 @@
+@import "components/components.css";
+
+
 /*------------------------------------*\
    Page
 \*------------------------------------*/
@@ -17,27 +20,28 @@ html {
   }
 }
 
-*,
-*:before,
-*:after {
+/* applies a natural box layout model to all elements, but allowing components to change */
+*, *:before, *:after {
   box-sizing: inherit;
 }
 
 :root {
-  --bg-colour: #fefefe;
-  --text-colour: #353535;
-  --title-colour: #363636;
-  --accent-colour: #f00;
-  --hover-colour: #db0000;
+  --white: #fefefe;
+
+  --grey: #353535;
+  --grey-light: #8b8b8b;
+
+  --red: #f00;
+  --red-dark: #c10000;
 }
 
 ::selection {
-  color: var(--bg-colour);
-  background: var(--hover-colour);
+  color: var(--white);
+  background: var(--red-dark);
 }
 ::-moz-selection {
-  color: var(--bg-colour);
-  background: var(--hover-colour);
+  color: var(--white);
+  background: var(--red-dark);
 }
 
 body {
@@ -46,8 +50,8 @@ body {
   width: 85%;
   padding: 0 2% 2% 4%;
   margin: 0;
-  background-color: var(--bg-colour);
-  color: var(--text-colour);
+  background-color: var(--white);
+  color: var(--grey);
   counter-reset: sidenote-counter;
 }
 @media (max-width: 768px) {
@@ -55,45 +59,4 @@ body {
     width: 100%;
     padding: 0 8% 0 8%;
   }
-}
-
-
-
-
-
-
-/*------------------------------------*\
-  Content
-\*------------------------------------*/
-
-.title {
-  font-weight: bold;
-  color: var(--hover-colour);
-}
-.title--toc {
-  display: inline-block;
-  padding: 10px 50px 10px 10px;
-  margin: 0.9rem 0 0.9rem 0;
-  font-size: 2.3rem;
-  color: var(--bg-colour);
-  background: var(--hover-colour);
-}
-.title--toc::selection {
-  color: var(--hover-colour);
-  background: var(--bg-colour);
-}
-.title--toc::-moz-selection {
-  color: var(--hover-colour);
-  background: var(--bg-colour);
-}
-.link {
-  color: var(--accent-colour);
-  text-decoration: underline;
-}
-.link:hover {
-  color: var(--hover-colour);
-}
-.link:focus {
-  color: var(--hover-colour);
-  font-weight: bold;
 }
