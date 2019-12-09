@@ -1,5 +1,13 @@
 @extends('layouts.app')
 
+@section('title')
+    Spiderweb - register
+@endsection
+
+@section('navbarTitle')
+    Spiderweb - register
+@endsection
+
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
