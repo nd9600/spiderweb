@@ -66,8 +66,7 @@
             </div>
 
             <div class="mt-8">
-                <label for="email"
-                    class="col-md-4 col-form-label text-md-right">{{ __('Email address') }}</label>
+                <label for="email">{{ __('Email address') }}</label>
 
                 <div>
                     <input id="email"
@@ -88,8 +87,7 @@
             </div>
 
             <div class="mt-8">
-                <label for="password"
-                    class="col-md-4 col-form-label text-md-right">{{ __('Password') }}</label>
+                <label for="password">{{ __('Password') }}</label>
 
                 <div>
                     <input id="password"
@@ -109,8 +107,7 @@
             </div>
 
             <div class="mt-8">
-                <label for="password-confirm"
-                    class="col-md-4 col-form-label text-md-right">{{ __('Confirm Password') }}</label>
+                <label for="password-confirm">{{ __('Confirm Password') }}</label>
 
                 <div>
                     <input id="password-confirm"

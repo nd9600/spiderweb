@@ -37,3 +37,17 @@
     background: var(--red-dark);
     box-shadow: 1px 2px 3px var(--grey-light);
 }
+
+.btn--secondary {
+    border: 1px solid var(--red);
+    background: var(--white);
+    color: var(--grey);
+}
+
+.btn--secondary:hover {
+    box-shadow: 1px 2px 3px var(--grey);
+
+    border: 1px solid var(--red);
+    background: var(--red);
+    color: var(--white);
+}

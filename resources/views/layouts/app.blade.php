@@ -23,35 +23,42 @@
 </head>
 <body>
 <div id="app">
-    <nav class="flex flex-row border-b pb-2 border-gray-300">
-        <a
-            class="link mr-10"
-            href="{{ url('/home') }}"
-        >
-            @yield('navbarTitle', "Spiderweb")
-        </a>
+    <nav class="py-2 mb-4 flex flex-row items-center justify-between border-b border-gray-300">
+        <span>
+            <a
+                class="link mr-10"
+                href="{{ url('/home') }}"
+            >
+                @yield('navbarTitle', "Spiderweb")
+            </a>
+
+            @guest
+                <a class="link mr-3"
+                    href="{{ route('login') }}">
+                    {{ __('Login') }}
+                </a>
+                <a class="link"
+                    href="{{ route('register') }}">
+                    {{ __('Register') }}
+                </a>
+            @endguest
+        </span>
 
         <span>
-            <span>
-                    @guest
-                    <a class="link mr-3"
-                        href="{{ route('login') }}">{{ __('Login') }}</a>
-                    <a class="link"
-                        href="{{ route('register') }}">{{ __('Register') }}</a>
-                @else
-                    <form id="logout-form"
-                        action="{{ route('logout') }}"
-                        method="POST">
-                        @csrf
-                        <button type="submit">
-                            {{ __('Logout') }}
-                        </button>
-                    </form>
-                @endguest
-            </span>
-
-            <span>
-            </span>
+            @auth
+                <form id="logout-form"
+                    action="{{ route('logout') }}"
+                    method="POST"
+                >
+                    @csrf
+                    <button
+                        class="btn btn--secondary"
+                        type="submit"
+                    >
+                        {{ __('Logout') }}
+                    </button>
+                </form>
+            @endauth
         </span>
     </nav>
 
