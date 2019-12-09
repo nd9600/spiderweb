@@ -26,7 +26,7 @@
     <nav class="py-2 mb-4 flex flex-row items-center justify-between border-b border-gray-300">
         <span>
             <a
-                class="link mr-10"
+                class="mr-5 pr-5 link border-r border-gray-300"
                 href="{{ url('/home') }}"
             >
                 @yield('navbarTitle', "Spiderweb")
