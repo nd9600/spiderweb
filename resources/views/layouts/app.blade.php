@@ -57,7 +57,7 @@
         <span>
             <a
                 class="mr-5 pr-5 link border-r border-gray-300"
-                href="{{ url('/home') }}"
+                href="{{ route('home') }}"
             >
                 @yield('navbarTitle', "Spiderweb")
             </a>

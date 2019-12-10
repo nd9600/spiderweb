@@ -3,6 +3,7 @@
 /*------------------------------------*\
   #SMALL-COMPONENTS
 \*------------------------------------*/
+@import "alerts.css";
 @import "buttons.css";
 @import "headers.css";
 @import "inputs.css";

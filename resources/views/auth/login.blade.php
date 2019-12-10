@@ -21,7 +21,7 @@
 
                 @error('email')
                 <span
-                    class="invalid-feedback"
+                    class="ml-2 p-2 alert alert--error"
                     role="alert"
                 >
                     <strong>{{ $message }}</strong>
@@ -43,7 +43,7 @@
 
                 @error('password')
                 <span
-                    class="invalid-feedback"
+                    class="ml-2 p-2 alert alert--error"
                     role="alert"
                 >
                     <strong>{{ $message }}</strong>
