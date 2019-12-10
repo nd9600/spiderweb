@@ -1,0 +1,87 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true,
+    "jquery": true
+  },
+  "globals": {
+    "moment": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:vue/recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2017,
+    "sourceType": "module"
+  },
+  "rules": {
+    "indent": [
+      "error",
+      4,
+      {
+        "SwitchCase": 1
+      }
+    ],
+    "linebreak-style": [
+      "error",
+      "unix"
+    ],
+    "quotes": [
+      "error",
+      "double",
+      {
+        "avoidEscape": true,
+        "allowTemplateLiterals": true
+      }
+    ],
+    "semi": [
+      "error",
+      "always"
+    ],
+    "brace-style": [
+      "error",
+      "1tbs"
+    ],
+    "curly": [
+      "error",
+      "all"
+    ],
+    "space-before-blocks": [
+      "error",
+      "always"
+    ],
+    "space-infix-ops": [
+      "error",
+      {
+        "int32Hint": false
+      }
+    ],
+    "space-unary-ops": [
+      "off",
+      {
+        "words": true,
+        "nonwords": false
+      }
+    ],
+    "no-unused-vars": "warn",
+    "no-undef": "warn",
+    "no-console": "off",
+    "vue/html-indent": [
+      "error",
+      4,
+      {
+        "attribute": 1,
+        "closeBracket": 0,
+        "alignAttributesVertically": true,
+        "ignores": []
+      }
+    ],
+    "vue/html-self-closing": [
+      "off"
+    ],
+    "vue/attribute-hyphenation": [
+      "off"
+    ]
+  }
+}
