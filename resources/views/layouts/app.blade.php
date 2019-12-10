@@ -7,23 +7,33 @@
         content="width=device-width, initial-scale=1"
     >
 
-    <link rel="apple-touch-icon"
+    <link
+        rel="apple-touch-icon"
         sizes="180x180"
-        href="/apple-touch-icon.png">
-    <link rel="icon"
+        href="/apple-touch-icon.png"
+    >
+    <link
+        rel="icon"
         type="image/png"
         sizes="32x32"
-        href="/favicon-32x32.png">
-    <link rel="icon"
+        href="/favicon-32x32.png"
+    >
+    <link
+        rel="icon"
         type="image/png"
         sizes="16x16"
-        href="/favicon-16x16.png">
-    <link rel="manifest"
-        href="/site.webmanifest">
+        href="/favicon-16x16.png"
+    >
+    <link
+        rel="manifest"
+        href="/site.webmanifest"
+    >
 
     <!-- CSRF Token -->
-    <meta name="csrf-token"
-        content="{{ csrf_token() }}">
+    <meta
+        name="csrf-token"
+        content="{{ csrf_token() }}"
+    >
 
     <title>
         @yield('title', "Spiderweb")
@@ -32,11 +42,17 @@
     <!-- Scripts -->
 
     <!-- Styles -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/tailwind.min.css') }}" rel="stylesheet">
+    <link
+        href="{{ asset('css/app.css') }}"
+        rel="stylesheet"
+    >
+    <link
+        href="{{ asset('css/tailwind.min.css') }}"
+        rel="stylesheet"
+    >
 </head>
 <body>
-<div id="app">
+<div>
     <nav class="py-2 mb-4 flex flex-row items-center justify-between border-b border-gray-300">
         <span>
             <a
@@ -47,12 +63,16 @@
             </a>
 
             @guest
-                <a class="link mr-3"
-                    href="{{ route('login') }}">
+                <a
+                    class="link mr-3"
+                    href="{{ route('login') }}"
+                >
                     {{ __('Login') }}
                 </a>
-                <a class="link"
-                    href="{{ route('register') }}">
+                <a
+                    class="link"
+                    href="{{ route('register') }}"
+                >
                     {{ __('Register') }}
                 </a>
             @endguest
@@ -60,7 +80,8 @@
 
         <span>
             @auth
-                <form id="logout-form"
+                <form
+                    id="logout-form"
                     action="{{ route('logout') }}"
                     method="POST"
                 >
