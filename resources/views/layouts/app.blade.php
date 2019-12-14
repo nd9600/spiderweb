@@ -53,6 +53,7 @@
 </head>
 <body>
 <div>
+    {{dd(env("APP_URL"), config('app.url'), url("test"), URL::route("home"))}}
     <nav class="py-2 mb-4 flex flex-row items-center justify-between border-b border-gray-300">
         <span>
             <a
