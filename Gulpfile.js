@@ -1,5 +1,4 @@
 const gulp = require("gulp");
-const gutil = require("gulp-util");
 // const named = require("vinyl-named-with-path");
 const rev = require("gulp-rev");
 const del = require("del");
