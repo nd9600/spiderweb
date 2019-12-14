@@ -1,3 +1,12 @@
-const f = (array) => [4, ...array, 5];
+import Vue from "vue";
+import VueTest from "@/js/VueTest";
 
-console.log(f([1,2,3]));
+new Vue({
+    el: "#app",
+    components: {
+        VueTest
+    },
+    template: `
+    <vue-test/>
+`
+});

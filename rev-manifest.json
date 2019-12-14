@@ -1,5 +1,6 @@
 {
   "assets/css/app.css": "assets/css/app-5e1c7c9118.css",
   "assets/css/tailwind.min.css": "assets/css/tailwind-f2d43b4b82.min.css",
-  "js/test.js": "js/test.js"
+  "js/test.js": "js/test.js",
+  "js/vendors.js": "js/vendors.js"
 }
