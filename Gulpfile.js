@@ -1,31 +1,13 @@
 const gulp = require("gulp");
 const gutil = require("gulp-util");
 // const named = require("vinyl-named-with-path");
-const path = require("path");
-const through = require("through2");
 const rev = require("gulp-rev");
-const revOutdated = require("gulp-rev-outdated");
-const rimraf = require("rimraf");
+const del = require("del");
 const sass = require("gulp-sass");
 const cssimport = require("gulp-cssimport");
 // const webpackstream = require("webpack-stream");
 
 sass.compiler = require('node-sass');
-
-/**
- * from https://www.npmjs.com/package/gulp-rev-outdated
- */
-function cleaner() {
-    return through.obj(function (file, enc, cb) {
-        rimraf(path.resolve((file.cwd || process.cwd()), file.path), function (err) {
-            if (err) {
-                this.emit('error', new gutil.PluginError('Cleanup old files', err));
-            }
-            this.push(file);
-            cb();
-        }.bind(this));
-    });
-}
 
 /**
  * Takes an input stream, revisions all files in the stream, writes them, builds a manifest file, merges the manifest
@@ -47,9 +29,9 @@ function revision(inputStream) {
  * Removes outdated file versions
  */
 function clean(cb) {
-    return gulp.src("./public/assets/**/*", {read: false})
-        .pipe(revOutdated(1))
-        .pipe(cleaner());
+    return del([
+        "public/assets/**"
+    ])
 }
 
 function styles(cb) {
@@ -84,7 +66,6 @@ function styles(cb) {
     );
 }
 
-
 exports.clean = clean;
 exports.styles = styles;
-exports.default = gulp.series(styles, clean);
+exports.default = gulp.series(clean, styles);
