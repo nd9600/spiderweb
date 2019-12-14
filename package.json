@@ -15,9 +15,16 @@
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.0.1",
     "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-cssimport": "^7.0.0",
+    "gulp-rev": "^9.0.0",
+    "gulp-sass": "^4.0.2",
+    "node-sass": "^4.13.0",
+    "vinyl-named-with-path": "^1.0.0",
     "vue": "^2.6.10",
     "vue-template-compiler": "^2.6.10",
     "webpack": "^4.41.2",
-    "webpack-dev-server": "^3.9.0"
+    "webpack-dev-server": "^3.9.0",
+    "webpack-stream": "^5.2.1"
   }
 }
