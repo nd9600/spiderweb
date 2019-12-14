@@ -43,11 +43,11 @@
 
     <!-- Styles -->
     <link
-        href="{{ asset('css/app.css') }}"
+        href="{{ Helper::getAssetPath('css/app.css') }}"
         rel="stylesheet"
     >
     <link
-        href="{{ asset('css/tailwind.min.css') }}"
+        href="{{ Helper::getAssetPath('css/tailwind.min.css') }}"
         rel="stylesheet"
     >
 </head>
