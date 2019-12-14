@@ -16,4 +16,6 @@
         Logged in
     </div>
 </div>
+
+<script src="{{ Helper::getAssetPath('js/test.js') }}"></script>
 @endsection

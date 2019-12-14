@@ -13,7 +13,8 @@ class Helper
         if (isset($manifest[$assetPath])) {
             return $manifest[$assetPath];
         } else {
-            throw new  \InvalidArgumentException("'{$filename}' isn't in rev-manifest.json");
+            return $assetPath;
+//            throw new \InvalidArgumentException("'{$filename}' isn't in rev-manifest.json");
         }
     }
 }
