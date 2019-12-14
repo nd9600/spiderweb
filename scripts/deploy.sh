@@ -31,5 +31,14 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 
 nvm install 12 # latest LTS as of 2019-12-14
 
+npm install --global gulp-cli
 npm ci
+
+echo "Bundling CSS"
+gulp
+
+echo "Bundling JS"
 npm run production
+
+cp env.example .env
+echo "Please change the .env"
