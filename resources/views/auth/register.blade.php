@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.appOnline')
 
 @section('title')
     Spiderweb - register

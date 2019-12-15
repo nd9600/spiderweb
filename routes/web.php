@@ -22,3 +22,7 @@ Route::group([
 ], function () {
     Route::get('/home', 'HomeController@index')->name('home');
 });
+
+Route::get('/offline', function () {
+    return view("offline");
+})->name("offline");

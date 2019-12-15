@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.appOnline')
 
 @section('content')
     <form method="POST"

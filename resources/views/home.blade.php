@@ -1,12 +1,12 @@
-@extends('layouts.app')
+@extends('layouts.appOnline')
 
 @section('content')
 <div class="container">
     <h1 class="h h--1">
-        Web
+        Spiderweb
     </h1>
 
-    <div class="">
+    <div>
         @if (session('status'))
             <div class="alert alert-success" role="alert">
                 {{ session('status') }}

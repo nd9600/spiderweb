@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.appOnline')
 
 @section('content')
     <div>
@@ -7,7 +7,7 @@
         </p>
         <a
             class="mt-5 link"
-            href="{{ url('/offline') }}"
+            href="{{ route('offline') }}"
         >
             Offline
         </a>
