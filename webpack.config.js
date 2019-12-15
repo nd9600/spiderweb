@@ -1,12 +1,12 @@
-const path = require('path');
+const path = require("path");
 const webpack = require("webpack");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
-const WebpackAssetsManifest = require('webpack-assets-manifest');
+const WebpackAssetsManifest = require("webpack-assets-manifest");
 
 const mode = process.env.mode;
 
 const entrypoints = {
-    "js/test": "./resources/assets/js/test.js"
+    "js/offline/tree": "./resources/assets/js/offline/tree.js"
 };
 
 module.exports = {
@@ -34,7 +34,7 @@ module.exports = {
                 loader: "babel-loader",
                 exclude: /node_modules/,
                 options: {
-                    presets: ['@babel/preset-env'],
+                    presets: ["@babel/preset-env"],
                 }
             },
             {
@@ -93,7 +93,7 @@ module.exports = {
         filename: mode === "production"
             ? "[name]-[hash].js" // "false"
             : "[name].js",
-        path: path.resolve(__dirname, 'public/assets/'),
+        path: path.resolve(__dirname, "public/assets/"),
         publicPath: "/",
     },
 };

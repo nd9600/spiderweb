@@ -8,9 +8,9 @@
     <h2 class="h h--2">
         Offline
     </h2>
-    <div id="app"></div>
+    <div id="offlineTreeApp"></div>
 </div>
 
 <script src="{{ Helper::getAssetPath('js/vendors.js') }}"></script>
-<script src="{{ Helper::getAssetPath('js/test.js') }}"></script>
+<script src="{{ Helper::getAssetPath('js/offline/tree.js') }}"></script>
 @endsection
