@@ -1,6 +1,16 @@
 <template>
-    <div ref="svgContainer">
-
+    <div>
+        <svg
+            id="treeSvg"
+            class="tree"
+            width="400"
+            height="220"
+        >
+            <g transform="translate(5, 15)">
+                <g class="tree__links"></g>
+                <g class="tree__nodes"></g>
+            </g>
+        </svg>
     </div>
 </template>
 
@@ -45,22 +55,22 @@ export default {
                 },
                 5: {
                     "user_id": 1,
-                    "title": "Foo",
+                    "title": "Foobaz",
                     "body": "Foobaz body",
                     "created_at": moment().format(),
                     "updated_at": moment().format(),
                 },
                 6: {
                     "user_id": 1,
-                    "title": "Foo",
-                    "body": "Foobaz body",
+                    "title": "Foobarbaz",
+                    "body": "Foobarbaz body",
                     "created_at": moment().format(),
                     "updated_at": moment().format(),
                 },
                 7: {
                     "user_id": 1,
-                    "title": "Foobarbaz",
-                    "body": "Foobarbaz body",
+                    "title": "Barbaz",
+                    "body": "Barbaz body",
                     "created_at": moment().format(),
                     "updated_at": moment().format(),
                 }
@@ -111,8 +121,17 @@ export default {
             }
             return childrenToParentPosts;
         },
+    },
+    mounted() {
+        this.makeTreeSvg();
+    },
+    methods: {
+        makeTreeSvg() {
 
-        treeSvg() {
+            /**
+             * The data in a hierarchical format that can be laid out with d3.tree()
+             * @type {HierarchyNode<any>}
+             */
             const root = d3.stratify()
                 .id(function (d) {
                     return d.childId;
@@ -122,77 +141,84 @@ export default {
                 })(this.childrenToParentPosts);
             console.log(root);
 
-            const treeLayout = d3.tree()(root);
-            console.log(treeLayout);
+            /**
+             * Gives `root` x and y's that can be use to show it in an SVG
+             * @type {TreeLayout<any>}
+             */
+            const treeLayout = d3.tree();
+            treeLayout.size([400, 200]);
+            treeLayout(root);
 
-            treeLayout.size();
+            // Nodes
+            const nodesGs = d3.select("#treeSvg g.tree__nodes")
+                .selectAll("circle.tree__node")
+                .data(root.descendants())
+                .enter()
+                .append("g");
 
-            // let x0 = Infinity;
-            // let x1 = -x0;
-            // treeLayout.each(d => {
-            //     if (d.x > x1) {
-            //         x1 = d.x;
-            //     }
-            //     if (d.x < x0) {
-            //         x0 = d.x;
-            //     }
-            // });
-            //
-            // const svg = d3.create("svg")
-            //     .attr("viewBox", [0, 0, WIDTH, x1 - x0 + treeLayout.dx * 2]);
-            //
-            // const g = svg.append("g")
-            //     .attr("font-family", "sans-serif")
-            //     .attr("font-size", 10)
-            //     .attr("transform", `translate(${treeLayout.dy / 3},${treeLayout.dx - x0})`);
-            //
-            // const link = g.append("g")
-            //     .attr("fill", "none")
-            //     .attr("stroke", "#555")
-            //     .attr("stroke-opacity", 0.4)
-            //     .attr("stroke-width", 1.5)
-            //     .selectAll("path")
-            //     .data(treeLayout.links())
-            //     .join("path")
-            //     .attr("d", d3.linkHorizontal()
-            //         .x(d => d.y)
-            //         .y(d => d.x));
-            //
-            // const node = g.append("g")
-            //     .attr("stroke-linejoin", "round")
-            //     .attr("stroke-width", 3)
-            //     .selectAll("g")
-            //     .data(treeLayout.descendants())
-            //     .join("g")
-            //     .attr("transform", d => `translate(${d.y},${d.x})`);
-            //
-            // node.append("circle")
-            //     .attr("fill", d => d.children ? "#555" : "#999")
-            //     .attr("r", 2.5);
-            //
-            // node.append("text")
-            //     .attr("dy", "0.31em")
-            //     .attr("x", d => d.children ? -6 : 6)
-            //     .attr("text-anchor", d => d.children ? "end" : "start")
-            //     .text(d => {
-            //         console.log (d.data);
-            //         return this.posts[d.data.childId].title || "abc";
-            //     })
-            //     .clone(true).lower()
-            //     .attr("stroke", "white");
-            //
-            // console.log(svg.node());
-            // return svg.node();
+            nodesGs.append("circle")
+                .classed("tree__node", true)
+                .attr("cx", function (d) {
+                    return d.x;
+                })
+                .attr("cy", function (d) {
+                    return d.y;
+                })
+                .attr("r", 4);
+
+            nodesGs.append("text")
+                .attr("fill", "black")
+                .attr("x", function (d) {
+                    return d.x;
+                })
+                .attr("y", function (d) {
+                    return d.y;
+                })
+                // .attr("dy", "0.31em")
+                // .attr("x", d => d.children ? -6 : 6)
+                .attr("text-anchor", d => d.children ? "end" : "start")
+                .attr("stroke", "black")
+                .text(d => this.posts[d.data.childId].title);
+
+            // Links
+            d3.select("#treeSvg g.tree__links")
+                .selectAll("line.tree__link")
+                .data(root.links())
+                .enter()
+                .append("line")
+                .classed("tree__link", true)
+                .attr("x1", function (d) {
+                    return d.source.x;
+                })
+                .attr("y1", function (d) {
+                    return d.source.y;
+                })
+                .attr("x2", function (d) {
+                    return d.target.x;
+                })
+                .attr("y2", function (d) {
+                    return d.target.y;
+                });
         }
-    },
-    mounted() {
-        this.$refs["svgContainer"].append(this.treeSvg);
     }
 };
 </script>
 
-/*
-object: posts, indexed by ID
-array: root post IDs
-object: post ID to child post IDs
-*/
+<style>
+    .tree__node {
+        fill: steelblue;
+        stroke: none;
+    }
+
+    .tree__link {
+        fill: none;
+        stroke: #ccc;
+        stroke-width: 1px;
+    }
+
+    text {
+        fill: black; /* <== Set the fill */
+        text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+        cursor: move;
+    }
+</style>
