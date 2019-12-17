@@ -2,7 +2,7 @@
     <div class="h-full flex flex-row">
         <svg
             id="treeSvg"
-            class="h-full w-4/5 tree"
+            class="h-full w-2/3 tree cursor-move"
         >
             <g transform="translate(5, 15)">
                 <g class="tree__links"></g>
@@ -10,9 +10,13 @@
             </g>
         </svg>
         <div
-            class="h-full w-1/5 p-4 sidebar"
+            class="h-full w-1/3 p-4 sidebar"
         >
-            sidebar
+            <post
+                v-if="selectedPostId !== null"
+                :post="posts[selectedPostId]"
+            >
+            </post>
         </div>
     </div>
 </template>
@@ -20,12 +24,13 @@
 <script>
 import * as d3 from "d3";
 import moment from "moment";
-
-const WIDTH = 50;
-const HEIGHT = 50;
+import Post from "@/js/commonComponents/Post";
 
 export default {
     name: "OfflineTree",
+    components: {
+        Post
+    },
     data() {
         return {
             svgContainer: null,
@@ -81,7 +86,7 @@ export default {
                     "updated_at": moment().format(),
                 }
             },
-            rootPostIDs: [
+            rootPostIds: [
                 1
             ],
             postToChildPosts: {
@@ -90,7 +95,9 @@ export default {
                 3: [5],
                 5: [6],
                 6: [7],
-            }
+            },
+
+            selectedPostId: null
         };
     },
     computed: {
@@ -110,7 +117,7 @@ export default {
             let childrenToParentPosts = [];
 
             // we need to give the root IDs parents of "" as well
-            for (const rootPostID of this.rootPostIDs) {
+            for (const rootPostID of this.rootPostIds) {
                 childrenToParentPosts.push({
                     childId: rootPostID,
                     parentId: ""
@@ -141,12 +148,8 @@ export default {
              * @type {HierarchyNode<any>}
              */
             const root = d3.stratify()
-                .id(function (d) {
-                    return d.childId;
-                })
-                .parentId(function (d) {
-                    return d.parentId;
-                })(this.childrenToParentPosts);
+                .id((d) => d.childId)
+                .parentId((d) => d.parentId)(this.childrenToParentPosts);
 
             /**
              * Gives `root` x and y's that can be use to show it in an SVG
@@ -182,32 +185,32 @@ export default {
 
         addNodesToSVG(root) {
             const nodesGs = d3.select("#treeSvg g.tree__nodes")
-                .selectAll("circle.tree__node")
+                .selectAll("node__circle")
                 .data(root.descendants(), (d) => d.data.childId) // key function
                 .enter()
-                .append("g");
+                .append("g")
+                .classed("node", true);
 
             nodesGs.append("circle")
-                .classed("tree__node", true)
-                .attr("cx", function (d) {
-                    return d.x;
-                })
-                .attr("cy", function (d) {
-                    return d.y;
-                })
+                .classed("node__circle", true)
+                .attr("cx", (d) => d.x)
+                .attr("cy", (d) => d.y)
                 .attr("r", 4);
 
             nodesGs.append("text")
+                .classed("node__text", true)
                 .attr("fill", "black")
-                .attr("x", function (d) {
-                    return d.x - 10;
-                })
-                .attr("y", function (d) {
-                    return d.y + 5;
-                })
+                .attr("x", (d) => d.x - 10)
+                .attr("y", (d) => d.y + 5)
                 .attr("text-anchor", "end")
                 .attr("stroke", "black")
                 .text(d => this.posts[d.data.childId].title);
+
+            d3.selectAll(".node *")
+                .classed("cursor-pointer", true)
+                .on("click", (event) => {
+                    this.selectedPostId = event.data.childId;
+                });
         },
         addLinksToSVG(root) {
             d3.select("#treeSvg g.tree__links")
@@ -234,7 +237,7 @@ export default {
 </script>
 
 <style>
-    .tree__node {
+    .node__circle {
         fill: steelblue;
         stroke: none;
     }

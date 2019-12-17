@@ -1,0 +1,35 @@
+<template>
+    <section>
+        <h1 class="h h--1">
+            {{ post.title }}
+        </h1>
+        <p>
+            {{ post.body }}
+        </p>
+    </section>
+</template>
+
+<script>
+export default {
+    name: "Post",
+    props: {
+        post: {
+            type: Object,
+            required: true
+            /*
+            {
+                    "user_id": 1,
+                    "title": "Foo",
+                    "body": "Foo body",
+                    "created_at": moment().format(),
+                    "updated_at": moment().format(),
+                }
+             */
+        }
+    }
+};
+</script>
+
+<style scoped>
+
+</style>
