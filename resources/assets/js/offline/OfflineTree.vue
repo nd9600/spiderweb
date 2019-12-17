@@ -1,16 +1,19 @@
 <template>
-    <div>
+    <div class="h-full flex flex-row">
         <svg
             id="treeSvg"
-            class="tree"
-            width="400"
-            height="220"
+            class="h-full w-4/5 tree"
         >
             <g transform="translate(5, 15)">
                 <g class="tree__links"></g>
                 <g class="tree__nodes"></g>
             </g>
         </svg>
+        <div
+            class="h-full w-1/5 p-4 sidebar"
+        >
+            sidebar
+        </div>
     </div>
 </template>
 
@@ -18,12 +21,15 @@
 import * as d3 from "d3";
 import moment from "moment";
 
-const WIDTH = 932;
+const WIDTH = 50;
+const HEIGHT = 50;
 
 export default {
     name: "OfflineTree",
     data() {
         return {
+            svgContainer: null,
+
             posts: {
                 1: {
                     "user_id": 1,
@@ -127,6 +133,8 @@ export default {
     },
     methods: {
         makeTreeSvg() {
+            this.svg = d3.select("#treeSvg");
+            this.rootG = d3.select("#treeSvg g");
 
             /**
              * The data in a hierarchical format that can be laid out with d3.tree()
@@ -139,7 +147,6 @@ export default {
                 .parentId(function (d) {
                     return d.parentId;
                 })(this.childrenToParentPosts);
-            console.log(root);
 
             /**
              * Gives `root` x and y's that can be use to show it in an SVG
@@ -149,10 +156,34 @@ export default {
             treeLayout.size([400, 200]);
             treeLayout(root);
 
+
+            this.setupZooming();
+
             // Nodes
+            this.addNodesToSVG(root);
+
+            // Links
+            this.addLinksToSVG(root);
+        },
+        setupZooming() {
+            this.svg.call(d3.zoom()
+                .scaleExtent([0.2, 2]) // limits zooming so you can only zoom between 0.2x and 2x
+                .on("zoom", () => {
+                    const x = d3.event.transform.x;
+                    const y = d3.event.transform.y;
+                    const scale = d3.event.transform.k;
+
+                    this.rootG.attr("transform", `translate(${x} ${y}) scale(${scale})`);
+                }))
+                .on("wheel", () => {
+                    d3.event.preventDefault();
+                });
+        },
+
+        addNodesToSVG(root) {
             const nodesGs = d3.select("#treeSvg g.tree__nodes")
                 .selectAll("circle.tree__node")
-                .data(root.descendants())
+                .data(root.descendants(), (d) => d.data.childId) // key function
                 .enter()
                 .append("g");
 
@@ -169,18 +200,16 @@ export default {
             nodesGs.append("text")
                 .attr("fill", "black")
                 .attr("x", function (d) {
-                    return d.x;
+                    return d.x - 10;
                 })
                 .attr("y", function (d) {
-                    return d.y;
+                    return d.y + 5;
                 })
-                // .attr("dy", "0.31em")
-                // .attr("x", d => d.children ? -6 : 6)
-                .attr("text-anchor", d => d.children ? "end" : "start")
+                .attr("text-anchor", "end")
                 .attr("stroke", "black")
                 .text(d => this.posts[d.data.childId].title);
-
-            // Links
+        },
+        addLinksToSVG(root) {
             d3.select("#treeSvg g.tree__links")
                 .selectAll("line.tree__link")
                 .data(root.links())
@@ -220,5 +249,10 @@ export default {
         fill: black; /* <== Set the fill */
         text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
         cursor: move;
+    }
+
+    .sidebar {
+        background-color: #333;
+        color: white;
     }
 </style>

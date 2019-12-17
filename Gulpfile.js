@@ -6,7 +6,7 @@ const sass = require("gulp-sass");
 const cssimport = require("gulp-cssimport");
 // const webpackstream = require("webpack-stream");
 
-sass.compiler = require('node-sass');
+sass.compiler = require("node-sass");
 
 /**
  * Takes an input stream, revisions all files in the stream, writes them, builds a manifest file, merges the manifest
@@ -29,27 +29,27 @@ function revision(inputStream) {
  */
 function clean(cb) {
     return del([
-        "public/assets/**"
-    ])
+        "public/assets/css/**"
+    ]);
 }
 
 function styles(cb) {
     // bundle and minify the design system
     revision(
         gulp
-        .src(
-            [
-                "./resources/assets/css/app.css",
-            ],
-            {
-                base: "./resources" // we want to put the files in "./public/assets/css", so we only want to remove the "resources"
-            }
-        )
-        .pipe(cssimport({}))
-        .pipe(
-            sass({outputStyle: "compressed"})
-                .on("error", sass.logError)
-        )
+            .src(
+                [
+                    "./resources/assets/css/app.css",
+                ],
+                {
+                    base: "./resources" // we want to put the files in "./public/assets/css", so we only want to remove the "resources"
+                }
+            )
+            .pipe(cssimport({}))
+            .pipe(
+                sass({outputStyle: "compressed"})
+                    .on("error", sass.logError)
+            )
     );
 
     // copy over tailwind
