@@ -9,27 +9,24 @@
                 <g class="tree__nodes"></g>
             </g>
         </svg>
-        <div
-            class="h-full w-1/3 p-4 sidebar"
+        <sidebar
+            :selectedPostId="selectedPostId"
+            :posts="posts"
         >
-            <post
-                v-if="selectedPostId !== null"
-                :post="posts[selectedPostId]"
-            >
-            </post>
-        </div>
+        </sidebar>
     </div>
 </template>
 
 <script>
 import * as d3 from "d3";
 import moment from "moment";
-import Post from "@/js/commonComponents/Post";
+
+import Sidebar from "@/js/commonComponents/Sidebar";
 
 export default {
     name: "OfflineTree",
     components: {
-        Post
+        Sidebar,
     },
     data() {
         return {
@@ -252,10 +249,5 @@ export default {
         fill: black; /* <== Set the fill */
         text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
         cursor: move;
-    }
-
-    .sidebar {
-        background-color: #333;
-        color: white;
     }
 </style>
