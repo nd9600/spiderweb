@@ -6,9 +6,18 @@
 
         <hr class="mb-5">
 
-        <label class="mb-5 flex flex-col">
-            Title
+        <label
+            class="mb-5 flex flex-col"
+        >
+            <button
+                class="text-left hover:underline"
+                @click.prevent="toggleTitleInput"
+            >
+                Title
+            </button>
             <input
+                ref="inputTitle"
+                v-if="showTitleInput"
                 v-model="title"
                 class="p-2 rounded text-gray-800 placeholder-gray-600"
                 type="text"
@@ -51,12 +60,24 @@ export default {
     name: "PostMaker",
     data() {
         return {
+            showTitleInput: false,
+
             title: "",
             body: "",
         };
     },
     methods: {
         ...mapMutations("postsModule", ["makeNewPost"]),
+
+        toggleTitleInput() {
+            const dontLetUserHideTitleInput = this.showTitleInput
+                && this.title.trim().length > 0;
+            if (dontLetUserHideTitleInput) {
+                this.$refs.inputTitle.focus();
+                return;
+            }
+            this.showTitleInput = !this.showTitleInput;
+        },
 
         makePost() {
             const newPost = {
