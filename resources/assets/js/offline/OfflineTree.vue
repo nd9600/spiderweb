@@ -2,7 +2,7 @@
     <div class="h-full flex flex-row">
         <svg
             id="treeSvg"
-            class="h-full w-2/3 tree cursor-move"
+            class="h-full w-2/3 cursor-move border"
         >
             <g transform="translate(5, 15)">
                 <g class="tree__links"></g>
