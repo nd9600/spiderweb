@@ -1,34 +1,42 @@
 <template>
-    <div>
+    <div class="flex flex-col">
         <h1 class="h h--1">
             Make posts
         </h1>
 
-        <hr>
+        <hr class="mb-5">
 
-        <label>
+        <label class="mb-5 flex flex-col">
             Title
             <input
                 v-model="title"
+                class="p-2 rounded text-gray-800 placeholder-gray-600"
                 type="text"
                 placeholder="On the Origin of Species"
+                minlength="0"
                 maxlength="100"
             >
         </label>
 
-        <label>
+        <label class="mb-5 flex flex-col">
             Body
             <textarea
                 v-model="body"
+                class="p-2 h-48 rounded text-gray-800 placeholder-gray-600 textareaBody"
                 placeholder="But with regard to the material world, we can at least go so far as this—we can perceive that events are brought about not by insulated interpositions of Divine power, exerted in each particular case, but by the establishment of general laws"
+                required="required"
+                minlength="1"
+                maxlength="10000"
             ></textarea>
         </label>
 
-        <hr>
+        <hr class="mb-5">
+
         <button
             type="submit"
             class="btn btn--primary"
             @click="makePost"
+            :disabled="body.trim().length === 0"
         >
             Create
         </button>
@@ -37,6 +45,8 @@
 
 <script>
 import moment from "moment";
+import { mapMutations } from "vuex";
+
 export default {
     name: "PostMaker",
     data() {
@@ -46,6 +56,8 @@ export default {
         };
     },
     methods: {
+        ...mapMutations("postsModule", ["makeNewPost"]),
+
         makePost() {
             const newPost = {
                 title: this.title,
@@ -54,11 +66,19 @@ export default {
                 updated_at: moment().format(),
             };
             console.log(newPost);
+            this.makeNewPost(newPost);
+            this.resetNewPost();
+        },
+        resetNewPost() {
+            this.title = "";
+            this.body = "";
         }
     }
 };
 </script>
 
 <style scoped>
-
+    .textareaBody {
+        max-height: 50%;
+    }
 </style>

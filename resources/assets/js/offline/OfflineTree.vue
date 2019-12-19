@@ -9,19 +9,16 @@
                 <g class="tree__nodes"></g>
             </g>
         </svg>
-        <sidebar
-            :selectedPostId="selectedPostId"
-            :posts="posts"
-        >
-        </sidebar>
+        <sidebar/>
     </div>
 </template>
 
 <script>
 import * as d3 from "d3";
-import moment from "moment";
 
 import Sidebar from "@/js/commonComponents/Sidebar";
+
+import {mapState} from "vuex";
 
 export default {
     name: "OfflineTree",
@@ -30,74 +27,21 @@ export default {
     },
     data() {
         return {
-            svgContainer: null,
-
-            posts: {
-                1: {
-                    "user_id": 1,
-                    "title": "Foo",
-                    "body": "Foo body",
-                    "created_at": moment().format(),
-                    "updated_at": moment().format(),
-                },
-                2: {
-                    "user_id": 1,
-                    "title": "Bar",
-                    "body": "Bar body",
-                    "created_at": moment().format(),
-                    "updated_at": moment().format(),
-                },
-                3: {
-                    "user_id": 1,
-                    "title": "Baz",
-                    "body": "Baz body",
-                    "created_at": moment().format(),
-                    "updated_at": moment().format(),
-                },
-                4: {
-                    "user_id": 1,
-                    "title": "Foobar",
-                    "body": "Foobar body",
-                    "created_at": moment().format(),
-                    "updated_at": moment().format(),
-                },
-                5: {
-                    "user_id": 1,
-                    "title": "Foobaz",
-                    "body": "Foobaz body",
-                    "created_at": moment().format(),
-                    "updated_at": moment().format(),
-                },
-                6: {
-                    "user_id": 1,
-                    "title": "Foobarbaz",
-                    "body": "Foobarbaz body",
-                    "created_at": moment().format(),
-                    "updated_at": moment().format(),
-                },
-                7: {
-                    "user_id": 1,
-                    "title": "Barbaz",
-                    "body": "Barbaz body",
-                    "created_at": moment().format(),
-                    "updated_at": moment().format(),
-                }
-            },
-            rootPostIds: [
-                1
-            ],
-            postToChildPosts: {
-                1: [2, 3],
-                2: [4],
-                3: [5],
-                5: [6],
-                6: [7],
-            },
-
-            selectedPostId: null
+            svg: null,
+            rootG: null,
         };
     },
     computed: {
+        ...mapState("postsModule", ["rootPostIds", "postToChildPosts", "posts"]),
+        selectedPostId: {
+            get() {
+                return this.$store.postsModule.selectedPostId;
+            },
+            set(selectedPostId) {
+                 this.$store.commit("postsModule/setSelectedPostId", selectedPostId);
+            }
+        },
+
         /**
          *
          * @returns {Array}

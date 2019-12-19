@@ -33,27 +33,21 @@
 import Post from "@/js/commonComponents/Post";
 import PostMaker from "@/js/commonComponents/PostMaker";
 
+import { mapState } from "vuex";
+
 export default {
     name: "Sidebar",
     components: {
         Post,
         PostMaker
     },
-    props: {
-        selectedPostId: {
-            type: Number,
-            required: false,
-            default: null
-        },
-        posts: {
-            type: Object,
-            required: true
-        }
-    },
     data() {
         return {
-            currentTab: "posts", // | posts | makePosts
+            currentTab: "makePosts", // | posts | makePosts
         };
+    },
+    computed: {
+        ...mapState("postsModule", ["posts", "selectedPostId"])
     }
 };
 </script>
