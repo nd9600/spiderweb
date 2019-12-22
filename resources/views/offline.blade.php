@@ -9,11 +9,11 @@
         Offline
     </h2>
     <div
-        id="offlineTreeApp"
+        id="offlineGraphApp"
         class="h-full"
     ></div>
 </div>
 
 <script src="{{ Helper::getAssetPath('js/vendors.js') }}"></script>
-<script src="{{ Helper::getAssetPath('js/offline/tree.js') }}"></script>
+<script src="{{ Helper::getAssetPath('js/offline/graph.js') }}"></script>
 @endsection

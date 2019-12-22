@@ -6,7 +6,7 @@ const WebpackAssetsManifest = require("webpack-assets-manifest");
 const mode = process.env.mode;
 
 const entrypoints = {
-    "js/offline/tree": "./resources/assets/js/offline/tree.js"
+    "js/offline/graph": "./resources/assets/js/offline/graph.js"
 };
 
 module.exports = {

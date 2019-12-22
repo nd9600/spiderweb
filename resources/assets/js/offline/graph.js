@@ -1,15 +1,15 @@
 import Vue from "vue";
 
-import OfflineTree from "./OfflineTree";
+import OfflineGraph from "./OfflineGraph";
 import store from "./store";
 
 new Vue({
     store,
-    el: "#offlineTreeApp",
+    el: "#offlineGraphApp",
     components: {
-        OfflineTree
+        OfflineGraph
     },
     template: `
-    <offline-tree/>
+    <offline-graph/>
 `
 });
