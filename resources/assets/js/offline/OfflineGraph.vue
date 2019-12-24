@@ -33,73 +33,10 @@ export default {
         return {
             svg: null,
             rootG: null,
-            
-            posts: {
-                1: {
-                    "user_id": 1,
-                    "title": "Foo",
-                    "body": "Foo body",
-                    "created_at": moment().format(),
-                    "updated_at": moment().format(),
-                },
-                2: {
-                    "user_id": 1,
-                    "title": "Bar",
-                    "body": "Bar body",
-                    "created_at": moment().format(),
-                    "updated_at": moment().format(),
-                },
-                3: {
-                    "user_id": 1,
-                    "title": "Baz",
-                    "body": "Baz body",
-                    "created_at": moment().format(),
-                    "updated_at": moment().format(),
-                },
-                4: {
-                    "user_id": 1,
-                    "title": "Foobar",
-                    "body": "Foobar body",
-                    "created_at": moment().format(),
-                    "updated_at": moment().format(),
-                },
-                5: {
-                    "user_id": 1,
-                    "title": "Foobaz",
-                    "body": "Foobaz body",
-                    "created_at": moment().format(),
-                    "updated_at": moment().format(),
-                },
-                6: {
-                    "user_id": 1,
-                    "title": "Foobarbaz",
-                    "body": "Foobarbaz body",
-                    "created_at": moment().format(),
-                    "updated_at": moment().format(),
-                },
-                7: {
-                    "user_id": 1,
-                    "title": "Barbaz",
-                    "body": "Barbaz body",
-                    "created_at": moment().format(),
-                    "updated_at": moment().format(),
-                }
-            },
-            rootPostIds: [
-                1,
-            ],
-            postToChildPosts: {
-                1: [2, 3],
-                2: [4],
-                3: [5],
-                5: [6],
-                6: [7],
-            },
-            sourceToTargetPosts: []
         };
     },
     computed: {
-        //...mapState("postsModule", ["rootPostIds", "postToChildPosts", "posts"]),
+        ...mapState("postsModule", ["rootPostIds", "postToChildPosts", "posts"]),
         selectedPostId: {
             get() {
                 return this.$store.postsModule.selectedPostId;
@@ -121,7 +58,7 @@ export default {
          *  ]
          *  ```
          */
-        sourceToTargetPostsA() {
+        sourceToTargetPosts() {
             let sourceToTargetPosts = [];
 
             for (const [parentId, children] of Object.entries(this.postToChildPosts)) {
@@ -135,19 +72,6 @@ export default {
             return sourceToTargetPosts;
         },
     },
-    created() {
-        let sourceToTargetPosts = [];
-
-        for (const [parentId, children] of Object.entries(this.postToChildPosts)) {
-            for (const childId of children) {
-                sourceToTargetPosts.push({
-                    source: parentId,
-                    target: childId,
-                });
-            }
-        }
-        this.sourceToTargetPosts = sourceToTargetPosts;
-    },
     mounted() {
         this.makeGraphSvg();
     },
@@ -156,42 +80,35 @@ export default {
             this.svg = d3.select("#graphSvg");
             this.rootG = d3.select("#graphSvg g");
             
-            let nodes = [
-                {"id": 0, "name":"node1"},
-                {"id": 1, "name":"node2"},
-                {"id": 2, "name":"node3"},
-                {"id": 3, "name":"node4"}
-            ];
-            let links = [
-                {"source":2,"target":1,"weight":1},
-                {"source":0,"target":2,"weight":3}
-            ];
+            let nodes = //JSON.parse(JSON.stringify(
+                Object.values(this.posts)
+            //));
+            let links = //JSON.parse(JSON.stringify(
+                this.sourceToTargetPosts
+            //));
             
             const simulation = d3.forceSimulation(nodes)
-              .force("link", d3.forceLink(links).id(d => d.id))
-              .force("charge", d3.forceManyBody())
-              .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2));
-              //.force("x", d3.forceX())
-              //.force("y", d3.forceY());
-
+                .force("link", d3.forceLink(links).id(d => d.id))
+                .force("charge", d3.forceManyBody())
+                .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2));
+              
             const link = d3.select(".graph__links")
-            .append("g")
-              .attr("stroke", "#999")
-              .attr("stroke-opacity", 0.6)
-            .selectAll("line")
-            .data(links)
-            .join("line")
-              .attr("stroke-width", d => Math.sqrt(d.value));
+                .append("g")
+                    .attr("stroke", "#999")
+                    .attr("stroke-opacity", 0.6)
+                .selectAll("line")
+                .data(links)
+                .join("line");
 
             const node = d3.select(".graph__nodes")
-              .attr("stroke", "#fff")
-              .attr("stroke-width", 1.5)
+                .attr("stroke", "#fff")
+                .attr("stroke-width", 1.5)
             .selectAll("circle")
             .data(nodes)
             .join("circle")
-              .attr("r", 5)
-              .attr("fill", "#ccc");
-              //.call(drag(simulation));
+                .attr("r", 5)
+                .attr("fill", "#ccc");
+                //.call(drag(simulation));
 
         
             node.append("title")
@@ -210,68 +127,6 @@ export default {
             });
 
             this.setupZooming();
-        },
-        onTick() {
-            let sourceToTargetPosts = [];
-
-            for (const [parentId, children] of Object.entries(this.postToChildPosts)) {
-                for (const childId of children) {
-                    sourceToTargetPosts.push({
-                        source: parentId,
-                        target: childId,
-                    });
-                }
-            }
-            
-            let localPosts = JSON.parse(JSON.stringify(this.posts));
-            this.updateNodes(localPosts);
-            this.updateLinks(sourceToTargetPosts);
-        },
-        updateNodes(localPosts) {
-            let u = d3.select('.graph__nodes')
-                .selectAll('text')
-                .data(localPosts);
-
-            u.enter()
-                .append('text')
-                .text(function(d) {
-                    return d.title;
-                })
-                .merge(u)
-                .attr('x', function(d) {
-                    return d.x;
-                })
-                .attr('y', function(d) {
-                    return d.y;
-                })
-                .attr('dy', function(d) {
-                    return 5;
-                });
-
-            u.exit().remove();
-        },
-        updateLinks(sourceToTargetPosts) {
-            let u = d3.select('.graph__links')
-                .selectAll('line')
-                .data(sourceToTargetPosts);
-
-            u.enter()
-                .append('line')
-                .merge(u)
-                .attr('x1', function(d) {
-                    return d.source.x;
-                })
-                .attr('y1', function(d) {
-                    return d.source.y;
-                })
-                .attr('x2', function(d) {
-                    return d.target.x;
-                })
-                .attr('y2', function(d) {
-                    return d.target.y;
-                });
-
-            u.exit().remove();
         },
 
         setupZooming() {

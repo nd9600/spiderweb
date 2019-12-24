@@ -3,6 +3,7 @@ import moment from "moment";
 const state = {
     posts: {
         1: {
+            "id": 1,
             "user_id": 1,
             "title": "Foo",
             "body": "Foo body",
@@ -10,6 +11,7 @@ const state = {
             "updated_at": moment().format(),
         },
         2: {
+            "id": 2,
             "user_id": 1,
             "title": "Bar",
             "body": "Bar body",
@@ -17,6 +19,7 @@ const state = {
             "updated_at": moment().format(),
         },
         3: {
+            "id": 3,
             "user_id": 1,
             "title": "Baz",
             "body": "Baz body",
@@ -24,6 +27,7 @@ const state = {
             "updated_at": moment().format(),
         },
         4: {
+            "id": 4,
             "user_id": 1,
             "title": "Foobar",
             "body": "Foobar body",
@@ -31,6 +35,7 @@ const state = {
             "updated_at": moment().format(),
         },
         5: {
+            "id": 5,
             "user_id": 1,
             "title": "Foobaz",
             "body": "Foobaz body",
@@ -38,6 +43,7 @@ const state = {
             "updated_at": moment().format(),
         },
         6: {
+            "id": 6,
             "user_id": 1,
             "title": "Foobarbaz",
             "body": "Foobarbaz body",
@@ -45,6 +51,7 @@ const state = {
             "updated_at": moment().format(),
         },
         7: {
+            "id": 7,
             "user_id": 1,
             "title": "Barbaz",
             "body": "Barbaz body",
