@@ -156,6 +156,62 @@ export default {
             this.svg = d3.select("#graphSvg");
             this.rootG = d3.select("#graphSvg g");
             
+            let nodes = [
+                {"id": 0, "name":"node1"},
+                {"id": 1, "name":"node2"},
+                {"id": 2, "name":"node3"},
+                {"id": 3, "name":"node4"}
+            ];
+            let links = [
+                {"source":2,"target":1,"weight":1},
+                {"source":0,"target":2,"weight":3}
+            ];
+            
+            const simulation = d3.forceSimulation(nodes)
+              .force("link", d3.forceLink(links).id(d => d.id))
+              .force("charge", d3.forceManyBody())
+              .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2));
+              //.force("x", d3.forceX())
+              //.force("y", d3.forceY());
+
+            const link = d3.select(".graph__links")
+            .append("g")
+              .attr("stroke", "#999")
+              .attr("stroke-opacity", 0.6)
+            .selectAll("line")
+            .data(links)
+            .join("line")
+              .attr("stroke-width", d => Math.sqrt(d.value));
+
+            const node = d3.select(".graph__nodes")
+              .attr("stroke", "#fff")
+              .attr("stroke-width", 1.5)
+            .selectAll("circle")
+            .data(nodes)
+            .join("circle")
+              .attr("r", 5)
+              .attr("fill", "#ccc");
+              //.call(drag(simulation));
+
+        
+            node.append("title")
+                .text(d => d.id);
+
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node
+                    .attr("cx", d => d.x)
+                    .attr("cy", d => d.y);
+            });
+
+            this.setupZooming();
+        },
+        onTick() {
             let sourceToTargetPosts = [];
 
             for (const [parentId, children] of Object.entries(this.postToChildPosts)) {
@@ -166,51 +222,15 @@ export default {
                     });
                 }
             }
-
-            const simulation = d3.forceSimulation(this.posts)
-                .force('charge', d3.forceManyBody().strength(-100))
-                .force('center', d3.forceCenter(WIDTH / 2, HEIGHT / 2))
-                .force("link", d3.forceLink().links(sourceToTargetPosts));
-                //.on("tick", this.onTick);
             
-            console.log(
-                this.posts,
-                this.sourceToTargetPosts
-            );
-
-            /**
-             * The data in a hierarchical format that can be laid out with d3.tree()
-             * @type {HierarchyNode<any>}
-             */
-            // const root = d3.stratify()
-            //     .id((d) => d.childId)
-            //     .parentId((d) => d.parentId)(this.sourceToTargetPosts);
-
-            // /**
-            //  * Gives `root` x and y's that can be use to show it in an SVG
-            //  * @type {TreeLayout<any>}
-            //  */
-            // const treeLayout = d3.tree();
-            // treeLayout.size([400, 200]);
-            // treeLayout(root);
-
-
-            this.setupZooming();
-
-            // // Nodes
-            // this.addNodesToSVG(root);
-
-            // // Links
-            // this.addLinksToSVG(root);
+            let localPosts = JSON.parse(JSON.stringify(this.posts));
+            this.updateNodes(localPosts);
+            this.updateLinks(sourceToTargetPosts);
         },
-        onTick() {
-            this.updateNodes();
-            this.updateLinks();
-        },
-        updateNodes() {
+        updateNodes(localPosts) {
             let u = d3.select('.graph__nodes')
                 .selectAll('text')
-                .data(this.posts);
+                .data(localPosts);
 
             u.enter()
                 .append('text')
@@ -230,10 +250,10 @@ export default {
 
             u.exit().remove();
         },
-        updateLinks() {
+        updateLinks(sourceToTargetPosts) {
             let u = d3.select('.graph__links')
                 .selectAll('line')
-                .data(this.sourceToTargetPosts);
+                .data(sourceToTargetPosts);
 
             u.enter()
                 .append('line')

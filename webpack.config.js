@@ -85,9 +85,10 @@ module.exports = {
         })
     ],
 
-    devtool: mode === "production"
-        ? "source-map" // "false"
-        : "eval-source-map",
+    devtool: false,
+    //devtool: mode === "production"
+    //    ? "source-map" // "false"
+    //    : "eval-source-map",
 
     output: {
         filename: mode === "production"
