@@ -59,30 +59,83 @@ const state = {
             "updated_at": moment().format(),
         }
     },
-    rootPostIds: [
-        1,
-    ],
-    postToChildPosts: {
-        1: [2, 3],
-        2: [4],
-        3: [5],
-        5: [6],
-        6: [7],
+    
+    graphs: {
+        "default": {
+            nodes: [1, 2, 3, 4, 5, 6, 7],
+            links: [
+                {
+                    source: 1,
+                    target: 2
+                },
+                {
+                    source: 1,
+                    target: 3
+                },
+                {
+                    source: 2,
+                    target: 4
+                },
+                {
+                    source: 3,
+                    target: 5
+                },
+                {
+                    source: 5,
+                    target: 6
+                },
+                {
+                    source: 6,
+                    target: 7
+                }
+            ]
+        },
+        "index": {
+            nodes: [1, 2, 3, 4, 7],
+            links: [
+                {
+                    source: 1,
+                    target: 2
+                },
+                {
+                    source: 1,
+                    target: 3
+                },
+                {
+                    source: 1,
+                    target: 7
+                }
+            ]
+        }
     },
 
-    selectedPostId: null
+    selectedPostId: null,
+    selectedGraphName: "default"
 };
 
 const getters = {
     newPostId(state, getters, rootState) {
         const highestPostId = Math.max(Object.keys(state.posts));
         return highestPostId + 1;
-    }
+    },
+    graphNames(state) {
+        return Object.keys(state.graphs);
+    },
+    
+    postsInSelectedGraph(state) {
+        return state.graphs[state.selectedGraphName].nodes.map(id => state.posts[id]);
+    },
+    linksInSelectedGraph(state) {
+        return state.graphs[state.selectedGraphName].links;
+    },
 };
 
 const mutations = {
     setSelectedPostId(state, selectedPostId) {
         state.selectedPostId = selectedPostId;
+    },
+    setSelectedGraphName(state, selectedGraphName) {
+        state.selectedGraphName = selectedGraphName;
     },
 
     makeNewPost(state, newPost) {

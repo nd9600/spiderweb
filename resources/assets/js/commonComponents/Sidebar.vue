@@ -16,39 +16,30 @@
         </div>
         <div>
             <template v-if="currentTab === 'posts'">
-                <post
-                    v-if="selectedPostId !== null"
-                    :post="posts[selectedPostId]"
-                >
-                </post>
+                <post-sidebar/>
             </template>
             <template v-if="currentTab === 'makePosts'">
-                <post-maker></post-maker>
+                <post-maker/>
             </template>
         </div>
     </section>
 </template>
 
 <script>
-import Post from "@/js/commonComponents/Post";
+import PostSidebar from "@/js/commonComponents/PostSidebar";
 import PostMaker from "@/js/commonComponents/PostMaker";
-
-import { mapState } from "vuex";
 
 export default {
     name: "Sidebar",
     components: {
-        Post,
+        PostSidebar,
         PostMaker
     },
     data() {
         return {
-            currentTab: "makePosts", // | posts | makePosts
+            currentTab: "posts", // | posts | makePosts
         };
     },
-    computed: {
-        ...mapState("postsModule", ["posts", "selectedPostId"])
-    }
 };
 </script>
 

@@ -19,7 +19,7 @@ import moment from "moment";
 
 import Sidebar from "@/js/commonComponents/Sidebar";
 
-import {mapState} from "vuex";
+import { mapState, mapGetters } from "vuex";
 
 const WIDTH = 400;
 const HEIGHT = 200;
@@ -36,41 +36,28 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["rootPostIds", "postToChildPosts", "posts"]),
+        ...mapState("postsModule", ["selectedGraphName"]),
+        ...mapGetters("postsModule", ["postsInSelectedGraph", "linksInSelectedGraph"]),
+        
         selectedPostId: {
             get() {
-                return this.$store.postsModule.selectedPostId;
+                return this.$store.state.postsModule.selectedPostId;
             },
             set(selectedPostId) {
                 this.$store.commit("postsModule/setSelectedPostId", selectedPostId);
             }
         },
-
-        /**
-         *
-         * @returns {Array}
-         * ```
-         *  [
-         *      {
-         *          childId: 2,
-         *          parentId: 1
-         *      }
-         *  ]
-         *  ```
-         */
-        sourceToTargetPosts() {
-            let sourceToTargetPosts = [];
-
-            for (const [parentId, children] of Object.entries(this.postToChildPosts)) {
-                for (const childId of children) {
-                    sourceToTargetPosts.push({
-                        source: parentId,
-                        target: childId,
-                    });
-                }
-            }
-            return sourceToTargetPosts;
+        
+        nodes() {
+            return JSON.parse(JSON.stringify(
+                Object.values(this.postsInSelectedGraph)
+            ));
         },
+        links() {
+            return JSON.parse(JSON.stringify(
+                this.linksInSelectedGraph
+            ));
+        }
     },
     mounted() {
         this.makeGraphSvg();
@@ -80,15 +67,12 @@ export default {
             this.svg = d3.select("#graphSvg");
             this.rootG = d3.select("#graphSvg g");
             
-            let nodes = //JSON.parse(JSON.stringify(
-                Object.values(this.posts)
-            //));
-            let links = //JSON.parse(JSON.stringify(
-                this.sourceToTargetPosts
-            //));
+            // remove existin nodes and links
+            d3.select(".graph__nodes").html("");
+            d3.select(".graph__links").html("");
             
-            const simulation = d3.forceSimulation(nodes)
-                .force("link", d3.forceLink(links).id(d => d.id))
+            const simulation = d3.forceSimulation(this.nodes)
+                .force("link", d3.forceLink(this.links).id(d => d.id))
                 .force("charge", d3.forceManyBody())
                 .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2));
               
@@ -97,14 +81,14 @@ export default {
                     .attr("stroke", "#999")
                     .attr("stroke-opacity", 0.6)
                 .selectAll("line")
-                .data(links)
+                .data(this.links)
                 .join("line");
 
             const node = d3.select(".graph__nodes")
                 .attr("stroke", "#fff")
                 .attr("stroke-width", 1.5)
             .selectAll("circle")
-            .data(nodes)
+            .data(this.nodes)
             .join("circle")
                 .attr("r", 5)
                 .attr("fill", "#ccc");
@@ -192,6 +176,11 @@ export default {
                 .attr("y2", function (d) {
                     return d.target.y;
                 });
+        }
+    },
+    watch: {
+        selectedGraphName() {
+            this.makeGraphSvg();
         }
     }
 };
