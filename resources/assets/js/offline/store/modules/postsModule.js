@@ -59,53 +59,81 @@ const state = {
             "updated_at": moment().format(),
         }
     },
+    links: [
+        {
+            id: 1,
+            source: 1,
+            target: 2,
+            type: "reply",
+            graph: "default"
+        },
+        {
+            id: 2,
+            source: 1,
+            target: 3,
+            type: "reply",
+            graph: "default"
+        },
+        {
+            id: 3,
+            source: 2,
+            target: 4,
+            type: "reply",
+            graph: "default"
+        },
+        {
+            id: 4,
+            source: 3,
+            target: 5,
+            type: "reply",
+            graph: "default"
+        },
+        {
+            id: 5,
+            source: 5,
+            target: 6,
+            type: "reply",
+            graph: "default"
+        },
+        {
+            id: 6,
+            source: 6,
+            target: 7,
+            type: "reply",
+            graph: "default"
+        },
+
+        {
+            id: 7,
+            source: 1,
+            target: 2,
+            type: "reply",
+            graph: "index"
+        },
+        {
+            id: 8,
+            source: 1,
+            target: 3,
+            type: "reply",
+            graph: "index"
+        },
+        {
+            id: 9,
+            source: 1,
+            target: 7,
+            type: "reply",
+            graph: "index"
+        }
+    ],
     
     graphs: {
         "default": {
-            nodes: [1, 2, 3, 4, 5, 6, 7],
-            links: [
-                {
-                    source: 1,
-                    target: 2
-                },
-                {
-                    source: 1,
-                    target: 3
-                },
-                {
-                    source: 2,
-                    target: 4
-                },
-                {
-                    source: 3,
-                    target: 5
-                },
-                {
-                    source: 5,
-                    target: 6
-                },
-                {
-                    source: 6,
-                    target: 7
-                }
-            ]
+            name: "default",
+            nodes: [1, 2, 3, 4, 5, 6, 7]
         },
         "index": {
+            name: "index",
             nodes: [1, 2, 3, 4, 7],
-            links: [
-                {
-                    source: 1,
-                    target: 2
-                },
-                {
-                    source: 1,
-                    target: 3
-                },
-                {
-                    source: 1,
-                    target: 7
-                }
-            ]
         }
     },
 
@@ -126,7 +154,8 @@ const getters = {
         return state.graphs[state.selectedGraphName].nodes.map(id => state.posts[id]);
     },
     linksInSelectedGraph(state) {
-        return state.graphs[state.selectedGraphName].links;
+        return state.links
+            .filter(link => link.graph === state.selectedGraphName);
     },
 };
 
