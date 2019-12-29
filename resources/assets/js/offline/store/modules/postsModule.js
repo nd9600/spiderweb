@@ -138,7 +138,7 @@ const state = {
     },
 
     selectedPostId: null,
-    selectedGraphName: "default"
+    selectedGraphNames: ["default"]
 };
 
 const getters = {
@@ -151,11 +151,16 @@ const getters = {
     },
     
     postsInSelectedGraph(state) {
-        return state.graphs[state.selectedGraphName].nodes.map(id => state.posts[id]);
+        let nodes = [];
+        for (let selectedGraphName of state.selectedGraphNames) {
+            nodes = nodes.concat(state.graphs[selectedGraphName].nodes);
+        }
+        const uniqueNodes = [...new Set(nodes)];
+        return uniqueNodes.map(id => state.posts[id]);
     },
     linksInSelectedGraph(state) {
         return state.links
-            .filter(link => link.graph === state.selectedGraphName);
+            .filter(link => state.selectedGraphNames.includes(link.graph));
     },
 };
 
@@ -163,8 +168,8 @@ const mutations = {
     setSelectedPostId(state, selectedPostId) {
         state.selectedPostId = selectedPostId;
     },
-    setSelectedGraphName(state, selectedGraphName) {
-        state.selectedGraphName = selectedGraphName;
+    setSelectedGraphNames(state, selectedGraphNames) {
+        state.selectedGraphNames = selectedGraphNames;
     },
 
     makeNewPost(state, newPost) {

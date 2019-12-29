@@ -36,7 +36,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["selectedGraphName"]),
+        ...mapState("postsModule", ["selectedGraphNames"]),
         ...mapGetters("postsModule", ["postsInSelectedGraph", "linksInSelectedGraph"]),
         
         selectedPostId: {
@@ -179,7 +179,7 @@ export default {
         }
     },
     watch: {
-        selectedGraphName() {
+        selectedGraphNames() {
             this.makeGraphSvg();
         }
     }

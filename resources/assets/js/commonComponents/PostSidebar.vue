@@ -1,13 +1,13 @@
 <template>
     <div class="flex flex-col">
-    
-        <section v-if="graphNames.length > 1"
+        <section v-if="graphNames.length > 1">
             <h2 class="h h--2">
                 Graphs
             </h2>
             <select
-                v-model="selectedGraphName"
+                v-model="selectedGraphNames"
                 class="mt-2 p-2 rounded text-gray-700"
+                multiple
             >
                 <option
                     v-for="graphName in graphNames"
@@ -35,21 +35,21 @@ import { mapState, mapGetters } from "vuex";
 
 export default {
     name: "PostSidebar",
+    components: {
+        Post
+    },
     computed: {
         ...mapState("postsModule", ["posts", "selectedPostId"]),
         ...mapGetters("postsModule", ["graphNames"]),
         
-        selectedGraphName: {
+        selectedGraphNames: {
             get() {
-                return this.$store.state.postsModule.selectedGraphName;
+                return this.$store.state.postsModule.selectedGraphNames;
             },
-            set(selectedGraphName) {
-                this.$store.commit("postsModule/setSelectedGraphName", selectedGraphName);
+            set(selectedGraphNames) {
+                this.$store.commit("postsModule/setSelectedGraphNames", selectedGraphNames);
             }
         },
-    },
-    components: {
-        Post
     }
 }
 </script>
