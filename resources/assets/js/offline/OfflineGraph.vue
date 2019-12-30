@@ -92,21 +92,50 @@ export default {
                 .selectAll("line")
                 .data(this.links, link => link.id)
                 .join("line")
+                .classed("graph__link", true)
                 .attr("title", link => link.id);
 
-            const node = this.nodesG
-                .selectAll("circle")
-                .data(this.nodes, post => post.id)
-                .join("circle")
+            let nodeGroups = this.nodesG
+                .selectAll("g")
+                .data(this.nodes, post => post.id);
+
+            // remove nodes for old posts
+            nodeGroups.exit().remove();
+
+            // add nodes for new posts
+            const newNodeGroups = nodeGroups.enter();
+            const newNodeGroup = newNodeGroups.append("g")
+                .classed("node", true);
+            newNodeGroup.append("circle");
+            newNodeGroup.append("text");
+
+            // merge the previously-existing and newly-made selections together
+            nodeGroups = newNodeGroups.merge(nodeGroups);
+            nodeGroups
+                .selectAll("g")
+                .attr("dataset-id", post => post.id);
+
+            const node = nodeGroups.selectAll("circle")
+                .classed("node__circle", true)
                 .attr("r", 5)
                 .attr("title", post => post.title)
                 .attr("fill", "#ccc");
                 //.call(drag(simulation));
 
-            node.append("title")
-                .text(post => post.id);
+            const text = nodeGroups.selectAll("text")
+                .classed("node__text", true)
+                .attr("text-anchor", "end")
+                .attr("stroke", "#333333")
+                .text(post => post.title);
 
+            d3.selectAll(".node *")
+                .on("click", (post) => {
+                    this.selectedPostId = post.id;
+                });
+
+            // set x and y co-ordinates of the links, and nodes
             simulation.on("tick", () => {
+                console.log("tick");
                 link
                     .attr("x1", d => d.source.x)
                     .attr("y1", d => d.source.y)
@@ -116,6 +145,10 @@ export default {
                 node
                     .attr("cx", d => d.x)
                     .attr("cy", d => d.y);
+
+                text
+                    .attr("x", d => d.x - 20)
+                    .attr("y", d => d.y + 5);
             });
 
             this.setupZooming();
@@ -134,76 +167,30 @@ export default {
                 .on("wheel", () => {
                     d3.event.preventDefault();
                 });
-        },
-
-        addNodesToSVG(root) {
-            const nodesGs = d3.select("#treeSvg g.tree__nodes")
-                .selectAll("node__circle")
-                .data(root.descendants(), (d) => d.data.childId) // key function
-                .enter()
-                .append("g")
-                .classed("node", true);
-
-            nodesGs.append("circle")
-                .classed("node__circle", true)
-                .attr("cx", (d) => d.x)
-                .attr("cy", (d) => d.y)
-                .attr("r", 4);
-
-            nodesGs.append("text")
-                .classed("node__text", true)
-                .attr("fill", "black")
-                .attr("x", (d) => d.x - 10)
-                .attr("y", (d) => d.y + 5)
-                .attr("text-anchor", "end")
-                .attr("stroke", "black")
-                .text(d => this.posts[d.data.childId].title);
-
-            d3.selectAll(".node *")
-                .classed("cursor-pointer", true)
-                .on("click", (event) => {
-                    this.selectedPostId = event.data.childId;
-                });
-        },
-        addLinksToSVG(root) {
-            d3.select("#treeSvg g.tree__links")
-                .selectAll("line.tree__link")
-                .data(root.links())
-                .enter()
-                .append("line")
-                .classed("tree__link", true)
-                .attr("x1", function (d) {
-                    return d.source.x;
-                })
-                .attr("y1", function (d) {
-                    return d.source.y;
-                })
-                .attr("x2", function (d) {
-                    return d.target.x;
-                })
-                .attr("y2", function (d) {
-                    return d.target.y;
-                });
         }
     }
 };
 </script>
 
 <style>
+    .graph__link {
+        fill: none;
+        stroke: #8a8a8a;
+        stroke-width: 3px;
+    }
+
     .node__circle {
         fill: steelblue;
         stroke: none;
+        cursor: pointer;
     }
 
-    .tree__link {
-        fill: none;
-        stroke: #ccc;
-        stroke-width: 1px;
-    }
-
-    text {
-        fill: black; /* <== Set the fill */
+    .node__text {
+        cursor: pointer;
         text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
-        cursor: move;
+        fill: #333333;
+
+        font-size: 12px;
+        font-weight: normal;
     }
 </style>
