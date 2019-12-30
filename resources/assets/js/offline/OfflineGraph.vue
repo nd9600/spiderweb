@@ -33,6 +33,9 @@ export default {
         return {
             svg: null,
             rootG: null,
+
+            linksG: null,
+            nodesG: null,
         };
     },
     computed: {
@@ -59,44 +62,49 @@ export default {
             ));
         }
     },
+    watch: {
+        selectedGraphNames() {
+            this.makeGraphSvg();
+        }
+    },
     mounted() {
+        this.svg = d3.select("#graphSvg");
+        this.rootG = d3.select("#graphSvg g");
+
+        this.linksG = d3.select(".graph__links")
+            .attr("stroke", "#999")
+            .attr("stroke-opacity", 0.6);
+
+        this.nodesG = d3.select(".graph__nodes")
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 1.5);
+
         this.makeGraphSvg();
     },
     methods: {
         makeGraphSvg() {
-            this.svg = d3.select("#graphSvg");
-            this.rootG = d3.select("#graphSvg g");
-            
-            // remove existin nodes and links
-            d3.select(".graph__nodes").html("");
-            d3.select(".graph__links").html("");
-            
             const simulation = d3.forceSimulation(this.nodes)
                 .force("link", d3.forceLink(this.links).id(d => d.id))
                 .force("charge", d3.forceManyBody())
                 .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2));
               
-            const link = d3.select(".graph__links")
-                .append("g")
-                    .attr("stroke", "#999")
-                    .attr("stroke-opacity", 0.6)
+            const link = this.linksG
                 .selectAll("line")
-                .data(this.links)
-                .join("line");
+                .data(this.links, link => link.id)
+                .join("line")
+                .attr("title", link => link.id);
 
-            const node = d3.select(".graph__nodes")
-                .attr("stroke", "#fff")
-                .attr("stroke-width", 1.5)
-            .selectAll("circle")
-            .data(this.nodes)
-            .join("circle")
+            const node = this.nodesG
+                .selectAll("circle")
+                .data(this.nodes, post => post.id)
+                .join("circle")
                 .attr("r", 5)
+                .attr("title", post => post.title)
                 .attr("fill", "#ccc");
                 //.call(drag(simulation));
 
-        
             node.append("title")
-                .text(d => d.id);
+                .text(post => post.id);
 
             simulation.on("tick", () => {
                 link
@@ -176,11 +184,6 @@ export default {
                 .attr("y2", function (d) {
                     return d.target.y;
                 });
-        }
-    },
-    watch: {
-        selectedGraphNames() {
-            this.makeGraphSvg();
         }
     }
 };
