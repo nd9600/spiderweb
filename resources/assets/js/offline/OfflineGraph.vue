@@ -108,25 +108,29 @@ export default {
                 .classed("node", true);
             newNodeGroup.append("circle");
             newNodeGroup.append("text");
-
+            
             // merge the previously-existing and newly-made selections together
-            nodeGroups = newNodeGroups.merge(nodeGroups);
+            nodeGroups = nodeGroups.merge(newNodeGroups);
             nodeGroups
                 .selectAll("g")
                 .attr("dataset-id", post => post.id);
 
-            const node = nodeGroups.selectAll("circle")
+            nodeGroups.selectAll("circle")
                 .classed("node__circle", true)
                 .attr("r", 5)
                 .attr("title", post => post.title)
                 .attr("fill", "#ccc");
                 //.call(drag(simulation));
-
-            const text = nodeGroups.selectAll("text")
+                
+            const node = d3.selectAll(".node").select("circle");
+                
+            nodeGroups.selectAll("text")
                 .classed("node__text", true)
                 .attr("text-anchor", "end")
                 .attr("stroke", "#333333")
                 .text(post => post.title);
+                
+            const text = d3.selectAll(".node").select("text");
 
             d3.selectAll(".node *")
                 .on("click", (post) => {
@@ -147,8 +151,8 @@ export default {
                     .attr("cy", d => d.y);
 
                 text
-                    .attr("x", d => d.x - 20)
-                    .attr("y", d => d.y + 5);
+                    .attr("x", d => d.x - 3)
+                    .attr("y", d => d.y - 3);
             });
 
             this.setupZooming();
@@ -192,5 +196,6 @@ export default {
 
         font-size: 12px;
         font-weight: normal;
+        stroke-width: 0;
     }
 </style>
