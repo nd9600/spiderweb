@@ -19,7 +19,7 @@ import moment from "moment";
 
 import Sidebar from "@/js/commonComponents/Sidebar";
 
-import { mapState, mapGetters } from "vuex";
+import { mapState, mapGetters, mapActions } from "vuex";
 
 const WIDTH = 400;
 const HEIGHT = 200;
@@ -68,6 +68,8 @@ export default {
         }
     },
     mounted() {
+        this.loadState();
+        
         this.svg = d3.select("#graphSvg");
         this.rootG = d3.select("#graphSvg g");
 
@@ -82,6 +84,8 @@ export default {
         this.makeGraphSvg();
     },
     methods: {
+        ...mapActions(["loadState"]),
+            
         makeGraphSvg() {
             // setup force simulation
             const simulation = d3.forceSimulation(this.nodes)
@@ -137,7 +141,6 @@ export default {
 
             // set x and y co-ordinates of the links, and nodes
             simulation.on("tick", () => {
-                console.log("tick");
                 link
                     .attr("x1", d => d.source.x)
                     .attr("y1", d => d.source.y)
