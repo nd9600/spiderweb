@@ -83,11 +83,13 @@ export default {
     },
     methods: {
         makeGraphSvg() {
+            // setup force simulation
             const simulation = d3.forceSimulation(this.nodes)
                 .force("link", d3.forceLink(this.links).id(d => d.id))
                 .force("charge", d3.forceManyBody())
                 .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2));
               
+            // add links
             const link = this.linksG
                 .selectAll("line")
                 .data(this.links, link => link.id)
@@ -115,23 +117,19 @@ export default {
                 .selectAll("g")
                 .attr("dataset-id", post => post.id);
 
-            nodeGroups.selectAll("circle")
+            const node = d3.selectAll(".node").select("circle")
                 .classed("node__circle", true)
                 .attr("r", 5)
                 .attr("title", post => post.title)
                 .attr("fill", "#ccc");
                 //.call(drag(simulation));
                 
-            const node = d3.selectAll(".node").select("circle");
-                
-            nodeGroups.selectAll("text")
+            const text = d3.selectAll(".node").select("text")
                 .classed("node__text", true)
                 .attr("text-anchor", "end")
                 .attr("stroke", "#333333")
                 .text(post => post.title);
                 
-            const text = d3.selectAll(".node").select("text");
-
             d3.selectAll(".node *")
                 .on("click", (post) => {
                     this.selectedPostId = post.id;
