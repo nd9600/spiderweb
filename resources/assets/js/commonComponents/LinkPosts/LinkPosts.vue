@@ -20,19 +20,25 @@
                 :post="post"
             />
         </section>
+        <section>
+            <linker/>
+        </section>
     </div>
 </template>
 
 <script>
-import {mapGetters } from "vuex";
+import {mapState, mapGetters } from "vuex";
 import PostLinker from "./PostLinker";
+import Linker from "./Linker";
 
 export default {
     name: "LinkPosts",
     components: {
-        PostLinker
+        PostLinker,
+        Linker
     },
     computed: {
+        ...mapState("postsModule", ["posts"]),
         ...mapGetters("postsModule", ["unlinkedPosts"])
     }
 };

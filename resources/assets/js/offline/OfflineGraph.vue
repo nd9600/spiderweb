@@ -1,5 +1,5 @@
 <template>
-    <div class="h-screen flex flex-row">
+    <div class="h-full flex flex-row">
         <svg
             id="graphSvg"
             class="h-full w-2/3 cursor-move border"

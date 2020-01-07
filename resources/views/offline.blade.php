@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section("appContent")
-<div class="h-full ml-5">
+<div class="min-h-full h-full ml-5">
     <h1 class="h h--1">
         Spiderweb
     </h1>

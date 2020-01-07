@@ -7,8 +7,8 @@
             Link in graph
             <label>
                 <select
-                    v-model="graphToLinkIn"
-                    class="mt-2 p-2 rounded text-gray-700"
+                    v-model="graph"
+                    class="p-2 rounded text-gray-700"
                 >
                     <option
                         v-for="graphName in graphNames"
@@ -23,10 +23,10 @@
             <label>
                 <select
                     v-model="target"
-                    class="mt-2 p-2 rounded text-gray-700"
+                    class="p-2 rounded text-gray-700"
                 >
                     <option
-                        v-for="postId in postIds"
+                        v-for="postId in possibleTargets"
                         :key="postId"
                         :value="postId"
                     >
@@ -37,6 +37,7 @@
 
             <template>
                 <label>
+                    <br>
                     <button
                         class="text-left underline"
                         @click.prevent="showTypeSelect = !showTypeSelect"
@@ -46,7 +47,7 @@
                     <select
                         v-if="showTypeSelect"
                         v-model="linkType"
-                        class="mt-2 p-2 rounded text-gray-700"
+                        class="p-2 rounded text-gray-700"
                     >
                         <option value="reply">
                             reply
@@ -63,12 +64,16 @@
         </p>
 
         <button
-            class="btn btn--primary"
-            :disabled="graphToLinkIn.length === 0 || target === null"
+            class="mt-2 btn btn--primary"
+            :disabled="graph.length === 0 || target === null"
             @click="linkPostLocal"
         >
             Link
         </button>
+
+        <div class="flex justify-center">
+            <hr class="my-4 w-2/3">
+        </div>
     </div>
 </template>
 
@@ -85,7 +90,7 @@ export default {
     },
     data() {
         return {
-            graphToLinkIn: "default",
+            graph: "default",
             target: null,
             linkType: "reply",
 
@@ -93,8 +98,18 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["posts"]),
-        ...mapGetters("postsModule", ["postIds", "graphNames"])
+        ...mapState("postsModule", ["posts", "selectedGraphNames"]),
+        ...mapGetters("postsModule", ["postIds", "graphNames"]),
+
+        possibleTargets() {
+            return this.postIds.filter(id => id !== this.post.id);
+        }
+    },
+    created() {
+        const initialGraphName = this.selectedGraphNames.length === 1
+            ? this.selectedGraphNames[0]
+            : "default";
+        this.graph = initialGraphName;
     },
     methods: {
         ...mapMutations("postsModule", ["addLink"]),
@@ -110,7 +125,7 @@ export default {
             this.addLink({
                 source: this.post.id,
                 target: this.target,
-                graph: this.graphToLinkIn,
+                graph: this.graph,
                 type: this.linkType
             });
         }
