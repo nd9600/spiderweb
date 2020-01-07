@@ -20,25 +20,53 @@
                 :post="post"
             />
         </section>
+
         <section>
             <linker/>
+        </section>
+
+        <section v-if="links.length > 0">
+            <h2 class="h h--2">
+                Links
+            </h2>
+
+            <table class="w-full text-sm">
+                <thead>
+                    <tr>
+                        <td>Source</td>
+                        <td>Target</td>
+                        <td>Graph</td>
+                        <td>Type</td>
+                        <td>Remove</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <link-row
+                        v-for="link in links"
+                        :key="link.id"
+                        :link="link"
+                    />
+                </tbody>
+            </table>
         </section>
     </div>
 </template>
 
 <script>
-import {mapState, mapGetters } from "vuex";
+import { mapState, mapGetters } from "vuex";
 import PostLinker from "./PostLinker";
 import Linker from "./Linker";
+import LinkRow from "./LinkRow";
 
 export default {
     name: "LinkPosts",
     components: {
         PostLinker,
-        Linker
+        Linker,
+        LinkRow
     },
     computed: {
-        ...mapState("postsModule", ["posts"]),
+        ...mapState("postsModule", ["posts", "links"]),
         ...mapGetters("postsModule", ["unlinkedPosts"])
     }
 };

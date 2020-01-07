@@ -1,5 +1,8 @@
 <template>
     <div>
+        <h2 class="h h--2">
+            Add new link
+        </h2>
         <table class="w-full">
             <thead>
                 <tr>
@@ -99,6 +102,10 @@
         >
             Link
         </button>
+
+        <div class="flex justify-center">
+            <hr class="my-4 w-2/3">
+        </div>
     </div>
 </template>
 

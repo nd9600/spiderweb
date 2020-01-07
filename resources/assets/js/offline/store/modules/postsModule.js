@@ -1,3 +1,5 @@
+import Vue from "vue";
+
 function stringToColour(str) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -13,7 +15,7 @@ function stringToColour(str) {
 
 const state = {
     posts: {},
-    links: [],
+    links: {},
     
     graphs: {},
 
@@ -40,7 +42,7 @@ const getters = {
         return uniquePostIDs.map(id => state.posts[id]);
     },
     linksInSelectedGraphs(state) {
-        return state.links
+        return Object.values(state.links)
             .filter(link => state.selectedGraphNames.includes(link.graph));
     },
 
@@ -101,7 +103,7 @@ const mutations = {
         );
         const newLinkId = highestLinkId + 1;
 
-        const linkAlreadyExists = state.links
+        const linkAlreadyExists = Object.values(state.links)
             .filter(
                 link => {
                     return (
@@ -117,13 +119,20 @@ const mutations = {
             return;
         }
 
-        state.links.push({
+        // Vue.set(state.links, newLinkId, {
+        //     graph,
+        //     id: newLinkId,
+        //     source,
+        //     target,
+        //     type
+        // });
+        state.links[newLinkId] = {
             graph,
             id: newLinkId,
             source,
             target,
             type
-        });
+        };
 
         // add source and/or target posts to the graph, if they're not there already
         const postIdsAlreadyInGraph = state.graphs[graph].nodes;
@@ -133,6 +142,12 @@ const mutations = {
         if (!postIdsAlreadyInGraph.includes(target)) {
             state.graphs[graph].nodes.push(target);
         }
+    },
+    updateLink(state, link) {
+        Vue.set(state.links, link.id, link);
+    },
+    removeLink(state, {id}) {
+        Vue.delete(state.links, id);
     }
 };
 
