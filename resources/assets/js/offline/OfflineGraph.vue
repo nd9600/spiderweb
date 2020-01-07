@@ -97,7 +97,6 @@ export default {
             }
         ),
         makeGraphSvg() {
-            console.log("called", new Date());
             // setup force simulation
             const simulation = d3.forceSimulation(this.nodes)
                 .force("link", d3.forceLink(this.links).id(d => d.id))
@@ -143,7 +142,10 @@ export default {
                 .classed("node__text", true)
                 .attr("text-anchor", "end")
                 .attr("stroke", "#333333")
-                .text(post => post.title);
+                .text(post => post.title.length > 0
+                    ? post.title
+                    : post.body.substr(0, 20)
+                );
                 
             d3.selectAll(".node *")
                 .on("click", (post) => {

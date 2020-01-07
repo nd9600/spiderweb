@@ -10,7 +10,7 @@
             class="mb-5 flex flex-col"
         >
             <button
-                class="text-left hover:underline"
+                class="text-left underline"
                 @click.prevent="toggleTitleInput"
             >
                 Title

@@ -98,10 +98,6 @@ const mutations = {
     },
 
     addLink(state, {source, target, graph, type = "reply"}) {
-        console.log(
-            source, target, graph, type
-        );
-
         const highestLinkId = Math.max(
             ...Object.keys(state.links)
                 .map(id => parseInt(id, 10))

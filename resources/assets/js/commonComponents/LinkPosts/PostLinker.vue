@@ -22,7 +22,7 @@
             to post
             <label>
                 <select
-                    v-model="postIdToLinkTo"
+                    v-model="target"
                     class="mt-2 p-2 rounded text-gray-700"
                 >
                     <option
@@ -34,11 +34,37 @@
                     </option>
                 </select>
             </label>
+
+            <template>
+                <label>
+                    <button
+                        class="text-left underline"
+                        @click.prevent="showTypeSelect = !showTypeSelect"
+                    >
+                        with type
+                    </button>
+                    <select
+                        v-if="showTypeSelect"
+                        v-model="linkType"
+                        class="mt-2 p-2 rounded text-gray-700"
+                    >
+                        <option value="reply">
+                            reply
+                        </option>
+                        <option value="sidenote">
+                            sidenote
+                        </option>
+                        <option value="link">
+                            link
+                        </option>
+                    </select>
+                </label>
+            </template>
         </p>
 
         <button
             class="btn btn--primary"
-            :disabled="graphToLinkIn.length === 0 || postIdToLinkTo === null"
+            :disabled="graphToLinkIn.length === 0 || target === null"
             @click="linkPostLocal"
         >
             Link
@@ -60,7 +86,10 @@ export default {
     data() {
         return {
             graphToLinkIn: "default",
-            postIdToLinkTo: null,
+            target: null,
+            linkType: "reply",
+
+            showTypeSelect: false
         };
     },
     computed: {
@@ -80,8 +109,9 @@ export default {
         linkPostLocal() {
             this.addLink({
                 source: this.post.id,
-                target: this.postIdToLinkTo,
-                graph: this.graphToLinkIn
+                target: this.target,
+                graph: this.graphToLinkIn,
+                type: this.linkType
             });
         }
     }
