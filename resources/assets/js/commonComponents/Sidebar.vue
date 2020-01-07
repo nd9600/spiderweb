@@ -14,11 +14,11 @@
             <button
                 class="optionBtn flex-grow"
                 :class="{
-                    'optionBtn--selected': currentTab === 'makePosts'
+                    'optionBtn--selected': currentTab === 'editPosts'
                 }"
-                @click="currentTab = 'makePosts'"
+                @click="currentTab = 'editPosts'"
             >
-                Make posts
+                Edit posts
             </button>
 
             <button
@@ -53,7 +53,7 @@
 
 <script>
 import PostSidebar from "@/js/commonComponents/PostSidebar";
-import PostMaker from "@/js/commonComponents/PostMaker";
+import EditPosts from "@/js/commonComponents/EditPosts/EditPosts";
 import LinkPosts from "@/js/commonComponents/LinkPosts/LinkPosts";
 import LoadSave from "@/js/commonComponents/LoadSave";
 
@@ -61,13 +61,13 @@ export default {
     name: "Sidebar",
     components: {
         PostSidebar,
-        PostMaker,
+        EditPosts,
         LinkPosts,
         LoadSave
     },
     data() {
         return {
-            currentTab: "posts", // | posts | makePosts | linkPosts | loadSave
+            currentTab: "posts", // | posts | editPosts | linkPosts | loadSave
         };
     },
     computed: {
@@ -76,8 +76,8 @@ export default {
                 case "posts": {
                     return "post-sidebar";
                 }
-                case "makePosts": {
-                    return "post-maker";
+                case "editPosts": {
+                    return "edit-posts";
                 }
                 case "linkPosts": {
                     return "link-posts";

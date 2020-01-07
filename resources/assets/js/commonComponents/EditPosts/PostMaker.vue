@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-col">
         <h1 class="h h--1">
-            Make posts
+            Add post
         </h1>
 
         <hr class="mb-5">
