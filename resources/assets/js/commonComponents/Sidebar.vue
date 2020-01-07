@@ -42,21 +42,11 @@
             </button>
         </div>
         <div class="pt-2">
-            <template v-if="currentTab === 'posts'">
-                <post-sidebar />
-            </template>
-
-            <template v-if="currentTab === 'makePosts'">
-                <post-maker />
-            </template>
-
-            <template v-if="currentTab === 'linkPosts'">
-                <link-posts />
-            </template>
-
-            <template v-if="currentTab === 'loadSave'">
-                <load-save />
-            </template>
+            <keep-alive>
+                <component
+                    :is="currentComponent"
+                />
+            </keep-alive>
         </div>
     </section>
 </template>
@@ -80,6 +70,27 @@ export default {
             currentTab: "posts", // | posts | makePosts | linkPosts | loadSave
         };
     },
+    computed: {
+        currentComponent() {
+            switch (this.currentTab) {
+                case "posts": {
+                    return "post-sidebar";
+                }
+                case "makePosts": {
+                    return "post-maker";
+                }
+                case "linkPosts": {
+                    return "link-posts";
+                }
+                case "loadSave": {
+                    return "load-save";
+                }
+                default: {
+                    return "post-sidebar";
+                }
+            }
+        }
+    }
 };
 </script>
 

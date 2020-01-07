@@ -12,13 +12,10 @@ function stringToColour(str) {
 }
 
 const state = {
-    posts: {
-    },
-    links: [
-    ],
+    posts: {},
+    links: [],
     
-    graphs: {
-    },
+    graphs: {},
 
     selectedPostId: null,
     selectedGraphNames: []
@@ -103,6 +100,22 @@ const mutations = {
                 .map(id => parseInt(id, 10))
         );
         const newLinkId = highestLinkId + 1;
+
+        const linkAlreadyExists = state.links
+            .filter(
+                link => {
+                    return (
+                        link.graph === graph
+                        && link.source === source
+                        && link.target === target
+                        && link.type === type
+                    );
+                })
+            .length > 0;
+        if (linkAlreadyExists) {
+            alert("This link already exists");
+            return;
+        }
 
         state.links.push({
             graph,

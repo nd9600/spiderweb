@@ -6,7 +6,7 @@
 
         <hr class="mb-5">
 
-        <section>
+        <section v-if="unlinkedPosts.length > 0">
             <h2
                 class="h h--2"
                 title="posts that aren't in any graph yet"
