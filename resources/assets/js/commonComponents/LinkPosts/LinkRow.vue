@@ -125,7 +125,11 @@ export default {
 
         updateLinkLocal() {
             this.updateLink({
-                ...this.link,
+                id: this.link.id,
+                graph: this.graph,
+                source: this.source,
+                target: this.target,
+                type: this.type,
             });
         },
         removeLinkLocal() {

@@ -25,7 +25,7 @@
             <linker/>
         </section>
 
-        <section v-if="links.length > 0">
+        <section v-if="Object.keys(links).length > 0">
             <h2 class="h h--2">
                 Links
             </h2>
