@@ -1,7 +1,6 @@
 {
-  "assets/css/app.css": "assets/css/app-5854765b52.css",
+  "assets/css/app.css": "assets/css/app-2c032f7570.css",
   "assets/css/tailwind.min.css": "assets/css/tailwind-f2d43b4b82.min.css",
   "js/offline/graph.js": "js/offline/graph.js",
-  "js/offline/tree.js": "js/offline/tree.js",
   "js/vendors.js": "js/vendors.js"
 }

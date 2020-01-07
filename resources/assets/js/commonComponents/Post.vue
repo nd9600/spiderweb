@@ -1,6 +1,9 @@
 <template>
     <section>
-        <h1 class="h h--1">
+        <h1
+            v-if="post.title.length > 0"
+            class="h h--1"
+        >
             {{ post.title }}
         </h1>
         <p>

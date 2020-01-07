@@ -2,19 +2,40 @@
     <section class="h-full w-1/3 p-4 sidebar">
         <div class="flex">
             <button
-                class="btn btn--secondary flex-grow"
+                class="optionBtn flex-grow"
+                :class="{
+                    'optionBtn--selected': currentTab === 'posts'
+                }"
                 @click="currentTab = 'posts'"
             >
                 Posts
             </button>
+
             <button
-                class="btn btn--secondary flex-grow"
+                class="optionBtn flex-grow"
+                :class="{
+                    'optionBtn--selected': currentTab === 'makePosts'
+                }"
                 @click="currentTab = 'makePosts'"
             >
                 Make posts
             </button>
+
             <button
-                class="btn btn--secondary flex-grow"
+                class="optionBtn flex-grow"
+                :class="{
+                    'optionBtn--selected': currentTab === 'linkPosts'
+                }"
+                @click="currentTab = 'linkPosts'"
+            >
+                Link posts
+            </button>
+
+            <button
+                class="optionBtn flex-grow"
+                :class="{
+                    'optionBtn--selected': currentTab === 'loadSave'
+                }"
                 @click="currentTab = 'loadSave'"
             >
                 Load/save
@@ -22,13 +43,19 @@
         </div>
         <div class="pt-2">
             <template v-if="currentTab === 'posts'">
-                <post-sidebar/>
+                <post-sidebar />
             </template>
+
             <template v-if="currentTab === 'makePosts'">
-                <post-maker/>
+                <post-maker />
             </template>
+
+            <template v-if="currentTab === 'linkPosts'">
+                <link-posts />
+            </template>
+
             <template v-if="currentTab === 'loadSave'">
-                <load-save/>
+                <load-save />
             </template>
         </div>
     </section>
@@ -37,6 +64,7 @@
 <script>
 import PostSidebar from "@/js/commonComponents/PostSidebar";
 import PostMaker from "@/js/commonComponents/PostMaker";
+import LinkPosts from "@/js/commonComponents/LinkPosts/LinkPosts";
 import LoadSave from "@/js/commonComponents/LoadSave";
 
 export default {
@@ -44,11 +72,12 @@ export default {
     components: {
         PostSidebar,
         PostMaker,
+        LinkPosts,
         LoadSave
     },
     data() {
         return {
-            currentTab: "posts", // | posts | makePosts | loadSave
+            currentTab: "posts", // | posts | makePosts | linkPosts | loadSave
         };
     },
 };

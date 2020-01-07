@@ -10,7 +10,6 @@
     font-size: 15px;
     letter-spacing: 1px;
 
-    border-radius: 2px;
     transition: all 0.2s ease;
 
     text-decoration: none;
@@ -48,6 +47,40 @@
     box-shadow: 1px 2px 3px var(--grey);
 
     border: 1px solid var(--red);
+    background: var(--red);
+    color: var(--white);
+}
+
+
+/*------------------------------------*\
+  #OPTION BUTTONS
+\*------------------------------------*/
+
+.optionBtn {
+    display: inline-block;
+
+    padding: 5px 10px;
+
+    font-weight: bold;
+    font-size: 15px;
+    letter-spacing: 1px;
+
+    transition: all 0.2s ease;
+
+    text-decoration: none;
+    cursor: pointer;
+
+    border: 1px solid var(--red);
+}
+
+.optionBtn:hover {
+    box-shadow: 1px 2px 3px var(--grey);
+
+    border: 1px solid var(--red-dark);
+    background: var(--red-dark);
+    color: var(--white);
+}
+.optionBtn--selected {
     background: var(--red);
     color: var(--white);
 }

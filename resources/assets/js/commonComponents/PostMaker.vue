@@ -16,8 +16,8 @@
                 Title
             </button>
             <input
-                ref="inputTitle"
                 v-if="showTitleInput"
+                ref="inputTitle"
                 v-model="title"
                 class="p-2 rounded text-gray-800 placeholder-gray-600"
                 type="text"
@@ -36,7 +36,7 @@
                 required="required"
                 minlength="1"
                 maxlength="10000"
-            ></textarea>
+            />
         </label>
 
         <hr class="mb-5">
@@ -44,8 +44,8 @@
         <button
             type="submit"
             class="btn btn--primary"
-            @click="makePost"
             :disabled="body.trim().length === 0"
+            @click="makePost"
         >
             Create
         </button>
@@ -100,6 +100,7 @@ export default {
 
 <style scoped>
     .textareaBody {
+        min-height: 75px;
         max-height: 50%;
     }
 </style>

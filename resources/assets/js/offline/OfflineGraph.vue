@@ -1,5 +1,5 @@
 <template>
-    <div class="h-full flex flex-row">
+    <div class="h-screen flex flex-row">
         <svg
             id="graphSvg"
             class="h-full w-2/3 cursor-move border"
@@ -15,7 +15,7 @@
 
 <script>
 import * as d3 from "d3";
-import moment from "moment";
+import debounce from "lodash.debounce";
 
 import Sidebar from "@/js/commonComponents/Sidebar";
 
@@ -63,9 +63,9 @@ export default {
         }
     },
     watch: {
-        selectedGraphNames() {
-            this.makeGraphSvg();
-        }
+        selectedGraphNames: "debouncedMakeGraphSvg",
+        postsInSelectedGraphs: "debouncedMakeGraphSvg",
+        linksInSelectedGraphs: "debouncedMakeGraphSvg",
     },
     mounted() {
         this.loadState();
@@ -85,8 +85,19 @@ export default {
     },
     methods: {
         ...mapActions(["loadState"]),
-            
+
+        debouncedMakeGraphSvg: debounce(
+            function() {
+                this.makeGraphSvg();
+            },
+            250,
+            {
+                "leading": true,
+                "trailing": false,
+            }
+        ),
         makeGraphSvg() {
+            console.log("called", new Date());
             // setup force simulation
             const simulation = d3.forceSimulation(this.nodes)
                 .force("link", d3.forceLink(this.links).id(d => d.id))

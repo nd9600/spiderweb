@@ -33,9 +33,8 @@ function clean(cb) {
     ]);
 }
 
-function styles(cb) {
-    // bundle and minify the design system
-    revision(
+function designSystem(cb) {
+    return revision(
         gulp
             .src(
                 [
@@ -51,8 +50,9 @@ function styles(cb) {
                     .on("error", sass.logError)
             )
     );
+}
 
-    // copy over tailwind
+function tailwind(cb) {
     return revision(
         gulp.src(
             [
@@ -64,6 +64,11 @@ function styles(cb) {
         )
     );
 }
+
+const styles = gulp.series(
+    designSystem,
+    tailwind
+);
 
 exports.clean = clean;
 exports.styles = styles;

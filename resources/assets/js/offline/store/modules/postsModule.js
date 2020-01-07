@@ -3,10 +3,10 @@ function stringToColour(str) {
     for (let i = 0; i < str.length; i++) {
         hash = str.charCodeAt(i) + ((hash << 5) - hash);
     }
-    let colour = '#';
+    let colour = "#";
     for (let i = 0; i < 3; i++) {
         const value = (hash >> (i * 8)) & 0xFF;
-        colour += ('00' + value.toString(16)).substr(-2);
+        colour += ("00" + value.toString(16)).substr(-2);
     }
     return colour;
 }
@@ -32,21 +32,42 @@ const getters = {
     graphNames(state) {
         return Object.keys(state.graphs);
     },
-    
+
+    // graph getters
     postsInSelectedGraphs(state) {
-        let nodes = [];
+        let postIDs = [];
         for (let selectedGraphName of state.selectedGraphNames) {
-            nodes = nodes.concat(state.graphs[selectedGraphName].nodes);
+            postIDs = postIDs.concat(state.graphs[selectedGraphName].nodes);
         }
-        const uniqueNodes = [...new Set(nodes)];
-        return uniqueNodes.map(id => state.posts[id]);
+        const uniquePostIDs = [...new Set(postIDs)];
+        return uniquePostIDs.map(id => state.posts[id]);
     },
     linksInSelectedGraphs(state) {
         return state.links
             .filter(link => state.selectedGraphNames.includes(link.graph));
     },
 
+    // node/link getters
     graphColour: (state) => (name) => state.graphs[name].colour || stringToColour(name),
+
+    // post linking getters
+    postIds(state) {
+        return Object.keys(state.posts).map(n => parseInt(n, 10));
+    },
+
+    unlinkedPosts(state) {
+        let linkedPostIDs = [];
+        for (let graphObj of Object.values(state.graphs)) {
+            linkedPostIDs = linkedPostIDs.concat(graphObj.nodes);
+        }
+        const uniqueLinkedPostIDs = [...new Set(linkedPostIDs)];
+        const postIDs = Object.keys(state.posts)
+            .map(n => parseInt(n, 10));
+
+        return postIDs
+            .filter(id => !uniqueLinkedPostIDs.includes(id))
+            .map(id => state.posts[id]);
+    }
 };
 
 const mutations = {
@@ -74,6 +95,35 @@ const mutations = {
 
         newPost.id = newPostId;
         state.posts[newPostId] = newPost;
+    },
+
+    addLink(state, {source, target, graph, type = "reply"}) {
+        console.log(
+            source, target, graph, type
+        );
+
+        const highestLinkId = Math.max(
+            ...Object.keys(state.links)
+                .map(id => parseInt(id, 10))
+        );
+        const newLinkId = highestLinkId + 1;
+
+        state.links.push({
+            graph,
+            id: newLinkId,
+            source,
+            target,
+            type
+        });
+
+        // add source and/or target posts to the graph, if they're not there already
+        const postIdsAlreadyInGraph = state.graphs[graph].nodes;
+        if (!postIdsAlreadyInGraph.includes(source)) {
+            state.graphs[graph].nodes.push(source);
+        }
+        if (!postIdsAlreadyInGraph.includes(target)) {
+            state.graphs[graph].nodes.push(target);
+        }
     }
 };
 
