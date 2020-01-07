@@ -16,7 +16,7 @@ const store = new Vuex.Store({
         saveState(context) {
             const storageObject = {
                 postsModule: context.state.postsModule
-            }
+            };
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(storageObject));
         },
         loadState(context) {

@@ -40,7 +40,7 @@ export default {
     },
     computed: {
         ...mapState("postsModule", ["selectedGraphNames"]),
-        ...mapGetters("postsModule", ["postsInSelectedGraph", "linksInSelectedGraph"]),
+        ...mapGetters("postsModule", ["postsInSelectedGraphs", "linksInSelectedGraphs", "graphColour"]),
         
         selectedPostId: {
             get() {
@@ -53,12 +53,12 @@ export default {
         
         nodes() {
             return JSON.parse(JSON.stringify(
-                Object.values(this.postsInSelectedGraph)
+                Object.values(this.postsInSelectedGraphs)
             ));
         },
         links() {
             return JSON.parse(JSON.stringify(
-                this.linksInSelectedGraph
+                this.linksInSelectedGraphs
             ));
         }
     },
@@ -99,7 +99,7 @@ export default {
                 .data(this.links, link => link.id)
                 .join("line")
                 .classed("graph__link", true)
-                .attr("title", link => link.id);
+                .attr("stroke", (link) => this.graphColour(link.graph));
 
             let nodeGroups = this.nodesG
                 .selectAll("g")
@@ -180,7 +180,7 @@ export default {
 <style>
     .graph__link {
         fill: none;
-        stroke: #8a8a8a;
+        /*stroke: #8a8a8a;*/
         stroke-width: 3px;
     }
 

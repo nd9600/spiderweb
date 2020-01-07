@@ -1,4 +1,15 @@
-import moment from "moment";
+function stringToColour(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    let colour = '#';
+    for (let i = 0; i < 3; i++) {
+        const value = (hash >> (i * 8)) & 0xFF;
+        colour += ('00' + value.toString(16)).substr(-2);
+    }
+    return colour;
+}
 
 const state = {
     posts: {
@@ -22,7 +33,7 @@ const getters = {
         return Object.keys(state.graphs);
     },
     
-    postsInSelectedGraph(state) {
+    postsInSelectedGraphs(state) {
         let nodes = [];
         for (let selectedGraphName of state.selectedGraphNames) {
             nodes = nodes.concat(state.graphs[selectedGraphName].nodes);
@@ -30,10 +41,12 @@ const getters = {
         const uniqueNodes = [...new Set(nodes)];
         return uniqueNodes.map(id => state.posts[id]);
     },
-    linksInSelectedGraph(state) {
+    linksInSelectedGraphs(state) {
         return state.links
             .filter(link => state.selectedGraphNames.includes(link.graph));
     },
+
+    graphColour: (state) => (name) => state.graphs[name].colour || stringToColour(name),
 };
 
 const mutations = {
