@@ -2,50 +2,20 @@
     <section class="h-full w-1/3 p-4 sidebar">
         <div class="flex">
             <button
+                v-for="tab in tabs"
+                :key="tab.key"
                 class="optionBtn flex-grow"
                 :class="{
-                    'optionBtn--selected': currentTab === 'posts'
+                    'optionBtn--selected': currentTab === tab.key
                 }"
-                @click="currentTab = 'posts'"
+                @click="currentTab = tab.key"
             >
-                Posts
-            </button>
-
-            <button
-                class="optionBtn flex-grow"
-                :class="{
-                    'optionBtn--selected': currentTab === 'editPosts'
-                }"
-                @click="currentTab = 'editPosts'"
-            >
-                Edit posts
-            </button>
-
-            <button
-                class="optionBtn flex-grow"
-                :class="{
-                    'optionBtn--selected': currentTab === 'linkPosts'
-                }"
-                @click="currentTab = 'linkPosts'"
-            >
-                Link posts
-            </button>
-
-            <button
-                class="optionBtn flex-grow"
-                :class="{
-                    'optionBtn--selected': currentTab === 'loadSave'
-                }"
-                @click="currentTab = 'loadSave'"
-            >
-                Load/save
+                {{ tab.name }}
             </button>
         </div>
         <div class="pt-2">
             <keep-alive>
-                <component
-                    :is="currentComponent"
-                />
+                <component :is="currentTab" />
             </keep-alive>
         </div>
     </section>
@@ -67,29 +37,26 @@ export default {
     },
     data() {
         return {
-            currentTab: "posts", // | posts | editPosts | linkPosts | loadSave
+            currentTab: "post-sidebar", // | post-sidebar | edit-posts | link-posts | load-save,
+            tabs: [
+                {
+                    key: "post-sidebar",
+                    name: "Posts",
+                },
+                {
+                    key: "edit-posts",
+                    name: "Edit posts",
+                },
+                {
+                    key: "link-posts",
+                    name: "Link posts",
+                },
+                {
+                    key: "load-save",
+                    name: "Load/save",
+                }
+            ]
         };
-    },
-    computed: {
-        currentComponent() {
-            switch (this.currentTab) {
-                case "posts": {
-                    return "post-sidebar";
-                }
-                case "editPosts": {
-                    return "edit-posts";
-                }
-                case "linkPosts": {
-                    return "link-posts";
-                }
-                case "loadSave": {
-                    return "load-save";
-                }
-                default: {
-                    return "post-sidebar";
-                }
-            }
-        }
     }
 };
 </script>
