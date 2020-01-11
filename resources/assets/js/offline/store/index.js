@@ -22,7 +22,7 @@ const store = new Vuex.Store({
         loadState(context) {
             const storageObject = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
             if (storageObject === null) {
-                alert("The state hasn't been stored locally");
+                console.log("The state hasn't been stored locally");
                 return;
             }
             if (storageObject.postsModule) {

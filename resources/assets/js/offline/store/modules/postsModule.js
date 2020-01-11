@@ -86,10 +86,16 @@ const mutations = {
     },
 
     makeNewPost(state, newPost) {
-        const highestPostId = Math.max(
-            ...Object.keys(state.posts)
-                .map(id => parseInt(id, 10))
-        );
+        const existingPostIds = Object.keys(state.posts);
+
+        const highestPostId = existingPostIds.length === 0
+            ? 0
+            : (
+                Math.max(
+                    ...existingPostIds
+                        .map(id => parseInt(id, 10))
+                )
+            );
         const newPostId = highestPostId + 1;
 
         newPost.id = newPostId;
@@ -97,10 +103,15 @@ const mutations = {
     },
 
     addLink(state, {source, target, graph, type = "reply"}) {
-        const highestLinkId = Math.max(
-            ...Object.keys(state.links)
-                .map(id => parseInt(id, 10))
-        );
+        const existingLinkIds = Object.keys(state.links);
+        const highestLinkId = existingLinkIds.length === 0
+            ? 0
+            : (
+                Math.max(
+                    ...existingLinkIds
+                        .map(id => parseInt(id, 10))
+                )
+            );
         const newLinkId = highestLinkId + 1;
 
         const linkAlreadyExists = Object.values(state.links)
