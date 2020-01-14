@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-col">
-        <section v-if="graphNames.length > 1">
+        <section v-if="graphNames.length > 0">
             <h1 class="h h--1">
                 Graphs
             </h1>

@@ -25,7 +25,7 @@ const state = {
     },
 
     selectedPostId: null,
-    selectedGraphNames: []
+    selectedGraphNames: ["default"]
 };
 
 const getters = {
