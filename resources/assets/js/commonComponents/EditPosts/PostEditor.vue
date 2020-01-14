@@ -4,12 +4,6 @@
             class="mb-5 flex flex-col"
         >
             <button
-                class="py-1 px-2 btn btn--secondary"
-                @click="removePostLocal"
-            >
-                Remove
-            </button>
-            <button
                 class="text-left underline"
                 @click.prevent="toggleTitleInput"
             >
@@ -37,6 +31,17 @@
                 maxlength="10000"
             />
         </label>
+
+        <button
+            class="py-1 px-2 btn btn--secondary"
+            @click="removePostLocal"
+        >
+            Remove
+        </button>
+
+        <div class="flex justify-center">
+            <hr class="my-4 w-2/3">
+        </div>
     </div>
 </template>
 

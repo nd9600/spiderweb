@@ -17,7 +17,7 @@ import Sidebar from "@/js/commonComponents/Sidebar";
 import OfflineGraph from "./OfflineGraph";
 import PostSidebar from "@/js/commonComponents/PostSidebar";
 
-import { mapState, mapGetters, mapActions } from "vuex";
+import { mapActions } from "vuex";
 
 export default {
     name: "Offline",

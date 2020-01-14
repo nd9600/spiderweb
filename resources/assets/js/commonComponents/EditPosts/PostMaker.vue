@@ -39,16 +39,16 @@
             />
         </label>
 
-        <hr class="mb-5">
-
         <button
             type="submit"
-            class="btn btn--primary"
+            class="mb-5 btn btn--primary"
             :disabled="body.trim().length === 0"
             @click="makePost"
         >
             Create
         </button>
+
+        <hr class="mb-5">
     </div>
 </template>
 
