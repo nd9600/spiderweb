@@ -14,9 +14,7 @@
             </button>
         </div>
         <div class="pt-2">
-            <keep-alive>
-                <component :is="currentTab" />
-            </keep-alive>
+            <component :is="currentTab" />
         </div>
     </section>
 </template>

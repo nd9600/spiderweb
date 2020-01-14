@@ -64,7 +64,7 @@ export default {
         postsInSelectedGraphs() {
             this.debouncedMakeGraphSvg();
         },
-        linksInSelectedGraphss() {
+        linksInSelectedGraphs() {
             this.debouncedMakeGraphSvg();
         },
     },
@@ -103,6 +103,12 @@ export default {
             const dataHasntChanged = linksTheSame
                 && postsTheSame;
 
+            // console.log(
+            //     this.previousLinkIds, currentLinkIds,
+            //     this.previousPostIds, currentPostIds,
+            //     dataHasntChanged
+            // );
+
             //todo: doesn't notice changes to the post titles/bodies
             if (dataHasntChanged) {
                 return;
@@ -110,6 +116,7 @@ export default {
                 this.previousLinkIds = JSON.parse(JSON.stringify(currentLinkIds));
                 this.previousPostIds = JSON.parse(JSON.stringify(currentPostIds));
             }
+            // console.log("called");
 
             // setup force simulation
             const simulation = d3.forceSimulation(this.nodes)

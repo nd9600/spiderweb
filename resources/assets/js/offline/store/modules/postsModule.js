@@ -151,7 +151,7 @@ const mutations = {
             Vue.set(state.graphs, graphName, newGraph);
         }
 
-        state.links = linksAfterPostRemoval;
+        Vue.set(state, "links", linksAfterPostRemoval);
         Vue.delete(state.posts, id);
     },
 
@@ -183,20 +183,13 @@ const mutations = {
             return;
         }
 
-        // Vue.set(state.links, newLinkId, {
-        //     graph,
-        //     id: newLinkId,
-        //     source,
-        //     target,
-        //     type
-        // });
-        state.links[newLinkId] = {
+        Vue.set(state.links, newLinkId, {
             graph,
             id: newLinkId,
             source,
             target,
             type
-        };
+        });
 
         // add source and/or target posts to the graph, if they're not there already
         const postIdsAlreadyInGraph = state.graphs[graph].nodes;
