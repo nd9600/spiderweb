@@ -1,15 +1,20 @@
 <template>
     <div class="h-full flex flex-row">
+        <sidebar
+            class="w-1/3"
+        />
         <svg
             id="graphSvg"
-            class="h-full w-2/3 cursor-move border"
+            class="h-full w-1/3 cursor-move border"
         >
             <g transform="translate(5, 15)">
                 <g class="graph__links"></g>
                 <g class="graph__nodes"></g>
             </g>
         </svg>
-        <sidebar/>
+        <post-sidebar
+            class="w-1/3"
+        />
     </div>
 </template>
 
@@ -17,6 +22,7 @@
 import * as d3 from "d3";
 import debounce from "lodash.debounce";
 
+import PostSidebar from "@/js/commonComponents/PostSidebar";
 import Sidebar from "@/js/commonComponents/Sidebar";
 
 import { mapState, mapGetters, mapActions } from "vuex";
@@ -28,6 +34,7 @@ export default {
     name: "OfflineTree",
     components: {
         Sidebar,
+        PostSidebar
     },
     data() {
         return {
@@ -191,6 +198,10 @@ export default {
 </script>
 
 <style>
+    #graphSvg {
+        min-width: 33%;
+    }
+
     .graph__link {
         fill: none;
         /*stroke: #8a8a8a;*/

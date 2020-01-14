@@ -1,26 +1,8 @@
 <template>
-    <div class="flex flex-col">
-        <section v-if="graphNames.length > 1">
-            <h2 class="h h--2">
-                Graphs
-            </h2>
-            <select
-                v-model="selectedGraphNames"
-                class="mt-2 p-2 rounded text-gray-700"
-                multiple
-            >
-                <option
-                    v-for="graphName in graphNames"
-                    :key="graphName"
-                    :value="graphName"
-                >
-                    {{ graphName }}
-                </option>
-            </select>
-        </section>
-    
+    <div class="p-4 h-full flex overflow-x-auto postSidebar">
         <post
             v-if="selectedPostId !== null"
+            class="min-w-full"
             :post="posts[selectedPostId]"
         >
         </post>
@@ -51,5 +33,11 @@ export default {
             }
         },
     }
-}
+};
 </script>
+
+<style>
+    .postSidebar {
+        min-width: 33%;
+    }
+</style>

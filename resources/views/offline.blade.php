@@ -1,16 +1,18 @@
 @extends('layouts.app')
 
 @section("appContent")
-<div class="min-h-full h-full ml-5">
-    <h1 class="h h--1">
-        Spiderweb
-    </h1>
-    <h2 class="h h--2">
-        Offline
-    </h2>
+<div class="min-h-full h-full">
+    <div class="ml-5">
+        <h1 class="h h--1">
+            Spiderweb
+        </h1>
+        <h2 class="h h--2">
+            Offline
+        </h2>
+    </div>
     <div
         id="offlineGraphApp"
-        class="h-full"
+        class="min-h-full h-full"
     ></div>
 </div>
 
