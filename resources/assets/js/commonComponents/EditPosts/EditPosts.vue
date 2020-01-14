@@ -2,14 +2,31 @@
     <div class="flex flex-col">
         <post-maker/>
 
-        <h2 class="h h--2">
-            Edit posts
-        </h2>
-        <post-editor
-            v-for="post in posts"
-            :key="post.id"
-            :post="post"
-        />
+        <hr class="mb-5">
+
+        <div>
+            <span class="mb-5 flex justify-between items-center">
+                <h2 class="h h--2">
+                    Edit posts
+                </h2>
+                
+                <button
+                    class="btn btn--secondary"
+                    @click="showEditors = !showEditors"
+                >
+                    {{ showEditors ? "Hide" : "Show" }} editors
+                </button>
+            </span>
+            <template v-if="showEditors">
+                <post-editor
+                    v-for="post in posts"
+                    :key="post.id"
+                    :post="post"
+                />
+            </template>
+        </div>
+
+        <hr class="mb-5">
     </div>
 </template>
 
@@ -24,6 +41,11 @@ export default {
     components: {
         PostMaker,
         PostEditor,
+    },
+    data() {
+        return {
+            showEditors: false
+        };
     },
     computed: {
         ...mapState("postsModule", ["posts"]),

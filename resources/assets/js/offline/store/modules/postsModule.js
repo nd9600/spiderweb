@@ -105,6 +105,23 @@ const mutations = {
             }
         );
     },
+    removeGraph(state, graphName) {
+        const newSelectedGraphNames = state.selectedGraphNames
+            .filter(graph => graph !== graphName);
+        state.selectedGraphNames = (newSelectedGraphNames.length === 0)
+            ? ["default"]
+            : newSelectedGraphNames;
+        Vue.delete(state.graphs, graphName);
+    },
+    removePostFromGraph(state, {graphName, postId}) {
+        //todo: remove links from graph too
+        
+        Vue.set(
+            state.graphs[graphName],
+            "nodes",
+            state.graphs[graphName].nodes.filter(id => id !== postId)
+        );
+    },
 
     makeNewPost(state, newPost) {
         const existingPostIds = Object.keys(state.posts);

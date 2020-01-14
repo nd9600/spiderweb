@@ -55,7 +55,6 @@
                     Show editor
                 </button>
             </div>
-
         </div>
 
         <div class="flex justify-center">
