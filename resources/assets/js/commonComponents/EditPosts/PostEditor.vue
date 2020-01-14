@@ -1,14 +1,14 @@
 <template>
     <div class="flex flex-col">
-        <h1 class="h h--1">
-            Add post
-        </h1>
-
-        <hr class="mb-5">
-
         <label
             class="mb-5 flex flex-col"
         >
+            <button
+                class="py-1 px-2 btn btn--secondary"
+                @click="removePostLocal"
+            >
+                Remove
+            </button>
             <button
                 class="text-left underline"
                 @click.prevent="toggleTitleInput"
@@ -32,42 +32,59 @@
             <textarea
                 v-model="body"
                 class="p-2 h-48 rounded text-gray-800 placeholder-gray-600 textareaBody"
-                placeholder="But with regard to the material world, we can at least go so far as this—we can perceive that events are brought about not by insulated interpositions of Divine power, exerted in each particular case, but by the establishment of general laws"
                 required="required"
                 minlength="1"
                 maxlength="10000"
             />
         </label>
-
-        <hr class="mb-5">
-
-        <button
-            type="submit"
-            class="btn btn--primary"
-            :disabled="body.trim().length === 0"
-            @click="makePost"
-        >
-            Create
-        </button>
     </div>
 </template>
 
 <script>
+import { mapMutations} from "vuex";
 import moment from "moment";
-import { mapMutations } from "vuex";
 
 export default {
-    name: "PostMaker",
+    name: "PostEditor",
+    props: {
+        post: {
+            type: Object,
+            required: true
+        }
+    },
     data() {
         return {
-            showTitleInput: false,
-
-            title: "",
-            body: "",
+            showTitleInput: this.post.title.length > 0,
         };
     },
+    computed: {
+        title: {
+            get() {
+                return this.post.title;
+            },
+            set(title) {
+                this.updatePost({
+                    ...this.post,
+                    title,
+                    updated_at: moment().format()
+                });
+            }
+        },
+        body: {
+            get() {
+                return this.post.body;
+            },
+            set(body) {
+                this.updatePost({
+                    ...this.post,
+                    body,
+                    updated_at: moment().format
+                });
+            }
+        },
+    },
     methods: {
-        ...mapMutations("postsModule", ["makeNewPost"]),
+        ...mapMutations("postsModule", ["updatePost", "removePost"]),
 
         toggleTitleInput() {
             const dontLetUserHideTitleInput = this.showTitleInput
@@ -79,27 +96,15 @@ export default {
             this.showTitleInput = !this.showTitleInput;
         },
 
-        makePost() {
-            const newPost = {
-                title: this.title,
-                body: this.body,
-                created_at: moment().format(),
-                updated_at: moment().format(),
-            };
-            this.makeNewPost(newPost);
-            this.resetNewPost();
-        },
-        resetNewPost() {
-            this.title = "";
-            this.body = "";
+        removePostLocal() {
+            this.removePost({
+                id: this.post.id
+            });
         }
     }
 };
 </script>
 
 <style scoped>
-    .textareaBody {
-        min-height: 75px;
-        max-height: 50%;
-    }
+
 </style>

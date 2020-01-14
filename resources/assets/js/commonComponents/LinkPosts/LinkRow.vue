@@ -82,6 +82,7 @@
 
 <script>
 import {mapState, mapGetters, mapMutations } from "vuex";
+import moment from "moment";
 
 export default {
     name: "LinkRow",
@@ -130,6 +131,7 @@ export default {
                 source: this.source,
                 target: this.target,
                 type: this.type,
+                updated_at:  moment().format()
             });
         },
         removeLinkLocal() {

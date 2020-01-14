@@ -29,10 +29,6 @@ const state = {
 };
 
 const getters = {
-    newPostId(state, getters, rootState) {
-        const highestPostId = Math.max(Object.keys(state.posts));
-        return highestPostId + 1;
-    },
     graphNames(state) {
         return Object.keys(state.graphs);
     },
@@ -125,6 +121,15 @@ const mutations = {
 
         newPost.id = newPostId;
         state.posts[newPostId] = newPost;
+    },
+    updatePost(state, post) {
+        Vue.set(state.posts, post.id, post);
+    },
+    removePost(state, {id}) {
+        if (id === state.selectedPostId) { //todo: change to remove from array when you can select multiple posts
+            state.selectedPostId = null;
+        }
+        Vue.delete(state.posts, id);
     },
 
     addLink(state, {source, target, graph, type = "reply"}) {

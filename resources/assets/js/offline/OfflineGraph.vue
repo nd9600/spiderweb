@@ -55,9 +55,15 @@ export default {
         }
     },
     watch: {
-        selectedGraphNames: "debouncedMakeGraphSvg",
-        postsInSelectedGraphs: "debouncedMakeGraphSvg",
-        linksInSelectedGraphs: "debouncedMakeGraphSvg",
+        selectedGraphNames() {
+            this.debouncedMakeGraphSvg();
+        },
+        postsInSelectedGraphs() {
+            this.debouncedMakeGraphSvg();
+        },
+        linksInSelectedGraphss() {
+            this.debouncedMakeGraphSvg();
+        },
     },
     mounted() {
         this.svg = d3.select("#graphSvg");
@@ -71,7 +77,8 @@ export default {
             .attr("stroke", "#fff")
             .attr("stroke-width", 1.5);
 
-        this.makeGraphSvg();
+        // this.makeGraphSvg();
+        this.setupZooming();
     },
     methods: {
         debouncedMakeGraphSvg: debounce(
@@ -85,6 +92,13 @@ export default {
             }
         ),
         makeGraphSvg() {
+            // console.log(
+            //     "called",
+            //     Object.keys(this.postsInSelectedGraphs),
+            //     Object.values(this.linksInSelectedGraphs).map(l => ({id: l.id, source: l.source, target: l.target}))
+            // );
+            // console.trace();
+
             // setup force simulation
             const simulation = d3.forceSimulation(this.nodes)
                 .force("link", d3.forceLink(this.links).id(d => d.id))
@@ -156,8 +170,6 @@ export default {
                     .attr("x", d => d.x - 3)
                     .attr("y", d => d.y - 3);
             });
-
-            this.setupZooming();
         },
 
         setupZooming() {
