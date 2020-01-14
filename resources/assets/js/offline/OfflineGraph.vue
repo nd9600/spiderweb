@@ -28,6 +28,9 @@ export default {
 
             linksG: null,
             nodesG: null,
+
+            previousLinkIds: [],
+            previousPostIds: [],
         };
     },
     computed: {
@@ -92,19 +95,31 @@ export default {
             }
         ),
         makeGraphSvg() {
-            console.log(
-                "called",
-                this.nodes[0],
-                this.links[0]
-                // Object.keys(this.postsInSelectedGraphs),
-                // Object.values(this.linksInSelectedGraphs).map(l => ({id: l.id, source: l.source, target: l.target}))
-            );
-            // console.trace();
+            const currentLinkIds = Object.values(this.linksInSelectedGraphs).map(l => l.id);
+            const currentPostIds = Object.keys(this.postsInSelectedGraphs);
+
+            let linksTheSame = JSON.stringify(this.previousLinkIds) === JSON.stringify(currentLinkIds);
+            let postsTheSame = JSON.stringify(this.previousPostIds) === JSON.stringify(currentPostIds);
+            const dataHasntChanged = linksTheSame
+                && postsTheSame;
+
+            //todo: doesn't notice changes to the post titles/bodies
+            if (dataHasntChanged) {
+                return;
+            } else {
+                this.previousLinkIds = JSON.parse(JSON.stringify(currentLinkIds));
+                this.previousPostIds = JSON.parse(JSON.stringify(currentPostIds));
+            }
 
             // setup force simulation
             const simulation = d3.forceSimulation(this.nodes)
-                .force("link", d3.forceLink(this.links).id(d => d.id))
-                .force("charge", d3.forceManyBody())
+                .force("link", d3.forceLink(this.links)
+                    .id(d => d.id)
+                    .distance(100)
+                )
+                .force("charge", d3.forceManyBody()
+                    .strength(-250)
+                )
                 .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2));
 
             // add links
