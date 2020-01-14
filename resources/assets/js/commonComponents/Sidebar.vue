@@ -1,5 +1,5 @@
 <template>
-    <section class="h-full p-4 sidebar">
+    <section class="h-full p-4 overflow-y-auto sidebar">
         <div class="flex">
             <button
                 v-for="tab in tabs"

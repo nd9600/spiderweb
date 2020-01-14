@@ -129,6 +129,29 @@ const mutations = {
         if (id === state.selectedPostId) { //todo: change to remove from array when you can select multiple posts
             state.selectedPostId = null;
         }
+
+        // we need to remove any links that would include the deleted post
+        let linksAfterPostRemoval = {};
+        for (const link of Object.values(state.links)) {
+            if (
+                link.source === id
+                || link.target === id
+            ) {
+                continue;
+            }
+            linksAfterPostRemoval[link.id] = link;
+        }
+
+        // we also need to remove the individual posts from `graphs[graph].nodes`
+        for (let [graphName, graph] of Object.entries(state.graphs)) {
+            const newGraph = {
+                ...graph,
+                nodes: graph.nodes.filter(postId => postId !== id)
+            };
+            Vue.set(state.graphs, graphName, newGraph);
+        }
+
+        state.links = linksAfterPostRemoval;
         Vue.delete(state.posts, id);
     },
 

@@ -92,11 +92,13 @@ export default {
             }
         ),
         makeGraphSvg() {
-            // console.log(
-            //     "called",
-            //     Object.keys(this.postsInSelectedGraphs),
-            //     Object.values(this.linksInSelectedGraphs).map(l => ({id: l.id, source: l.source, target: l.target}))
-            // );
+            console.log(
+                "called",
+                this.nodes[0],
+                this.links[0]
+                // Object.keys(this.postsInSelectedGraphs),
+                // Object.values(this.linksInSelectedGraphs).map(l => ({id: l.id, source: l.source, target: l.target}))
+            );
             // console.trace();
 
             // setup force simulation
@@ -104,7 +106,7 @@ export default {
                 .force("link", d3.forceLink(this.links).id(d => d.id))
                 .force("charge", d3.forceManyBody())
                 .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2));
-              
+
             // add links
             const link = this.linksG
                 .selectAll("line")
