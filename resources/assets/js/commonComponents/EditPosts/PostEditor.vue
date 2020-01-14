@@ -1,48 +1,67 @@
 <template>
-    <div class="flex flex-col">
-        <label
-            class="mb-5 flex flex-col"
-        >
+    <section class="flex flex-col">
+        <div v-if="showEditor">
+            <label
+                class="mb-5 flex flex-col items-start"
+            >
+                <button
+                    class="mb-2 btn btn--secondary"
+                    @click="showEditor = false"
+                >
+                    Hide editor
+                </button>
+                <input
+                    v-if="showTitleInput"
+                    ref="inputTitle"
+                    v-model="title"
+                    class="p-2 rounded text-gray-800 placeholder-gray-600"
+                    type="text"
+                    placeholder="On the Origin of Species"
+                    minlength="0"
+                    maxlength="100"
+                >
+            </label>
+
+            <label class="mb-5 flex flex-col">
+                Body
+                <textarea
+                    v-model="body"
+                    class="p-2 h-48 rounded text-gray-800 placeholder-gray-600 textareaBody"
+                    required="required"
+                    minlength="1"
+                    maxlength="10000"
+                />
+            </label>
+
             <button
-                class="text-left underline"
-                @click.prevent="toggleTitleInput"
+                class="py-1 px-2 btn btn--secondary"
+                @click="removePostLocal"
             >
-                Title
+                Remove
             </button>
-            <input
-                v-if="showTitleInput"
-                ref="inputTitle"
-                v-model="title"
-                class="p-2 rounded text-gray-800 placeholder-gray-600"
-                type="text"
-                placeholder="On the Origin of Species"
-                minlength="0"
-                maxlength="100"
-            >
-        </label>
-
-        <label class="mb-5 flex flex-col">
-            Body
-            <textarea
-                v-model="body"
-                class="p-2 h-48 rounded text-gray-800 placeholder-gray-600 textareaBody"
-                required="required"
-                minlength="1"
-                maxlength="10000"
-            />
-        </label>
-
-        <button
-            class="py-1 px-2 btn btn--secondary"
-            @click="removePostLocal"
+        </div>
+        <div
+            v-else
+            class="w-full flex justify-center"
         >
-            Remove
-        </button>
+            <div class="w-2/3 flex items-center justify-between">
+                <span>
+                    {{ post.title.length > 0 ? post.title : post.body.substr(0, 20) }}
+                </span>
+                <button
+                    class="btn btn--secondary"
+                    @click="showEditor = true"
+                >
+                    Show editor
+                </button>
+            </div>
+
+        </div>
 
         <div class="flex justify-center">
             <hr class="my-4 w-2/3">
         </div>
-    </div>
+    </section>
 </template>
 
 <script>
@@ -59,6 +78,7 @@ export default {
     },
     data() {
         return {
+            showEditor: false,
             showTitleInput: this.post.title.length > 0,
         };
     },
