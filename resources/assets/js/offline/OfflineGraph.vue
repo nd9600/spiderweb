@@ -1,41 +1,26 @@
 <template>
-    <div class="h-full flex flex-row">
-        <sidebar
-            class="w-1/3"
-        />
-        <svg
-            id="graphSvg"
-            class="h-full w-1/3 cursor-move border"
-        >
-            <g transform="translate(5, 15)">
-                <g class="graph__links"></g>
-                <g class="graph__nodes"></g>
-            </g>
-        </svg>
-        <post-sidebar
-            class="w-1/3"
-        />
-    </div>
+    <svg
+        id="graphSvg"
+        class="h-full w-1/3 cursor-move border"
+    >
+        <g transform="translate(5, 15)">
+            <g class="graph__links"></g>
+            <g class="graph__nodes"></g>
+        </g>
+    </svg>
 </template>
 
 <script>
 import * as d3 from "d3";
 import debounce from "lodash.debounce";
 
-import PostSidebar from "@/js/commonComponents/PostSidebar";
-import Sidebar from "@/js/commonComponents/Sidebar";
-
-import { mapState, mapGetters, mapActions } from "vuex";
+import { mapState, mapGetters } from "vuex";
 
 const WIDTH = 400;
 const HEIGHT = 200;
 
 export default {
-    name: "OfflineTree",
-    components: {
-        Sidebar,
-        PostSidebar
-    },
+    name: "OfflineGraph",
     data() {
         return {
             svg: null,
@@ -75,8 +60,6 @@ export default {
         linksInSelectedGraphs: "debouncedMakeGraphSvg",
     },
     mounted() {
-        this.loadState();
-        
         this.svg = d3.select("#graphSvg");
         this.rootG = d3.select("#graphSvg g");
 
@@ -91,8 +74,6 @@ export default {
         this.makeGraphSvg();
     },
     methods: {
-        ...mapActions(["loadState"]),
-
         debouncedMakeGraphSvg: debounce(
             function() {
                 this.makeGraphSvg();

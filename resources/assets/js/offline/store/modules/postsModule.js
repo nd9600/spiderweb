@@ -17,7 +17,12 @@ const state = {
     posts: {},
     links: {},
     
-    graphs: {},
+    graphs: {
+        "default": {
+            name: "default",
+            nodes: []
+        }
+    },
 
     selectedPostId: null,
     selectedGraphNames: []
@@ -83,6 +88,26 @@ const mutations = {
     },
     setSelectedGraphNames(state, selectedGraphNames) {
         state.selectedGraphNames = selectedGraphNames;
+    },
+
+    makeNewGraph(state, newGraphName) {
+        if (newGraphName.trim().length === 0) {
+            return;
+        }
+
+        const existingGraphNames = Object.keys(state.graphs);
+        if (existingGraphNames.includes(newGraphName)) {
+            alert("You're trying to add a graph that already exists");
+            return;
+        }
+        Vue.set(
+            state.graphs,
+            newGraphName,
+            {
+                name: newGraphName,
+                nodes: []
+            }
+        );
     },
 
     makeNewPost(state, newPost) {
@@ -159,7 +184,7 @@ const mutations = {
     },
     removeLink(state, {id}) {
         Vue.delete(state.links, id);
-    }
+    },
 };
 
 const actions = {
