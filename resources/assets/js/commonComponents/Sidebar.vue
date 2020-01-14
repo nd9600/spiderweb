@@ -47,7 +47,7 @@ export default {
                 },
                 {
                     key: "link-posts",
-                    name: "Link posts",
+                    name: "Link",
                 },
                 {
                     key: "load-save",
