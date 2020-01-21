@@ -8,7 +8,7 @@
                     class="mb-2 btn btn--secondary"
                     @click="showEditor = false"
                 >
-                    Hide editor
+                    Close
                 </button>
                 <input
                     v-if="showTitleInput"
@@ -48,18 +48,20 @@
                 <span>
                     {{ post.title.length > 0 ? post.title : post.body.substr(0, 20) }}
                 </span>
-                <button
-                    class="btn btn--secondary"
-                    @click="showEditor = true"
-                >
-                    Show editor
-                </button>
-                <button
-                    class="py-1 px-2 btn btn--primary"
-                    @click="removePostLocal"
-                >
-                    x
-                </button>
+                <span>
+                    <button
+                        class="btn btn--secondary"
+                        @click="showEditor = true"
+                    >
+                        Edit
+                    </button>
+                    <button
+                        class="py-1 px-2 btn btn--primary"
+                        @click="removePostLocal"
+                    >
+                        x
+                    </button>
+                </span>
             </div>
         </div>
 
