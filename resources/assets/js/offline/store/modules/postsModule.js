@@ -114,7 +114,21 @@ const mutations = {
         Vue.delete(state.graphs, graphName);
     },
     removePostFromGraph(state, {graphName, postId}) {
-        //todo: remove links from graph too
+        let linksAfterPostRemoval = {};
+        for (const link of Object.values(state.links)) {
+            const isRemovingPostFromThisGraph = link.graph === graphName;
+            const postIsSourceOrTarget =
+                link.source === postId
+                || link.target === postId;
+            if (
+                isRemovingPostFromThisGraph
+                && postIsSourceOrTarget
+            ) {
+                continue;
+            }
+            linksAfterPostRemoval[link.id] = link;
+        }
+        Vue.set(state, "links", linksAfterPostRemoval);
         
         Vue.set(
             state.graphs[graphName],
