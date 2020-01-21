@@ -28,9 +28,6 @@ export default {
 
             linksG: null,
             nodesG: null,
-
-            previousLinkIds: [],
-            previousPostIds: [],
         };
     },
     computed: {
@@ -44,17 +41,6 @@ export default {
             set(selectedPostId) {
                 this.$store.commit("postsModule/setSelectedPostId", selectedPostId);
             }
-        },
-        
-        nodes() {
-            return JSON.parse(JSON.stringify(
-                Object.values(this.postsInSelectedGraphs)
-            ));
-        },
-        links() {
-            return JSON.parse(JSON.stringify(
-                this.linksInSelectedGraphs
-            ));
         }
     },
     watch: {
@@ -95,32 +81,15 @@ export default {
             }
         ),
         makeGraphSvg() {
-            const currentLinkIds = Object.values(this.linksInSelectedGraphs).map(l => l.id);
-            const currentPostIds = Object.keys(this.postsInSelectedGraphs);
-
-            let linksTheSame = JSON.stringify(this.previousLinkIds) === JSON.stringify(currentLinkIds);
-            let postsTheSame = JSON.stringify(this.previousPostIds) === JSON.stringify(currentPostIds);
-            const dataHasChanged = !linksTheSame
-                || !postsTheSame;
-
-            console.log(
-                this.previousLinkIds, currentLinkIds,
-                this.previousPostIds, currentPostIds,
-                dataHasChanged
-            );
-
-            //todo: doesn't notice changes to the post titles/bodies
-            if (dataHasChanged) {
-                this.previousLinkIds = JSON.parse(JSON.stringify(currentLinkIds));
-                this.previousPostIds = JSON.parse(JSON.stringify(currentPostIds));
-            } else {
-                return;
-            }
             console.log("called");
 
+            //todo: almost definitely in-efficient
+            const nodes = JSON.parse(JSON.stringify(this.postsInSelectedGraphs));
+            const links = JSON.parse(JSON.stringify(this.linksInSelectedGraphs));
+
             // setup force simulation
-            const simulation = d3.forceSimulation(this.nodes)
-                .force("link", d3.forceLink(this.links)
+            const simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links)
                     .id(d => d.id)
                     .distance(100)
                 )
@@ -132,14 +101,14 @@ export default {
             // add links
             const link = this.linksG
                 .selectAll("line")
-                .data(this.links, link => link.id)
+                .data(links, link => link.id)
                 .join("line")
                 .classed("graph__link", true)
                 .attr("stroke", (link) => this.graphColour(link.graph));
 
             let nodeGroups = this.nodesG
                 .selectAll("g")
-                .data(this.nodes, post => post.id);
+                .data(nodes, post => post.id);
 
             // remove nodes for old posts
             nodeGroups.exit().remove();
