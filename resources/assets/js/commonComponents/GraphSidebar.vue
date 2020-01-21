@@ -73,7 +73,7 @@
                         <span
                             v-for="postId in graph.nodes"
                             :key="postId"
-                            class="flex justify-between"
+                            class="flex justify-between items-center mb-2"
                         >
                             {{ titleOrBody(postId) }}
 

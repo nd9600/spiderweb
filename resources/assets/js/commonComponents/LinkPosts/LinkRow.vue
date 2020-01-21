@@ -69,7 +69,7 @@
                 </select>
             </label>
         </td>
-        <td>
+        <td class="flex justify-center">
             <button
                 class="py-1 px-2 btn btn--secondary"
                 @click="removeLinkLocal"
