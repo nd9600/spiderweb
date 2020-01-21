@@ -71,9 +71,9 @@
                             Posts
                         </h3>
                         <span
-                            class="flex justify-between"
                             v-for="postId in graph.nodes"
                             :key="postId"
+                            class="flex justify-between"
                         >
                             {{ titleOrBody(postId) }}
 
@@ -84,9 +84,32 @@
                                 Remove
                             </button>
                         </span>
+
+                        <div v-if="possiblePostIdsToAddToGraph(graphName).length > 0">
+                            <h4 class="h h--4">
+                                Add post to graph
+                            </h4>
+                            <select
+                                v-model="postIdToAddToGraph[graphName]"
+                                class="p-2 rounded text-gray-700"
+                            >
+                                <option
+                                    v-for="postId in possiblePostIdsToAddToGraph(graphName)"
+                                    :key="postId"
+                                    :value="postId"
+                                >
+                                    {{ titleOrBody(postId) }}
+                                </option>
+                            </select>
+                            <button
+                                class="py-1 px-2 btn btn--secondary"
+                                :disabled="typeof postIdToAddToGraph[graphName] === 'undefined'"
+                                @click="addPostToGraph({graphName, postId: postIdToAddToGraph[graphName]})"
+                            >
+                                Add
+                            </button>
+                        </div>
                     </div>
-
-
                 </div>
             </section>
         </section>
@@ -100,12 +123,14 @@ export default {
     name: "GraphSidebar",
     data() {
         return {
-            newGraphName: ""
+            newGraphName: "",
+
+            postIdToAddToGraph: []
         };
     },
     computed: {
-        ...mapState("postsModule", ["graphs", "posts"]),
-        ...mapGetters("postsModule", ["graphNames", "titleOrBody"]),
+        ...mapState("postsModule", ["graphs"]),
+        ...mapGetters("postsModule", ["graphNames", "postIds", "titleOrBody"]),
 
         selectedGraphNames: {
             get() {
@@ -118,6 +143,10 @@ export default {
     },
     methods: {
         ...mapMutations("postsModule", ["makeNewGraph", "removeGraph", "addPostToGraph", "removePostFromGraph"]),
+        possiblePostIdsToAddToGraph(graphName) {
+            return this.postIds.filter(id => !this.graphs[graphName].nodes.includes(id));
+        },
+
         makeNewGraphLocal() {
             this.makeNewGraph(this.newGraphName);
             this.newGraphName = "";

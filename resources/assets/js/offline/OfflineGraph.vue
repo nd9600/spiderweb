@@ -100,23 +100,23 @@ export default {
 
             let linksTheSame = JSON.stringify(this.previousLinkIds) === JSON.stringify(currentLinkIds);
             let postsTheSame = JSON.stringify(this.previousPostIds) === JSON.stringify(currentPostIds);
-            const dataHasntChanged = linksTheSame
-                && postsTheSame;
+            const dataHasChanged = !linksTheSame
+                || !postsTheSame;
 
-            // console.log(
-            //     this.previousLinkIds, currentLinkIds,
-            //     this.previousPostIds, currentPostIds,
-            //     dataHasntChanged
-            // );
+            console.log(
+                this.previousLinkIds, currentLinkIds,
+                this.previousPostIds, currentPostIds,
+                dataHasChanged
+            );
 
             //todo: doesn't notice changes to the post titles/bodies
-            if (dataHasntChanged) {
-                return;
-            } else {
+            if (dataHasChanged) {
                 this.previousLinkIds = JSON.parse(JSON.stringify(currentLinkIds));
                 this.previousPostIds = JSON.parse(JSON.stringify(currentPostIds));
+            } else {
+                return;
             }
-            // console.log("called");
+            console.log("called");
 
             // setup force simulation
             const simulation = d3.forceSimulation(this.nodes)
