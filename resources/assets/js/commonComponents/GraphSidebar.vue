@@ -105,7 +105,7 @@ export default {
     },
     computed: {
         ...mapState("postsModule", ["graphs", "posts"]),
-        ...mapGetters("postsModule", ["graphNames"]),
+        ...mapGetters("postsModule", ["graphNames", "titleOrBody"]),
 
         selectedGraphNames: {
             get() {
@@ -117,18 +117,11 @@ export default {
         },
     },
     methods: {
-        ...mapMutations("postsModule", ["makeNewGraph", "removeGraph", "removePostFromGraph"]),
+        ...mapMutations("postsModule", ["makeNewGraph", "removeGraph", "addPostToGraph", "removePostFromGraph"]),
         makeNewGraphLocal() {
             this.makeNewGraph(this.newGraphName);
             this.newGraphName = "";
-        },
-
-        titleOrBody(postId) {
-            const post = this.posts[postId];
-            return post.title.length > 0
-                ? post.title
-                : post.body.substr(0, 20);
-        },
+        }
     }
 };
 </script>

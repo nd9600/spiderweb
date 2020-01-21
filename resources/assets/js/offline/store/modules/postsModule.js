@@ -67,6 +67,13 @@ const getters = {
         return postIDs
             .filter(id => !uniqueLinkedPostIDs.includes(id))
             .map(id => state.posts[id]);
+    },
+
+    titleOrBody: (state) => (postId) => {
+        const post = state.posts[postId];
+        return post.title.length > 0
+            ? post.title
+            : post.body.substr(0, 20);
     }
 };
 
@@ -112,6 +119,10 @@ const mutations = {
             ? ["default"]
             : newSelectedGraphNames;
         Vue.delete(state.graphs, graphName);
+    },
+
+    addPostToGraph(state, {graphName, postId}) {
+        state.graphs[graphName].nodes.push(postId);
     },
     removePostFromGraph(state, {graphName, postId}) {
         let linksAfterPostRemoval = {};

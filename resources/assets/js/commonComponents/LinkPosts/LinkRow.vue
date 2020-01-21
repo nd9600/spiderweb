@@ -102,7 +102,7 @@ export default {
     },
     computed: {
         ...mapState("postsModule", ["posts", "selectedGraphNames"]),
-        ...mapGetters("postsModule", ["postIds", "graphNames"]),
+        ...mapGetters("postsModule", ["postIds", "graphNames", "titleOrBody"]),
 
         possibleTargets() {
             return this.postIds.filter(id => id !== this.source);
@@ -116,13 +116,6 @@ export default {
     },
     methods: {
         ...mapMutations("postsModule", ["updateLink", "removeLink"]),
-
-        titleOrBody(postId) {
-            const post = this.posts[postId];
-            return post.title.length > 0
-                ? post.title
-                : post.body.substr(0, 20);
-        },
 
         updateLinkLocal() {
             this.updateLink({
