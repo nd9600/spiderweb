@@ -27,10 +27,10 @@ export default {
         PostSidebar
     },
     mounted() {
-        this.loadState();
+        this.loadStateFromLocalStorage();
     },
     methods: {
-        ...mapActions(["loadState"]),
+        ...mapActions(["loadStateFromLocalStorage"]),
     }
 };
 </script>

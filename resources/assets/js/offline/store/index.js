@@ -12,19 +12,31 @@ const store = new Vuex.Store({
     modules: {
         postsModule
     },
-    actions: {
-        saveState(context) {
-            const storageObject = {
-                postsModule: context.state.postsModule
+    getters: {
+        storageObject(state) {
+            return {
+                postsModule: state.postsModule
             };
+        }
+    },
+    mutations: {
+    },
+    actions: {
+        saveStateLocally(context) {
+            const storageObject = context.getters.storageObject;
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(storageObject));
         },
-        loadState(context) {
+        loadStateFromLocalStorage(context) {
             const storageObject = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
             if (storageObject === null) {
                 console.log("The state hasn't been stored locally");
                 return;
             }
+            context.dispatch("loadState", storageObject);
+
+        },
+
+        loadState(context, storageObject) {
             if (storageObject.postsModule) {
                 context.commit("postsModule/setState", storageObject.postsModule);
             }

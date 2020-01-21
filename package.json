@@ -11,7 +11,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.7.5",
-    "@babel/preset-env": "^7.7.6",
+    "@babel/plugin-transform-runtime": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
     "@types/d3": "^5.7.2",
     "axios": "^0.19.0",
     "babel-loader": "^8.0.6",
@@ -25,7 +26,7 @@
     "gulp-cssimport": "^7.0.0",
     "gulp-rev": "^9.0.0",
     "gulp-sass": "^4.0.2",
-    "node-sass": "^4.13.0",
+    "node-sass": "^4.13.1",
     "vinyl-named-with-path": "^1.0.0",
     "vue-loader": "^15.7.2",
     "vue-style-loader": "^4.1.2",
@@ -37,6 +38,7 @@
     "webpack-stream": "^5.2.1"
   },
   "dependencies": {
+    "@babel/runtime": "^7.8.3",
     "d3": "^5.14.2",
     "lodash.debounce": "^4.0.8",
     "moment": "^2.24.0",
