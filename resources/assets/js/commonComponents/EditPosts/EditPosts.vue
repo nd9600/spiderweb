@@ -11,7 +11,7 @@
                 </h2>
                 
                 <button
-                    v-if="posts.length > 0"
+                    v-if="Object.keys(posts).length > 0"
                     class="btn btn--secondary"
                     @click="showEditors = !showEditors"
                 >

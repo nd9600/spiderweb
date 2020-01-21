@@ -54,6 +54,12 @@
                 >
                     Show editor
                 </button>
+                <button
+                    class="py-1 px-2 btn btn--primary"
+                    @click="removePostLocal"
+                >
+                    x
+                </button>
             </div>
         </div>
 

@@ -20,7 +20,8 @@ const state = {
     graphs: {
         "default": {
             name: "default",
-            nodes: []
+            nodes: [],
+            colour: "black"
         }
     },
 
@@ -162,7 +163,7 @@ const mutations = {
         const newPostId = highestPostId + 1;
 
         newPost.id = newPostId;
-        state.posts[newPostId] = newPost;
+        Vue.set(state.posts, newPostId, newPost);
     },
     updatePost(state, post) {
         Vue.set(state.posts, post.id, post);

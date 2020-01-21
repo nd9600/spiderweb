@@ -42,7 +42,7 @@
         <button
             type="submit"
             class="mb-5 btn btn--primary"
-            :disabled="body.trim().length === 0"
+            :disabled="title.trim().length === 0 && body.trim().length === 0"
             @click="makePost"
         >
             Create
