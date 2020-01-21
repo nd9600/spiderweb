@@ -1,15 +1,33 @@
 <template>
     <section class="flex flex-col">
-        <div v-if="showEditor">
+        <div class="w-full flex justify-center">
+            <div class="w-2/3 flex items-center justify-between">
+                <span>
+                    {{ post.title.length > 0 ? post.title : post.body.substr(0, 20) }}
+                </span>
+                <span>
+                    <button
+                        class="btn btn--secondary"
+                        @click="showEditor = !showEditor"
+                    >
+                        {{ showEditor ? "Close" : "Edit" }}
+                    </button>
+                    <button
+                        class="py-1 px-2 btn btn--primary"
+                        @click="removePostLocal"
+                    >
+                        x
+                    </button>
+                </span>
+            </div>
+        </div>
+        <div
+            v-if="showEditor"
+            class="my-2"
+        >
             <label
                 class="mb-5 flex flex-col items-start"
             >
-                <button
-                    class="mb-2 btn btn--secondary"
-                    @click="showEditor = false"
-                >
-                    Close
-                </button>
                 <input
                     v-if="showTitleInput"
                     ref="inputTitle"
@@ -32,37 +50,6 @@
                     maxlength="10000"
                 />
             </label>
-
-            <button
-                class="py-1 px-2 btn btn--secondary"
-                @click="removePostLocal"
-            >
-                Remove
-            </button>
-        </div>
-        <div
-            v-else
-            class="w-full flex justify-center"
-        >
-            <div class="w-2/3 flex items-center justify-between">
-                <span>
-                    {{ post.title.length > 0 ? post.title : post.body.substr(0, 20) }}
-                </span>
-                <span>
-                    <button
-                        class="btn btn--secondary"
-                        @click="showEditor = true"
-                    >
-                        Edit
-                    </button>
-                    <button
-                        class="py-1 px-2 btn btn--primary"
-                        @click="removePostLocal"
-                    >
-                        x
-                    </button>
-                </span>
-            </div>
         </div>
 
         <div class="flex justify-center">
