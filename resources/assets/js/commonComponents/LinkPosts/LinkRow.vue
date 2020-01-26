@@ -37,15 +37,15 @@
         <td>
             <label>
                 <select
-                    v-model="graph"
+                    v-model="graphId"
                     class="p-2 rounded text-gray-700"
                 >
                     <option
-                        v-for="graphName in graphNames"
-                        :key="graphName"
-                        :value="graphName"
+                        v-for="(graph, id) in graphs"
+                        :key="id"
+                        :value="id"
                     >
-                        {{ graphName }}
+                        {{ graph.name }}
                     </option>
                 </select>
             </label>
@@ -94,14 +94,14 @@ export default {
     },
     data() {
         return {
-            graph: this.link.graph,
+            graphId: this.link.graph,
             source: this.link.source,
             target: this.link.target,
             type: this.link.type,
         };
     },
     computed: {
-        ...mapState("postsModule", ["posts", "selectedGraphNames"]),
+        ...mapState("postsModule", ["graphs", "posts", "selectedGraphNames"]),
         ...mapGetters("postsModule", ["postIds", "graphNames", "titleOrBody"]),
 
         possibleTargets() {
@@ -109,7 +109,7 @@ export default {
         }
     },
     watch: {
-        "graph": "updateLinkLocal",
+        "graphId": "updateLinkLocal",
         "source": "updateLinkLocal",
         "target": "updateLinkLocal",
         "type": "updateLinkLocal",
@@ -120,7 +120,7 @@ export default {
         updateLinkLocal() {
             this.updateLink({
                 id: this.link.id,
-                graph: this.graph,
+                graph: this.graphId,
                 source: this.source,
                 target: this.target,
                 type: this.type,

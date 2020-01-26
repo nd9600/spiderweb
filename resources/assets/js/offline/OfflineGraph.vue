@@ -31,7 +31,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["selectedGraphNames"]),
+        ...mapState("postsModule", ["selectedGraphIds"]),
         ...mapGetters("postsModule", ["postsInSelectedGraphs", "linksInSelectedGraphs", "graphColour"]),
         
         selectedPostId: {
@@ -44,7 +44,7 @@ export default {
         }
     },
     watch: {
-        selectedGraphNames() {
+        selectedGraphIds() {
             this.debouncedMakeGraphSvg();
         },
         postsInSelectedGraphs() {
@@ -81,8 +81,6 @@ export default {
             }
         ),
         makeGraphSvg() {
-            console.log("called");
-
             //todo: almost definitely in-efficient
             const nodes = JSON.parse(JSON.stringify(this.postsInSelectedGraphs));
             const links = JSON.parse(JSON.stringify(this.linksInSelectedGraphs));

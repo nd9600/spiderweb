@@ -85,10 +85,10 @@ module.exports = {
         })
     ],
 
-    devtool: false,
-    //devtool: mode === "production"
-    //    ? "source-map" // "false"
-    //    : "eval-source-map",
+    // devtool: false,
+    devtool: mode === "production"
+        ? "source-map" // "false"
+        : "eval-source-map",
 
     output: {
         filename: mode === "production"
@@ -100,8 +100,6 @@ module.exports = {
 };
 
 if (mode === "production") {
-    // module.exports.devtool = "source-map";
-    // module.exports.devtool = false;
     // http://vue-loader.vuejs.org/en/workflow/production.html
     module.exports.plugins = (module.exports.plugins || []).concat([
         new webpack.DefinePlugin({
@@ -113,6 +111,4 @@ if (mode === "production") {
             minimize: true
         })
     ]);
-} else {
-    // module.exports.devtool = "eval-source-map";
 }

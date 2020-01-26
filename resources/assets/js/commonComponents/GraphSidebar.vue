@@ -1,21 +1,21 @@
 <template>
     <div class="flex flex-col">
-        <section v-if="graphNames.length > 0">
+        <section v-if="Object.keys(graphs).length > 0">
             <h1 class="h h--1">
                 Graphs
             </h1>
             <label>
                 <select
-                    v-model="selectedGraphNames"
+                    v-model.number="selectedGraphIds"
                     class="mt-2 p-2 rounded text-gray-700"
                     multiple
                 >
                     <option
-                        v-for="graphName in graphNames"
-                        :key="graphName"
-                        :value="graphName"
+                        v-for="(graph, graphId) in graphs"
+                        :key="graphId"
+                        :value="graphId"
                     >
-                        {{ graphName }}
+                        {{ graph.name }}
                     </option>
                 </select>
             </label>
@@ -51,16 +51,16 @@
                 </h2>
 
                 <div
-                    v-for="(graph, graphName) in graphs"
-                    :key="graphName"
+                    v-for="(graph, graphId) in graphs"
+                    :key="graphId"
                     class="m-4 p-4 border"
                 >
                     <span class="flex justify-between">
-                        <span>{{ graphName }}</span>
+                        <span>{{ graph.name }}</span>
                         <button
-                            v-if="graphName !== 'default'"
+                            v-if="graphId !== 1"
                             class="py-1 px-2 btn btn--secondary"
-                            @click="removeGraph(graphName)"
+                            @click="removeGraph(graphId)"
                         >
                             Remove
                         </button>
@@ -79,22 +79,22 @@
 
                             <button
                                 class="py-1 px-2 btn btn--secondary"
-                                @click="removePostFromGraph({graphName, postId})"
+                                @click="removePostFromGraph({graphId, postId})"
                             >
                                 Remove
                             </button>
                         </span>
 
-                        <div v-if="possiblePostIdsToAddToGraph(graphName).length > 0">
+                        <div v-if="possiblePostIdsToAddToGraph(graphId).length > 0">
                             <h4 class="h h--4">
                                 Add post to graph
                             </h4>
                             <select
-                                v-model="postIdToAddToGraph[graphName]"
+                                v-model="postIdToAddToGraph[graphId]"
                                 class="p-2 rounded text-gray-700"
                             >
                                 <option
-                                    v-for="postId in possiblePostIdsToAddToGraph(graphName)"
+                                    v-for="postId in possiblePostIdsToAddToGraph(graphId)"
                                     :key="postId"
                                     :value="postId"
                                 >
@@ -103,8 +103,8 @@
                             </select>
                             <button
                                 class="py-1 px-2 btn btn--secondary"
-                                :disabled="typeof postIdToAddToGraph[graphName] === 'undefined'"
-                                @click="addPostToGraph({graphName, postId: postIdToAddToGraph[graphName]})"
+                                :disabled="typeof postIdToAddToGraph[graphId] === 'undefined'"
+                                @click="addPostToGraph({graphId, postId: postIdToAddToGraph[graphId]})"
                             >
                                 Add
                             </button>
@@ -130,21 +130,21 @@ export default {
     },
     computed: {
         ...mapState("postsModule", ["graphs"]),
-        ...mapGetters("postsModule", ["graphNames", "postIds", "titleOrBody"]),
+        ...mapGetters("postsModule", ["postIds", "titleOrBody"]),
 
-        selectedGraphNames: {
+        selectedGraphIds: {
             get() {
-                return this.$store.state.postsModule.selectedGraphNames;
+                return this.$store.state.postsModule.selectedGraphIds;
             },
-            set(selectedGraphNames) {
-                this.$store.commit("postsModule/setSelectedGraphNames", selectedGraphNames);
+            set(selectedGraphIds) {
+                this.$store.commit("postsModule/setSelectedGraphIds", selectedGraphIds);
             }
         },
     },
     methods: {
         ...mapMutations("postsModule", ["makeNewGraph", "removeGraph", "addPostToGraph", "removePostFromGraph"]),
-        possiblePostIdsToAddToGraph(graphName) {
-            return this.postIds.filter(id => !this.graphs[graphName].nodes.includes(id));
+        possiblePostIdsToAddToGraph(graphId) {
+            return this.postIds.filter(id => !this.graphs[graphId].nodes.includes(id));
         },
 
         makeNewGraphLocal() {

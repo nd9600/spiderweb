@@ -12,7 +12,7 @@
 <script>
 import Post from "@/js/commonComponents/Post";
 
-import { mapState, mapGetters } from "vuex";
+import { mapState } from "vuex";
 
 
 export default {
@@ -21,17 +21,7 @@ export default {
         Post
     },
     computed: {
-        ...mapState("postsModule", ["posts", "selectedPostId"]),
-        ...mapGetters("postsModule", ["graphNames"]),
-        
-        selectedGraphNames: {
-            get() {
-                return this.$store.state.postsModule.selectedGraphNames;
-            },
-            set(selectedGraphNames) {
-                this.$store.commit("postsModule/setSelectedGraphNames", selectedGraphNames);
-            }
-        },
+        ...mapState("postsModule", ["posts", "selectedPostId"])
     }
 };
 </script>

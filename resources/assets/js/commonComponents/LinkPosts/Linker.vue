@@ -51,15 +51,15 @@
                     <td>
                         <label>
                             <select
-                                v-model="graph"
+                                v-model="graphId"
                                 class="p-2 rounded text-gray-700"
                             >
                                 <option
-                                    v-for="graphName in graphNames"
-                                    :key="graphName"
-                                    :value="graphName"
+                                    v-for="(graph, graphId) in graphs"
+                                    :key="graphId"
+                                    :value="graphId"
                                 >
-                                    {{ graphName }}
+                                    {{ graph.name }}
                                 </option>
                             </select>
                         </label>
@@ -97,7 +97,7 @@
 
         <button
             class="mt-2 btn btn--primary"
-            :disabled="graph.length === 0 || target === null"
+            :disabled="graphId.length === 0 || target === null"
             @click="linkPostLocal"
         >
             Link
@@ -116,7 +116,7 @@ export default {
     name: "Linker",
     data() {
         return {
-            graph: "default",
+            graphId: 1,
             source: null,
             target: null,
             linkType: "reply",
@@ -125,18 +125,18 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["posts", "selectedGraphNames"]),
-        ...mapGetters("postsModule", ["postIds", "graphNames", "titleOrBody"]),
+        ...mapState("postsModule", ["graphs", "posts", "selectedGraphIds"]),
+        ...mapGetters("postsModule", ["postIds", "titleOrBody"]),
 
         possibleTargets() {
             return this.postIds.filter(id => id !== this.source);
         }
     },
     created() {
-        const initialGraphName = this.selectedGraphNames.length === 1
-            ? this.selectedGraphNames[0]
-            : "default";
-        this.graph = initialGraphName;
+        const initialGraphId = this.selectedGraphIds.length === 1
+            ? this.selectedGraphIds[0]
+            : 1;
+        this.graph = initialGraphId;
     },
     methods: {
         ...mapMutations("postsModule", ["addLink"]),
@@ -145,7 +145,7 @@ export default {
             this.addLink({
                 source: this.source,
                 target: this.target,
-                graph: this.graph,
+                graph: this.graphId,
                 type: this.linkType
             });
         }

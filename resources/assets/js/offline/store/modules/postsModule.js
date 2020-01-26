@@ -18,7 +18,8 @@ const state = {
     links: {},
     
     graphs: {
-        "default": {
+        1: {
+            id: 1,
             name: "default",
             nodes: [],
             colour: "black"
@@ -26,30 +27,32 @@ const state = {
     },
 
     selectedPostId: null,
-    selectedGraphNames: ["default"]
+    selectedGraphIds: [1]
 };
 
 const getters = {
     graphNames(state) {
-        return Object.keys(state.graphs);
+        return Object.values(state.graphs).map(graph => graph.name);
     },
 
     // graph getters
     postsInSelectedGraphs(state) {
         let postIDs = [];
-        for (let selectedGraphName of state.selectedGraphNames) {
-            postIDs = postIDs.concat(state.graphs[selectedGraphName].nodes);
+        for (let selectedGraphId of state.selectedGraphIds) {
+            postIDs = postIDs.concat(state.graphs[selectedGraphId].nodes);
         }
         const uniquePostIDs = [...new Set(postIDs)];
         return uniquePostIDs.map(id => state.posts[id]);
     },
     linksInSelectedGraphs(state) {
         return Object.values(state.links)
-            .filter(link => state.selectedGraphNames.includes(link.graph));
+            .filter(link => {
+                return state.selectedGraphIds.includes(link.graph);
+            });
     },
 
     // node/link getters
-    graphColour: (state) => (name) => state.graphs[name].colour || stringToColour(name),
+    graphColour: (state) => (id) => state.graphs[id].colour || stringToColour(String(id)),
 
     // post linking getters
     postIds(state) {
@@ -84,14 +87,14 @@ const mutations = {
         state.links = stateFromLocalStorage.links;
         state.graphs = stateFromLocalStorage.graphs;
         state.selectedPostId = stateFromLocalStorage.selectedPostId;
-        state.selectedGraphNames = stateFromLocalStorage.selectedGraphNames;
+        state.selectedGraphIds = stateFromLocalStorage.selectedGraphIds;
     },
     
     setSelectedPostId(state, selectedPostId) {
         state.selectedPostId = selectedPostId;
     },
-    setSelectedGraphNames(state, selectedGraphNames) {
-        state.selectedGraphNames = selectedGraphNames;
+    setSelectedGraphIds(state, selectedGraphIds) {
+        state.selectedGraphIds = selectedGraphIds;
     },
 
     makeNewGraph(state, newGraphName) {
@@ -99,36 +102,50 @@ const mutations = {
             return;
         }
 
-        const existingGraphNames = Object.keys(state.graphs);
+        const existingGraphNames = Object.values(state.graphs).map(graph => graph.name);
         if (existingGraphNames.includes(newGraphName)) {
             alert("You're trying to add a graph that already exists");
             return;
         }
+
+        const existingGraphIds = Object.keys(state.graph);
+
+        const highestGraphId = existingGraphIds.length === 0
+            ? 0
+            : (
+                Math.max(
+                    ...existingGraphIds
+                        .map(id => parseInt(id, 10))
+                )
+            );
+        const newGraphId = highestGraphId + 1;
+
         Vue.set(
             state.graphs,
-            newGraphName,
+            newGraphId,
             {
+                id: newGraphId,
                 name: newGraphName,
                 nodes: []
             }
         );
     },
-    removeGraph(state, graphName) {
-        const newSelectedGraphNames = state.selectedGraphNames
-            .filter(graph => graph !== graphName);
-        state.selectedGraphNames = (newSelectedGraphNames.length === 0)
-            ? ["default"]
-            : newSelectedGraphNames;
-        Vue.delete(state.graphs, graphName);
+    removeGraph(state, graphId) {
+        const newSelectedGraphIds = state.selectedGraphIds
+            .filter(selectedGraphId => selectedGraphId !== graphId);
+        state.selectedGraphIds = newSelectedGraphIds.length === 0
+            ? [1]
+            : newSelectedGraphIds;
+        Vue.delete(state.graphs, graphId);
     },
 
-    addPostToGraph(state, {graphName, postId}) {
-        state.graphs[graphName].nodes.push(postId);
+    addPostToGraph(state, {graphId, postId}) {
+        state.graphs[graphId].nodes.push(postId);
     },
-    removePostFromGraph(state, {graphName, postId}) {
+    removePostFromGraph(state, {graphId, postId}) {
         let linksAfterPostRemoval = {};
         for (const link of Object.values(state.links)) {
-            const isRemovingPostFromThisGraph = link.graph === graphName;
+            const isRemovingPostFromThisGraph = link.graph === parseInt(graphId, 10); // this is a string, like `"2"`, _not_ `2`
             const postIsSourceOrTarget =
                 link.source === postId
                 || link.target === postId;
@@ -143,9 +160,9 @@ const mutations = {
         Vue.set(state, "links", linksAfterPostRemoval);
         
         Vue.set(
-            state.graphs[graphName],
+            state.graphs[graphId],
             "nodes",
-            state.graphs[graphName].nodes.filter(id => id !== postId)
+            state.graphs[graphId].nodes.filter(id => id !== postId)
         );
     },
 
@@ -186,12 +203,12 @@ const mutations = {
         }
 
         // we also need to remove the individual posts from `graphs[graph].nodes`
-        for (let [graphName, graph] of Object.entries(state.graphs)) {
+        for (let [graphId, graph] of Object.entries(state.graphs)) {
             const newGraph = {
                 ...graph,
                 nodes: graph.nodes.filter(postId => postId !== id)
             };
-            Vue.set(state.graphs, graphName, newGraph);
+            Vue.set(state.graphs, graphId, newGraph);
         }
 
         Vue.set(state, "links", linksAfterPostRemoval);
@@ -227,8 +244,8 @@ const mutations = {
         }
 
         Vue.set(state.links, newLinkId, {
-            graph,
             id: newLinkId,
+            graph,
             source,
             target,
             type
