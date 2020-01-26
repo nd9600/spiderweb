@@ -28,6 +28,13 @@
             <label
                 class="mb-5 flex flex-col items-start"
             >
+                <button
+                    class="text-left underline"
+                    :class="title.trim().length > 0 ? 'cursor-default' : 'cursor-pointer'"
+                    @click.prevent="toggleTitleInput"
+                >
+                    Title
+                </button>
                 <input
                     v-if="showTitleInput"
                     ref="inputTitle"
