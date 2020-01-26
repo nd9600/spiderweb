@@ -2,7 +2,7 @@
 
 See [the wiki](https://wiki.nd9600.download/spiderweb) for more info
 
-## Intro
+## Introduction
 Spiderweb lets you
 * make _posts_
 * add those posts to _graphs_
@@ -10,6 +10,13 @@ Spiderweb lets you
 * view the graphs of posts you've made - you can look at more than one graph at a time
 
 ![Spiderweb's UI](https://user-images.githubusercontent.com/9141675/73142284-e0d2e600-4084-11ea-92e1-30103daa7b95.png)
+
+They're all kinda independent:
+* You can make a post by itself, without linking it to another one, or adding it to a graph.
+* You can add a post to a graph without linking it to another post
+* After you've made a post, you can link to many others - you don't need to link the post while you create it
+* Deleting a link doesn't delete either the source or the target post
+* Deleting a graph doesn't delete the posts in it, only the links - you can add the posts to another graph
 
 ## Usage
 ### Offline version
