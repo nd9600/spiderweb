@@ -104,7 +104,7 @@ const mutations = {
 
         const existingGraphNames = Object.values(state.graphs).map(graph => graph.name);
         if (existingGraphNames.includes(newGraphName)) {
-            alert("You're trying to add a graph that already exists");
+            alert("You're trying to add a graph that already exists, choose a different name");
             return;
         }
 
@@ -132,7 +132,7 @@ const mutations = {
     },
     removeGraph(state, graphId) {
         const newSelectedGraphIds = state.selectedGraphIds
-            .filter(selectedGraphId => selectedGraphId !== graphId);
+            .filter(selectedGraphId => selectedGraphId !== parseInt(graphId, 10));
         state.selectedGraphIds = newSelectedGraphIds.length === 0
             ? [1]
             : newSelectedGraphIds;
