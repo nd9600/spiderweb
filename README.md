@@ -46,3 +46,6 @@ To work on the online version:
 3. `composer install`
 4. `npm install && gulp && npm run dev`
 5. `php artisan serve`, then it'll be available on `localhost:8000`
+
+## Known bugs
+1. I broke it a while ago while adding and removing a lot of posts, but I'm not sure how to reproduce; the bug's almost definitely still around
