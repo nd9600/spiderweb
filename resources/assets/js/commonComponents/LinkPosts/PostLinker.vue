@@ -109,7 +109,6 @@ export default {
         const initialGraphId = this.selectedGraphIds.length === 1
             ? this.selectedGraphIds[0]
             : 1;
-        console.log(initialGraphId);
         this.graph = initialGraphId;
     },
     methods: {
