@@ -7,7 +7,9 @@ Spiderweb lets you
 * make _posts_
 * add those posts to _graphs_
 * _link_ the posts together
-* view the graphs of posts you've made - you can look at more than one graph at a time 
+* view the graphs of posts you've made - you can look at more than one graph at a time
+
+![Spiderweb's UI](https://user-images.githubusercontent.com/9141675/73142284-e0d2e600-4084-11ea-92e1-30103daa7b95.png)
 
 ## Usage
 ### Offline version
