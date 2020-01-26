@@ -17,7 +17,7 @@
                     <td>
                         <label>
                             <select
-                                v-model="source"
+                                v-model.number="source"
                                 class="p-2 rounded text-gray-700"
                             >
                                 <option
@@ -34,7 +34,7 @@
                     <td>
                         <label>
                             <select
-                                v-model="target"
+                                v-model.number="target"
                                 class="p-2 rounded text-gray-700"
                             >
                                 <option
@@ -51,7 +51,7 @@
                     <td>
                         <label>
                             <select
-                                v-model="graphId"
+                                v-model.number="graphId"
                                 class="p-2 rounded text-gray-700"
                             >
                                 <option

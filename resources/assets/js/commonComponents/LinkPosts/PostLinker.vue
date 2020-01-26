@@ -7,7 +7,7 @@
             Link in graph
             <label>
                 <select
-                    v-model="graphId"
+                    v-model.number="graphId"
                     class="p-2 rounded text-gray-700"
                 >
                     <option
@@ -22,7 +22,7 @@
             to post
             <label>
                 <select
-                    v-model="target"
+                    v-model.number="target"
                     class="p-2 rounded text-gray-700"
                 >
                     <option
@@ -81,7 +81,7 @@
 import {mapState, mapGetters, mapMutations } from "vuex";
 
 export default {
-    name: "LinkPosts",
+    name: "PostLinker",
     props: {
         post: {
             type: Object,
@@ -105,10 +105,11 @@ export default {
             return this.postIds.filter(id => id !== this.post.id);
         }
     },
-    created() {
+    mounted() {
         const initialGraphId = this.selectedGraphIds.length === 1
             ? this.selectedGraphIds[0]
             : 1;
+        console.log(initialGraphId);
         this.graph = initialGraphId;
     },
     methods: {

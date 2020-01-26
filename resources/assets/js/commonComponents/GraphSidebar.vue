@@ -90,7 +90,7 @@
                                 Add post to graph
                             </h4>
                             <select
-                                v-model="postIdToAddToGraph[graphId]"
+                                v-model.number="postIdToAddToGraph[graphId]"
                                 class="p-2 rounded text-gray-700"
                             >
                                 <option

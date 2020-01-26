@@ -18,7 +18,4 @@
 
     <div id="app"></div>
 </div>
-
-<script src="{{ Helper::getAssetPath('js/vendors.js') }}"></script>
-<script src="{{ Helper::getAssetPath('js/test.js') }}"></script>
 @endsection

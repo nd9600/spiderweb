@@ -52,7 +52,7 @@ const getters = {
     },
 
     // node/link getters
-    graphColour: (state) => (id) => state.graphs[id].colour || stringToColour(String(id)),
+    graphColour: (state) => (id) => state.graphs[id].colour || stringToColour(`${String(id)}salt and pepper are good for hashes`), // if we just hash the id, the colours are almost identical
 
     // post linking getters
     postIds(state) {
@@ -108,7 +108,7 @@ const mutations = {
             return;
         }
 
-        const existingGraphIds = Object.keys(state.graph);
+        const existingGraphIds = Object.keys(state.graphs);
 
         const highestGraphId = existingGraphIds.length === 0
             ? 0
@@ -243,14 +243,6 @@ const mutations = {
             return;
         }
 
-        Vue.set(state.links, newLinkId, {
-            id: newLinkId,
-            graph,
-            source,
-            target,
-            type
-        });
-
         // add source and/or target posts to the graph, if they're not there already
         const postIdsAlreadyInGraph = state.graphs[graph].nodes;
         if (!postIdsAlreadyInGraph.includes(source)) {
@@ -259,8 +251,25 @@ const mutations = {
         if (!postIdsAlreadyInGraph.includes(target)) {
             state.graphs[graph].nodes.push(target);
         }
+
+        Vue.set(state.links, newLinkId, {
+            id: newLinkId,
+            graph,
+            source,
+            target,
+            type
+        });
     },
     updateLink(state, link) {
+        // add source and/or target posts to the graph, if they're not there already
+        const postIdsAlreadyInGraph = state.graphs[link.graph].nodes;
+        if (!postIdsAlreadyInGraph.includes(link.source)) {
+            state.graphs[link.graph].nodes.push(link.source);
+        }
+        if (!postIdsAlreadyInGraph.includes(link.target)) {
+            state.graphs[link.graph].nodes.push(link.target);
+        }
+
         Vue.set(state.links, link.id, link);
     },
     removeLink(state, {id}) {
