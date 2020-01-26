@@ -24,5 +24,6 @@ Route::group([
 });
 
 Route::get('/offline', function () {
+    // File::put("offline.html", view("offline")->render());
     return view("offline");
 })->name("offline");
