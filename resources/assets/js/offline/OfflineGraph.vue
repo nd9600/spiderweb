@@ -189,7 +189,7 @@ export default {
     .graph__link {
         fill: none;
         /*stroke: #8a8a8a;*/
-        stroke-width: 3px;
+        stroke-width: 10px;
     }
 
     .node__circle {
@@ -203,8 +203,8 @@ export default {
         text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
         fill: #333333;
 
-        font-size: 12px;
-        font-weight: normal;
+        font-size: 24px;
+        font-weight: bold;
         stroke-width: 0;
     }
 </style>
