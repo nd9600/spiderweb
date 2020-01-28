@@ -1,5 +1,5 @@
 <template>
-    <section class="h-full p-4 overflow-x-auto overflow-y-auto sidebar">
+    <section class="h-full w-full p-4 sidebar">
         <div class="flex">
             <button
                 v-for="tab in tabs"
@@ -13,21 +13,23 @@
                 {{ tab.name }}
             </button>
         </div>
-        <div class="pt-2">
+        <div class="h-full pt-2">
             <component :is="currentTab" />
         </div>
     </section>
 </template>
 
 <script>
+import Viewer from "@/js/commonComponents/Viewer";
 import GraphSidebar from "@/js/commonComponents/GraphSidebar";
 import EditPosts from "@/js/commonComponents/EditPosts/EditPosts";
 import LinkPosts from "@/js/commonComponents/LinkPosts/LinkPosts";
 import LoadSave from "@/js/commonComponents/LoadSave";
 
 export default {
-    name: "Sidebar",
+    name: "Navbar",
     components: {
+        Viewer,
         GraphSidebar,
         EditPosts,
         LinkPosts,
@@ -35,8 +37,12 @@ export default {
     },
     data() {
         return {
-            currentTab: "graph-sidebar", // | post-sidebar | edit-posts | link-posts | load-save,
+            currentTab: "viewer", // | viewer | graph-sidebar | edit-posts | link-posts | load-save,
             tabs: [
+                {
+                    key: "viewer",
+                    name: "Viewer",
+                },
                 {
                     key: "graph-sidebar",
                     name: "Graphs",
@@ -61,8 +67,7 @@ export default {
 
 <style scoped>
     .sidebar {
-        min-width: 33%;
-        background-color: #333;
-        color: white;
+        background-color: #eee;
+        color: #333;
     }
 </style>

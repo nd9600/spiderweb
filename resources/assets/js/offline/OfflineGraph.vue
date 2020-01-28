@@ -1,7 +1,7 @@
 <template>
     <svg
         id="graphSvg"
-        class="h-full w-1/3 cursor-move border"
+        class="h-full cursor-move border"
     >
         <g transform="translate(5, 15)">
             <g class="graph__links"></g>

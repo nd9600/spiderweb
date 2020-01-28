@@ -1,30 +1,19 @@
 <template>
-    <div class="h-full flex flex-row">
-        <sidebar
-            class="w-1/3"
-        />
-        <offline-graph
-            class="w-1/3"
-        />
-        <post-sidebar
-            class="w-1/3"
-        />
+    <div class="h-full">
+        <navbar class="w-full h-full"/>
     </div>
 </template>
 
 <script>
-import Sidebar from "@/js/commonComponents/Sidebar";
-import OfflineGraph from "./OfflineGraph";
-import PostSidebar from "@/js/commonComponents/PostSidebar";
+import Navbar from "@/js/commonComponents/Navbar";
+
 
 import { mapActions } from "vuex";
 
 export default {
     name: "Offline",
     components: {
-        Sidebar,
-        OfflineGraph,
-        PostSidebar
+        Navbar
     },
     mounted() {
         this.loadStateFromLocalStorage();

@@ -71,6 +71,8 @@
     cursor: pointer;
 
     border: 1px solid var(--red);
+    background: var(--grey);
+    color: white;
 }
 
 .optionBtn:hover {
