@@ -3,7 +3,7 @@
         id="graphSvg"
         class="h-full cursor-move border"
     >
-        <g transform="translate(5, 15)">
+        <g transform="translate(5, 15) scale(0.5)">
             <g class="graph__links"></g>
             <g class="graph__nodes"></g>
         </g>
@@ -177,6 +177,11 @@ export default {
                     this.rootG.attr("transform", `translate(${x} ${y}) scale(${scale})`);
                 });
             this.svg.call(zoom)
+                .call(
+                    zoom.transform,
+                    d3.zoomIdentity
+                        .translate(WIDTH / 2, HEIGHT / 2)
+                        .scale(0.5)) // sets initial x/y and zoom amount
                 .on("wheel", () => {
                     d3.event.preventDefault();
                 });
