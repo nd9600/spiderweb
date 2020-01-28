@@ -8,7 +8,7 @@
             <label>
                 <select
                     v-model.number="graphId"
-                    class="p-2 rounded text-gray-700"
+                    class="p-2 rounded text-gray-700 bg-white"
                 >
                     <option
                         v-for="(graph, id) in graphs"
@@ -23,7 +23,7 @@
             <label>
                 <select
                     v-model.number="target"
-                    class="p-2 rounded text-gray-700"
+                    class="p-2 rounded text-gray-700 bg-white"
                 >
                     <option
                         v-for="postId in possibleTargets"
@@ -47,7 +47,7 @@
                     <select
                         v-if="showTypeSelect"
                         v-model="linkType"
-                        class="p-2 rounded text-gray-700"
+                        class="p-2 rounded text-gray-700 bg-white"
                     >
                         <option value="reply">
                             reply

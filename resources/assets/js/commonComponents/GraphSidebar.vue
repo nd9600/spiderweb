@@ -23,12 +23,12 @@
             <hr class="my-5">
             
             <h2 class="h h--2">
-                <label>
+                <label class="flex flex-col items-start">
                     Make new graph
                     <input 
                         v-model="newGraphName" 
                         type="text"
-                        class="p-2 rounded text-gray-800 text-base placeholder-gray-600"
+                        class="mb-2 p-2 rounded text-gray-800 text-base placeholder-gray-600"
                         placeholder="foo graph"
                         @keyup.enter="makeNewGraphLocal"
                     />
@@ -91,7 +91,7 @@
                             </h4>
                             <select
                                 v-model.number="postIdToAddToGraph[graphId]"
-                                class="p-2 rounded text-gray-700"
+                                class="p-2 rounded text-gray-700 bg-white"
                             >
                                 <option
                                     v-for="postId in possiblePostIdsToAddToGraph(graphId)"

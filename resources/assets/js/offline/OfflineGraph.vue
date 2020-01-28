@@ -66,8 +66,10 @@ export default {
             .attr("stroke", "#fff")
             .attr("stroke-width", 1.5);
 
-        // this.makeGraphSvg();
         this.setupZooming();
+        this.$nextTick(() => {
+            this.debouncedMakeGraphSvg();
+        });
     },
     methods: {
         debouncedMakeGraphSvg: debounce(
@@ -95,6 +97,7 @@ export default {
                     .strength(-250)
                 )
                 .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2));
+            simulation.tick(300);
 
             // add links
             const link = this.linksG
@@ -164,7 +167,7 @@ export default {
         },
 
         setupZooming() {
-            this.svg.call(d3.zoom()
+            const zoom = d3.zoom()
                 .scaleExtent([0.2, 2]) // limits zooming so you can only zoom between 0.2x and 2x
                 .on("zoom", () => {
                     const x = d3.event.transform.x;
@@ -172,7 +175,8 @@ export default {
                     const scale = d3.event.transform.k;
 
                     this.rootG.attr("transform", `translate(${x} ${y}) scale(${scale})`);
-                }))
+                });
+            this.svg.call(zoom)
                 .on("wheel", () => {
                     d3.event.preventDefault();
                 });
