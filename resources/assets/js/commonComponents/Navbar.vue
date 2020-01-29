@@ -1,6 +1,9 @@
 <template>
     <section class="h-full w-full p-4">
-        <div class="flex">
+        <div
+            class="flex"
+            style="border-bottom: 5px solid var(--red);"
+        >
             <button
                 v-for="tab in tabs"
                 :key="tab.key"
