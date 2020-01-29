@@ -1,7 +1,13 @@
 <template>
-    <div class="h-full flex flex-col">
-        <offline-graph class="pb-4 w-full"/>
-        <post-sidebar class="w-full"/>
+    <div class="min-h-full flex flex-col">
+        <offline-graph
+            class="pb-4 w-full"
+            style="min-height: 50vh"
+        />
+        <post-sidebar
+            class="w-full"
+            style="min-height: 50vh"
+        />
     </div>
 </template>
 

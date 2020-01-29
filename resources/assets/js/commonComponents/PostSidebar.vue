@@ -1,8 +1,9 @@
 <template>
-    <div class="p-4 h-full flex overflow-x-auto postSidebar">
+    <div class="flex overflow-x-auto postSidebar">
         <post
             v-if="selectedPostId !== null"
-            class="min-w-full"
+            class="mr-4 py-2 pl-2 overflow-y-auto"
+            style="min-width: 50%; width: 50%; max-height: 50vw; border-right: 1px solid #333"
             :post="posts[selectedPostId]"
         >
         </post>

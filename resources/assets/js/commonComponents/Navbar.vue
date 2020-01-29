@@ -1,5 +1,5 @@
 <template>
-    <section class="h-full w-full p-4 sidebar">
+    <section class="h-full w-full p-4">
         <div class="flex">
             <button
                 v-for="tab in tabs"
@@ -13,7 +13,7 @@
                 {{ tab.name }}
             </button>
         </div>
-        <div class="h-full pt-2">
+        <div class="min-h-full p-4 componentContainer">
             <component :is="currentTab" />
         </div>
     </section>
@@ -66,7 +66,7 @@ export default {
 </script>
 
 <style scoped>
-    .sidebar {
+    .componentContainer {
         background-color: #eee;
         color: #333;
     }
