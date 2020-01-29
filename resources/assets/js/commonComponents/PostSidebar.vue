@@ -2,8 +2,7 @@
     <div class="flex overflow-x-auto postSidebar">
         <post
             v-if="selectedPostId !== null"
-            class="mr-4 py-2 pl-2 overflow-y-auto"
-            style="min-width: 50%; width: 50%; max-height: 50vw; border-right: 1px solid #333"
+            class="mr-4 py-2 pl-2 post"
             :post="posts[selectedPostId]"
         >
         </post>
@@ -30,5 +29,16 @@ export default {
 <style>
     .postSidebar {
         min-width: 33%;
+    }
+
+    .post {
+        min-width: 50%;
+        width: 50%;
+        max-height: 50vw;
+
+        overflow-y: auto;
+    }
+    .post:not(:last-of-type) {
+        border-right: 1px solid #333;
     }
 </style>
