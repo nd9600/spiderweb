@@ -32,12 +32,20 @@ export default {
     }
 
     .post {
-        min-width: 50%;
-        width: 50%;
-        max-height: 50vw;
+        min-width: 90%;
+        width: 90%;
+        max-height: 66vh;
 
         overflow-y: auto;
     }
+    @media(min-width: 768px) {
+        .post {
+            min-width: 50%;
+            width: 50%;
+        }
+    }
+
+
     .post:not(:last-of-type) {
         border-right: 1px solid #333;
     }

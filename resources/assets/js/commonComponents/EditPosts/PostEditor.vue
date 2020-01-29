@@ -1,7 +1,7 @@
 <template>
     <section class="flex flex-col">
         <div class="w-full flex justify-center">
-            <div class="w-2/3 flex items-center justify-between">
+            <div class="w-full md:w-2/3 flex items-center justify-between">
                 <span>
                     {{ post.title.length > 0 ? post.title : post.body.substr(0, 20) }}
                 </span>
