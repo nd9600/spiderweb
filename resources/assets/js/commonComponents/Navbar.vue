@@ -24,9 +24,9 @@
 
 <script>
 import Viewer from "@/js/commonComponents/Viewer";
-import GraphSidebar from "@/js/commonComponents/GraphSidebar";
-import EditPosts from "@/js/commonComponents/EditPosts/EditPosts";
-import LinkPosts from "@/js/commonComponents/LinkPosts/LinkPosts";
+import GraphSidebar from "@/js/commonComponents/Graphs/GraphSidebar";
+import EditPosts from "@/js/commonComponents/Posts/EditPosts";
+import LinkPosts from "@/js/commonComponents/Links/LinkPosts";
 import LoadSave from "@/js/commonComponents/LoadSave";
 
 export default {

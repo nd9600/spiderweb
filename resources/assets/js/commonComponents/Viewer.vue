@@ -1,7 +1,9 @@
 <template>
     <div class="min-h-full flex flex-col">
-        <label class="my-4 flex flex-col">
-            Graphs
+        <label class="mb-4 flex flex-col">
+            <span class="block h h--4">
+                Graphs
+            </span>
             <select
                 v-model.number="selectedGraphIds"
                 class="p-2 rounded text-gray-700"
