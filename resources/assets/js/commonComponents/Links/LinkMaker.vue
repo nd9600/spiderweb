@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <section>
         <h2 class="h h--2">
             Add new link
         </h2>
@@ -106,14 +106,14 @@
         <div class="flex justify-center">
             <hr class="my-4 w-2/3">
         </div>
-    </div>
+    </section>
 </template>
 
 <script>
 import {mapState, mapGetters, mapMutations } from "vuex";
 
 export default {
-    name: "AddLink",
+    name: "LinkMaker",
     data() {
         return {
             graphId: 1,

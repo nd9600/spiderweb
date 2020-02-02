@@ -85,7 +85,7 @@ import {mapState, mapGetters, mapMutations } from "vuex";
 import moment from "moment";
 
 export default {
-    name: "LinkRow",
+    name: "LinkEditor",
     props: {
         link: {
             type: Object,

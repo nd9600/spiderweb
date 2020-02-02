@@ -13,12 +13,12 @@
                 <button
                     v-if="Object.keys(posts).length > 0"
                     class="btn btn--secondary"
-                    @click="showEditors = !showEditors"
+                    @click="shouldShowEditors = !shouldShowEditors"
                 >
-                    {{ showEditors ? "Hide" : "Show" }} editors
+                    {{ shouldShowEditors ? "Hide" : "Show" }} editors
                 </button>
             </span>
-            <template v-if="showEditors">
+            <template v-if="shouldShowEditors">
                 <post-editor
                     v-for="post in posts"
                     :key="post.id"
@@ -45,7 +45,7 @@ export default {
     },
     data() {
         return {
-            showEditors: false
+            shouldShowEditors: false
         };
     },
     computed: {
