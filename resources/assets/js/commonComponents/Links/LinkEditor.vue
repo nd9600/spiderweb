@@ -122,6 +122,8 @@ export default {
         "type": "updateLinkLocal",
     },
     created() {
+        // loading each LinkEditor takes ~50ms, and loading lots of them in a row makes the links tab very slow to load
+        // delaying loading the <template> content lets the whole tab load immediately, and only loads the component's template later on
         setTimeout(
             () => {
                 this.shouldShowContent = true;

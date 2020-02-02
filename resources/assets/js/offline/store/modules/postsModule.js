@@ -143,6 +143,8 @@ const mutations = {
         state.graphs[graphId].nodes.push(postId);
     },
     removePostFromGraph(state, {graphId, postId}) {
+
+        // when we remove a post, we need to remove any links that include it
         let linksAfterPostRemoval = {};
         for (const link of Object.values(state.links)) {
             const isRemovingPostFromThisGraph = link.graph === parseInt(graphId, 10); // this is a string, like `"2"`, _not_ `2`
