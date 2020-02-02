@@ -4,21 +4,6 @@
             <h1 class="h h--1">
                 Graphs
             </h1>
-            <label>
-                <select
-                    v-model.number="selectedGraphIds"
-                    class="mt-2 p-2 rounded text-gray-700"
-                    multiple
-                >
-                    <option
-                        v-for="(graph, graphId) in graphs"
-                        :key="graphId"
-                        :value="graphId"
-                    >
-                        {{ graph.name }}
-                    </option>
-                </select>
-            </label>
 
             <hr class="my-5">
             
@@ -131,15 +116,6 @@ export default {
     computed: {
         ...mapState("postsModule", ["graphs"]),
         ...mapGetters("postsModule", ["postIds", "titleOrBody"]),
-
-        selectedGraphIds: {
-            get() {
-                return this.$store.state.postsModule.selectedGraphIds;
-            },
-            set(selectedGraphIds) {
-                this.$store.commit("postsModule/setSelectedGraphIds", selectedGraphIds);
-            }
-        },
     },
     methods: {
         ...mapMutations("postsModule", ["makeNewGraph", "removeGraph", "addPostToGraph", "removePostFromGraph"]),
