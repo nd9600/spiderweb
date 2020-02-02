@@ -7,13 +7,13 @@
                 </span>
                 <span>
                     <button
-                        class="btn btn--secondary"
+                        class="mt-4 px-4 btn btn--secondary"
                         @click="showEditor = !showEditor"
                     >
                         {{ showEditor ? "Close" : "Edit" }}
                     </button>
                     <button
-                        class="py-1 px-2 btn btn--primary"
+                        class="btn btn--primary"
                         @click="removePostLocal"
                     >
                         x

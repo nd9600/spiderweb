@@ -1,82 +1,87 @@
 <template>
     <tr>
-        <td>
-            <label>
-                <select
-                    v-model.number="source"
-                    class="p-2 rounded text-gray-700 bg-white"
-                >
-                    <option
-                        v-for="postId in postIds"
-                        :key="postId"
-                        :value="postId"
+        <template v-if="shouldShowContent">
+            <td>
+                <label>
+                    <select
+                        v-model.number="source"
+                        class="p-2 rounded text-gray-700 bg-white"
                     >
-                        {{ titleOrBody(postId) }}
-                    </option>
-                </select>
-            </label>
-        </td>
+                        <option
+                            v-for="postId in postIds"
+                            :key="postId"
+                            :value="postId"
+                        >
+                            {{ titleOrBody(postId) }}
+                        </option>
+                    </select>
+                </label>
+            </td>
 
-        <td>
-            <label>
-                <select
-                    v-model.number="target"
-                    class="p-2 rounded text-gray-700 bg-white"
-                >
-                    <option
-                        v-for="postId in possibleTargets"
-                        :key="postId"
-                        :value="postId"
+            <td>
+                <label>
+                    <select
+                        v-model.number="target"
+                        class="p-2 rounded text-gray-700 bg-white"
                     >
-                        {{ titleOrBody(postId) }}
-                    </option>
-                </select>
-            </label>
-        </td>
+                        <option
+                            v-for="postId in possibleTargets"
+                            :key="postId"
+                            :value="postId"
+                        >
+                            {{ titleOrBody(postId) }}
+                        </option>
+                    </select>
+                </label>
+            </td>
 
-        <td>
-            <label>
-                <select
-                    v-model.number="graphId"
-                    class="p-2 rounded text-gray-700 bg-white"
-                >
-                    <option
-                        v-for="(graph, id) in graphs"
-                        :key="id"
-                        :value="id"
+            <td>
+                <label>
+                    <select
+                        v-model.number="graphId"
+                        class="p-2 rounded text-gray-700 bg-white"
                     >
-                        {{ graph.name }}
-                    </option>
-                </select>
-            </label>
-        </td>
+                        <option
+                            v-for="(graph, id) in graphs"
+                            :key="id"
+                            :value="id"
+                        >
+                            {{ graph.name }}
+                        </option>
+                    </select>
+                </label>
+            </td>
 
-        <td>
-            <label>
-                <select
-                    v-model="type"
-                    class="p-2 rounded text-gray-700 bg-white"
+            <td>
+                <label>
+                    <select
+                        v-model="type"
+                        class="p-2 rounded text-gray-700 bg-white"
+                    >
+                        <option value="reply">
+                            reply
+                        </option>
+                        <option value="sidenote">
+                            sidenote
+                        </option>
+                        <option value="link">
+                            link
+                        </option>
+                    </select>
+                </label>
+            </td>
+            <td class="flex justify-center">
+                <button
+                    class="py-1 px-2 btn btn--secondary"
+                    @click="removeLinkLocal"
                 >
-                    <option value="reply">
-                        reply
-                    </option>
-                    <option value="sidenote">
-                        sidenote
-                    </option>
-                    <option value="link">
-                        link
-                    </option>
-                </select>
-            </label>
-        </td>
-        <td class="flex justify-center">
-            <button
-                class="py-1 px-2 btn btn--secondary"
-                @click="removeLinkLocal"
-            >
-                x
-            </button>
-        </td>
+                    x
+                </button>
+            </td>
+        </template>
+        <template v-else>
+            loading...
+        </template>
     </tr>
 </template>
 
@@ -94,6 +99,8 @@ export default {
     },
     data() {
         return {
+            shouldShowContent: false,
+
             graphId: this.link.graph,
             source: this.link.source,
             target: this.link.target,
@@ -113,6 +120,14 @@ export default {
         "source": "updateLinkLocal",
         "target": "updateLinkLocal",
         "type": "updateLinkLocal",
+    },
+    created() {
+        setTimeout(
+            () => {
+                this.shouldShowContent = true;
+            },
+            0
+        );
     },
     methods: {
         ...mapMutations("postsModule", ["updateLink", "removeLink"]),
