@@ -51,7 +51,7 @@ import {mapGetters, mapMutations, mapState} from "vuex";
 import GraphEditor from "./GraphEditor";
 
 export default {
-    name: "GraphSidebar",
+    name: "Graphs",
     components: {GraphEditor},
     data() {
         return {

@@ -22,7 +22,7 @@
         </section>
 
         <section>
-            <linker/>
+            <add-link/>
         </section>
 
         <section v-if="Object.keys(links).length > 0">
@@ -55,14 +55,14 @@
 <script>
 import { mapState, mapGetters } from "vuex";
 import PostLinker from "./PostLinker";
-import Linker from "./Linker";
+import AddLink from "./AddLink";
 import LinkRow from "./LinkRow";
 
 export default {
-    name: "LinkPosts",
+    name: "Links",
     components: {
         PostLinker,
-        Linker,
+        AddLink,
         LinkRow
     },
     computed: {

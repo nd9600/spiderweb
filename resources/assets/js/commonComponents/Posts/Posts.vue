@@ -38,7 +38,7 @@ import PostEditor from "./PostEditor";
 import { mapState } from "vuex";
 
 export default {
-    name: "EditPosts",
+    name: "Posts",
     components: {
         PostMaker,
         PostEditor,

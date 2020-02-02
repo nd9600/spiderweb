@@ -24,39 +24,39 @@
 
 <script>
 import Viewer from "@/js/commonComponents/Viewer";
-import GraphSidebar from "@/js/commonComponents/Graphs/GraphSidebar";
-import EditPosts from "@/js/commonComponents/Posts/EditPosts";
-import LinkPosts from "@/js/commonComponents/Links/LinkPosts";
+import Graphs from "@/js/commonComponents/Graphs/Graphs";
+import Posts from "@/js/commonComponents/Posts/Posts";
+import Links from "@/js/commonComponents/Links/Links";
 import LoadSave from "@/js/commonComponents/LoadSave";
 
 export default {
     name: "Navbar",
     components: {
         Viewer,
-        GraphSidebar,
-        EditPosts,
-        LinkPosts,
+        Graphs,
+        Posts,
+        Links,
         LoadSave
     },
     data() {
         return {
-            currentTab: "viewer", // | viewer | graph-sidebar | edit-posts | link-posts | load-save,
+            currentTab: "viewer", // | viewer | graphs | posts | links | load-save,
             tabs: [
                 {
                     key: "viewer",
                     name: "Viewer",
                 },
                 {
-                    key: "graph-sidebar",
+                    key: "graphs",
                     name: "Graphs",
                 },
                 {
-                    key: "edit-posts",
+                    key: "posts",
                     name: "Posts",
                 },
                 {
-                    key: "link-posts",
-                    name: "Link",
+                    key: "links",
+                    name: "Links",
                 },
                 {
                     key: "load-save",

@@ -113,7 +113,7 @@
 import {mapState, mapGetters, mapMutations } from "vuex";
 
 export default {
-    name: "Linker",
+    name: "AddLink",
     data() {
         return {
             graphId: 1,
