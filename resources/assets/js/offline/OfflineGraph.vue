@@ -3,6 +3,24 @@
         id="graphSvg"
         class="cursor-move border bg-white"
     >
+        <defs>
+            <marker
+                id="arrowhead"
+                viewBox="-0 -5 10 10"
+                refX="15"
+                refY="0"
+                orient="auto-start-reverse"
+                markerWidth="1"
+                markerHeight="1"
+            >
+                <path
+                    d="M 0,-5 L 10 ,0 L 0,5"
+                    fill="#353535"
+                    style="stroke: none;"
+                >
+                </path>
+            </marker>
+        </defs>
         <g transform="translate(5, 15) scale(0.5)">
             <g class="graph__links"></g>
             <g class="graph__nodes"></g>
@@ -86,7 +104,7 @@ export default {
             //todo: almost definitely in-efficient
             const nodes = JSON.parse(JSON.stringify(this.postsInSelectedGraphs));
             const links = JSON.parse(JSON.stringify(this.linksInSelectedGraphs));
-
+            
             // setup force simulation
             const simulation = d3.forceSimulation(nodes)
                 .force("link", d3.forceLink(links)
@@ -105,7 +123,8 @@ export default {
                 .data(links, link => link.id)
                 .join("line")
                 .classed("graph__link", true)
-                .attr("stroke", (link) => this.graphColour(link.graph));
+                .attr("stroke", (link) => this.graphColour(link.graph))
+                .attr("marker-start", "url(#arrowhead)");
 
             let nodeGroups = this.nodesG
                 .selectAll("g")
