@@ -74,10 +74,15 @@ const getters = {
     },
 
     titleOrBody: (state) => (postId) => {
+        const MAX_TITLE_LENGTH = 30;
+
         const post = state.posts[postId];
-        return post.title.length > 0
+        const strToReturn = post.title.length > 0
             ? post.title
-            : post.body.substr(0, 20);
+            : post.body;
+        return strToReturn.length > MAX_TITLE_LENGTH
+            ? strToReturn.substr(0, MAX_TITLE_LENGTH) + ".."
+            : strToReturn;
     }
 };
 

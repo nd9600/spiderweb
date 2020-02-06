@@ -19,14 +19,14 @@
                     </option>
                 </select>
             </label>
-            to post
+            <span class="font-bold">from</span> post
             <label>
                 <select
-                    v-model.number="target"
+                    v-model.number="source"
                     class="p-2 rounded text-gray-700 bg-white"
                 >
                     <option
-                        v-for="postId in possibleTargets"
+                        v-for="postId in possibleSources"
                         :key="postId"
                         :value="postId"
                     >
@@ -34,6 +34,7 @@
                     </option>
                 </select>
             </label>
+            <span class="font-bold">to</span> {{ post.title.length > 0 ? post.title : post.body.substr(0, 20) }}
 
             <template>
                 <label>
@@ -91,7 +92,7 @@ export default {
     data() {
         return {
             graphId: 1,
-            target: null,
+            source: null,
             linkType: "reply",
 
             showTypeSelect: false
@@ -101,7 +102,7 @@ export default {
         ...mapState("postsModule", ["graphs", "posts", "selectedGraphIds"]),
         ...mapGetters("postsModule", ["postIds", "graphNames", "titleOrBody"]),
 
-        possibleTargets() {
+        possibleSources() {
             return this.postIds.filter(id => id !== this.post.id);
         }
     },
@@ -116,8 +117,8 @@ export default {
 
         linkPostLocal() {
             this.addLink({
-                source: this.post.id,
-                target: this.target,
+                source: this.source,
+                target: this.post.id,
                 graph: this.graphId,
                 type: this.linkType
             });

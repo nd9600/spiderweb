@@ -3,6 +3,8 @@ import Vuex from "vuex";
 
 import postsModule from "./modules/postsModule";
 
+import debounce from "lodash.debounce";
+
 Vue.use(Vuex);
 
 const LOCAL_STORAGE_KEY = "offlineState";
@@ -42,5 +44,17 @@ const store = new Vuex.Store({
         }
     }
 });
+
+store.subscribe(
+    debounce((mutation, state) => {
+        const mutationsToIgnore = ["postsModule/setState"];
+        const shouldSaveState = !mutationsToIgnore.includes(mutation.type);
+        if (shouldSaveState) {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
+                postsModule: state.postsModule
+            }));
+        }
+    }, 300)
+);
 
 export default store;

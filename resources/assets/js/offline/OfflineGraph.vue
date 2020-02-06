@@ -9,9 +9,9 @@
                 viewBox="-0 -5 10 10"
                 refX="15"
                 refY="0"
-                orient="auto-start-reverse"
-                markerWidth="1"
-                markerHeight="1"
+                orient="auto"
+                markerWidth="2"
+                markerHeight="2"
             >
                 <path
                     d="M 0,-5 L 10 ,0 L 0,5"
@@ -50,7 +50,7 @@ export default {
     },
     computed: {
         ...mapState("postsModule", ["selectedGraphIds"]),
-        ...mapGetters("postsModule", ["postsInSelectedGraphs", "linksInSelectedGraphs", "graphColour"]),
+        ...mapGetters("postsModule", ["postsInSelectedGraphs", "linksInSelectedGraphs", "graphColour", "titleOrBody"]),
         
         selectedPostId: {
             get() {
@@ -109,10 +109,10 @@ export default {
             const simulation = d3.forceSimulation(nodes)
                 .force("link", d3.forceLink(links)
                     .id(d => d.id)
-                    .distance(100)
+                    .distance(200)
                 )
                 .force("charge", d3.forceManyBody()
-                    .strength(-250)
+                    .strength(-1000)
                 )
                 .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2));
             simulation.tick(300);
@@ -124,7 +124,7 @@ export default {
                 .join("line")
                 .classed("graph__link", true)
                 .attr("stroke", (link) => this.graphColour(link.graph))
-                .attr("marker-start", "url(#arrowhead)");
+                .attr("marker-end", "url(#arrowhead)");
 
             let nodeGroups = this.nodesG
                 .selectAll("g")
@@ -157,9 +157,7 @@ export default {
                 .classed("node__text", true)
                 .attr("text-anchor", "end")
                 .attr("stroke", "#333333")
-                .text(post => post.title.length > 0
-                    ? post.title
-                    : post.body.substr(0, 20)
+                .text(post => this.titleOrBody(post.id)
                 );
                 
             d3.selectAll(".node *")
