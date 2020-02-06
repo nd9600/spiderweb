@@ -157,8 +157,7 @@ export default {
                 .classed("node__text", true)
                 .attr("text-anchor", "end")
                 .attr("stroke", "#333333")
-                .text(post => this.titleOrBody(post.id)
-                );
+                .text(post => this.titleOrBody(post.id));
                 
             d3.selectAll(".node *")
                 .on("click", (post) => {
@@ -178,8 +177,8 @@ export default {
                     .attr("cy", d => d.y);
 
                 text
-                    .attr("x", d => d.x - 3)
-                    .attr("y", d => d.y - 3);
+                    .attr("x", d => d.x - 6)
+                    .attr("y", d => d.y - 4);
             });
         },
 
