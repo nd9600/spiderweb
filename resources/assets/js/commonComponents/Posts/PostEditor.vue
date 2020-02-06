@@ -26,7 +26,7 @@
             class="my-2"
         >
             <label
-                class="mb-5 flex flex-col items-start"
+                class="mb-5 flex flex-col"
             >
                 <button
                     class="text-left underline"
@@ -43,7 +43,7 @@
                     type="text"
                     placeholder="On the Origin of Species"
                     minlength="0"
-                    maxlength="100"
+                    maxlength="1000"
                 >
             </label>
 

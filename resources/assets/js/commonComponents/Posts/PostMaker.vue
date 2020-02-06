@@ -23,7 +23,7 @@
                 type="text"
                 placeholder="On the Origin of Species"
                 minlength="0"
-                maxlength="100"
+                maxlength="1000"
             >
         </label>
 
