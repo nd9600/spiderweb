@@ -136,7 +136,7 @@ export default {
         const initialGraphId = this.selectedGraphIds.length === 1
             ? this.selectedGraphIds[0]
             : 1;
-        this.graph = initialGraphId;
+        this.graphId = initialGraphId;
     },
     methods: {
         ...mapMutations("postsModule", ["addLink"]),
@@ -148,6 +148,12 @@ export default {
                 graph: this.graphId,
                 type: this.linkType
             });
+
+            this.source = null;
+            this.target = null;
+            this.graphId = null;
+            this.graphId = "reply";
+            this.showTypeSelect = false;
         }
     }
 };

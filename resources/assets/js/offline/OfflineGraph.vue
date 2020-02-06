@@ -20,6 +20,14 @@
                 >
                 </path>
             </marker>
+
+            <filter id="postHoverFilter">
+                <feFlood flood-color="#000"></feFlood>
+                <feComponentTransfer>
+                    <feFuncA type="linear" slope="0.75"></feFuncA>
+                </feComponentTransfer>
+                <feComposite in="SourceGraphic"></feComposite>
+            </filter>
         </defs>
         <g transform="translate(5, 15) scale(0.5)">
             <g class="graph__links"></g>
@@ -156,8 +164,18 @@ export default {
             const text = d3.selectAll(".node").select("text")
                 .classed("node__text", true)
                 .attr("text-anchor", "end")
-                .attr("stroke", "#333333")
-                .text(post => this.titleOrBody(post.id));
+                .text(post => this.titleOrBody(post.id))
+                .on("mouseover", function (post) {
+                    d3.select(this)
+                        .style("filter", "url(#postHoverFilter)");
+                    const otherPostTexts = text.filter(otherPost => post.id !== otherPost.id);
+                    otherPostTexts.style("opacity", 0.2);
+                })
+                .on("mouseout", function (post) {
+                    d3.select(this)
+                        .style("filter", "");
+                    text.style("opacity", 1);
+                });
                 
             d3.selectAll(".node *")
                 .on("click", (post) => {
