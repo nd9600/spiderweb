@@ -1,7 +1,6 @@
-import Vue from "vue";
-
 const state = {
-    shouldAutosave: true
+    shouldAutosave: true,
+    canOpenMultiplePosts: true,
 };
 
 const getters = {
@@ -10,10 +9,14 @@ const getters = {
 const mutations = {
     setState(state, stateFromLocalStorage) {
         state.shouldAutosave = stateFromLocalStorage.shouldAutosave;
+        state.canOpenMultiplePosts = stateFromLocalStorage.canOpenMultiplePosts;
     },
     
     setShouldAutosave(state, shouldAutosave) {
         state.shouldAutosave = shouldAutosave;
+    },
+    setCanOpenMultiplePosts(state, canOpenMultiplePosts) {
+        state.canOpenMultiplePosts = canOpenMultiplePosts;
     }
 };
 
