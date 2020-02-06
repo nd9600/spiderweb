@@ -1,7 +1,8 @@
 <template>
     <div class="flex overflow-x-auto postSidebar">
         <post
-            v-if="selectedPostId !== null"
+            v-for="selectedPostId in selectedPostIds"
+            :key="selectedPostId"
             class="mr-4 py-2 pl-2 post"
             :post="posts[selectedPostId]"
         >
@@ -21,8 +22,8 @@ export default {
         Post
     },
     computed: {
-        ...mapState("postsModule", ["posts", "selectedPostId"])
-    }
+        ...mapState("postsModule", ["posts", "selectedPostIds"])
+    },
 };
 </script>
 
@@ -44,7 +45,6 @@ export default {
             width: 50%;
         }
     }
-
 
     .post:not(:last-of-type) {
         border-right: 1px solid #333;

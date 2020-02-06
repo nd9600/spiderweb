@@ -40,7 +40,7 @@
 import * as d3 from "d3";
 import debounce from "lodash.debounce";
 
-import { mapState, mapGetters } from "vuex";
+import { mapState, mapGetters, mapMutations } from "vuex";
 
 const WIDTH = 400;
 const HEIGHT = 200;
@@ -57,17 +57,14 @@ export default {
         };
     },
     computed: {
+        ...mapState("settingsModule", ["canOpenMultiplePosts"]),
+
         ...mapState("postsModule", ["selectedGraphIds"]),
         ...mapGetters("postsModule", ["postsInSelectedGraphs", "linksInSelectedGraphs", "graphColour", "titleOrBody"]),
-        
-        selectedPostId: {
-            get() {
-                return this.$store.state.postsModule.selectedPostId;
-            },
-            set(selectedPostId) {
-                this.$store.commit("postsModule/setSelectedPostId", selectedPostId);
-            }
-        }
+
+        selectedPostIds() {
+            return this.$store.state.postsModule.selectedPostIds;
+        },
     },
     watch: {
         selectedGraphIds() {
@@ -98,6 +95,8 @@ export default {
         });
     },
     methods: {
+        ...mapMutations("postsModule", ["selectPostId"]),
+
         debouncedMakeGraphSvg: debounce(
             function() {
                 this.makeGraphSvg();
@@ -179,7 +178,10 @@ export default {
                 
             d3.selectAll(".node *")
                 .on("click", (post) => {
-                    this.selectedPostId = post.id;
+                    this.selectPostId({
+                        id: post.id,
+                        canOpenMultiplePosts: this.canOpenMultiplePosts
+                    });
                 });
 
             // set x and y co-ordinates of the links, and nodes

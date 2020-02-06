@@ -26,7 +26,7 @@ const state = {
         }
     },
 
-    selectedPostId: null,
+    selectedPostIds: [],
     selectedGraphIds: [1]
 };
 
@@ -91,13 +91,25 @@ const mutations = {
         state.posts = stateFromLocalStorage.posts;
         state.links = stateFromLocalStorage.links;
         state.graphs = stateFromLocalStorage.graphs;
-        state.selectedPostId = stateFromLocalStorage.selectedPostId;
+        state.selectedPostIds = stateFromLocalStorage.selectedPostIds;
         state.selectedGraphIds = stateFromLocalStorage.selectedGraphIds;
     },
-    
-    setSelectedPostId(state, selectedPostId) {
-        state.selectedPostId = selectedPostId;
+
+    selectPostId(state, {id, canOpenMultiplePosts}) {
+        if (state.selectedPostIds.includes(id)) {
+            return;
+        }
+        
+        if (canOpenMultiplePosts) {
+            state.selectedPostIds.push(id);
+        } else {
+            state.selectedPostIds = [id];
+        }
     },
+    unselectPostId(state, selectedPostId) {
+        state.selectedPostIds.splice(state.selectedPostIds.indexOf(selectedPostId), 1);
+    },
+
     setSelectedGraphIds(state, selectedGraphIds) {
         state.selectedGraphIds = selectedGraphIds;
     },
@@ -148,7 +160,6 @@ const mutations = {
         state.graphs[graphId].nodes.push(postId);
     },
     removePostFromGraph(state, {graphId, postId}) {
-
         // when we remove a post, we need to remove any links that include it
         let linksAfterPostRemoval = {};
         for (const link of Object.values(state.links)) {
@@ -193,8 +204,8 @@ const mutations = {
         Vue.set(state.posts, post.id, post);
     },
     removePost(state, {id}) {
-        if (id === state.selectedPostId) { //todo: change to remove from array when you can select multiple posts
-            state.selectedPostId = null;
+        if (state.selectedPostIds.includes(id)) {
+            state.selectedPostIds.splice(state.selectedPostIds.indexOf(id), 1);
         }
 
         // we need to remove any links that would include the deleted post
