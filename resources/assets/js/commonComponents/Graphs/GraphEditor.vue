@@ -31,7 +31,10 @@
                 </button>
             </span>
 
-            <div v-if="possiblePostIdsToAddToGraph.length > 0">
+            <div
+                v-if="possiblePostIdsToAddToGraph.length > 0"
+                class="mb-4"
+            >
                 <label>
                     <span class="block h h--4">
                         Add post to graph
@@ -52,11 +55,28 @@
                 <button
                     class="py-1 px-2 btn btn--secondary"
                     :disabled="postIdToAddToGraph === null"
-                    @click="addPostToGraphLocal()"
+                    @click="addPostToGraphLocal"
                 >
                     Add
                 </button>
             </div>
+
+            <label>
+                <input
+                    v-model="newGraphName"
+                    type="text"
+                    class="mb-2 p-2 rounded text-gray-800 text-base placeholder-gray-600"
+                    placeholder="foo graph"
+                    @keyup.enter="changeGraphNameLocal"
+                />
+                <button
+                    class="py-1 px-2 btn btn--secondary"
+                    :disabled="newGraphName.trim().length === 0"
+                    @click="changeGraphNameLocal"
+                >
+                    Change graph name
+                </button>
+            </label>
         </div>
     </div>
 </template>
@@ -74,7 +94,8 @@ export default {
     },
     data() {
         return {
-            postIdToAddToGraph: null
+            postIdToAddToGraph: null,
+            newGraphName: ""
         };
     },
     computed: {
@@ -89,13 +110,25 @@ export default {
         },
     },
     methods: {
-        ...mapMutations("postsModule", ["addPostToGraph", "removePostFromGraph"]),
+        ...mapMutations("postsModule", ["addPostToGraph", "removePostFromGraph", "changeGraphName"]),
         addPostToGraphLocal() {
             this.addPostToGraph({
                 graphId: this.graphId,
                 postId: this.postIdToAddToGraph
             });
             this.postIdToAddToGraph = null;
+        },
+
+        changeGraphNameLocal() {
+            if (this.newGraphName.trim().length === 0) {
+                return;
+            }
+
+            this.changeGraphName({
+                graphId: this.graphId,
+                newGraphName: this.newGraphName
+            });
+            this.newGraphName = "";
         }
     }
 };

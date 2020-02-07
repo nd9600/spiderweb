@@ -147,6 +147,9 @@ const mutations = {
             }
         );
     },
+    changeGraphName(state, {graphId, newGraphName}) {
+        state.graphs[graphId].name = newGraphName;
+    },
     removeGraph(state, graphId) {
         const newSelectedGraphIds = state.selectedGraphIds
             .filter(selectedGraphId => selectedGraphId !== parseInt(graphId, 10));
