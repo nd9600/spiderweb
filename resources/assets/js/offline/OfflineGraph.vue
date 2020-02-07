@@ -65,6 +65,14 @@ export default {
         selectedPostIds() {
             return this.$store.state.postsModule.selectedPostIds;
         },
+
+        linkedByIndex() {
+            let linkedByIndex = {};
+            this.linksInSelectedGraphs.forEach(function (link) {
+                linkedByIndex[link.source + "," + link.target] = 1;
+            });
+            return linkedByIndex;
+        }
     },
     watch: {
         selectedGraphIds() {
@@ -97,6 +105,10 @@ export default {
     methods: {
         ...mapMutations("postsModule", ["selectPostId"]),
 
+        isNeighbour(a, b) {
+            return this.linkedByIndex[a.id + "," + b.id];
+        },
+
         debouncedMakeGraphSvg: debounce(
             function() {
                 this.makeGraphSvg();
@@ -111,6 +123,8 @@ export default {
             //todo: almost definitely in-efficient
             const nodes = JSON.parse(JSON.stringify(this.postsInSelectedGraphs));
             const links = JSON.parse(JSON.stringify(this.linksInSelectedGraphs));
+
+            const vm = this;
             
             // setup force simulation
             const simulation = d3.forceSimulation(nodes)
@@ -171,8 +185,8 @@ export default {
                         if (post.id === otherPost.id) {
                             return false;
                         }
-                        // todo: return false if post is a neighbour of otherPost
-                        return true;
+                        return !vm.isNeighbour(post, otherPost)
+                            && !vm.isNeighbour(otherPost, post);
                     });
                     otherPostTexts.style("opacity", 0.2);
 
@@ -218,7 +232,7 @@ export default {
 
         setupZooming() {
             const zoom = d3.zoom()
-                .scaleExtent([0.2, 2]) // limits zooming so you can only zoom between 0.2x and 2x
+                .scaleExtent([0.05, 2]) // limits zooming so you can only zoom between 0.2x and 2x
                 .on("zoom", () => {
                     const x = d3.event.transform.x;
                     const y = d3.event.transform.y;
