@@ -167,13 +167,27 @@ export default {
                 .on("mouseover", function (post) {
                     d3.select(this)
                         .style("filter", "url(#postHoverFilter)");
-                    const otherPostTexts = text.filter(otherPost => post.id !== otherPost.id);
+                    const otherPostTexts = text.filter(otherPost => {
+                        if (post.id === otherPost.id) {
+                            return false;
+                        }
+                        // todo: return false if post is a neighbour of otherPost
+                        return true;
+                    });
                     otherPostTexts.style("opacity", 0.2);
+
+                    const otherLinks = link.filter(link => {
+                        const linkDoesntIncludeThisPost = post.id !== link.source.id
+                            && post.id !== link.target.id;
+                        return linkDoesntIncludeThisPost;
+                    });
+                    otherLinks.style("opacity", 0.2);
                 })
                 .on("mouseout", function (post) {
                     d3.select(this)
                         .style("filter", "");
                     text.style("opacity", 1);
+                    link.style("opacity", 1);
                 });
                 
             d3.selectAll(".node *")
