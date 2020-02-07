@@ -69,7 +69,9 @@ export default {
         linkedByIndex() {
             let linkedByIndex = {};
             this.linksInSelectedGraphs.forEach(function (link) {
-                linkedByIndex[link.source + "," + link.target] = 1;
+                const lowerId = Math.min(link.source, link.target);
+                const higherId = Math.max(link.source, link.target);
+                linkedByIndex[lowerId + "," + higherId] = 1;
             });
             return linkedByIndex;
         }
@@ -106,7 +108,9 @@ export default {
         ...mapMutations("postsModule", ["selectPostId"]),
 
         isNeighbour(a, b) {
-            return this.linkedByIndex[a.id + "," + b.id];
+            const lowerId = Math.min(a.id, b.id);
+            const higherId = Math.max(a.id, b.id);
+            return this.linkedByIndex[lowerId + "," + higherId];
         },
 
         debouncedMakeGraphSvg: debounce(
@@ -185,8 +189,7 @@ export default {
                         if (post.id === otherPost.id) {
                             return false;
                         }
-                        return !vm.isNeighbour(post, otherPost)
-                            && !vm.isNeighbour(otherPost, post);
+                        return !vm.isNeighbour(post, otherPost);
                     });
                     otherPostTexts.style("opacity", 0.2);
 
