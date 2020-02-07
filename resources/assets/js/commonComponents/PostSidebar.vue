@@ -3,7 +3,7 @@
         <post
             v-for="selectedPostId in selectedPostIds"
             :key="selectedPostId"
-            class="mr-4 py-2 pl-2 post"
+            class="m-2 py-2 pl-2"
             :post="posts[selectedPostId]"
         >
         </post>
@@ -30,23 +30,6 @@ export default {
 <style>
     .postSidebar {
         min-width: 33%;
-    }
-
-    .post {
-        min-width: 90%;
-        width: 90%;
-        max-height: 66vh;
-
-        overflow-y: auto;
-    }
-    @media(min-width: 768px) {
-        .post {
-            min-width: 50%;
-            width: 50%;
-        }
-    }
-
-    .post:not(:last-of-type) {
-        border-right: 1px solid #333;
+        background: #eeeeee url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAR0lEQVQYlYWPuw0AQAhC2X9AY+UOTOBVNH7OgkQpHgDzSJJpHk3ySSZ0SPWXsBFqUiNuZGyEmoSNMBJ/a09i9ceOU1dca/U/VPFxnYht7pgAAAAASUVORK5CYII=");
     }
 </style>
