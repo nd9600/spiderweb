@@ -23,7 +23,7 @@
             class="pb-4 w-full"
             style="min-height: 50vh"
         />
-        <post-sidebar
+        <PostBar
             class="w-full"
             style="min-height: 50vh"
         />
@@ -32,7 +32,7 @@
 
 <script>
 import OfflineGraph from "../offline/OfflineGraph";
-import PostSidebar from "@/js/commonComponents/PostSidebar";
+import PostBar from "@/js/commonComponents/PostBar/PostBar";
 
 import {mapState} from "vuex";
 
@@ -40,7 +40,7 @@ export default {
     name: "Viewer",
     components: {
         OfflineGraph,
-        PostSidebar
+        PostBar
     },
     computed: {
         ...mapState("postsModule", ["graphs"]),

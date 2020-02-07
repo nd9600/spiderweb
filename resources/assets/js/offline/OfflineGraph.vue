@@ -60,20 +60,10 @@ export default {
         ...mapState("settingsModule", ["canOpenMultiplePosts"]),
 
         ...mapState("postsModule", ["selectedGraphIds"]),
-        ...mapGetters("postsModule", ["postsInSelectedGraphs", "linksInSelectedGraphs", "graphColour", "titleOrBody"]),
+        ...mapGetters("postsModule", ["postsInSelectedGraphs", "linksInSelectedGraphs", "graphColour", "titleOrBody", "isNeighbour"]),
 
         selectedPostIds() {
             return this.$store.state.postsModule.selectedPostIds;
-        },
-
-        linkedByIndex() {
-            let linkedByIndex = {};
-            this.linksInSelectedGraphs.forEach(function (link) {
-                const lowerId = Math.min(link.source, link.target);
-                const higherId = Math.max(link.source, link.target);
-                linkedByIndex[lowerId + "," + higherId] = 1;
-            });
-            return linkedByIndex;
         }
     },
     watch: {
@@ -106,12 +96,6 @@ export default {
     },
     methods: {
         ...mapMutations("postsModule", ["selectPostId"]),
-
-        isNeighbour(a, b) {
-            const lowerId = Math.min(a.id, b.id);
-            const higherId = Math.max(a.id, b.id);
-            return this.linkedByIndex[lowerId + "," + higherId];
-        },
 
         debouncedMakeGraphSvg: debounce(
             function() {

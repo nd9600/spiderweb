@@ -11,13 +11,13 @@
 </template>
 
 <script>
-import Post from "@/js/commonComponents/Post";
+import Post from "./Post";
 
 import { mapState } from "vuex";
 
 
 export default {
-    name: "PostSidebar",
+    name: "PostBar",
     components: {
         Post
     },

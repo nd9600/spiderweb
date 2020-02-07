@@ -83,6 +83,51 @@ const getters = {
         return strToReturn.length > MAX_TITLE_LENGTH
             ? strToReturn.substr(0, MAX_TITLE_LENGTH) + ".."
             : strToReturn;
+    },
+
+    neighbourIndex(state, getters) {
+        let neighbourIndex = {};
+        getters.linksInSelectedGraphs.forEach(function (link) {
+            const lowerId = Math.min(link.source, link.target);
+            const higherId = Math.max(link.source, link.target);
+            neighbourIndex[lowerId + "," + higherId] = 1;
+        });
+        return neighbourIndex;
+    },
+
+    isNeighbour: (state, getters) => (a, b) => {
+        const lowerId = Math.min(a.id, b.id);
+        const higherId = Math.max(a.id, b.id);
+        return typeof getters.neighbourIndex[lowerId + "," + higherId] !== "undefined";
+    },
+
+    postIdsThatLinkToPost: (state, getters) => (postId) => {
+        let fromPostIds = [];
+        let toPostIds = [];
+
+        getters.linksInSelectedGraphs.forEach(function (link) {
+            if (link.source === postId) {
+                fromPostIds.push(link.target);
+            } else if (link.target === postId) {
+                toPostIds.push(link.source);
+            }
+        });
+
+        return {
+            from: fromPostIds,
+            to: toPostIds,
+        };
+    },
+
+    graphIdsThatIncludeThisPost: (state) => (postId) => {
+        let graphIdsThatIncludeThisPost = [];
+
+        for (let graph of Object.values(state.graphs)) {
+            if (graph.nodes.includes(postId)) {
+                graphIdsThatIncludeThisPost.push(graph.id);
+            }
+        }
+        return graphIdsThatIncludeThisPost;
     }
 };
 
@@ -112,6 +157,11 @@ const mutations = {
 
     setSelectedGraphIds(state, selectedGraphIds) {
         state.selectedGraphIds = selectedGraphIds;
+    },
+    selectGraphId(state, graphId) {
+        if (!state.selectedGraphIds.includes(graphId)) {
+            state.selectedGraphIds.push(graphId);
+        }
     },
 
     makeNewGraph(state, newGraphName) {

@@ -3,6 +3,7 @@
 .link {
     color: var(--red);
     text-decoration: underline;
+    cursor: pointer;
 }
 
 .link:hover {
