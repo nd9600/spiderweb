@@ -1,7 +1,9 @@
 <template>
     <div>
-        <span class="flex justify-between">
-            <span>{{ graph.name }}</span>
+        <div class="flex justify-between">
+            <h3 class="h h--3">
+                {{ graph.name }}
+            </h3>
             <button
                 v-if="graphId !== 1"
                 class="py-1 px-2 btn btn--secondary"
@@ -9,11 +11,11 @@
             >
                 Remove
             </button>
-        </span>
+        </div>
         <div>
-            <h3 class="h h--3">
+            <span class="font-bold">
                 Posts
-            </h3>
+            </span>
             <span
                 v-for="postId in graph.nodes"
                 :key="postId"
