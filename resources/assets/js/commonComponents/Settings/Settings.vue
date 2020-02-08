@@ -9,7 +9,7 @@
             />
             <sub
                 v-if="!shouldAutosave"
-                class="text-gray-600"
+                class="text-gray-500"
             >
                 (you'll need to press "save" in the "load/save" tab)
             </sub>
@@ -22,6 +22,42 @@
                 class="ml-4"
                 type="checkbox"
             />
+        </label>
+
+        <label class="setting">
+            Graph height
+            <input
+                v-model.number="graphHeight"
+                class="ml-4 mb-2 p-2 rounded text-gray-800 text-base bg-gray-400"
+                type="number"
+                inputmode="numeric"
+                pattern="^[1-9][0-9]?$|^100$"
+                size="3"
+                minlength="1"
+                maxlength="3"
+                min="1"
+                max="100"
+                step="1"
+            />
+            <sub class="ml-1 text-xs text-gray-500">vh</sub>
+        </label>
+
+        <label class="setting">
+            Post-bar height
+            <input
+                v-model.number="postBarHeight"
+                class="ml-4 mb-2 p-2 rounded text-gray-800 text-base bg-gray-400"
+                type="number"
+                inputmode="numeric"
+                pattern="^[1-9][0-9]?$|^100$"
+                size="3"
+                minlength="1"
+                maxlength="3"
+                min="1"
+                max="100"
+                step="1"
+            />
+            <sub class="ml-1 text-xs text-gray-500">vh</sub>
         </label>
     </section>
 </template>
@@ -47,10 +83,27 @@ export default {
             set(canOpenMultiplePosts) {
                 this.setCanOpenMultiplePosts(canOpenMultiplePosts);
             }
+        },
+
+        graphHeight: {
+            get() {
+                return this.$store.state.settingsModule.graphHeight;
+            },
+            set(graphHeight) {
+                this.setGraphHeight(graphHeight);
+            }
+        },
+        postBarHeight: {
+            get() {
+                return this.$store.state.settingsModule.postBarHeight;
+            },
+            set(postBarHeight) {
+                this.setPostBarHeight(postBarHeight);
+            }
         }
     },
     methods: {
-        ...mapMutations("settingsModule", ["setShouldAutosave", "setCanOpenMultiplePosts"])
+        ...mapMutations("settingsModule", ["setShouldAutosave", "setCanOpenMultiplePosts", "setGraphHeight", "setPostBarHeight"])
     }
 };
 </script>
@@ -59,6 +112,7 @@ export default {
 .setting {
     display: flex;
     justify-content: space-between;
+    align-items: center;
 
     padding: 1rem 2rem;
 

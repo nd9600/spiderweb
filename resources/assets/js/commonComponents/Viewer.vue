@@ -21,11 +21,15 @@
         </label>
         <offline-graph
             class="pb-4 w-full"
-            style="min-height: 50vh"
+            :style="{
+                'min-height': graphHeight + 'vh'
+            }"
         />
         <PostBar
             class="w-full"
-            style="min-height: 50vh"
+            :style="{
+                'min-height': postBarHeight + 'vh'
+            }"
         />
     </div>
 </template>
@@ -43,6 +47,7 @@ export default {
         PostBar
     },
     computed: {
+        ...mapState("settingsModule", ["graphHeight", "postBarHeight"]),
         ...mapState("postsModule", ["graphs"]),
 
         selectedGraphIds: {
