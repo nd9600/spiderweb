@@ -36,7 +36,7 @@
                 required="required"
                 minlength="1"
                 maxlength="10000"
-            />
+            ></textarea>
         </label>
 
         <button
@@ -52,7 +52,7 @@
 
 <script>
 import moment from "moment";
-import { mapMutations } from "vuex";
+import {mapActions } from "vuex";
 
 export default {
     name: "PostMaker",
@@ -65,7 +65,7 @@ export default {
         };
     },
     methods: {
-        ...mapMutations("postsModule", ["makeNewPost"]),
+        ...mapActions("postsModule", ["makeNewPost"]),
 
         toggleTitleInput() {
             const dontLetUserHideTitleInput = this.showTitleInput
@@ -77,15 +77,16 @@ export default {
             this.showTitleInput = !this.showTitleInput;
         },
 
-        makePost() {
-            const newPost = {
+        async makePost() {
+            let newPost = {
                 title: this.title,
                 body: this.body,
                 created_at: moment().format(),
                 updated_at: moment().format(),
             };
-            this.makeNewPost(newPost);
+            const newPostWithId = await this.makeNewPost(newPost);
             this.resetNewPost();
+            this.$emit("madePost", newPostWithId);
         },
         resetNewPost() {
             this.title = "";

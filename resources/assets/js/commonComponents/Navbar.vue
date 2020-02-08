@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import Viewer from "@/js/commonComponents/Viewer";
+import Viewer from "@/js/commonComponents/Viewer/Viewer";
 import Graphs from "@/js/commonComponents/Graphs/Graphs";
 import Posts from "@/js/commonComponents/Posts/Posts";
 import Links from "@/js/commonComponents/Links/Links";

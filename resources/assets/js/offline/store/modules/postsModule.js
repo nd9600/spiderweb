@@ -237,21 +237,9 @@ const mutations = {
         );
     },
 
-    makeNewPost(state, newPost) {
-        const existingPostIds = Object.keys(state.posts);
-
-        const highestPostId = existingPostIds.length === 0
-            ? 0
-            : (
-                Math.max(
-                    ...existingPostIds
-                        .map(id => parseInt(id, 10))
-                )
-            );
-        const newPostId = highestPostId + 1;
-
-        newPost.id = newPostId;
-        Vue.set(state.posts, newPostId, newPost);
+    addPost(state, newPost) {
+        Vue.set(state.posts, newPost.id, newPost);
+        return newPost;
     },
     updatePost(state, post) {
         Vue.set(state.posts, post.id, post);
@@ -349,7 +337,26 @@ const mutations = {
 };
 
 const actions = {
+    makeNewPost(context, newPost) {
+        const existingPostIds = Object.keys(state.posts);
 
+        const highestPostId = existingPostIds.length === 0
+            ? 0
+            : (
+                Math.max(
+                    ...existingPostIds
+                        .map(id => parseInt(id, 10))
+                )
+            );
+        const newPostId = highestPostId + 1;
+
+        newPost.id = newPostId;
+        context.commit("addPost", newPost);
+        return newPost;
+    },
+    async replyToPost(context, {postId, newPost}) {
+
+    }
 };
 
 

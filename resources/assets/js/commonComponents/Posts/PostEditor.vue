@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { mapMutations} from "vuex";
+import {mapMutations} from "vuex";
 import moment from "moment";
 
 export default {
@@ -123,6 +123,9 @@ export default {
         },
 
         removePostLocal() {
+            if (!confirm("Are you sure you want to remove this post? ")) {
+                return;
+            }
             this.removePost({
                 id: this.post.id
             });

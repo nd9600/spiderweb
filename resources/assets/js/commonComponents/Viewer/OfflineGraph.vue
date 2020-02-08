@@ -169,13 +169,17 @@ export default {
                 .on("mouseover", function (post) {
                     d3.select(this)
                         .style("filter", "url(#postHoverFilter)");
-                    const otherPostTexts = text.filter(otherPost => {
+
+                    // SVG doesn't have a z-index, the z-direction is by element order, this re-inserts the parent <node> in the DOM at the bottom of its parent so this text is on top of any others
+                    d3.select(d3.select(this).node().parentNode).raise();
+
+                    const nonNeighbourTexts = text.filter(otherPost => {
                         if (post.id === otherPost.id) {
                             return false;
                         }
                         return !vm.isNeighbour(post, otherPost);
                     });
-                    otherPostTexts.style("opacity", 0.2);
+                    nonNeighbourTexts.style("opacity", 0.2);
 
                     const otherLinks = link.filter(link => {
                         const linkDoesntIncludeThisPost = post.id !== link.source.id

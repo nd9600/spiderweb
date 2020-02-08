@@ -35,8 +35,8 @@
 </template>
 
 <script>
-import OfflineGraph from "../offline/OfflineGraph";
-import PostBar from "@/js/commonComponents/PostBar/PostBar";
+import OfflineGraph from "./OfflineGraph";
+import PostBar from "./PostBar/PostBar";
 
 import {mapState} from "vuex";
 
