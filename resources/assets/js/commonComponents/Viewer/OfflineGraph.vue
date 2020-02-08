@@ -181,12 +181,12 @@ export default {
                     });
                     nonNeighbourTexts.style("opacity", 0.2);
 
-                    const otherLinks = link.filter(link => {
+                    const nonNeighbourLinks = link.filter(link => {
                         const linkDoesntIncludeThisPost = post.id !== link.source.id
                             && post.id !== link.target.id;
                         return linkDoesntIncludeThisPost;
                     });
-                    otherLinks.style("opacity", 0.2);
+                    nonNeighbourLinks.style("opacity", 0.2);
                 })
                 .on("mouseout", function (post) {
                     d3.select(this)
