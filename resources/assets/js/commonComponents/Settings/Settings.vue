@@ -15,6 +15,43 @@
             </sub>
         </label>
 
+        <label
+            class="setting flex flex-col"
+            :class="{
+                'w-full md:w-1/2': storageMethod === 'firebase'
+            }"
+        >
+            <div>
+                Storage method
+                <select
+                    v-model="storageMethod"
+                    class="ml-4"
+                >
+                    <option value="local">Local</option>
+                    <option value="firebase">Firebase</option>
+                </select>
+
+                <sub 
+                    v-if="storageMethod === 'firebase'"
+                    class="ml-1 text-xs text-gray-500"
+                >
+                    copy your Firebase config from <a
+                        href="https://firebase.google.com/docs/web/setup?authuser=0#config-object"
+                        class="link"
+                        target="_blank"
+                    >here</a>
+                </sub>
+            </div>
+
+            <template v-if="storageMethod === 'firebase'">
+                <pre><textarea
+                        v-model="firebaseConfig"
+                        class="p-2 w-full h-48 rounded text-gray-800 placeholder-gray-600"
+                        required="required"
+                /></pre>
+            </template>
+        </label>
+
         <label class="setting">
             Can open multiple posts in the viewer
             <input
@@ -76,6 +113,23 @@ export default {
                 this.setShouldAutosave(shouldAutosave);
             }
         },
+        storageMethod: {
+            get() {
+                return this.$store.state.settingsModule.storageMethod;
+            },
+            set(storageMethod) {
+                this.setStorageMethod(storageMethod);
+            }
+        },
+        firebaseConfig: {
+            get() {
+                return JSON.stringify(this.$store.state.firebaseModule.firebaseConfig);
+            },
+            set(firebaseConfig) {
+                this.setFirebaseConfig(JSON.parse(firebaseConfig));
+            }
+        },
+
         canOpenMultiplePosts: {
             get() {
                 return this.$store.state.settingsModule.canOpenMultiplePosts;
@@ -103,17 +157,23 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("settingsModule", ["setShouldAutosave", "setCanOpenMultiplePosts", "setGraphHeight", "setPostBarHeight"])
+        ...mapMutations("settingsModule", [
+            "setShouldAutosave",
+            "setStorageMethod",
+            "setCanOpenMultiplePosts",
+            "setGraphHeight",
+            "setPostBarHeight"
+        ]),
+
+        ...mapMutations("firebaseModule", [
+            "setFirebaseConfig"
+        ]),
     }
 };
 </script>
 
 <style scoped>
 .setting {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
     padding: 1rem 2rem;
 
     background-color: white;

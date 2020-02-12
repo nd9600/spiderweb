@@ -1,28 +1,35 @@
 <template>
     <section class="h-full w-full p-4">
-        <div
-            class="flex"
-            style="border-bottom: 5px solid var(--red);"
-        >
-            <button
-                v-for="tab in tabs"
-                :key="tab.key"
-                class="optionBtn flex-grow"
-                :class="{
-                    'optionBtn--selected': currentTab === tab.key
-                }"
-                @click="currentTab = tab.key"
+        <p v-if="loadingApp">
+            loading..
+        </p>
+        <template v-else>
+            <div
+                class="flex"
+                style="border-bottom: 5px solid var(--red);"
             >
-                {{ tab.name }}
-            </button>
-        </div>
-        <div class="min-h-full p-4 componentContainer">
-            <component :is="currentTab" />
-        </div>
+                <button
+                    v-for="tab in tabs"
+                    :key="tab.key"
+                    class="optionBtn flex-grow"
+                    :class="{
+                        'optionBtn--selected': currentTab === tab.key
+                    }"
+                    @click="currentTab = tab.key"
+                >
+                    {{ tab.name }}
+                </button>
+            </div>
+            <div class="min-h-full p-4 componentContainer">
+                <component :is="currentTab" />
+            </div>
+        </template>
     </section>
 </template>
 
 <script>
+import {mapState} from "vuex";
+
 import Viewer from "@/js/commonComponents/Viewer/Viewer";
 import Graphs from "@/js/commonComponents/Graphs/Graphs";
 import Posts from "@/js/commonComponents/Posts/Posts";
@@ -70,6 +77,9 @@ export default {
                 }
             ]
         };
+    },
+    computed: {
+        ...mapState(["loadingApp"])
     }
 };
 </script>

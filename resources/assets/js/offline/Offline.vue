@@ -16,10 +16,10 @@ export default {
         Navbar
     },
     mounted() {
-        this.loadStateFromLocalStorage();
+        this.loadStateFromStorage();
     },
     methods: {
-        ...mapActions(["loadStateFromLocalStorage"]),
+        ...mapActions(["loadStateFromStorage"]),
     }
 };
 </script>

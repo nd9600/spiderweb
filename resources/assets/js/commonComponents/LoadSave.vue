@@ -3,13 +3,13 @@
         <div class="flex justify-around">
             <button
                 class="btn btn--primary"
-                @click="loadStateFromLocalStorage"
+                @click="loadStateFromStorage"
             >
                 Load
             </button>
             <button
                 class="btn btn--primary"
-                @click="saveStateLocally"
+                @click="saveStateToStorage"
             >
                 Save
             </button>
@@ -72,7 +72,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions(["saveStateLocally", "loadStateFromLocalStorage", "loadState"]),
+        ...mapActions(["saveStateToStorage", "loadStateFromStorage", "loadState"]),
 
         onFileUpload(event) {
             const files = event.target.files || event.dataTransfer.files;

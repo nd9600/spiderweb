@@ -51,7 +51,7 @@
                 Body
                 <textarea
                     v-model="body"
-                    class="p-2 h-48 rounded text-gray-800 placeholder-gray-600 textareaBody"
+                    class="p-2 h-48 rounded text-gray-800 placeholder-gray-600"
                     required="required"
                     minlength="1"
                     maxlength="10000"
