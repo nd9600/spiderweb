@@ -27,7 +27,7 @@
                     v-for="postId in linkedPosts.to"
                     :key="postId"
                     class="link block"
-                    @click="selectPostIdLocal(postId)"
+                    @click="togglePostIdLocal(postId)"
                 >
                     {{ titleOrBody(postId) }}
                 </a>
