@@ -11,7 +11,7 @@
                     v-for="postId in linkedPosts.from"
                     :key="postId"
                     class="link block"
-                    @click="selectPostIdLocal(postId)"
+                    @click="togglePostIdLocal(postId)"
                 >
                     {{ titleOrBody(postId) }}
                 </a>
@@ -56,9 +56,9 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("postsModule", ["selectPostId"]),
-        selectPostIdLocal(postId) {
-            this.selectPostId({
+        ...mapMutations("postsModule", ["togglePostId"]),
+        togglePostIdLocal(postId) {
+            this.togglePostId({
                 id: postId,
                 canOpenMultiplePosts: this.canOpenMultiplePosts
             });

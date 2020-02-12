@@ -10,7 +10,7 @@
                 v-for="graphId in linkedGraphs"
                 :key="graphId"
                 class="link block"
-                @click="selectGraphId(graphId)"
+                @click="toggleGraphId(graphId)"
             >
                 {{ graphs[graphId].name }}
             </a>
@@ -38,7 +38,7 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("postsModule", ["selectGraphId"]),
+        ...mapMutations("postsModule", ["toggleGraphId"]),
     }
 };
 </script>

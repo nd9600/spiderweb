@@ -151,8 +151,19 @@ const mutations = {
             state.selectedPostIds = [id];
         }
     },
-    unselectPostId(state, selectedPostId) {
-        state.selectedPostIds.splice(state.selectedPostIds.indexOf(selectedPostId), 1);
+    unselectPostId(state, id) {
+        state.selectedPostIds.splice(state.selectedPostIds.indexOf(id), 1);
+    },
+    togglePostId(state, {id, canOpenMultiplePosts}) {
+        if (state.selectedPostIds.includes(id)) {
+            state.selectedPostIds.splice(state.selectedPostIds.indexOf(id), 1);
+        } else {
+            if (canOpenMultiplePosts) {
+                state.selectedPostIds.push(id);
+            } else {
+                state.selectedPostIds = [id];
+            }
+        }
     },
 
     setSelectedGraphIds(state, selectedGraphIds) {
@@ -160,6 +171,13 @@ const mutations = {
     },
     selectGraphId(state, graphId) {
         if (!state.selectedGraphIds.includes(graphId)) {
+            state.selectedGraphIds.push(graphId);
+        }
+    },
+    toggleGraphId(state, graphId) {
+        if (state.selectedGraphIds.includes(graphId)) {
+            state.selectedGraphIds.splice(state.selectedGraphIds.indexOf(graphId), 1);
+        } else {
             state.selectedGraphIds.push(graphId);
         }
     },
