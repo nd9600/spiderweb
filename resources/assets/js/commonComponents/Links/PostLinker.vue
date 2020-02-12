@@ -66,7 +66,7 @@
 
         <button
             class="mt-2 btn btn--primary"
-            :disabled="graphId.length === 0 || target === null"
+            :disabled="graphId.length === 0 || source === null"
             @click="linkPostLocal"
         >
             Link

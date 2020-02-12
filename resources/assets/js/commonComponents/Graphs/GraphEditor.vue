@@ -110,7 +110,7 @@ export default {
         },
     },
     methods: {
-        ...mapMutations("postsModule", ["addPostToGraph", "removePostFromGraph", "changeGraphName"]),
+        ...mapMutations("postsModule", ["addPostToGraph", "removePostFromGraph", "changeGraphName", "removeGraph"]),
         addPostToGraphLocal() {
             this.addPostToGraph({
                 graphId: this.graphId,

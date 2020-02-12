@@ -63,7 +63,7 @@ export default {
         ...mapGetters("postsModule", ["postIds", "titleOrBody"]),
     },
     methods: {
-        ...mapMutations("postsModule", ["makeNewGraph", "removeGraph", "addPostToGraph", "removePostFromGraph"]),
+        ...mapMutations("postsModule", ["makeNewGraph"]),
 
         makeNewGraphLocal() {
             this.makeNewGraph(this.newGraphName);
