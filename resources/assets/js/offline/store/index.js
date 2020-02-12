@@ -75,6 +75,7 @@ const store = new Vuex.Store({
                         .then(
                             (snapshot) => {
                                 const firebaseStorageObject = JSON.parse(snapshot.val());
+                                console.log(firebaseStorageObject);
                                 context.dispatch("loadState", firebaseStorageObject);
                             }
                         ).catch((error) => {
