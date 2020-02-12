@@ -56,14 +56,15 @@ const store = new Vuex.Store({
         },
         loadStateFromStorage(context) {
             const localStorageObject = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            if (localStorageObject === null) {
+                context.commit("setLoadingApp", false);
+                return;
+            }
+
             const storageMethod = localStorageObject.settingsModule.storageMethod;
 
             switch (storageMethod) {
                 case "local": {
-
-                    if (localStorageObject === null) {
-                        return;
-                    }
                     context.dispatch("loadState", localStorageObject);
                     context.commit("setLoadingApp", false);
                     break;

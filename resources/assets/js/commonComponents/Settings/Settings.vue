@@ -39,7 +39,7 @@
                         href="https://firebase.google.com/docs/web/setup?authuser=0#config-object"
                         class="link"
                         target="_blank"
-                    >here</a>
+                    >here</a>, it must be like <pre class="inline bg-red-700 text-white p-1">{"apiKey":"xyz",..}</pre>
                 </sub>
             </div>
 
