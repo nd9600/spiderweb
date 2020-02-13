@@ -37,6 +37,11 @@ const store = new Vuex.Store({
         }
     },
     actions: {
+        saveStateToLocalStorage(context) {
+            const storageObject = context.getters.storageObject;
+            const stringifiedStorage = JSON.stringify(storageObject);
+            localStorage.setItem(STORAGE_KEY, stringifiedStorage);
+        },
         saveStateToStorage(context) {
             const storageObject = context.getters.storageObject;
             const stringifiedStorage = JSON.stringify(storageObject);
@@ -110,10 +115,12 @@ store.subscribe(
             "postsModule/setState",
             "settingsModule/setState",
             "firebaseModule/setState",
+            "setLoadingApp",
         ];
         const shouldSaveState = state.settingsModule.shouldAutosave
             && !mutationsToIgnore.includes(mutation.type);
         if (shouldSaveState) {
+            console.log("autosaving, mutation is", mutation.type);
             const storageObject = {
                 postsModule: state.postsModule,
                 settingsModule: state.settingsModule,

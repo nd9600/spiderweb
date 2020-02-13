@@ -3,12 +3,6 @@
         <div class="flex justify-around">
             <button
                 class="btn btn--primary"
-                @click="loadStateFromStorage"
-            >
-                Load
-            </button>
-            <button
-                class="btn btn--primary"
                 @click="saveStateToStorage"
             >
                 Save
@@ -72,7 +66,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions(["saveStateToStorage", "loadStateFromStorage", "loadState"]),
+        ...mapActions(["saveStateToLocalStorage", "saveStateToStorage", "loadStateFromStorage", "loadState"]),
 
         onFileUpload(event) {
             const files = event.target.files || event.dataTransfer.files;
@@ -90,6 +84,7 @@ export default {
             const stateString = await this.fileToImport.text();
             this.loadState(JSON.parse(stateString));
             this.fileToImport = null;
+            this.saveStateToLocalStorage();
         },
 
         exportState() {
@@ -99,9 +94,9 @@ export default {
             );
             const now = moment().format("Y-MM-DD_HH:mm:ss");
 
-            this.saveData(blob, `spiderwebExport-${now}.json`);
+            this.downloadData(blob, `spiderwebExport-${now}.json`);
         },
-        saveData(blob, filename) {
+        downloadData(blob, filename) {
             let a = document.createElement("a");
             document.body.appendChild(a);
             a.style = "display: none";
