@@ -355,7 +355,7 @@ const mutations = {
 };
 
 const actions = {
-    makeNewPost(context, newPost) {
+    async makeNewPost(context, newPost) {
         const existingPostIds = Object.keys(state.posts);
 
         const highestPostId = existingPostIds.length === 0

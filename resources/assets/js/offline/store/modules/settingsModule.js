@@ -48,6 +48,20 @@ const mutations = {
 };
 
 const actions = {
+    setStorageMethod(context, {storageMethod, shouldTakeDataFrom}) {
+        const isStorageMethodChanging = context.state.storageMethod !== storageMethod;
+
+        context.commit("setStorageMethod", storageMethod);
+        if (isStorageMethodChanging) {
+            context.dispatch(
+                "loadDataFrom",
+                shouldTakeDataFrom,
+                {
+                    root: true
+                }
+            );
+        }
+    }
 };
 
 

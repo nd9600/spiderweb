@@ -24,7 +24,7 @@
             <div>
                 Storage method
                 <select
-                    v-model="storageMethod"
+                    v-model="storageMethodInComponent"
                     class="ml-4"
                 >
                     <option value="local">Local</option>
@@ -32,7 +32,7 @@
                 </select>
 
                 <sub 
-                    v-if="storageMethod === 'firebase'"
+                    v-if="storageMethodInComponent === 'firebase'"
                     class="ml-1 text-xs text-gray-500"
                 >
                     copy your Firebase config from <a
@@ -41,6 +41,33 @@
                         target="_blank"
                     >here</a>, it must be like <pre class="inline bg-red-700 text-white p-1">{"apiKey":"xyz",..}</pre>
                 </sub>
+
+                <div
+                    v-if="storageMethodInComponent !== storageMethod"
+                    class="flex flex-col items-start"
+                >
+                    <label>
+                        Changing storage method, take data from
+                        <select
+                            v-model="shouldTakeDataFrom"
+                            class="p-2 rounded text-gray-700 bg-white"
+                        >
+                            <option value="local">
+                                Local storage
+                            </option>
+                            <option value="firebase">
+                                Firebase
+                            </option>
+                        </select>
+                    </label>
+
+                    <button
+                        class="btn btn--primary"
+                        @click="changeStorageMethod"
+                    >
+                        Change storage method
+                    </button>
+                </div>
             </div>
 
             <template v-if="storageMethod === 'firebase'">
@@ -100,10 +127,16 @@
 </template>
 
 <script>
-import {mapMutations} from "vuex";
+import {mapMutations, mapActions} from "vuex";
 
 export default {
     name: "Settings",
+    data() {
+        return {
+            storageMethodInComponent: "local",
+            shouldTakeDataFrom: "local" // "local" | "firebase"
+        };
+    },
     computed: {
         shouldAutosave: {
             get() {
@@ -113,13 +146,8 @@ export default {
                 this.setShouldAutosave(shouldAutosave);
             }
         },
-        storageMethod: {
-            get() {
-                return this.$store.state.settingsModule.storageMethod;
-            },
-            set(storageMethod) {
-                this.setStorageMethod(storageMethod);
-            }
+        storageMethod() {
+            return this.$store.state.settingsModule.storageMethod;
         },
         firebaseConfig: {
             get() {
@@ -156,18 +184,30 @@ export default {
             }
         }
     },
+    created() {
+        this.storageMethodInComponent = this.storageMethod;
+    },
     methods: {
         ...mapMutations("settingsModule", [
             "setShouldAutosave",
-            "setStorageMethod",
             "setCanOpenMultiplePosts",
             "setGraphHeight",
             "setPostBarHeight"
+        ]),
+        ...mapActions("settingsModule", [
+            "setStorageMethod",
         ]),
 
         ...mapMutations("firebaseModule", [
             "setFirebaseConfig"
         ]),
+
+        changeStorageMethod() {
+            this.setStorageMethod({
+                storageMethod: this.storageMethodInComponent,
+                shouldTakeDataFrom: this.shouldTakeDataFrom
+            });
+        }
     }
 };
 </script>

@@ -15,8 +15,8 @@ export default {
     components: {
         Navbar
     },
-    mounted() {
-        this.loadStateFromStorage();
+    async mounted() {
+        await this.loadStateFromStorage();
     },
     methods: {
         ...mapActions(["loadStateFromStorage"]),

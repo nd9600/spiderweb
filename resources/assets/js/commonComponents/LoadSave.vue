@@ -48,7 +48,7 @@
                             v-model="shouldTakeDataFrom"
                             class="p-2 rounded text-gray-700 bg-white"
                         >
-                            <option value="local storage">
+                            <option value="local">
                                 Local storage
                             </option>
                             <option value="firebase">
@@ -148,7 +148,7 @@ export default {
             shouldImportData: false,
             shouldImportSettings: false,
 
-            shouldTakeDataFrom: "local storage" // "local storage" | "firebase"
+            shouldTakeDataFrom: "local" // "local" | "firebase"
         };
     },
     computed: {
@@ -188,23 +188,23 @@ export default {
             }
 
             if (this.shouldImportData) {
-                this.importData(parsedState);
+                await this.importData(parsedState);
             }
             if (this.shouldImportSettings) {
                 if (!this.shouldImportData) { // if you're importing the data as well as the settings, you obviously want to use the imported data
-                    this.importSettings({
+                    await this.importSettings({
                         storageObject: parsedState,
                         shouldTakeDataFrom: this.shouldTakeDataFrom
                     });
                 } else {
-                    this.importSettings({
+                    await this.importSettings({
                         storageObject: parsedState,
                         shouldTakeDataFrom: null
                     });
                 }
             }
             this.fileToImport = null;
-            this.saveStateToLocalStorage();
+            await this.saveStateToLocalStorage();
         },
 
         exportState() {
