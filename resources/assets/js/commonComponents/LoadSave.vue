@@ -20,7 +20,7 @@
                 </button>
                 <div
                     v-if="fileToImportIsValid"
-                    class="flex flex-col"
+                    class="flex flex-col items-start"
                 >
                     <label>
                         Import data
@@ -48,6 +48,21 @@
                             (you need to import data and/or settings)
                         </sub>
                     </p>
+
+                    <label v-if="shouldImportSettings && !shouldImportData">
+                        If changing storage method, take data from
+                        <select
+                            v-model="shouldTakeDataFrom"
+                            class="p-2 rounded text-gray-700 bg-white"
+                        >
+                            <option value="local storage">
+                                Local storage
+                            </option>
+                            <option value="firebase">
+                                Firebase
+                            </option>
+                        </select>
+                    </label>
 
                     <p>
                         <sub class="text-gray-500">
@@ -131,6 +146,8 @@ export default {
             fileToImport: null,
             shouldImportData: false,
             shouldImportSettings: false,
+
+            shouldTakeDataFrom: "local storage" // "local storage" | "firebase"
         };
     },
     computed: {
@@ -173,7 +190,17 @@ export default {
                 this.importData(parsedState);
             }
             if (this.shouldImportSettings) {
-                this.importSettings(parsedState);
+                if (!this.shouldImportData) { // if you're importing the data as well as the settings, you obviously want to use the imported data
+                    this.importSettings({
+                        storageObject: parsedState,
+                        shouldTakeDataFrom: this.shouldTakeDataFrom
+                    });
+                } else {
+                    this.importSettings({
+                        storageObject: parsedState,
+                        shouldTakeDataFrom: null
+                    });
+                }
             }
             this.fileToImport = null;
             this.saveStateToLocalStorage();

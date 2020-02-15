@@ -95,6 +95,46 @@ const store = new Vuex.Store({
             }
         },
 
+        shouldTakeDataFrom(context, shouldTakeDataFrom) {
+            switch (shouldTakeDataFrom) {
+                case "local storage": {
+                    console.log("local");
+                    break;
+
+                    const localStorageObject = JSON.parse(localStorage.getItem(STORAGE_KEY));
+                    if (localStorageObject === null) {
+                        return;
+                    }
+                    context.dispatch("importData", localStorageObject);
+                    break;
+                }
+                case "firebase": {
+                    console.log("fb");
+                    break;
+                    context.commit("setLoadingApp", true);
+                    const firebaseDB = firebaseDbFactory(context.state.firebaseModule.firebaseConfig);
+                    firebaseDB.ref(STORAGE_KEY).once("value")
+                        .then(
+                            (snapshot) => {
+                                const firebaseStorageObject = JSON.parse(snapshot.val());
+                                console.log(firebaseStorageObject);
+                                context.dispatch("importData", firebaseStorageObject);
+                            }
+                        ).catch((error) => {
+                            console.log(error);
+                            alert("There was an error loading the data from Firebase, please refresh the page/change your Firebase config in 'settings', and try again");
+                        })
+                        .finally(() => {
+                            context.commit("setLoadingApp", false);
+                        });
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+        },
+
         importState(context, storageObject) {
             if (storageObject.postsModule) {
                 context.commit("postsModule/setState", storageObject.postsModule);
@@ -112,13 +152,15 @@ const store = new Vuex.Store({
                 context.commit("postsModule/setState", storageObject.postsModule);
             }
         },
-        importSettings(context, storageObject) {
+        importSettings(context, {storageObject, shouldTakeDataFrom}) {
             if (storageObject.settingsModule) {
                 context.commit("settingsModule/setState", storageObject.settingsModule);
             }
             if (storageObject.firebaseModule) {
                 context.commit("firebaseModule/setState", storageObject.firebaseModule);
             }
+
+            context.dispatch("shouldTakeDataFrom", shouldTakeDataFrom);
         }
     }
 });
