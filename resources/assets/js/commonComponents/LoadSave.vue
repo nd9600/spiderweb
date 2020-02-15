@@ -9,15 +9,90 @@
             </button>
         </div>
 
-        <div class="mt-8 flex justify-around">
+        <div class="mt-8 flex justify-around items-start">
             <div class="inline-block">
                 <button
                     class="btn btn--primary"
-                    :disabled="!fileToImportIsValid"
+                    :disabled="!fileToImportIsValid || (!shouldImportData && !shouldImportSettings)"
                     @click="importState"
                 >
                     Import
                 </button>
+                <div
+                    v-if="fileToImportIsValid"
+                    class="flex flex-col"
+                >
+                    <label>
+                        Import data
+                        <input
+                            v-model="shouldImportData"
+                            class="ml-4"
+                            type="checkbox"
+                        />
+                    </label>
+
+                    <label>
+                        Import settings
+                        <input
+                            v-model="shouldImportSettings"
+                            class="ml-4"
+                            type="checkbox"
+                        />
+                    </label>
+
+                    <p>
+                        <sub
+                            v-if="!shouldImportData && !shouldImportSettings"
+                            class="text-gray-500"
+                        >
+                            (you need to import data and/or settings)
+                        </sub>
+                    </p>
+
+                    <p>
+                        <sub class="text-gray-500">
+                            The file you're importing must be like this:
+                        </sub>
+                    </p>
+
+                    <pre
+                        class="overflow-y-auto"
+                        style="max-height: 33vh"
+                    ><code>{
+    "postsModule": {
+        "posts": {},
+        "links": {},
+        "graphs": {
+            "1": {
+                "id": 1,
+                "name": "default",
+                "nodes": [],
+                "colour": "black"
+            }
+        },
+        "selectedPostIds": [],
+        "selectedGraphIds": []
+    },
+    "settingsModule": {
+        "shouldAutosave": true,
+        "storageMethod": "local",
+        "canOpenMultiplePosts": true,
+        "graphHeight": 66,
+        "postBarHeight": 66
+    },
+    "firebaseModule": {
+        "firebaseConfig": {
+            "apiKey": "x",
+            "authDomain": "y",
+            "databaseURL": "z",
+            "projectId": "xy",
+            "storageBucket": "yz",
+            "messagingSenderId": "xyz",
+            "appId": "xx"
+        }
+    }
+}</code></pre>
+                </div>
 
                 <label>
                     <button
@@ -34,7 +109,6 @@
                         @change="onFileUpload"
                     />
                 </label>
-
             </div>
             <button
                 class="btn btn--primary"
@@ -54,7 +128,9 @@ export default {
     name: "LoadSave",
     data() {
         return {
-            fileToImport: null
+            fileToImport: null,
+            shouldImportData: false,
+            shouldImportSettings: false,
         };
     },
     computed: {
@@ -66,7 +142,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions(["saveStateToLocalStorage", "saveStateToStorage", "loadStateFromStorage", "loadState"]),
+        ...mapActions(["saveStateToLocalStorage", "saveStateToStorage", "loadStateFromStorage", "importData", "importSettings"]),
 
         onFileUpload(event) {
             const files = event.target.files || event.dataTransfer.files;
@@ -82,7 +158,23 @@ export default {
         },
         async importState() {
             const stateString = await this.fileToImport.text();
-            this.loadState(JSON.parse(stateString));
+            const parsedState = JSON.parse(stateString);
+
+            if (
+                !("postsModule" in parsedState)
+                || !("settingsModule" in parsedState)
+                || !("firebaseModule" in parsedState)
+            ) {
+                alert("Imported file isn't valid");
+                return;
+            }
+
+            if (this.shouldImportData) {
+                this.importData(parsedState);
+            }
+            if (this.shouldImportSettings) {
+                this.importSettings(parsedState);
+            }
             this.fileToImport = null;
             this.saveStateToLocalStorage();
         },

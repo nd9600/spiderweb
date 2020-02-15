@@ -70,7 +70,7 @@ const store = new Vuex.Store({
 
             switch (storageMethod) {
                 case "local": {
-                    context.dispatch("loadState", localStorageObject);
+                    context.dispatch("importState", localStorageObject);
                     context.commit("setLoadingApp", false);
                     break;
                 }
@@ -81,7 +81,7 @@ const store = new Vuex.Store({
                             (snapshot) => {
                                 const firebaseStorageObject = JSON.parse(snapshot.val());
                                 console.log(firebaseStorageObject);
-                                context.dispatch("loadState", firebaseStorageObject);
+                                context.dispatch("importState", firebaseStorageObject);
                             }
                         ).catch((error) => {
                             console.log(error);
@@ -95,10 +95,24 @@ const store = new Vuex.Store({
             }
         },
 
-        loadState(context, storageObject) {
+        importState(context, storageObject) {
             if (storageObject.postsModule) {
                 context.commit("postsModule/setState", storageObject.postsModule);
             }
+
+            if (storageObject.settingsModule) {
+                context.commit("settingsModule/setState", storageObject.settingsModule);
+            }
+            if (storageObject.firebaseModule) {
+                context.commit("firebaseModule/setState", storageObject.firebaseModule);
+            }
+        },
+        importData(context, storageObject) {
+            if (storageObject.postsModule) {
+                context.commit("postsModule/setState", storageObject.postsModule);
+            }
+        },
+        importSettings(context, storageObject) {
             if (storageObject.settingsModule) {
                 context.commit("settingsModule/setState", storageObject.settingsModule);
             }
