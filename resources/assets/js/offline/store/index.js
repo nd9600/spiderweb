@@ -98,9 +98,6 @@ const store = new Vuex.Store({
         shouldTakeDataFrom(context, shouldTakeDataFrom) {
             switch (shouldTakeDataFrom) {
                 case "local storage": {
-                    console.log("local");
-                    break;
-
                     const localStorageObject = JSON.parse(localStorage.getItem(STORAGE_KEY));
                     if (localStorageObject === null) {
                         return;
@@ -109,8 +106,6 @@ const store = new Vuex.Store({
                     break;
                 }
                 case "firebase": {
-                    console.log("fb");
-                    break;
                     context.commit("setLoadingApp", true);
                     const firebaseDB = firebaseDbFactory(context.state.firebaseModule.firebaseConfig);
                     firebaseDB.ref(STORAGE_KEY).once("value")
@@ -153,6 +148,8 @@ const store = new Vuex.Store({
             }
         },
         importSettings(context, {storageObject, shouldTakeDataFrom}) {
+            const isStorageMethodChanging = context.state.settingsModule.storageMethod !== storageObject.settingsModule.storageMethod;
+
             if (storageObject.settingsModule) {
                 context.commit("settingsModule/setState", storageObject.settingsModule);
             }
@@ -160,7 +157,9 @@ const store = new Vuex.Store({
                 context.commit("firebaseModule/setState", storageObject.firebaseModule);
             }
 
-            context.dispatch("shouldTakeDataFrom", shouldTakeDataFrom);
+            if (isStorageMethodChanging) {
+                context.dispatch("shouldTakeDataFrom", shouldTakeDataFrom);
+            }
         }
     }
 });

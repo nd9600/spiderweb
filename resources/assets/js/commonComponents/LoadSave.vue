@@ -11,13 +11,6 @@
 
         <div class="mt-8 flex justify-around items-start">
             <div class="inline-block">
-                <button
-                    class="btn btn--primary"
-                    :disabled="!fileToImportIsValid || (!shouldImportData && !shouldImportSettings)"
-                    @click="importState"
-                >
-                    Import
-                </button>
                 <div
                     v-if="fileToImportIsValid"
                     class="flex flex-col items-start"
@@ -124,6 +117,14 @@
                         @change="onFileUpload"
                     />
                 </label>
+
+                <button
+                    class="btn btn--primary"
+                    :disabled="!fileToImportIsValid || (!shouldImportData && !shouldImportSettings)"
+                    @click="importState"
+                >
+                    Import
+                </button>
             </div>
             <button
                 class="btn btn--primary"
