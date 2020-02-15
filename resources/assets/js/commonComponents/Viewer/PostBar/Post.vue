@@ -1,5 +1,10 @@
 <template>
-    <section class="relative post">
+    <section
+        class="relative post"
+        :style="{
+            'min-width': postWidth + 'vw'
+        }"
+    >
         <div>
             <button
                 class="absolute right-0 mr-2 btn btn--primary opacity-25 hover:opacity-100"
@@ -54,7 +59,7 @@
 </template>
 
 <script>
-import {mapMutations} from "vuex";
+import {mapState, mapMutations} from "vuex";
 
 import LinkedPosts from "./LinkedPosts";
 import LinkedGraphs from "./LinkedGraphs";
@@ -78,6 +83,9 @@ export default {
             bottomTab: ""
         };
     },
+    computed: {
+        ...mapState("settingsModule", ["postWidth"]),
+    },
     methods: {
         ...mapMutations("postsModule", ["unselectPostId"]),
 
@@ -92,8 +100,6 @@ export default {
 
 <style scoped>
     .post {
-        min-width: 92%;
-        max-height: 66vh;
         background: white;
 
         overflow-y: auto;
@@ -103,9 +109,9 @@ export default {
         justify-content: space-between;
     }
 
-    @media (min-width: 768px) {
+    @media (max-width: 768px) {
         .post {
-            min-width: 48%;
+            min-width: 92% !important;
         }
     }
 

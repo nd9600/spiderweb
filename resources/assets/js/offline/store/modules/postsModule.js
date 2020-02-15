@@ -132,12 +132,12 @@ const getters = {
 };
 
 const mutations = {
-    setState(state, stateFromLocalStorage) {
-        state.posts = stateFromLocalStorage.posts;
-        state.links = stateFromLocalStorage.links;
-        state.graphs = stateFromLocalStorage.graphs;
-        state.selectedPostIds = stateFromLocalStorage.selectedPostIds;
-        state.selectedGraphIds = stateFromLocalStorage.selectedGraphIds;
+    setState(state, newState) {
+        state.posts = newState.posts;
+        state.links = newState.links;
+        state.graphs = newState.graphs;
+        state.selectedPostIds = newState.selectedPostIds;
+        state.selectedGraphIds = newState.selectedGraphIds;
     },
 
     selectPostId(state, {id, canOpenMultiplePosts}) {

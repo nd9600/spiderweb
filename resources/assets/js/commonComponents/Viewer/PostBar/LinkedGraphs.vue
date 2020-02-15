@@ -9,7 +9,7 @@
             <a
                 v-for="graphId in linkedGraphs"
                 :key="graphId"
-                class="link block"
+                class="link block text-xs md:text-base"
                 @click="toggleGraphId(graphId)"
             >
                 {{ graphs[graphId].name }}

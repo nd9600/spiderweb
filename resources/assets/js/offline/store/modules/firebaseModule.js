@@ -14,8 +14,8 @@ const getters = {
 };
 
 const mutations = {
-    setState(state, stateFromLocalStorage) {
-        state.firebaseConfig = stateFromLocalStorage.firebaseConfig || {
+    setState(state, newState) {
+        state.firebaseConfig = newState.firebaseConfig || {
             apiKey: "",
             authDomain: "xxx.firebaseapp.com",
             databaseURL: "https://xxx.firebaseio.com",

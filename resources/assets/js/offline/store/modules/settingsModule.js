@@ -8,18 +8,21 @@ const state = {
 
     graphHeight: 66,
     postBarHeight: 66,
+
+    postWidth: 50,
 };
 
 const getters = {
 };
 
 const mutations = {
-    setState(state, stateFromLocalStorage) {
-        state.shouldAutosave = stateFromLocalStorage.shouldAutosave || true;
-        state.canOpenMultiplePosts = stateFromLocalStorage.canOpenMultiplePosts || true;
-        state.storageMethod = stateFromLocalStorage.storageMethod || "local";
-        state.graphHeight = stateFromLocalStorage.graphHeight || 66;
-        state.postBarHeight = stateFromLocalStorage.postBarHeight || 66;
+    setState(state, newState) {
+        state.shouldAutosave = newState.shouldAutosave || true;
+        state.canOpenMultiplePosts = newState.canOpenMultiplePosts || true;
+        state.storageMethod = newState.storageMethod || "local";
+        state.graphHeight = newState.graphHeight || 66;
+        state.postBarHeight = newState.postBarHeight || 66;
+        state.postWidth = newState.postWidth || 50;
     },
     
     setShouldAutosave(state, shouldAutosave) {
@@ -44,7 +47,14 @@ const mutations = {
             return;
         }
         state.postBarHeight = postBarHeight;
-    }
+    },
+
+    setPostWidth(state, postWidth) {
+        if (!isInteger(postWidth)) {
+            return;
+        }
+        state.postWidth = postWidth;
+    },
 };
 
 const actions = {

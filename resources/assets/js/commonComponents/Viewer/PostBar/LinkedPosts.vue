@@ -10,7 +10,7 @@
                 <a
                     v-for="postId in linkedPosts.from"
                     :key="postId"
-                    class="link block"
+                    class="link block text-xs md:text-base"
                     @click="togglePostIdLocal(postId)"
                 >
                     {{ titleOrBody(postId) }}
@@ -26,7 +26,7 @@
                 <a
                     v-for="postId in linkedPosts.to"
                     :key="postId"
-                    class="link block"
+                    class="link block text-xs md:text-base"
                     @click="togglePostIdLocal(postId)"
                 >
                     {{ titleOrBody(postId) }}

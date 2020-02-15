@@ -123,6 +123,24 @@
             />
             <sub class="ml-1 text-xs text-gray-500">vh</sub>
         </label>
+
+        <label class="setting">
+            Post width
+            <input
+                v-model.number="postWidth"
+                class="ml-4 mb-2 p-2 rounded text-gray-800 text-base bg-gray-400"
+                type="number"
+                inputmode="numeric"
+                pattern="^[1-9][0-9]?$|^100$"
+                size="3"
+                minlength="1"
+                maxlength="3"
+                min="1"
+                max="100"
+                step="1"
+            />
+            <sub class="ml-1 text-xs text-gray-500">vw</sub>
+        </label>
     </section>
 </template>
 
@@ -182,7 +200,15 @@ export default {
             set(postBarHeight) {
                 this.setPostBarHeight(postBarHeight);
             }
-        }
+        },
+        postWidth: {
+            get() {
+                return this.$store.state.settingsModule.postWidth;
+            },
+            set(postWidth) {
+                this.setPostWidth(postWidth);
+            }
+        },
     },
     created() {
         this.storageMethodInComponent = this.storageMethod;
@@ -192,7 +218,8 @@ export default {
             "setShouldAutosave",
             "setCanOpenMultiplePosts",
             "setGraphHeight",
-            "setPostBarHeight"
+            "setPostBarHeight",
+            "setPostWidth"
         ]),
         ...mapActions("settingsModule", [
             "setStorageMethod",
