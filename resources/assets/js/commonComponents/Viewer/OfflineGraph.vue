@@ -2,7 +2,7 @@
     <section class="w-full h-full px-16">
         <svg
             id="graphSvg"
-            class="w-full h-full cursor-move border bg-white"
+            class="inline w-full h-full cursor-move border bg-white"
         >
             <defs>
                 <marker

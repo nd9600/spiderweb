@@ -61,7 +61,7 @@ const actions = {
     setStorageMethod(context, {storageMethod, shouldTakeDataFrom}) {
         const isStorageMethodChanging = context.state.storageMethod !== storageMethod;
 
-        context.commit("setStorageMethod", storageMethod);
+        context.commit("settingsModule/setStorageMethod", storageMethod, {root: true});
         if (isStorageMethodChanging) {
             context.dispatch(
                 "loadDataFrom",

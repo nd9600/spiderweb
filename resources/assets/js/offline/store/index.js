@@ -6,8 +6,6 @@ import firebaseModule from "./modules/firebaseModule";
 import postsModule from "./modules/postsModule";
 import firebaseDbFactory from "./firebaseDbFactory";
 
-import debounce from "lodash.debounce";
-
 Vue.use(Vuex);
 
 const STORAGE_KEY = "offlineState";
@@ -164,7 +162,7 @@ const store = new Vuex.Store({
 });
 
 store.subscribe(
-    debounce((mutation, state) => {
+    (mutation, state) => {
         const mutationsToIgnore = [
             "postsModule/setState",
             "settingsModule/setState",
@@ -173,32 +171,37 @@ store.subscribe(
         ];
         const shouldSaveState = state.settingsModule.shouldAutosave
             && !mutationsToIgnore.includes(mutation.type);
-        if (shouldSaveState) {
-            console.log("autosaving, mutation is", mutation.type);
-            const storageObject = {
-                postsModule: state.postsModule,
-                settingsModule: state.settingsModule,
-                firebaseModule: state.firebaseModule,
-            };
-            const stringifiedStorage = JSON.stringify(storageObject);
 
-            const shouldSaveLocally = state.settingsModule.storageMethod === "local";
-            if (shouldSaveLocally) {
-                localStorage.setItem(STORAGE_KEY, stringifiedStorage);
-            } else {
-                const mutationIsStorageChange = [
-                    "settingsModule/setStorageMethod",
-                    "firebaseModule/setFirebaseConfig"
-                ].includes(mutation.type);
-                if (mutationIsStorageChange) {
-                    localStorage.setItem(STORAGE_KEY, stringifiedStorage); // we want to store locally that we've changed the storage method, so it'll persist on refreshes
-                }
+        console.log(mutation.type);
 
-                const firebaseDB = firebaseDbFactory(state.firebaseModule.firebaseConfig);
-                firebaseDB.ref(STORAGE_KEY).set(stringifiedStorage);
-            }
+        if (!shouldSaveState) {
+            return;
         }
-    }, 300)
+        console.log("autosaving, mutation is", mutation.type);
+        const storageObject = {
+            postsModule: state.postsModule,
+            settingsModule: state.settingsModule,
+            firebaseModule: state.firebaseModule,
+        };
+        const stringifiedStorage = JSON.stringify(storageObject);
+
+        const shouldSaveLocally = state.settingsModule.storageMethod === "local";
+        if (shouldSaveLocally) {
+            localStorage.setItem(STORAGE_KEY, stringifiedStorage);
+        } else {
+            const mutationIsStorageChange = [
+                "settingsModule/setStorageMethod",
+                "firebaseModule/setFirebaseConfig"
+            ].includes(mutation.type);
+            console.log(mutation.type, mutationIsStorageChange);
+            if (mutationIsStorageChange) {
+                localStorage.setItem(STORAGE_KEY, stringifiedStorage); // we want to store locally that we've changed the storage method, so it'll persist on refreshes
+            }
+
+            const firebaseDB = firebaseDbFactory(state.firebaseModule.firebaseConfig);
+            firebaseDB.ref(STORAGE_KEY).set(stringifiedStorage);
+        }
+    }
 );
 
 export default store;
