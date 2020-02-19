@@ -1,7 +1,6 @@
 <template>
     <div class="mb-4">
         <button
-            v-if="!showClickModeSelect"
             class="text-left underline"
             @click.prevent="showClickModeSelect = !showClickModeSelect"
         >
