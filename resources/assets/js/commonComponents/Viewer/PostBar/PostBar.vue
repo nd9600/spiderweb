@@ -1,5 +1,5 @@
 <template>
-    <div class="flex overflow-x-auto postSidebar">
+    <div class="flex overflow-x-auto postBar">
         <post
             v-for="selectedPostId in selectedPostIds"
             :key="selectedPostId"
@@ -28,7 +28,7 @@ export default {
 </script>
 
 <style>
-    .postSidebar {
+    .postBar {
         min-width: 33%;
         background: #eeeeee url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAR0lEQVQYlYWPuw0AQAhC2X9AY+UOTOBVNH7OgkQpHgDzSJJpHk3ySSZ0SPWXsBFqUiNuZGyEmoSNMBJ/a09i9ceOU1dca/U/VPFxnYht7pgAAAAASUVORK5CYII=");
     }

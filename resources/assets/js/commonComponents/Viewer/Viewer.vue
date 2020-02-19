@@ -19,18 +19,27 @@
                 </option>
             </select>
         </label>
-        <offline-graph
-            class="pb-4 w-full"
+        <div
+            class="flex"
             :style="{
-                'min-height': graphHeight + 'vh'
+                'flex-direction': graphAndPostsDirection === 'horizontal' ? 'row' : 'column'
             }"
-        />
-        <PostBar
-            class="w-full"
-            :style="{
-                'min-height': postBarHeight + 'vh'
-            }"
-        />
+        >
+            <div class="flex flex-col"> <!-- flex-col makes the <svg> stretch for some reason, if it has display: inline -->
+                <offline-graph
+                    class="pb-4 w-full"
+                    :style="{
+                        'min-height': graphHeight + 'vh'
+                    }"
+                />
+            </div>
+            <PostBar
+                class="w-full"
+                :style="{
+                    'min-height': postBarHeight + 'vh'
+                }"
+            />
+        </div>
     </div>
 </template>
 
@@ -47,7 +56,7 @@ export default {
         PostBar
     },
     computed: {
-        ...mapState("settingsModule", ["graphHeight", "postBarHeight"]),
+        ...mapState("settingsModule", ["graphAndPostsDirection", "graphHeight", "postBarHeight"]),
         ...mapState("postsModule", ["graphs"]),
 
         selectedGraphIds: {

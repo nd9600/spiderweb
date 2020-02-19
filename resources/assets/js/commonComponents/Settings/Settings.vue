@@ -25,7 +25,7 @@
                 Storage method
                 <select
                     v-model="storageMethodInComponent"
-                    class="ml-4"
+                    class="ml-4 p-2 rounded text-gray-700 bg-white"
                 >
                     <option value="local">Local</option>
                     <option value="firebase">Firebase</option>
@@ -86,6 +86,17 @@
                 class="ml-4"
                 type="checkbox"
             />
+        </label>
+
+        <label class="setting">
+            Graph and posts direction
+            <select
+                v-model="graphAndPostsDirection"
+                class="p-2 rounded text-gray-700 bg-white"
+            >
+                <option value="horizontal">Horizontal</option>
+                <option value="vertical">Vertical</option>
+            </select>
         </label>
 
         <label class="setting">
@@ -185,6 +196,15 @@ export default {
             }
         },
 
+        graphAndPostsDirection: {
+            get() {
+                return this.$store.state.settingsModule.graphAndPostsDirection;
+            },
+            set(graphAndPostsDirection) {
+                this.setGraphAndPostsDirection(graphAndPostsDirection);
+            }
+        },
+
         graphHeight: {
             get() {
                 return this.$store.state.settingsModule.graphHeight;
@@ -217,6 +237,7 @@ export default {
         ...mapMutations("settingsModule", [
             "setShouldAutosave",
             "setCanOpenMultiplePosts",
+            "setGraphAndPostsDirection",
             "setGraphHeight",
             "setPostBarHeight",
             "setPostWidth"

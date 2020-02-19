@@ -6,6 +6,8 @@ const state = {
 
     canOpenMultiplePosts: true,
 
+    graphAndPostsDirection: "vertical",
+
     graphHeight: 66,
     postBarHeight: 66,
 
@@ -20,6 +22,7 @@ const mutations = {
         state.shouldAutosave = newState.shouldAutosave || true;
         state.canOpenMultiplePosts = newState.canOpenMultiplePosts || true;
         state.storageMethod = newState.storageMethod || "local";
+        state.graphAndPostsDirection = newState.graphAndPostsDirection || "vertical";
         state.graphHeight = newState.graphHeight || 66;
         state.postBarHeight = newState.postBarHeight || 66;
         state.postWidth = newState.postWidth || 50;
@@ -34,6 +37,10 @@ const mutations = {
 
     setCanOpenMultiplePosts(state, canOpenMultiplePosts) {
         state.canOpenMultiplePosts = canOpenMultiplePosts;
+    },
+
+    setGraphAndPostsDirection(state, graphAndPostsDirection) {
+        state.graphAndPostsDirection = graphAndPostsDirection;
     },
 
     setGraphHeight(state, graphHeight) {
