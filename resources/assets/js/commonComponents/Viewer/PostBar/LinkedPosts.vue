@@ -2,35 +2,55 @@
     <section>
         <div class="w-4/5 flex justify-between">
             <div
-                v-if="linkedPosts.from.length > 0"
+                v-if="Object.keys(linkedPosts.from).length > 0"
             >
                 <h4 class="h h--4">
                     From this post
                 </h4>
-                <a
-                    v-for="postId in linkedPosts.from"
-                    :key="postId"
-                    class="link block text-xs md:text-base"
-                    @click="togglePostIdLocal(postId)"
+                <div
+                    v-for="(postId, linkId) in linkedPosts.from"
+                    :key="linkId"
+                    class="mb-2"
                 >
-                    {{ titleOrBody(postId) }}
-                </a>
+                    <a
+                        class="link text-xs md:text-base"
+                        @click="togglePostIdLocal(postId)"
+                    >
+                        {{ titleOrBody(postId) }}
+                    </a>
+                    <button
+                        class="ml-8 py-1 px-2 btn btn--secondary"
+                        @click="removeLink({id: linkId})"
+                    >
+                        x
+                    </button>
+                </div>
             </div>
 
             <div
-                v-if="linkedPosts.to.length > 0"
+                v-if="Object.keys(linkedPosts.to).length > 0"
             >
                 <h4 class="h h--4">
                     To this post
                 </h4>
-                <a
-                    v-for="postId in linkedPosts.to"
-                    :key="postId"
-                    class="link block text-xs md:text-base"
-                    @click="togglePostIdLocal(postId)"
+                <div
+                    v-for="(postId, linkId) in linkedPosts.to"
+                    :key="linkId"
+                    class="mb-2"
                 >
-                    {{ titleOrBody(postId) }}
-                </a>
+                    <a
+                        class="link text-xs md:text-base"
+                        @click="togglePostIdLocal(postId)"
+                    >
+                        {{ titleOrBody(postId) }}
+                    </a>
+                    <button
+                        class="ml-8 py-1 px-2 btn btn--secondary"
+                        @click="removeLink({id: linkId})"
+                    >
+                        x
+                    </button>
+                </div>
             </div>
         </div>
     </section>
@@ -56,7 +76,7 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("postsModule", ["togglePostId"]),
+        ...mapMutations("postsModule", ["togglePostId", "removeLink"]),
         togglePostIdLocal(postId) {
             this.togglePostId({
                 id: postId,

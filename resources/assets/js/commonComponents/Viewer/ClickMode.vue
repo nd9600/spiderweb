@@ -120,7 +120,7 @@ export default {
         }
     },
     created() {
-        const initialGraphId = this.selectedGraphIds.length === 1
+        const initialGraphId = this.selectedGraphIds.length > 0
             ? this.selectedGraphIds[0]
             : 1;
         this.newLinkGraphId = initialGraphId;

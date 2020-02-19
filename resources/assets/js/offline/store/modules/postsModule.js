@@ -101,15 +101,15 @@ const getters = {
         return typeof getters.neighbourIndex[lowerId + "," + higherId] !== "undefined";
     },
 
-    postIdsThatLinkToPost: (state, getters) => (postId) => {
-        let fromPostIds = [];
-        let toPostIds = [];
+    postIdsThatLinkToPost: (state) => (postId) => {
+        let fromPostIds = {};
+        let toPostIds = {};
 
-        getters.linksInSelectedGraphs.forEach(function (link) {
+        Object.values(state.links).forEach(function (link) {
             if (link.source === postId) {
-                fromPostIds.push(link.target);
+                fromPostIds[link.id] = link.target;
             } else if (link.target === postId) {
-                toPostIds.push(link.source);
+                toPostIds[link.id] = link.source;
             }
         });
 

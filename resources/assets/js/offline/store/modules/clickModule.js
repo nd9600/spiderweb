@@ -29,7 +29,7 @@ const mutations = {
 };
 
 const actions = {
-    async handleGraphClick(context, post) {
+    async handlePostClick(context, post) {
         if (typeof post !== "object") {
             console.log(post);
             alert("no post clicked");
@@ -80,14 +80,16 @@ const actions = {
                     context.commit("setClickMode", "openPosts");
                     context.commit("setNewLinkSource", null);
                     context.commit("setNewLinkTarget", null);
-                    context.commit("setNewLinkGraphId", 1);
-                    context.commit("setNewLinkType", "reply");
 
                     break;
                 }
             }
         }
     },
+
+    async handleLinkClick(context, link) {
+        console.log(link);
+    }
 };
 
 

@@ -9,10 +9,17 @@
             <a
                 v-for="graphId in linkedGraphs"
                 :key="graphId"
-                class="link block text-xs md:text-base"
+                class="link block mb-2 text-xs md:text-base"
                 @click="toggleGraphId(graphId)"
             >
                 {{ graphs[graphId].name }}
+
+                <button
+                    class="ml-8 py-1 px-2 text-xs btn btn--secondary"
+                    @click="removePostFromGraph({graphId, postId: post.id})"
+                >
+                    remove from graph
+                </button>
             </a>
         </div>
     </section>
@@ -38,7 +45,8 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("postsModule", ["toggleGraphId"]),
+        ...mapMutations("postsModule", ["toggleGraphId", "removePostFromGraph"]),
+
     }
 };
 </script>

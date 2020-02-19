@@ -103,7 +103,7 @@ export default {
     methods: {
         ...mapMutations("postsModule", ["selectPostId"]),
 
-        ...mapActions("clickModule", ["handleGraphClick"]),
+        ...mapActions("clickModule", ["handlePostClick", "handleLinkClick"]),
 
         debouncedMakeGraphSvg: debounce(
             function() {
@@ -141,7 +141,8 @@ export default {
                 .join("line")
                 .classed("graph__link", true)
                 .attr("stroke", (link) => this.graphColour(link.graph))
-                .attr("marker-end", "url(#arrowhead)");
+                .attr("marker-end", "url(#arrowhead)")
+                .on("click", this.handleLinkClick);
 
             let nodeGroups = this.nodesG
                 .selectAll("g")
@@ -204,7 +205,7 @@ export default {
                 });
                 
             d3.selectAll(".node *")
-                .on("click", this.handleGraphClick);
+                .on("click", this.handlePostClick);
 
             // set x and y co-ordinates of the links, and nodes
             simulation.on("tick", () => {
@@ -255,8 +256,8 @@ export default {
 
     .graph__link {
         fill: none;
-        /*stroke: #8a8a8a;*/
         stroke-width: 10px;
+        cursor: pointer;
     }
 
     .node__circle {

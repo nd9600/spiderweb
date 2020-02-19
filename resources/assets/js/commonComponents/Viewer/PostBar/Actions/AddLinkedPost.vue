@@ -89,7 +89,7 @@ export default {
         ...mapState("postsModule", ["graphs", "selectedGraphIds"]),
     },
     created() {
-        const initialGraphId = this.selectedGraphIds.length === 1
+        const initialGraphId = this.selectedGraphIds.length > 0
             ? this.selectedGraphIds[0]
             : 1;
         this.graphId = initialGraphId;
