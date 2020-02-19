@@ -1,13 +1,26 @@
 <template>
     <section class="flex flex-col">
-        <div class="w-full flex justify-center">
-            <div class="w-full md:w-2/3 flex items-center justify-between">
-                <span>
-                    {{ post.title.length > 0 ? post.title : post.body.substr(0, 20) }}
+        <div
+            class="w-full flex"
+            :class="{
+                'justify-center': !inPostBar,
+                'justify-start': inPostBar
+            }"
+        >
+            <div
+                :class="{
+                    'md:w-2/3': !inPostBar,
+                    'justify-between': !inPostBar,
+                    'justify-start': inPostBar
+                }"
+                class="w-full flex items-center"
+            >
+                <span v-if="!inPostBar">
+                    {{ titleOrBody(post.id) }}
                 </span>
                 <span>
                     <button
-                        class="mt-4 px-4 btn btn--secondary"
+                        class="mt-4 mr-8 px-4 btn btn--secondary"
                         @click="showEditor = !showEditor"
                     >
                         {{ showEditor ? "Close" : "Edit" }}
@@ -66,7 +79,7 @@
 </template>
 
 <script>
-import {mapMutations} from "vuex";
+import {mapGetters, mapMutations} from "vuex";
 import moment from "moment";
 
 export default {
@@ -75,6 +88,10 @@ export default {
         post: {
             type: Object,
             required: true
+        },
+        inPostBar: {
+            type: Boolean,
+            default: false
         }
     },
     data() {
@@ -84,6 +101,8 @@ export default {
         };
     },
     computed: {
+        ...mapGetters("postsModule", ["titleOrBody"]),
+
         title: {
             get() {
                 return this.post.title;

@@ -1,17 +1,21 @@
 <template>
     <div class="actionsContainer">
-        <AddLinkedPost
+        <PostEditor
             :post="post"
+            :inPostBar="true"
         />
+        <AddLinkedPost :post="post" />
     </div>
 </template>
 
 <script>
+import PostEditor from "@/js/commonComponents/Posts/PostEditor";
 import AddLinkedPost from "./AddLinkedPost";
 
 export default {
     name: "Actions",
     components: {
+        PostEditor,
         AddLinkedPost
     },
     props: {
