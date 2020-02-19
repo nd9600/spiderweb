@@ -1,11 +1,5 @@
 <template>
     <div class="flex flex-col">
-        <h1 class="h h--1">
-            Add post
-        </h1>
-
-        <hr class="mb-5">
-
         <label
             class="mb-5 flex flex-col"
         >

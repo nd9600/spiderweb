@@ -3,7 +3,7 @@
         <post
             v-for="selectedPostId in selectedPostIds"
             :key="selectedPostId"
-            class="m-2 py-2 pl-2"
+            class="m-2 p-2"
             :post="posts[selectedPostId]"
         >
         </post>

@@ -1,6 +1,13 @@
 <template>
     <div class="flex flex-col">
-        <post-maker/>
+        <section>
+            <h1 class="h h--1">
+                Add post
+            </h1>
+
+            <hr class="mb-5">
+            <post-maker/>
+        </section>
 
         <hr class="mb-5">
 

@@ -17,7 +17,7 @@
                 Unlinked posts
             </h2>
 
-            <post-linker
+            <UnlinkedPostLinker
                 v-for="post in unlinkedPosts"
                 :key="post.id"
                 :post="post"
@@ -66,14 +66,14 @@
 
 <script>
 import { mapState, mapGetters } from "vuex";
-import PostLinker from "./PostLinker";
+import UnlinkedPostLinker from "./UnlinkedPostLinker";
 import LinkMaker from "./LinkMaker";
 import LinkEditor from "./LinkEditor";
 
 export default {
     name: "Links",
     components: {
-        PostLinker,
+        UnlinkedPostLinker,
         LinkMaker,
         LinkEditor
     },

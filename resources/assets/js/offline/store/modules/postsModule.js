@@ -146,7 +146,7 @@ const mutations = {
         }
         
         if (canOpenMultiplePosts) {
-            state.selectedPostIds.push(id);
+            state.selectedPostIds.unshift(id);
         } else {
             state.selectedPostIds = [id];
         }

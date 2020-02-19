@@ -63,7 +63,7 @@ import {mapState, mapMutations} from "vuex";
 
 import LinkedPosts from "./LinkedPosts";
 import LinkedGraphs from "./LinkedGraphs";
-import Actions from "./Actions";
+import Actions from "./Actions/Actions";
 
 export default {
     name: "Post",

@@ -193,7 +193,6 @@ store.subscribe(
                 "settingsModule/setStorageMethod",
                 "firebaseModule/setFirebaseConfig"
             ].includes(mutation.type);
-            console.log(mutation.type, mutationIsStorageChange);
             if (mutationIsStorageChange) {
                 localStorage.setItem(STORAGE_KEY, stringifiedStorage); // we want to store locally that we've changed the storage method, so it'll persist on refreshes
             }
