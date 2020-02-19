@@ -86,7 +86,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["graphs", "posts", "selectedGraphIds"]),
+        ...mapState("postsModule", ["graphs", "selectedGraphIds"]),
     },
     created() {
         const initialGraphId = this.selectedGraphIds.length === 1

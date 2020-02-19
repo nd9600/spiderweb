@@ -4,6 +4,8 @@ import Vuex from "vuex";
 import settingsModule from "./modules/settingsModule";
 import firebaseModule from "./modules/firebaseModule";
 import postsModule from "./modules/postsModule";
+import clickModule from "./modules/clickModule";
+
 import firebaseDbFactory from "./firebaseDbFactory";
 
 Vue.use(Vuex);
@@ -15,7 +17,8 @@ const store = new Vuex.Store({
     modules: {
         settingsModule,
         firebaseModule,
-        postsModule
+        postsModule,
+        clickModule
     },
     state: {
         loadingApp: true
@@ -170,7 +173,8 @@ store.subscribe(
             "setLoadingApp",
         ];
         const shouldSaveState = state.settingsModule.shouldAutosave
-            && !mutationsToIgnore.includes(mutation.type);
+            && !mutationsToIgnore.includes(mutation.type)
+            && !mutation.type.startsWith("clickModule/");
 
         console.log(mutation.type);
 

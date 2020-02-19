@@ -1,5 +1,6 @@
 <template>
     <section class="h-full px-16">
+        <ClickMode />
         <svg
             id="graphSvg"
             class="inline w-full h-full cursor-move border bg-white"
@@ -42,20 +43,24 @@
 import * as d3 from "d3";
 import debounce from "lodash.debounce";
 
-import { mapState, mapGetters, mapMutations } from "vuex";
+import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
+import ClickMode from "./ClickMode";
 
 const WIDTH = 400;
 const HEIGHT = 200;
 
 export default {
     name: "OfflineGraph",
+    components: {
+        ClickMode
+    },
     data() {
         return {
             svg: null,
             rootG: null,
 
             linksG: null,
-            nodesG: null,
+            nodesG: null
         };
     },
     computed: {
@@ -63,7 +68,6 @@ export default {
 
         ...mapState("postsModule", ["selectedGraphIds"]),
         ...mapGetters("postsModule", ["postsInSelectedGraphs", "linksInSelectedGraphs", "graphColour", "titleOrBody", "isNeighbour"]),
-
         selectedPostIds() {
             return this.$store.state.postsModule.selectedPostIds;
         }
@@ -98,6 +102,8 @@ export default {
     },
     methods: {
         ...mapMutations("postsModule", ["selectPostId"]),
+
+        ...mapActions("clickModule", ["handleGraphClick"]),
 
         debouncedMakeGraphSvg: debounce(
             function() {
@@ -198,12 +204,7 @@ export default {
                 });
                 
             d3.selectAll(".node *")
-                .on("click", (post) => {
-                    this.selectPostId({
-                        id: post.id,
-                        canOpenMultiplePosts: this.canOpenMultiplePosts
-                    });
-                });
+                .on("click", this.handleGraphClick);
 
             // set x and y co-ordinates of the links, and nodes
             simulation.on("tick", () => {
