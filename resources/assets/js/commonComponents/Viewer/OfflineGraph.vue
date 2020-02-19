@@ -111,8 +111,8 @@ export default {
             },
             250,
             {
-                "leading": true,
-                "trailing": false,
+                "leading": false,
+                "trailing": true, // we always need to call it the final time, so that D3 picks up any new nodes or links,
             }
         ),
         makeGraphSvg() {
