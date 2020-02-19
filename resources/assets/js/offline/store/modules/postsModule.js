@@ -141,8 +141,8 @@ const mutations = {
     },
 
     selectPostId(state, {id, canOpenMultiplePosts}) {
-        if (state.selectedPostIds.includes(id)) {
-            return;
+        if (state.selectedPostIds.includes(id)) { // we want to move it to the front of the list
+            state.selectedPostIds.splice(state.selectedPostIds.indexOf(id), 1);
         }
         
         if (canOpenMultiplePosts) {
@@ -159,7 +159,7 @@ const mutations = {
             state.selectedPostIds.splice(state.selectedPostIds.indexOf(id), 1);
         } else {
             if (canOpenMultiplePosts) {
-                state.selectedPostIds.push(id);
+                state.selectedPostIds.unshift(id);
             } else {
                 state.selectedPostIds = [id];
             }
