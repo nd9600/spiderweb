@@ -30,6 +30,12 @@ const mutations = {
 
 const actions = {
     async handleGraphClick(context, post) {
+        if (typeof post !== "object") {
+            console.log(post);
+            alert("no post clicked");
+            return;
+        }
+
         switch (context.state.clickMode) {
             case "openPosts":
             default: {
@@ -52,6 +58,11 @@ const actions = {
                     context.commit("setNewLinkSource", post.id);
                     break;
                 } else {
+                    if (context.state.newLinkSource === post.id) {
+                        alert("A post can't be linked to itself");
+                        return;
+                    }
+
                     context.commit("setNewLinkTarget", post.id);
 
                     context.commit(
@@ -66,6 +77,7 @@ const actions = {
                             root: true
                         }
                     );
+                    context.commit("setClickMode", "openPosts");
                     context.commit("setNewLinkSource", null);
                     context.commit("setNewLinkTarget", null);
                     context.commit("setNewLinkGraphId", 1);

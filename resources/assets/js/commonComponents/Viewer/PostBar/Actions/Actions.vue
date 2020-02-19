@@ -27,7 +27,7 @@ export default {
 .actionsContainer {
     padding: 1rem 1rem 0 1rem;
 
-    background-color: #eee;
+    background-color: #eeeeee;
     color: #333;
 }
 </style>
