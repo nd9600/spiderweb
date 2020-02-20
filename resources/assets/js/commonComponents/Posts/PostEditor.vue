@@ -20,16 +20,16 @@
                 </span>
                 <span>
                     <button
-                        class="mt-4 mr-8 px-4 btn btn--secondary"
+                        class="mt-4 mr-8 px-4 btn btn--primary"
                         @click="showEditor = !showEditor"
                     >
-                        {{ showEditor ? "Close" : "Edit" }}
+                        {{ showEditor ? "close" : "edit" }}
                     </button>
                     <button
-                        class="btn btn--primary"
+                        class="btn btn--secondary"
                         @click="removePostLocal"
                     >
-                        x
+                        delete
                     </button>
                 </span>
             </div>

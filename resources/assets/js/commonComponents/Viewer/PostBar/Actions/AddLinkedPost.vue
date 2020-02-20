@@ -9,7 +9,7 @@
         </button>
 
         <template v-if="show">
-            <label class="block">
+            <label class="mb-3 block">
                 Link in graph:
                 <select
                     v-model.number="graphId"
@@ -25,22 +25,19 @@
                 </select>
             </label>
 
-            <label class="block">
-                <select
-                    v-model="fromOrToNewPost"
-                    class="p-2 rounded text-gray-700 bg-white"
+            <label class="mb-3 block">
+                {{ titleOrBody(post.id) }}
+                <button
+                    class="mx-4 link"
+                    type="button"
+                    @click="toggleFromOrToTheNewPost"
                 >
-                    <option value="from">
-                        from
-                    </option>
-                    <option value="to">
-                        to
-                    </option>
-                </select>
+                    {{ fromOrToNewPost === "to" ? "→" : "←" }}
+                </button>
                 the new post
             </label>
 
-            <label class="block">
+            <label class="mb-3 block">
                 link type:
                 <select
                     v-model="linkType"
@@ -71,7 +68,7 @@
 </template>
 <script>
 import PostMaker from "@/js/commonComponents/Posts/PostMaker";
-import {mapState, mapMutations} from "vuex";
+import {mapState, mapGetters, mapMutations} from "vuex";
 
 export default {
     name: "AddLinkedPost",
@@ -95,6 +92,7 @@ export default {
     },
     computed: {
         ...mapState("postsModule", ["graphs", "selectedGraphIds"]),
+        ...mapGetters("postsModule", ["titleOrBody"]),
     },
     created() {
         const initialGraphId = this.selectedGraphIds.length > 0
@@ -104,6 +102,13 @@ export default {
     },
     methods: {
         ...mapMutations("postsModule", ["addLink"]),
+
+        toggleFromOrToTheNewPost() {
+            const newValue = this.fromOrToNewPost === "from"
+                ? "to"
+                : "from";
+            this.fromOrToNewPost = newValue;
+        },
 
         addLinkToPost(newPost) {
             const source = this.fromOrToNewPost === "from"

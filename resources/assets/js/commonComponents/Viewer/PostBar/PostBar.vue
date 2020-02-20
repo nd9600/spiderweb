@@ -1,5 +1,5 @@
 <template>
-    <div class="flex overflow-x-auto postBar">
+    <div class="flex items-start overflow-x-auto postBar">
         <post
             v-for="selectedPostId in selectedPostIds"
             :key="selectedPostId"
