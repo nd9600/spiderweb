@@ -244,9 +244,6 @@ export default {
         ]),
         ...mapActions("settingsModule", [
             "setStorageMethod",
-        ]),
-
-        ...mapMutations("firebaseModule", [
             "setFirebaseConfig"
         ]),
 

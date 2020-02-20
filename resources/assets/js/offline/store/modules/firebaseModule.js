@@ -31,6 +31,13 @@ const mutations = {
 };
 
 const actions = {
+    setFirebaseConfig(context, firebaseConfig) {
+        if(firebaseConfig.apiKey === "") {
+            throw new Error("firebase config is wrong, please check it");
+        }
+        context.commit("setFirebaseConfig", firebaseConfig);
+        context.dispatch("loadStateFromStorage", null, {root: true});
+    }
 };
 
 
