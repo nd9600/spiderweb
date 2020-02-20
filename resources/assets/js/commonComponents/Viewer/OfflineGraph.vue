@@ -1,41 +1,47 @@
 <template>
     <section class="h-full px-16">
-        <ClickMode />
-        <svg
-            id="graphSvg"
-            class="inline w-full h-full cursor-move border bg-white"
-        >
-            <defs>
-                <marker
-                    id="arrowhead"
-                    viewBox="-0 -5 10 10"
-                    refX="15"
-                    refY="0"
-                    orient="auto"
-                    markerWidth="2"
-                    markerHeight="2"
-                >
-                    <path
-                        d="M 0,-5 L 10 ,0 L 0,5"
-                        fill="#353535"
-                        style="stroke: none;"
+        <span>
+            <svg
+                id="graphSvg"
+                class="inline w-full h-full cursor-move border bg-white"
+                @click="onSvgClick"
+            >
+                <defs>
+                    <marker
+                        id="arrowhead"
+                        viewBox="-0 -5 10 10"
+                        refX="15"
+                        refY="0"
+                        orient="auto"
+                        markerWidth="2"
+                        markerHeight="2"
                     >
-                    </path>
-                </marker>
+                        <path
+                            d="M 0,-5 L 10 ,0 L 0,5"
+                            fill="#353535"
+                            style="stroke: none;"
+                        >
+                        </path>
+                    </marker>
 
-                <filter id="postHoverFilter">
-                    <feFlood flood-color="#000"></feFlood>
-                    <feComponentTransfer>
-                        <feFuncA type="linear" slope="0.75"></feFuncA>
-                    </feComponentTransfer>
-                    <feComposite in="SourceGraphic"></feComposite>
-                </filter>
-            </defs>
-            <g transform="translate(5, 15) scale(0.5)">
-                <g class="graph__links"></g>
-                <g class="graph__nodes"></g>
-            </g>
-        </svg>
+                    <filter id="postHoverFilter">
+                        <feFlood flood-color="#000"></feFlood>
+                        <feComponentTransfer>
+                            <feFuncA
+                                type="linear"
+                                slope="0.75"
+                            ></feFuncA>
+                        </feComponentTransfer>
+                        <feComposite in="SourceGraphic"></feComposite>
+                    </filter>
+                </defs>
+                <g transform="translate(5, 15) scale(0.5)">
+                    <g class="graph__links"></g>
+                    <g class="graph__nodes"></g>
+                </g>
+            </svg>
+            <Clicker/>
+        </span>
     </section>
 </template>
 
@@ -44,7 +50,7 @@ import * as d3 from "d3";
 import debounce from "lodash.debounce";
 
 import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
-import ClickMode from "./ClickMode";
+import Clicker from "./Clicker";
 
 const WIDTH = 400;
 const HEIGHT = 200;
@@ -52,7 +58,7 @@ const HEIGHT = 200;
 export default {
     name: "OfflineGraph",
     components: {
-        ClickMode
+        Clicker
     },
     data() {
         return {
@@ -68,6 +74,8 @@ export default {
 
         ...mapState("postsModule", ["selectedGraphIds"]),
         ...mapGetters("postsModule", ["postsInSelectedGraphs", "linksInSelectedGraphs", "graphColour", "titleOrBody", "isNeighbour"]),
+
+        ...mapState("clickerModule", ["showClickButtonMenu", "clickMode"]),
         selectedPostIds() {
             return this.$store.state.postsModule.selectedPostIds;
         }
@@ -102,8 +110,23 @@ export default {
     },
     methods: {
         ...mapMutations("postsModule", ["selectPostId"]),
+        ...mapMutations("clickerModule", ["setShowClickButtonMenu", "setClickMode"]),
 
-        ...mapActions("clickModule", ["handlePostClick", "handleLinkClick"]),
+        ...mapActions("clickerModule", ["handlePostClick", "handleLinkClick"]),
+
+        onSvgClick(event) {
+            if (event.target.id !== "graphSvg") {
+                return;
+            }
+
+            if (this.showClickButtonMenu) {
+                this.setShowClickButtonMenu(false);
+            }
+
+            if (this.clickMode !== "openPosts") {
+                this.setClickMode("openPosts");
+            }
+        },
 
         debouncedMakeGraphSvg: debounce(
             function() {

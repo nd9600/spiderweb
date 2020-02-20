@@ -4,7 +4,7 @@ import Vuex from "vuex";
 import settingsModule from "./modules/settingsModule";
 import firebaseModule from "./modules/firebaseModule";
 import postsModule from "./modules/postsModule";
-import clickModule from "./modules/clickModule";
+import clickerModule from "./modules/clickerModule";
 
 import firebaseDbFactory from "./firebaseDbFactory";
 
@@ -18,7 +18,7 @@ const store = new Vuex.Store({
         settingsModule,
         firebaseModule,
         postsModule,
-        clickModule
+        clickerModule
     },
     state: {
         loadingApp: true
@@ -183,7 +183,7 @@ store.subscribe(
         ];
         const shouldSaveState = state.settingsModule.shouldAutosave
             && !mutationsToIgnore.includes(mutation.type)
-            && !mutation.type.startsWith("clickModule/");
+            && !mutation.type.startsWith("clickerModule/");
 
         console.log(mutation.type);
 

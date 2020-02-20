@@ -1,4 +1,6 @@
 const state = {
+    showClickButtonMenu: false,
+
     clickMode: "openPosts", // openPosts | addLink
 
     newLinkSource: null,
@@ -11,6 +13,10 @@ const getters = {
 };
 
 const mutations = {
+    setShowClickButtonMenu(state, showClickButtonMenu) {
+        state.showClickButtonMenu = showClickButtonMenu;
+    },
+
     setClickMode(state, clickMode) {
         state.clickMode = clickMode;
     },
