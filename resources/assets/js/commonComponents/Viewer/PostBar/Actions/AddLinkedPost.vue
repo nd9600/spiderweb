@@ -1,66 +1,72 @@
 <template>
     <section>
-        <h3 class="h h--3">
+        <button
+            class="h h--3 mb-5 underline"
+            type="button"
+            @click="show = !show"
+        >
             Add linked post
-        </h3>
+        </button>
 
-        <label class="block">
-            Link in graph:
-            <select
-                v-model.number="graphId"
-                class="p-2 rounded text-gray-700 bg-white"
-            >
-                <option
-                    v-for="(graph, id) in graphs"
-                    :key="id"
-                    :value="id"
+        <template v-if="show">
+            <label class="block">
+                Link in graph:
+                <select
+                    v-model.number="graphId"
+                    class="p-2 rounded text-gray-700 bg-white"
                 >
-                    {{ graph.name }}
-                </option>
-            </select>
-        </label>
+                    <option
+                        v-for="(graph, id) in graphs"
+                        :key="id"
+                        :value="id"
+                    >
+                        {{ graph.name }}
+                    </option>
+                </select>
+            </label>
 
-        <label class="block">
-            <select
-                v-model="fromOrToNewPost"
-                class="p-2 rounded text-gray-700 bg-white"
-            >
-                <option value="from">
-                    from
-                </option>
-                <option value="to">
-                    to
-                </option>
-            </select>
-            the new post
-        </label>
+            <label class="block">
+                <select
+                    v-model="fromOrToNewPost"
+                    class="p-2 rounded text-gray-700 bg-white"
+                >
+                    <option value="from">
+                        from
+                    </option>
+                    <option value="to">
+                        to
+                    </option>
+                </select>
+                the new post
+            </label>
 
-        <label class="block">
-            link type:
-            <select
-                v-model="linkType"
-                class="p-2 rounded text-gray-700 bg-white"
-            >
-                <option value="reply">
-                    reply
-                </option>
-                <option value="sidenote">
-                    sidenote
-                </option>
-                <option value="link">
-                    link
-                </option>
-            </select>
-        </label>
+            <label class="block">
+                link type:
+                <select
+                    v-model="linkType"
+                    class="p-2 rounded text-gray-700 bg-white"
+                >
+                    <option value="reply">
+                        reply
+                    </option>
+                    <option value="sidenote">
+                        sidenote
+                    </option>
+                    <option value="link">
+                        link
+                    </option>
+                </select>
+            </label>
 
-        <h4 class="mt-5 h h--4">
-            Add post
-        </h4>
+            <h4 class="mt-5 h h--4">
+                Add post
+            </h4>
 
-        <hr class="mb-1">
-        <post-maker
-            @madePost="addLinkToPost"
-        />
+            <hr class="mb-1">
+            <post-maker
+                @madePost="addLinkToPost"
+            />
+        </template>
     </section>
 </template>
 <script>
@@ -80,6 +86,8 @@ export default {
     },
     data() {
         return {
+            show: false,
+
             graphId: 1,
             fromOrToNewPost: "to",
             linkType: "reply"
