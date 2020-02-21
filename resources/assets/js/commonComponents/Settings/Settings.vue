@@ -103,19 +103,19 @@
         <label class="setting">
             <select
                 v-model="graphAndPostsDirection"
-                class="p-2 rounded text-gray-700 bg-white"
+                class="mb-2 p-2 rounded text-gray-700 bg-white"
             >
                 <option value="horizontal">→</option>
                 <option value="vertical">↓</option>
             </select>
             <div
                 class="flex"
-                :class="graphAndPostsDirection === 'horizontal' ? 'flex-row' : flex-col"
+                :class="graphAndPostsDirection === 'horizontal' ? 'flex-row' : 'flex-col'"
             >
-                <div class="p-2 border border-1 border-solid">
+                <div class="p-4 border border-solid border-gray-600">
                     Graph
                 </div>
-                <div>
+                <div class="p-4 border border-solid border-gray-600">
                     Posts
                 </div>
             </div>
