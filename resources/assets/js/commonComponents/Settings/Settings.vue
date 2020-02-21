@@ -101,14 +101,24 @@
         </label>
 
         <label class="setting">
-            Graph and posts direction
             <select
                 v-model="graphAndPostsDirection"
                 class="p-2 rounded text-gray-700 bg-white"
             >
-                <option value="horizontal">Horizontal</option>
-                <option value="vertical">Vertical</option>
+                <option value="horizontal">→</option>
+                <option value="vertical">↓</option>
             </select>
+            <div
+                class="flex"
+                :class="graphAndPostsDirection === 'horizontal' ? 'flex-row' : flex-col"
+            >
+                <div class="p-2 border border-1 border-solid">
+                    Graph
+                </div>
+                <div>
+                    Posts
+                </div>
+            </div>
         </label>
 
         <label class="setting">
