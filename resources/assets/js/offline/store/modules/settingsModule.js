@@ -44,20 +44,20 @@ const mutations = {
     },
 
     setGraphHeight(state, graphHeight) {
-        if(!isInteger(graphHeight)) {
+        if(!isInteger(graphHeight) || graphHeight > 100) {
             return;
         }
         state.graphHeight = graphHeight;
     },
     setPostBarHeight(state, postBarHeight) {
-        if (!isInteger(postBarHeight)) {
+        if (!isInteger(postBarHeight) || postBarHeight > 100) {
             return;
         }
         state.postBarHeight = postBarHeight;
     },
 
     setPostWidth(state, postWidth) {
-        if (!isInteger(postWidth)) {
+        if (!isInteger(postWidth) || postWidth > 100) {
             return;
         }
         state.postWidth = postWidth;

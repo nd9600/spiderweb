@@ -1,41 +1,45 @@
 <template>
     <section class="flex flex-col items-start">
-        <label class="setting">
-            <select
-                v-model="shouldAutosave"
-                class="p-2 rounded text-red bg-white"
-            >
-                <option :value="true">
-                    Should
-                </option>
-                <option :value="false">
-                    Shouldn't
-                </option>
-            </select>
-            autosave data
+        <div class="setting">
+            <label>
+                <select
+                    v-model="shouldAutosave"
+                    class="p-2 rounded text-red bg-white"
+                >
+                    <option :value="true">
+                        Should
+                    </option>
+                    <option :value="false">
+                        Shouldn't
+                    </option>
+                </select>
+                autosave data
+            </label>
             <sub
                 v-if="!shouldAutosave"
                 class="text-gray-500"
             >
                 (you'll need to press "save" in the "load/save" tab)
             </sub>
-        </label>
+        </div>
 
-        <label
+        <div
             class="setting flex flex-col"
             :class="{
                 'w-full md:w-1/2': storageMethod === 'firebase'
             }"
         >
             <div>
-                Data should be stored using
-                <select
-                    v-model="storageMethodInComponent"
-                    class="ml-4 p-2 rounded text-red bg-white"
-                >
-                    <option value="local">Local storage</option>
-                    <option value="firebase">Firebase</option>
-                </select>
+                <label>
+                    Data should be stored using
+                    <select
+                        v-model="storageMethodInComponent"
+                        class="ml-4 p-2 rounded text-red bg-white"
+                    >
+                        <option value="local">Local storage</option>
+                        <option value="firebase">Firebase</option>
+                    </select>
+                </label>
 
                 <sub 
                     v-if="storageMethodInComponent === 'firebase'"
@@ -83,97 +87,131 @@
                         required="required"
                 /></pre>
             </template>
-        </label>
+        </div>
 
-        <label class="setting">
-            When I already have a post open in the viewer, and I click on a second one, the second one should
-            <select
-                v-model="canOpenMultiplePosts"
-                class="p-2 rounded text-red bg-white"
-            >
-                <option :value="true">
-                    be opened as well
-                </option>
-                <option :value="false">
-                    replace the already-open one
-                </option>
-            </select>
-        </label>
+        <div class="setting">
+            <label>
+                When I already have a post open in the viewer, and I click on a second one, the second one should
+                <select
+                    v-model="canOpenMultiplePosts"
+                    class="p-2 rounded text-red bg-white"
+                >
+                    <option :value="true">
+                        be opened as well
+                    </option>
+                    <option :value="false">
+                        replace the already-open one
+                    </option>
+                </select>
+            </label>
+        </div>
 
-        <label class="setting">
-            <select
-                v-model="graphAndPostsDirection"
-                class="mb-2 p-2 rounded text-gray-700 bg-white"
-            >
-                <option value="horizontal">→</option>
-                <option value="vertical">↓</option>
-            </select>
+        <div class="setting">
+            <label class="block">
+                <select
+                    v-model="graphAndPostsDirection"
+                    class="mb-2 p-2 rounded text-gray-700 bg-white"
+                >
+                    <option value="horizontal">→</option>
+                    <option value="vertical">↓</option>
+                </select>
+            </label>
+
+            <label class="block">
+                The graph should take up
+                <input
+                    v-model.number="graphHeight"
+                    class="ml-4 mb-2 p-2 w-16  rounded text-gray-800 text-base bg-gray-400"
+                    type="number"
+                    inputmode="numeric"
+                    pattern="^[1-9][0-9]?$|^100$"
+                    size="3"
+                    minlength="1"
+                    maxlength="3"
+                    min="1"
+                    max="100"
+                    step="1"
+                />
+                % of the browser window's height
+            </label>
+
+            <label class="block">
+                The post-bar should take up
+                <input
+                    v-model.number="postBarHeight"
+                    class="ml-4 mb-2 p-2 w-16  rounded text-gray-800 text-base bg-gray-400"
+                    type="number"
+                    inputmode="numeric"
+                    pattern="^[1-9][0-9]?$|^100$"
+                    size="3"
+                    minlength="1"
+                    maxlength="3"
+                    min="1"
+                    max="100"
+                    step="1"
+                />
+                % of the browser window's height
+            </label>
+
+            <label class="block">
+                Each post should take up at least
+                <input
+                    v-model.number="postWidth"
+                    class="ml-4 mb-2 p-2 w-16 rounded text-gray-800 text-base bg-gray-400"
+                    type="number"
+                    inputmode="numeric"
+                    pattern="^[1-9][0-9]?$|^100$"
+                    size="3"
+                    minlength="1"
+                    maxlength="3"
+                    min="1"
+                    max="100"
+                    step="1"
+                />
+                % of the browser window's width
+            </label>
+
             <div
-                class="flex"
+                class="p-1 h-64 w-64 flex overflow-auto border border-solid border-gray-600"
                 :class="graphAndPostsDirection === 'horizontal' ? 'flex-row' : 'flex-col'"
             >
-                <div class="p-4 border border-solid border-gray-600">
+                <div
+                    class="p-1 w-full border border-solid border-gray-600"
+                    :style="{
+                        'min-height': graphHeight + '%'
+                    }"
+                >
                     Graph
                 </div>
-                <div class="p-4 border border-solid border-gray-600">
-                    Posts
+                <div
+                    class="p-1 w-full border border-solid border-gray-600 flex items-start overflow-x-auto"
+                    :class="{
+                        'mt-1': graphAndPostsDirection === 'vertical',
+                        'ml-1': graphAndPostsDirection === 'horizontal',
+                    }"
+                    :style="{
+                        'min-height': postBarHeight + '%'
+                    }"
+                >
+                    <div
+                        class="mt-1 mr-1 mb-1 p-1 border border-solid border-gray-600 text-xs"
+                        :style="{
+                            'min-width': postWidth + '%'
+                        }"
+                    >
+                        Post
+                    </div>
+                    <div
+                        class="m-1 p-1 border border-solid border-gray-600 text-xs"
+                        :style="{
+                            'min-width': postWidth + '%'
+                        }"
+                    >
+                        Post
+                    </div>
                 </div>
             </div>
-        </label>
-
-        <label class="setting">
-            The graph should take up
-            <input
-                v-model.number="graphHeight"
-                class="ml-4 mb-2 p-2 rounded text-gray-800 text-base bg-gray-400"
-                type="number"
-                inputmode="numeric"
-                pattern="^[1-9][0-9]?$|^100$"
-                size="3"
-                minlength="1"
-                maxlength="3"
-                min="1"
-                max="100"
-                step="1"
-            />
-            % of the browser window's height
-        </label>
-
-        <label class="setting">
-            The post-bar should take up
-            <input
-                v-model.number="postBarHeight"
-                class="ml-4 mb-2 p-2 rounded text-gray-800 text-base bg-gray-400"
-                type="number"
-                inputmode="numeric"
-                pattern="^[1-9][0-9]?$|^100$"
-                size="3"
-                minlength="1"
-                maxlength="3"
-                min="1"
-                max="100"
-                step="1"
-            />
-            % of the browser window's height
-        </label>
-
-        <label class="setting">
-            Each post should take up at least
-            <input
-                v-model.number="postWidth"
-                class="ml-4 mb-2 p-2 rounded text-gray-800 text-base bg-gray-400"
-                type="number"
-                inputmode="numeric"
-                pattern="^[1-9][0-9]?$|^100$"
-                size="3"
-                minlength="1"
-                maxlength="3"
-                min="1"
-                max="100"
-                step="1"
-            />
-            % of the browser window's width
-        </label>
+        </div>
     </section>
 </template>
 
