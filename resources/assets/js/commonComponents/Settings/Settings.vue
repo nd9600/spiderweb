@@ -122,7 +122,7 @@
         </label>
 
         <label class="setting">
-            Graph height
+            The graph should take up
             <input
                 v-model.number="graphHeight"
                 class="ml-4 mb-2 p-2 rounded text-gray-800 text-base bg-gray-400"
@@ -136,11 +136,11 @@
                 max="100"
                 step="1"
             />
-            <sub class="ml-1 text-xs text-gray-500">vh</sub>
+            % of the browser window's height
         </label>
 
         <label class="setting">
-            Post-bar height
+            The post-bar should take up
             <input
                 v-model.number="postBarHeight"
                 class="ml-4 mb-2 p-2 rounded text-gray-800 text-base bg-gray-400"
@@ -154,11 +154,11 @@
                 max="100"
                 step="1"
             />
-            <sub class="ml-1 text-xs text-gray-500">vh</sub>
+            % of the browser window's height
         </label>
 
         <label class="setting">
-            Post width
+            Each post should take up at least
             <input
                 v-model.number="postWidth"
                 class="ml-4 mb-2 p-2 rounded text-gray-800 text-base bg-gray-400"
@@ -172,7 +172,7 @@
                 max="100"
                 step="1"
             />
-            <sub class="ml-1 text-xs text-gray-500">vw</sub>
+            % of the browser window's width
         </label>
     </section>
 </template>
