@@ -4,11 +4,8 @@
     >
         <button
             type="button"
-            style="padding: 10px;"
             @click.prevent="toggleClickButtonMenu"
-        >
-            +
-        </button>
+        >+</button>
 
         <div class="clicker__container">
             <div
@@ -179,6 +176,12 @@ export default {
     background: var(--red);
     color: var(--white);
     cursor: pointer;
+
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .clicker__container {

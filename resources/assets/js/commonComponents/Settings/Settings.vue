@@ -1,12 +1,18 @@
 <template>
     <section class="flex flex-col items-start">
         <label class="setting">
-            Should autosave
-            <input
+            <select
                 v-model="shouldAutosave"
-                class="ml-4"
-                type="checkbox"
-            />
+                class="p-2 rounded text-red bg-white"
+            >
+                <option :value="true">
+                    Should
+                </option>
+                <option :value="false">
+                    Shouldn't
+                </option>
+            </select>
+            autosave data
             <sub
                 v-if="!shouldAutosave"
                 class="text-gray-500"
@@ -22,12 +28,12 @@
             }"
         >
             <div>
-                Storage method
+                Data should be stored using
                 <select
                     v-model="storageMethodInComponent"
-                    class="ml-4 p-2 rounded text-gray-700 bg-white"
+                    class="ml-4 p-2 rounded text-red bg-white"
                 >
-                    <option value="local">Local</option>
+                    <option value="local">Local storage</option>
                     <option value="firebase">Firebase</option>
                 </select>
 
@@ -47,10 +53,10 @@
                     class="flex flex-col items-start"
                 >
                     <label>
-                        Changing storage method, take data from
+                        When I change from storing data using <span class="italic">{{ storageMethod === "local" ? "Local storage" : "Firebase" }}</span> to <span class="italic">{{ storageMethodInComponent === "local" ? "Local storage" : "Firebase" }}</span>, data should be taken from
                         <select
                             v-model="shouldTakeDataFrom"
-                            class="p-2 rounded text-gray-700 bg-white"
+                            class="p-2 rounded text-red bg-white"
                         >
                             <option value="local">
                                 Local storage
@@ -80,12 +86,18 @@
         </label>
 
         <label class="setting">
-            Can open multiple posts in the viewer
-            <input
+            When I already have a post open in the viewer, and I click on a second one, the second one should
+            <select
                 v-model="canOpenMultiplePosts"
-                class="ml-4"
-                type="checkbox"
-            />
+                class="p-2 rounded text-red bg-white"
+            >
+                <option :value="true">
+                    be opened as well
+                </option>
+                <option :value="false">
+                    replace the already-open one
+                </option>
+            </select>
         </label>
 
         <label class="setting">

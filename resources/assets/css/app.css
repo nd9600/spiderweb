@@ -60,3 +60,11 @@ body {
   color: var(--grey);
   counter-reset: sidenote-counter;
 }
+
+.text-red {
+  color: var(--red);
+}
+
+.text-grey {
+  color: var(--grey);
+}
