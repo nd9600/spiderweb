@@ -10,7 +10,7 @@
                     class="mb-2"
                 >
                     <a
-                        class="link text-xs md:text-base"
+                        class="link text-xs md:text-sm"
                         @click="togglePostIdLocal(postId)"
                     >
                         {{ titleOrBody(postId) }}
@@ -27,7 +27,7 @@
 
             <h4
                 v-if="Object.keys(linkedPosts.to).length > 0"
-                class="h h--4 flex flex-col"
+                class="h h--4 mx-1 flex flex-col"
             >
                 <span>→</span>
                 <span>→</span>
@@ -40,7 +40,7 @@
 
             <h4
                 v-if="Object.keys(linkedPosts.from).length > 0"
-                class="h h--4 flex flex-col"
+                class="h h--4 mx-1 flex flex-col"
             >
                 <span>→</span>
                 <span>→</span>
@@ -56,7 +56,7 @@
                     class="mb-2"
                 >
                     <a
-                        class="link text-xs md:text-base"
+                        class="link text-xs md:text-sm"
                         @click="togglePostIdLocal(postId)"
                     >
                         {{ titleOrBody(postId) }}
