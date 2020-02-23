@@ -152,7 +152,7 @@ export default {
                     .distance(200)
                 )
                 .force("charge", d3.forceManyBody()
-                    .strength(-1000)
+                    .strength(-7500)
                 )
                 .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2));
             simulation.tick(300);
@@ -279,7 +279,7 @@ export default {
 
     .graph__link {
         fill: none;
-        stroke-width: 10px;
+        stroke-width: 20px;
         cursor: pointer;
     }
 
@@ -294,7 +294,7 @@ export default {
         text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
         fill: #333333;
 
-        font-size: 24px;
+        font-size: 48px;
         font-weight: bold;
         stroke-width: 0;
     }
