@@ -1,16 +1,17 @@
 <template>
-    <div
-        class="clicker"
-    >
+    <div class="clicker">
         <button
+            class="clicker__button"
             type="button"
             @click.prevent="toggleClickButtonMenu"
-        >+</button>
+        >
+            +
+        </button>
 
         <div class="clicker__container">
             <div
                 v-if="showClickButtonMenu"
-                class="clicker__buttons"
+                class="clicker__actionButtons"
             >
                 <label>
                     <select
@@ -170,7 +171,8 @@ export default {
     position: absolute;
     bottom: 5%;
     right: 8%;
-
+}
+.clicker__button {
     border-radius: 9999px;
 
     background: var(--red);
@@ -194,7 +196,7 @@ export default {
     align-items: flex-end;
 }
 
-.clicker__buttons {
+.clicker__actionButtons {
     border-radius: 10px;
     padding: 10px;
     margin-bottom: 10px;

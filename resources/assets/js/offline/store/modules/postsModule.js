@@ -79,7 +79,7 @@ const getters = {
         const post = state.posts[postId];
         const strToReturn = post.title.length > 0
             ? post.title
-            : post.body;
+            : post.body.split("\n")[0]; // we don't want to show text after a newline
         return strToReturn.length > MAX_TITLE_LENGTH
             ? strToReturn.substr(0, MAX_TITLE_LENGTH) + ".."
             : strToReturn;

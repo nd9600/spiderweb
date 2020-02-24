@@ -16,7 +16,7 @@
                 v-if="post.title.length > 0"
                 class="h h--1 whitespace-pre-wrap"
             >{{ post.title }}</h1>
-            <p class="whitespace-pre-wrap">{{ post.body }}</p>
+            <p class="whitespace-pre-wrap font-sans">{{ post.body }}</p>
         </div>
         <div>
             <div>
