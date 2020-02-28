@@ -189,9 +189,8 @@ export default {
 
             const node = d3.selectAll(".node").select("circle")
                 .classed("node__circle", true)
-                .attr("r", 5)
-                .attr("title", post => post.title)
-                .attr("fill", "#ccc");
+                .attr("r", 15)
+                .attr("title", post => post.title);
                 //.call(drag(simulation));
                 
             const text = d3.selectAll(".node").select("text")
@@ -204,6 +203,14 @@ export default {
 
                     // SVG doesn't have a z-index, the z-direction is by element order, this re-inserts the parent <node> in the DOM at the bottom of its parent so this text is on top of any others
                     d3.select(d3.select(this).node().parentNode).raise();
+
+                    const nonNeighbourNodes = node.filter(otherPost => {
+                        if (post.id === otherPost.id) {
+                            return false;
+                        }
+                        return !vm.isNeighbour(post, otherPost);
+                    });
+                    nonNeighbourNodes.style("opacity", 0.2);
 
                     const nonNeighbourTexts = text.filter(otherPost => {
                         if (post.id === otherPost.id) {
@@ -223,6 +230,7 @@ export default {
                 .on("mouseout", function (post) {
                     d3.select(this)
                         .style("filter", "");
+                    node.style("opacity", 1);
                     text.style("opacity", 1);
                     link.style("opacity", 1);
                 });
@@ -284,7 +292,7 @@ export default {
     }
 
     .node__circle {
-        fill: steelblue;
+        fill: #353535;
         stroke: none;
         cursor: pointer;
     }
