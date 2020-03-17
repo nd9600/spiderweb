@@ -40,7 +40,7 @@
                     <g class="graph__nodes"></g>
                 </g>
             </svg>
-            <Clicker/>
+            <Clicker />
         </span>
     </section>
 </template>
@@ -257,21 +257,33 @@ export default {
         },
 
         setupZooming() {
+            const initialZoom = 0.5;
             const zoom = d3.zoom()
                 .scaleExtent([0.05, 2]) // limits zooming so you can only zoom between 0.2x and 2x
                 .on("zoom", () => {
                     const x = d3.event.transform.x;
                     const y = d3.event.transform.y;
                     const scale = d3.event.transform.k;
-
                     this.rootG.attr("transform", `translate(${x} ${y}) scale(${scale})`);
+
+                    const unshiftedTextScaleFactor = initialZoom / scale;
+                    const textScaleFactor = unshiftedTextScaleFactor < 1
+                        ? unshiftedTextScaleFactor
+                        : 1 + ((unshiftedTextScaleFactor - 1) * 0.35); // I don't the text to get big really quickly
+                    const newTextSize = Math.min(
+                        220,
+                        Math.ceil(48 * textScaleFactor)
+                    );
+
+                    document.querySelector(":root")
+                        .style.setProperty("--text-size", newTextSize + "px");
                 });
             this.svg.call(zoom)
                 .call(
                     zoom.transform,
                     d3.zoomIdentity
                         .translate(WIDTH / 2, HEIGHT / 2)
-                        .scale(0.5)) // sets initial x/y and zoom amount
+                        .scale(initialZoom)) // sets initial x/y and zoom amount
                 .on("wheel", () => {
                     d3.event.preventDefault();
                 });
@@ -281,6 +293,9 @@ export default {
 </script>
 
 <style>
+    :root {
+        --text-size: 48px;
+    }
     #graphSvg {
         min-width: 33%;
     }
@@ -302,7 +317,7 @@ export default {
         text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
         fill: #333333;
 
-        font-size: 48px;
+        font-size: var(--text-size);
         font-weight: bold;
         stroke-width: 0;
     }
