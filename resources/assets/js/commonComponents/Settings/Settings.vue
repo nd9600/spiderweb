@@ -80,7 +80,7 @@
                 </div>
             </div>
 
-            <template v-if="storageMethod === 'firebase'">
+            <template v-if="storageMethodInComponent === 'firebase'">
                 <pre><textarea
                         v-model="firebaseConfig"
                         class="p-2 w-full h-48 rounded text-gray-800 placeholder-gray-600"
