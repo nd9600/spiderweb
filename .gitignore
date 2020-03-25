@@ -14,5 +14,3 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 rev-manifest.json
-
-dist/
