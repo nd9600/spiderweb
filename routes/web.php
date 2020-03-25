@@ -27,3 +27,7 @@ Route::get('/offline', function () {
     // File::put("offline.html", view("offline")->render());
     return view("offline");
 })->name("offline");
+
+Route::get('/offline-static', function () {
+    return \File::get(public_path() . '/dist/offline.html');
+})->name("offline-static");
