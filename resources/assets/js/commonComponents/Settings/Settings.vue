@@ -2,18 +2,19 @@
     <section class="flex flex-col items-start">
         <div class="setting">
             <label>
+                Data
                 <select
                     v-model="shouldAutosave"
                     class="p-2 rounded text-red bg-white"
                 >
                     <option :value="true">
-                        Should
+                        should
                     </option>
                     <option :value="false">
-                        Shouldn't
+                        shouldn't
                     </option>
                 </select>
-                autosave data
+                be saved automatically when something changes
             </label>
             <sub
                 v-if="!shouldAutosave"
@@ -108,9 +109,10 @@
 
         <div class="setting">
             <label class="block">
+                The viewer should be oriented like this
                 <select
                     v-model="graphAndPostsDirection"
-                    class="mb-2 p-2 rounded text-gray-700 bg-white"
+                    class="mb-2 p-2 rounded text-red bg-white"
                 >
                     <option value="horizontal">→</option>
                     <option value="vertical">↓</option>
