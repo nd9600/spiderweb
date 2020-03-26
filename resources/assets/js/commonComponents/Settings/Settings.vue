@@ -243,7 +243,11 @@ export default {
                 return JSON.stringify(this.$store.state.firebaseModule.firebaseConfig);
             },
             set(firebaseConfig) {
-                this.setFirebaseConfig(JSON.parse(firebaseConfig));
+                try {
+                    this.setFirebaseConfig(JSON.parse(firebaseConfig));
+                } catch (error) {
+                    alert("Firebase config isn't formatted correctly, it should be like this: {\"apiKey\":\"xx\",\"authDomain\":\"x.firebaseapp.com\",\"databaseURL\":\"https://x.firebaseio.com\",\"projectId\":\"spiderweb-e49bd\",\"storageBucket\":\"x.appspot.com\",\"messagingSenderId\":\"123\",\"appId\":\"xyz\"}");
+                }
             }
         },
 
@@ -304,6 +308,8 @@ export default {
         ]),
         ...mapActions("settingsModule", [
             "setStorageMethod",
+        ]),
+        ...mapActions("firebaseModule", [
             "setFirebaseConfig"
         ]),
 

@@ -3,7 +3,7 @@ import "firebase/database";
 
 export default function (firebaseConfig) {
     if (firebaseConfig.apiKey === "") {
-        throw new Error("firebase config is wrong, please check it");
+        throw new Error("firebase config is wrong, please check it: " + JSON.stringify(firebaseConfig));
     }
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
