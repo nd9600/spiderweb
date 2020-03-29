@@ -1,5 +1,5 @@
 <template>
-    <section class="h-full w-full p-4">
+    <section class="p-4">
         <p v-if="loadingApp">
             loading..
         </p>

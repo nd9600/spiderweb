@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-full flex flex-col">
+    <div class="flex flex-col">
         <label class="mb-4 flex flex-col">
             <span class="block h h--4">
                 Graphs
@@ -25,14 +25,12 @@
                 'flex-direction': graphAndPostsDirection === 'horizontal' ? 'row' : 'column'
             }"
         >
-            <div class="flex flex-col"> <!-- flex-col makes the <svg> stretch for some reason, if it has display: inline -->
-                <offline-graph
-                    class="pb-4 w-full"
-                    :style="{
-                        'min-height': graphHeight + 'vh'
-                    }"
-                />
-            </div>
+            <offline-graph
+                class="pb-4 w-full"
+                :style="{
+                    'min-height': graphHeight + 'vh'
+                }"
+            />
             <PostBar
                 class="w-full"
                 :style="{
