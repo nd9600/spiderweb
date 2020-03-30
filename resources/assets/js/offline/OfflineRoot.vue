@@ -1,19 +1,18 @@
 <template>
     <div class="h-full">
-        <navbar class="w-full h-full"/>
+        <OfflineApp class="w-full h-full"/>
     </div>
 </template>
 
 <script>
-import Navbar from "@/js/commonComponents/Navbar";
-
+import OfflineApp from "@/js/commonComponents/OfflineApp";
 
 import { mapActions } from "vuex";
 
 export default {
-    name: "Offline",
+    name: "OfflineRoot",
     components: {
-        Navbar
+        OfflineApp,
     },
     async mounted() {
         await this.loadStateFromStorage();

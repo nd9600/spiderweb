@@ -1,11 +1,11 @@
 <template>
-    <section class="p-4">
+    <section class="md:p-4">
         <p v-if="loadingApp">
             loading..
         </p>
         <template v-else>
-            <div
-                class="flex"
+            <nav
+                class="flex flex-wrap"
                 style="border-bottom: 5px solid var(--red);"
             >
                 <button
@@ -19,7 +19,7 @@
                 >
                     {{ tab.name }}
                 </button>
-            </div>
+            </nav>
             <div class="min-h-full p-4 componentContainer">
                 <component :is="currentTab" />
             </div>
@@ -38,7 +38,7 @@ import LoadSave from "@/js/commonComponents/LoadSave";
 import Settings from "@/js/commonComponents/Settings/Settings";
 
 export default {
-    name: "Navbar",
+    name: "OfflineApp",
     components: {
         Viewer,
         Graphs,

@@ -1,47 +1,45 @@
 <template>
-    <section class="h-full px-16">
-        <span>
-            <svg
-                id="graphSvg"
-                class="inline w-full h-full cursor-move border bg-white"
-                @click="onSvgClick"
-            >
-                <defs>
-                    <marker
-                        id="arrowhead"
-                        viewBox="-0 -5 10 10"
-                        refX="15"
-                        refY="0"
-                        orient="auto"
-                        markerWidth="2"
-                        markerHeight="2"
+    <section class="h-full w-full pb-4 pr-8 md:pr-16 flex">
+        <svg
+            id="graphSvg"
+            class="w-full cursor-move border bg-white"
+            @click="onSvgClick"
+        >
+            <defs>
+                <marker
+                    id="arrowhead"
+                    viewBox="-0 -5 10 10"
+                    refX="15"
+                    refY="0"
+                    orient="auto"
+                    markerWidth="2"
+                    markerHeight="2"
+                >
+                    <path
+                        d="M 0,-5 L 10 ,0 L 0,5"
+                        fill="#353535"
+                        style="stroke: none;"
                     >
-                        <path
-                            d="M 0,-5 L 10 ,0 L 0,5"
-                            fill="#353535"
-                            style="stroke: none;"
-                        >
-                        </path>
-                    </marker>
+                    </path>
+                </marker>
 
-                    <filter id="postHoverFilter">
-                        <feFlood flood-color="#000"></feFlood>
-                        <feComponentTransfer>
-                            <feFuncA
-                                type="linear"
-                                slope="0.75"
-                            ></feFuncA>
-                        </feComponentTransfer>
-                        <feComposite in="SourceGraphic"></feComposite>
-                    </filter>
-                </defs>
-                <g transform="translate(5, 15) scale(0.5)">
-                    <g class="graph__links"></g>
-                    <g class="graph__nodes"></g>
-                </g>
-            </svg>
-            <Clicker />
-        </span>
+                <filter id="postHoverFilter">
+                    <feFlood flood-color="#000"></feFlood>
+                    <feComponentTransfer>
+                        <feFuncA
+                            type="linear"
+                            slope="0.75"
+                        ></feFuncA>
+                    </feComponentTransfer>
+                    <feComposite in="SourceGraphic"></feComposite>
+                </filter>
+            </defs>
+            <g transform="translate(5, 15) scale(0.5)">
+                <g class="graph__links"></g>
+                <g class="graph__nodes"></g>
+            </g>
+        </svg>
+        <Clicker />
     </section>
 </template>
 

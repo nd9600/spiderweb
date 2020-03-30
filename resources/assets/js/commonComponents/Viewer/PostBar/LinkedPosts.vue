@@ -1,6 +1,12 @@
 <template>
     <section>
-        <div class="flex justify-between items-center">
+        <p v-if="Object.keys(linkedPosts.to).length === 0 && Object.keys(linkedPosts.from).length === 0">
+            There aren't any posts that link to or from this one
+        </p>
+        <div
+            v-else
+            class="flex justify-between items-center"
+        >
             <div
                 v-if="Object.keys(linkedPosts.to).length > 0"
             >

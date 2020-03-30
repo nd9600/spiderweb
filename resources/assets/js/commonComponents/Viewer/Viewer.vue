@@ -26,13 +26,11 @@
             }"
         >
             <offline-graph
-                class="pb-4 w-full"
                 :style="{
                     'min-height': graphHeight + 'vh'
                 }"
             />
             <PostBar
-                class="w-full"
                 :style="{
                     'min-height': postBarHeight + 'vh'
                 }"

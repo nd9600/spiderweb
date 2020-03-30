@@ -1,13 +1,13 @@
 import Vue from "vue";
 
-import Offline from "./Offline";
+import OfflineRoot from "./OfflineRoot";
 import store from "./store";
 
 new Vue({
     store,
     el: "#offlineGraphApp",
     components: {
-        Offline
+        OfflineRoot
     },
-    template: `<offline/>`
+    template: `<OfflineRoot/>`
 });
