@@ -1,5 +1,5 @@
 <template>
-    <section class="md:p-4">
+    <section>
         <p v-if="loadingApp">
             loading..
         </p>
@@ -20,7 +20,7 @@
                     {{ tab.name }}
                 </button>
             </nav>
-            <div class="min-h-full p-4 componentContainer">
+            <div class="min-h-full py-4 px-4 md:px-8 componentContainer">
                 <component :is="currentTab" />
             </div>
         </template>
