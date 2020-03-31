@@ -267,10 +267,12 @@ export default {
                     const unshiftedTextScaleFactor = initialZoom / scale;
                     const textScaleFactor = unshiftedTextScaleFactor < 1
                         ? unshiftedTextScaleFactor
-                        : 1 + ((unshiftedTextScaleFactor - 1) * 0.35); // I don't the text to get big really quickly
+                        : 1 + ((unshiftedTextScaleFactor - 1) * 0.35); // I don't want the text to get big really quickly
+                    const originalTextSize = 48;
+                    const maxTextSize = 220;
                     const newTextSize = Math.min(
-                        220,
-                        Math.ceil(48 * textScaleFactor)
+                        maxTextSize,
+                        Math.ceil(originalTextSize * textScaleFactor)
                     );
 
                     document.querySelector(":root")
