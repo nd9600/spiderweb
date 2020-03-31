@@ -41,7 +41,6 @@ const actions = {
             alert("no post clicked");
             return;
         }
-
         switch (context.state.clickMode) {
             case "openPosts":
             default: {

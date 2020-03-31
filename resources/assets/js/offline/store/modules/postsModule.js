@@ -36,13 +36,16 @@ const getters = {
     },
 
     // graph getters
-    postsInSelectedGraphs(state) {
+    postIdsInSelectedGraphs(state) {
         let postIDs = [];
         for (let selectedGraphId of state.selectedGraphIds) {
             postIDs = postIDs.concat(state.graphs[selectedGraphId].nodes);
         }
         const uniquePostIDs = [...new Set(postIDs)];
-        return uniquePostIDs.map(id => state.posts[id]);
+        return uniquePostIDs;
+    },
+    postsInSelectedGraphs(state, getters) {
+        return getters.postIdsInSelectedGraphs.map(id => state.posts[id]);
     },
     linksInSelectedGraphs(state) {
         return Object.values(state.links)
@@ -140,6 +143,9 @@ const mutations = {
         state.selectedGraphIds = newState.selectedGraphIds;
     },
 
+    setSelectedPostIds(state, selectedPostIds) {
+        state.selectedPostIds = selectedPostIds;
+    },
     selectPostId(state, {id, canOpenMultiplePosts}) {
         if (state.selectedPostIds.includes(id)) { // we want to move it to the front of the list
             state.selectedPostIds.splice(state.selectedPostIds.indexOf(id), 1);

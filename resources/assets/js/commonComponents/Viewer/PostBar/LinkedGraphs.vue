@@ -10,6 +10,7 @@
                 v-for="graphId in linkedGraphs"
                 :key="graphId"
                 class="link block mb-2 text-xs md:text-base"
+                title="show/hide this graph"
                 @click="toggleGraphId(graphId)"
             >
                 {{ graphs[graphId].name }}

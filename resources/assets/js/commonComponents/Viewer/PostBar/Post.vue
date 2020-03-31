@@ -12,19 +12,36 @@
             >
                 x
             </button>
-            <h1
+            <h3
                 v-if="post.title.length > 0"
-                class="h h--1 whitespace-pre-wrap"
-            >{{ post.title }}</h1>
+                class="h h--3 whitespace-pre-wrap"
+            >{{ post.title }}</h3>
             <p class="whitespace-pre-wrap font-sans">{{ post.body }}</p>
         </div>
         <div>
             <div>
                 <button
+                    class="post__dragHandle bottomLink bottomLink--unselected"
+                    type="button"
+                    title="click and drag this to move the post"
+                >
+                    move
+                </button>
+                <button
+                    class="focusButton bottomLink bottomLink--unselected"
+                    :class="!isVisibleInGraph ? 'line-through' : ''"
+                    type="button"
+                    title="focus on the post in the viewer above"
+                    :disabled="!isVisibleInGraph"
+                >
+                    focus
+                </button>
+                <button
                     class="bottomLink"
-                    :class="bottomTab === 'linked-posts' ? 'bottomLink--selected' : 'bottomLink--unselected'"
+                    :class="[bottomTab === 'linked-posts' ? 'bottomLink--selected' : 'bottomLink--unselected', !hasLinkedPosts ? 'line-through' : '']"
                     type="button"
                     title="posts that link to or from this one"
+                    :disabled="!hasLinkedPosts"
                     @click="toggleBottomTab('linked-posts')"
                 >
                     linked posts
@@ -59,7 +76,7 @@
 </template>
 
 <script>
-import {mapState, mapMutations} from "vuex";
+import {mapState, mapMutations, mapGetters} from "vuex";
 
 import LinkedPosts from "./LinkedPosts";
 import LinkedGraphs from "./LinkedGraphs";
@@ -85,6 +102,15 @@ export default {
     },
     computed: {
         ...mapState("settingsModule", ["postWidth"]),
+        ...mapGetters("postsModule", ["postIdsInSelectedGraphs", "postIdsThatLinkToPost"]),
+        hasLinkedPosts() {
+            const linkedPosts = this.postIdsThatLinkToPost(this.post.id);
+            return Object.keys(linkedPosts.to).length > 0
+                || Object.keys(linkedPosts.from).length > 0;
+        },
+        isVisibleInGraph() {
+            return this.postIdsInSelectedGraphs.includes(this.post.id);
+        }
     },
     methods: {
         ...mapMutations("postsModule", ["unselectPostId"]),
@@ -113,6 +139,14 @@ export default {
         .post {
             min-width: 92% !important;
         }
+    }
+
+    .post__dragHandle {
+        cursor: grab;
+    }
+
+    .focusButton {
+        cursor: crosshair;
     }
 
     .bottomLink {

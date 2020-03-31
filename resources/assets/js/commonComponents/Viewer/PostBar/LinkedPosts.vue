@@ -1,12 +1,6 @@
 <template>
     <section>
-        <p v-if="Object.keys(linkedPosts.to).length === 0 && Object.keys(linkedPosts.from).length === 0">
-            There aren't any posts that link to or from this one
-        </p>
-        <div
-            v-else
-            class="flex justify-between items-center"
-        >
+        <div class="flex justify-between items-center">
             <div
                 v-if="Object.keys(linkedPosts.to).length > 0"
             >
@@ -17,6 +11,7 @@
                 >
                     <a
                         class="link text-xs md:text-sm"
+                        title="view this post"
                         @click="togglePostIdLocal(postId)"
                     >
                         {{ titleOrBody(postId) }}

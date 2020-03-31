@@ -1,5 +1,9 @@
 <template>
-    <div class="w-full flex items-start overflow-x-auto postBar">
+    <VueDraggable
+        v-model="selectedPostIds"
+        class="w-full flex items-start overflow-x-auto postBar"
+        :handle="'.post__dragHandle'"
+    >
         <post
             v-for="selectedPostId in selectedPostIds"
             :key="selectedPostId"
@@ -7,22 +11,35 @@
             :post="posts[selectedPostId]"
         >
         </post>
-    </div>
+    </VueDraggable>
 </template>
 
 <script>
 import Post from "./Post";
+import VueDraggable from "vuedraggable";
 
-import { mapState } from "vuex";
+import { mapState, mapMutations } from "vuex";
 
 
 export default {
     name: "PostBar",
     components: {
-        Post
+        Post,
+        VueDraggable
     },
     computed: {
-        ...mapState("postsModule", ["posts", "selectedPostIds"])
+        ...mapState("postsModule", ["posts"]),
+        selectedPostIds: {
+            get() {
+                return this.$store.state.postsModule.selectedPostIds;
+            },
+            set(selectedPostIds) {
+                this.setSelectedPostIds(selectedPostIds);
+            }
+        }
+    },
+    methods: {
+        ...mapMutations("postsModule", ["setSelectedPostIds"])
     },
 };
 </script>

@@ -96,7 +96,7 @@ export default {
     },
     data() {
         return {
-            showEditor: this.inPostBar,
+            showEditor: false,
             showTitleInput: this.post.title.length > 0,
         };
     },

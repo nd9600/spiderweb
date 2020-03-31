@@ -1,6 +1,6 @@
 <template>
     <div class="h-full">
-        <OfflineApp class="w-full h-full"/>
+        <OfflineApp class="w-full h-full" />
     </div>
 </template>
 
