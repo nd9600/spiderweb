@@ -1,6 +1,9 @@
 <template>
     <section>
-        <p v-if="loadingApp">
+        <p
+            v-if="loadingApp"
+            class="px-4 md:px-8"
+        >
             loading..
         </p>
         <template v-else>

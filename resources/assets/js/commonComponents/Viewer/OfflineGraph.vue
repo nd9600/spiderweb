@@ -52,6 +52,7 @@ import Clicker from "./Clicker";
 
 const WIDTH = 400;
 const HEIGHT = 200;
+const INITIAL_ZOOM = 0.5;
 
 export default {
     name: "OfflineGraph",
@@ -62,9 +63,12 @@ export default {
         return {
             svg: null,
             rootG: null,
+            zoom: null,
 
             linksG: null,
-            nodesG: null
+            nodesG: null,
+
+            nodesWithCoordinates: {} // after D3 has added `x` and `y` coordinates to each object
         };
     },
     computed: {
@@ -80,6 +84,7 @@ export default {
     },
     watch: {
         selectedGraphIds() {
+            this.shouldResetZooming = true;
             this.debouncedMakeGraphSvg();
         },
         postsInSelectedGraphs() {
@@ -105,6 +110,8 @@ export default {
         this.$nextTick(() => {
             this.debouncedMakeGraphSvg();
         });
+
+        this.$root.$on("focusOnPost", this.focusOnPost);
     },
     methods: {
         ...mapMutations("postsModule", ["selectPostId"]),
@@ -252,11 +259,23 @@ export default {
                     .attr("x", d => d.x - 6)
                     .attr("y", d => d.y - 4);
             });
+
+            if (this.shouldResetZooming) {
+                this.shouldResetZooming = false;
+                this.$nextTick(() => {
+                    this.resetZoomToCenter();
+                });
+            }
+
+            let postsKeyedById = {};
+            for (const post of nodes) {
+                postsKeyedById[post.id] = post;
+            }
+            this.nodesWithCoordinates = postsKeyedById;
         },
 
         setupZooming() {
-            const initialZoom = 0.5;
-            const zoom = d3.zoom()
+            this.zoom = d3.zoom()
                 .scaleExtent([0.05, 2]) // limits zooming so you can only zoom between 0.2x and 2x
                 .on("zoom", () => {
                     const x = d3.event.transform.x;
@@ -264,7 +283,7 @@ export default {
                     const scale = d3.event.transform.k;
                     this.rootG.attr("transform", `translate(${x} ${y}) scale(${scale})`);
 
-                    const unshiftedTextScaleFactor = initialZoom / scale;
+                    const unshiftedTextScaleFactor = INITIAL_ZOOM / scale;
                     const textScaleFactor = unshiftedTextScaleFactor < 1
                         ? unshiftedTextScaleFactor
                         : 1 + ((unshiftedTextScaleFactor - 1) * 0.35); // I don't want the text to get big really quickly
@@ -278,15 +297,31 @@ export default {
                     document.querySelector(":root")
                         .style.setProperty("--text-size", newTextSize + "px");
                 });
-            this.svg.call(zoom)
+            this.resetZoomToCenter();
+        },
+        resetZoomToCenter() {
+            this.svg.call(this.zoom)
                 .call(
-                    zoom.transform,
+                    this.zoom.transform,
                     d3.zoomIdentity
                         .translate(WIDTH / 2, HEIGHT / 2)
-                        .scale(initialZoom)) // sets initial x/y and zoom amount
+                        .scale(INITIAL_ZOOM)) // sets initial x/y and zoom amount
                 .on("wheel", () => {
                     d3.event.preventDefault();
                 });
+        },
+
+        focusOnPost(id) {
+            const post = this.nodesWithCoordinates[id];
+            this.svg.transition()
+                .duration(1000)
+                .call(
+                    this.zoom.transform,
+                    d3.zoomIdentity
+                        .translate(WIDTH / 2, HEIGHT / 2)
+                        .scale(INITIAL_ZOOM)
+                        .translate(-post.x + WIDTH + 100, -post.y + HEIGHT + 100)
+                );
         }
     }
 };

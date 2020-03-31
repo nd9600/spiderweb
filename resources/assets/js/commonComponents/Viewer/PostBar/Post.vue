@@ -33,6 +33,7 @@
                     type="button"
                     title="focus on the post in the viewer above"
                     :disabled="!isVisibleInGraph"
+                    @click="$root.$emit('focusOnPost', post.id)"
                 >
                     focus
                 </button>
