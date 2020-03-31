@@ -34,7 +34,7 @@
                 >
                     {{ fromOrToNewPost === "to" ? "→" : "←" }}
                 </button>
-                the new post
+                [the new post]
             </label>
 
             <label class="mb-3 block">

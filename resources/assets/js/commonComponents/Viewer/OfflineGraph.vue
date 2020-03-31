@@ -314,7 +314,7 @@ export default {
         focusOnPost(id) {
             const post = this.nodesWithCoordinates[id];
             this.svg.transition()
-                .duration(1000)
+                .duration(1500)
                 .call(
                     this.zoom.transform,
                     d3.zoomIdentity
