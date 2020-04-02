@@ -24,6 +24,8 @@
                     class="post__dragHandle bottomLink bottomLink--unselected"
                     type="button"
                     title="click and drag this to move the post"
+                    :class="selectedPostIds.length === 1 ? 'line-through' : ''"
+                    :disabled="selectedPostIds.length === 1"
                 >
                     move
                 </button>
@@ -31,7 +33,7 @@
                     class="focusButton bottomLink bottomLink--unselected"
                     :class="!isVisibleInGraph ? 'line-through' : ''"
                     type="button"
-                    title="focus on the post in the viewer above"
+                    title="focus on this post in the viewer above"
                     :disabled="!isVisibleInGraph"
                     @click="$root.$emit('focusOnPost', post.id)"
                 >
@@ -103,7 +105,10 @@ export default {
     },
     computed: {
         ...mapState("settingsModule", ["postWidth"]),
+        ...mapState("postsModule", ["selectedPostIds"]),
+
         ...mapGetters("postsModule", ["postIdsInSelectedGraphs", "postIdsThatLinkToPost"]),
+
         hasLinkedPosts() {
             const linkedPosts = this.postIdsThatLinkToPost(this.post.id);
             return Object.keys(linkedPosts.to).length > 0
