@@ -35,8 +35,6 @@ import {mapState} from "vuex";
 
 import Viewer from "@/js/commonComponents/Viewer/Viewer";
 import Graphs from "@/js/commonComponents/Graphs/Graphs";
-import Posts from "@/js/commonComponents/Posts/Posts";
-import Links from "@/js/commonComponents/Links/Links";
 import LoadSave from "@/js/commonComponents/LoadSave";
 import Settings from "@/js/commonComponents/Settings/Settings";
 
@@ -45,14 +43,12 @@ export default {
     components: {
         Viewer,
         Graphs,
-        Posts,
-        Links,
         LoadSave,
         Settings
     },
     data() {
         return {
-            currentTab: "viewer", // | viewer | graphs | posts | links | load-save | settings,
+            currentTab: "viewer", // | viewer | graphs  | links | load-save | settings,
             tabs: [
                 {
                     key: "viewer",
@@ -61,14 +57,6 @@ export default {
                 {
                     key: "graphs",
                     name: "Graphs",
-                },
-                {
-                    key: "posts",
-                    name: "Posts",
-                },
-                {
-                    key: "links",
-                    name: "Links",
                 },
                 {
                     key: "load-save",
