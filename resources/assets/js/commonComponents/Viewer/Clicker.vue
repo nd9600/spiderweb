@@ -8,7 +8,7 @@
             +
         </button>
 
-        <div class="clicker__container">
+        <div class="clicker__container text-xs md:text-base">
             <div
                 v-if="showClickButtonMenu"
                 class="clicker__actionButtons"
@@ -46,12 +46,13 @@
                         in the graph
                         <select
                             v-model.number="newLinkGraphId"
-                            class="select select--secondary"
+                            class="select select--secondary max-w-full"
                         >
                             <option
                                 v-for="(graph, id) in graphs"
                                 :key="id"
                                 :value="id"
+                                class="truncate"
                             >
                                 {{ graph.name }}
                             </option>
@@ -177,8 +178,8 @@ export default {
 <style scoped>
 .clicker {
     position: absolute;
-    bottom: 10%;
-    right: 10%;
+    bottom: 5%;
+    right: 0;
 }
 .clicker__button {
     border-radius: 9999px;

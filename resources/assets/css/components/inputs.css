@@ -40,6 +40,6 @@
 }
 
 .select--secondary {
-    background-color: var(--grey-light);
+    background-color: #fff;
     border: 1px solid var(--grey);
 }
