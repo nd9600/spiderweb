@@ -9,7 +9,7 @@ Spiderweb lets you
 * _link_ the posts together
 * view the graphs of posts you've made - you can look at more than one graph at a time
 
-![Spiderweb's UI](https://user-images.githubusercontent.com/9141675/73142284-e0d2e600-4084-11ea-92e1-30103daa7b95.png)
+![Spiderweb's UI](https://user-images.githubusercontent.com/9141675/74596418-db930680-5046-11ea-8118-caa2b8b95363.png)
 
 They're all kinda independent:
 * You can make a post by itself, without linking it to another one, or adding it to a graph.
