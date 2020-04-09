@@ -9,36 +9,41 @@
         </button>
 
         <div class="clicker__container">
-            <label
+            <div
                 v-if="showClickButtonMenu"
                 class="clicker__actionButtons"
             >
-                <select
-                    v-model="clickMode"
-                    class="select select--primary"
+                <button
+                    class="clicker__actionButton"
+                    type="button"
+                    @click.prevent="toggleClickMode('addLink')"
                 >
-                    <option value="openPosts">
-                        Open posts
-                    </option>
-                    <option value="addLink">
-                        Add link
-                    </option>
-                </select>
-            </label>
+                    <span class="linkIcon"></span> Add link between <span class="mx-2 text-red">↔</span> posts
+                </button>
+            </div>
 
             <div
                 v-if="shouldShowContextMenu"
                 class="clicker__contextMenu"
             >
                 <template v-if="clickMode === 'addLink'">
-
-                    <sub class="ml-1 text-xs text-gray-500">
-                        {{ newLinkSource === null ? "click on a post to choose a source" : "will add link on next click" }}
-
-                    </sub>
-                    <sub class="ml-1 text-xs text-gray-500"></sub>
-                    <label class="mb-1 block">
-                        Link in graph:
+                    <label class="mb-4">
+                        The new link will be a
+                        <select
+                            v-model="newLinkType"
+                            class="select select--secondary mb-2"
+                        >
+                            <option value="reply">
+                                reply
+                            </option>
+                            <option value="sidenote">
+                                sidenote
+                            </option>
+                            <option value="link">
+                                link
+                            </option>
+                        </select>
+                        in the graph
                         <select
                             v-model.number="newLinkGraphId"
                             class="select select--secondary"
@@ -53,35 +58,34 @@
                         </select>
                     </label>
 
-                    <label class="mb-1 block">
-                        link type:
-                        <select
-                            v-model="newLinkType"
-                            class="select select--secondary"
-                        >
-                            <option value="reply">
-                                reply
-                            </option>
-                            <option value="sidenote">
-                                sidenote
-                            </option>
-                            <option value="link">
-                                link
-                            </option>
-                        </select>
+                    <label
+                        v-if="newLinkSource"
+                        class="mt-4 pt-4 block"
+                        style="border-top: 1px solid var(--red)"
+                    >
+                        It'll be from
+                        <span class="inline-block">
+                            <span class="text-red">{{ titleOrBody(newLinkSource) }}</span>
+                            →
+                            <span class="text-red">[the next post you click on]</span>
+                        </span>
                     </label>
 
-                    <span v-if="newLinkSource">
-                        Source: {{ titleOrBody(newLinkSource) }}
-                        <button
-                            class="btn btn--secondary"
-                            type="button"
-                            :disabled="newLinkSource == null"
-                            @click="setNewLinkSource(null)"
-                        >
-                            x
-                        </button>
-                    </span>
+                    <sub class="my-2 text-xs text-gray-500">
+                        {{ newLinkSource === null ? "click on a post to choose a source for the link" : "the link will be created when you click on another post" }}
+
+                    </sub>
+
+                    <button
+                        v-if="newLinkSource !== null"
+                        class="btn btn--secondary"
+                        type="button"
+                        :disabled="newLinkSource == null"
+                        title="remove this source"
+                        @click="setNewLinkSource(null)"
+                    >
+                        x
+                    </button>
                 </template>
             </div>
         </div>
@@ -159,6 +163,12 @@ export default {
             if (!menuWasPreviouslyShown) {
                 this.clickMode = "openPosts";
             }
+        },
+
+        toggleClickMode(clickMode) {
+            this.clickMode = (this.clickMode === clickMode) // clicking on the existing button means you want to close the open dialog
+                ? "openPosts"
+                : clickMode;
         }
     }
 };
@@ -192,16 +202,34 @@ export default {
     display: flex;
     flex-direction: column-reverse;
     align-items: flex-end;
+
+    background-color: #f7f7f7d6;
+    border-radius: 10px;
 }
 
 .clicker__actionButtons {
     padding: 10px;
     margin-bottom: 10px;
 }
+.clicker__actionButton {
+    display: flex;
+    border: 1px solid var(--red);
+    padding: 0.5rem 0.75rem;
+    border-radius: 2rem;
+    white-space: nowrap;
+}
+.linkIcon {
+    display: inline-block;
+    width: 28px;
+    height: 20px;
+
+    background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAxOCAxOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTEuNDgyIDYuNTE3MThDMTMuNTgyNSA4LjYxOTg0IDEzLjU1MzYgMTEuOTkwOSAxMS40OTQ2IDE0LjA2MTRDMTEuNDkwOCAxNC4wNjU2IDExLjQ4NjIgMTQuMDcwMiAxMS40ODIgMTQuMDc0NEw5LjExOTQ4IDE2LjQzNjlDNy4wMzU3NyAxOC41MjA2IDMuNjQ1NjkgMTguNTIwMyAxLjU2MjMgMTYuNDM2OUMtMC41MjE0MTYgMTQuMzUzNSAtMC41MjE0MTYgMTAuOTYzIDEuNTYyMyA4Ljg3OTY4TDIuODY2OCA3LjU3NTE4QzMuMjEyNzQgNy4yMjkyNCAzLjgwODUgNy40NTkxNiAzLjgyNjM2IDcuOTQ4MDRDMy44NDkxNCA4LjU3MTA4IDMuOTYwODcgOS4xOTcwNCA0LjE2NzAyIDkuODAxNTJDNC4yMzY4NCAxMC4wMDYyIDQuMTg2OTYgMTAuMjMyNiA0LjAzNDAzIDEwLjM4NTVMMy41NzM5NCAxMC44NDU2QzIuNTg4NjUgMTEuODMwOSAyLjU1Nzc0IDEzLjQzNTIgMy41MzMzMyAxNC40MzAyQzQuNTE4NTUgMTUuNDM0OSA2LjEzNzkyIDE1LjQ0MDkgNy4xMzA2OSAxNC40NDgxTDkuNDkzMTkgMTIuMDg1OUMxMC40ODQzIDExLjA5NDggMTAuNDgwMSA5LjQ5MjkyIDkuNDkzMTkgOC41MDU5N0M5LjM2MzA4IDguMzc2MTEgOS4yMzIwMiA4LjI3NTIxIDkuMTI5NjQgOC4yMDQ3MkM5LjA1NzIyIDguMTU0OTkgOC45OTc0MiA4LjA4OTAxIDguOTU1MDIgOC4wMTIwN0M4LjkxMjYxIDcuOTM1MTIgOC44ODg3OCA3Ljg0OTMzIDguODg1NDEgNy43NjE1NEM4Ljg3MTQ5IDcuMzkwMDQgOS4wMDMxMiA3LjAwNzIzIDkuMjk2NjcgNi43MTM2N0wxMC4wMzY5IDUuOTczNDZDMTAuMjMwOSA1Ljc3OTM2IDEwLjUzNTQgNS43NTU1MiAxMC43NjA1IDUuOTEyNkMxMS4wMTgzIDYuMDkyNTggMTEuMjU5NyA2LjI5NDg5IDExLjQ4MiA2LjUxNzE4VjYuNTE3MThaTTE2LjQzNjcgMS41NjIxOUMxNC4zNTMzIC0wLjUyMTI0IDEwLjk2MzMgLTAuNTIxNTIyIDguODc5NTQgMS41NjIxOUw2LjUxNzA0IDMuOTI0NjlDNi41MTI4MiAzLjkyODkxIDYuNTA4MjUgMy45MzM0OCA2LjUwNDM5IDMuOTM3N0M0LjQ0NTQyIDYuMDA4MTIgNC40MTY1NiA5LjM3OTIyIDYuNTE3MDQgMTEuNDgxOUM2LjczOTMzIDExLjcwNDIgNi45ODA3NCAxMS45MDY1IDcuMjM4NDggMTIuMDg2NEM3LjQ2MzU1IDEyLjI0MzUgNy43NjgwOCAxMi4yMTk2IDcuOTYyMTQgMTIuMDI1Nkw4LjcwMjMyIDExLjI4NTRDOC45OTU4OCAxMC45OTE4IDkuMTI3NSAxMC42MDkgOS4xMTM1OCAxMC4yMzc1QzkuMTEwMjEgMTAuMTQ5NyA5LjA4NjM4IDEwLjA2MzkgOS4wNDM5OCA5Ljk4Njk2QzkuMDAxNTcgOS45MTAwMSA4Ljk0MTc3IDkuODQ0MDQgOC44NjkzNSA5Ljc5NDMxQzguNzY2OTcgOS43MjM4MiA4LjYzNTkxIDkuNjIyOTIgOC41MDU4IDkuNDkzMDZDNy41MTg4NiA4LjUwNjExIDcuNTE0NzEgNi45MDQxOCA4LjUwNTggNS45MTMwOUwxMC44NjgzIDMuNTUwOTRDMTEuODYxMSAyLjU1ODE3IDEzLjQ4MDQgMi41NjQxNCAxNC40NjU3IDMuNTY4ODdDMTUuNDQxMiA0LjU2MzggMTUuNDEwNCA2LjE2ODEyIDE0LjQyNTEgNy4xNTM0MUwxMy45NjUgNy42MTM1QzEzLjgxMiA3Ljc2NjQzIDEzLjc2MjEgNy45OTI4MyAxMy44MzIgOC4xOTc1MUMxNC4wMzgxIDguODAxOTkgMTQuMTQ5OSA5LjQyNzk1IDE0LjE3MjYgMTAuMDUxQzE0LjE5MDUgMTAuNTM5OSAxNC43ODYzIDEwLjc2OTggMTUuMTMyMiAxMC40MjM5TDE2LjQzNjcgOS4xMTkzNEMxOC41MjA0IDcuMDM2MDIgMTguNTIwNCAzLjY0NTU1IDE2LjQzNjcgMS41NjIxOVYxLjU2MjE5WiIgZmlsbD0iY3VycmVudENvbG9yIiBmaWxsLW9wYWNpdHk9IjAuMjUiLz48L3N2Zz4=") no-repeat left;
+    background-size: contain;
+}
 
 .clicker__contextMenu {
     border-radius: 10px;
-    padding: 0 10px 10px 10px;
+    padding: 15px;
     margin-bottom: 10px;
 
     background-color: white;
