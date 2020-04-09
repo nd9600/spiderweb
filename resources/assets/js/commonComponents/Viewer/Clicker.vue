@@ -169,8 +169,8 @@ export default {
 <style scoped>
 .clicker {
     position: absolute;
-    bottom: 5%;
-    right: 8%;
+    bottom: 10%;
+    right: 10%;
 }
 .clicker__button {
     border-radius: 9999px;
