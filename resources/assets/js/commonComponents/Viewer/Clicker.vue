@@ -203,13 +203,15 @@ export default {
     flex-direction: column-reverse;
     align-items: flex-end;
 
-    background-color: #f7f7f7d6;
+    background-color: #f7f7f7e6;
     border-radius: 10px;
+    max-width: 85vw;
 }
 
 .clicker__actionButtons {
     padding: 10px;
     margin-bottom: 10px;
+    max-width: 100%;
 }
 .clicker__actionButton {
     display: flex;
@@ -231,6 +233,7 @@ export default {
     border-radius: 10px;
     padding: 15px;
     margin-bottom: 10px;
+    max-width: 100%;
 
     background-color: white;
     border: 1px solid var(--red);
