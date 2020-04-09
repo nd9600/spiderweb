@@ -15,7 +15,7 @@
             >
                 <select
                     v-model="clickMode"
-                    class="p-2 pr-3 select select--primary"
+                    class="select select--primary"
                 >
                     <option value="openPosts">
                         Open posts
@@ -41,7 +41,7 @@
                         Link in graph:
                         <select
                             v-model.number="newLinkGraphId"
-                            class="p-2 rounded text-gray-700 bg-white"
+                            class="select select--secondary"
                         >
                             <option
                                 v-for="(graph, id) in graphs"
@@ -57,7 +57,7 @@
                         link type:
                         <select
                             v-model="newLinkType"
-                            class="p-2 rounded text-gray-700 bg-white"
+                            class="select select--secondary"
                         >
                             <option value="reply">
                                 reply

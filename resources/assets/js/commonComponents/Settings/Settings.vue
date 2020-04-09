@@ -5,7 +5,7 @@
                 Data
                 <select
                     v-model="shouldAutosave"
-                    class="p-2 rounded text-red bg-white"
+                    class="text-red select"
                 >
                     <option :value="true">
                         should
@@ -35,7 +35,7 @@
                     Data should be stored using
                     <select
                         v-model="storageMethodInComponent"
-                        class="ml-4 p-2 rounded text-red bg-white"
+                        class="ml-4 text-red select"
                     >
                         <option value="local">Local storage</option>
                         <option value="firebase">Firebase</option>
@@ -61,7 +61,7 @@
                         When I change from storing data using <span class="italic">{{ storageMethod === "local" ? "Local storage" : "Firebase" }}</span> to <span class="italic">{{ storageMethodInComponent === "local" ? "Local storage" : "Firebase" }}</span>, data should be taken from
                         <select
                             v-model="shouldTakeDataFrom"
-                            class="p-2 rounded text-red bg-white"
+                            class="text-red select"
                         >
                             <option value="local">
                                 Local storage
@@ -95,7 +95,7 @@
                 When I already have a post open in the viewer, and I click on a second one, the second one should
                 <select
                     v-model="canOpenMultiplePosts"
-                    class="p-2 rounded text-red bg-white"
+                    class="text-red select"
                 >
                     <option :value="true">
                         be opened as well
@@ -112,7 +112,7 @@
                 The viewer should be oriented like this
                 <select
                     v-model="graphAndPostsDirection"
-                    class="mb-2 p-2 rounded text-red bg-white"
+                    class="mb-2 text-red select"
                 >
                     <option value="horizontal">→</option>
                     <option value="vertical">↓</option>

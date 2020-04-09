@@ -21,7 +21,8 @@
 
 .select {
     border-radius: 3px;
-    padding: 7px;
+    padding: 0.5rem 0.75rem 0.5rem 0.5rem;
+    outline: none;
 }
 
 /* fixing the ugly select arrows in firefox */
