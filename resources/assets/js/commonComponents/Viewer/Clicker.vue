@@ -9,24 +9,22 @@
         </button>
 
         <div class="clicker__container">
-            <div
+            <label
                 v-if="showClickButtonMenu"
                 class="clicker__actionButtons"
             >
-                <label>
-                    <select
-                        v-model="clickMode"
-                        class="p-2 rounded text-gray-700 bg-white"
-                    >
-                        <option value="openPosts">
-                            Open posts
-                        </option>
-                        <option value="addLink">
-                            Add link
-                        </option>
-                    </select>
-                </label>
-            </div>
+                <select
+                    v-model="clickMode"
+                    class="p-2 pr-3 select select--primary"
+                >
+                    <option value="openPosts">
+                        Open posts
+                    </option>
+                    <option value="addLink">
+                        Add link
+                    </option>
+                </select>
+            </label>
 
             <div
                 v-if="shouldShowContextMenu"
@@ -197,11 +195,8 @@ export default {
 }
 
 .clicker__actionButtons {
-    border-radius: 10px;
     padding: 10px;
     margin-bottom: 10px;
-
-    background-color: var(--red);
 }
 
 .clicker__contextMenu {

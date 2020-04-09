@@ -18,3 +18,27 @@
 .input--primary {
 
 }
+
+.select {
+    border-radius: 3px;
+    padding: 7px;
+}
+
+/* fixing the ugly select arrows in firefox */
+@supports (-moz-appearance:none) {
+    .select {
+        -moz-appearance: none !important;
+        background: transparent url('data:image/gif;base64,R0lGODlhBgAGAKEDAFVVVX9/f9TU1CgmNyH5BAEKAAMALAAAAAAGAAYAAAIODA4hCDKWxlhNvmCnGwUAOw==') right center no-repeat !important;
+        background-position: calc(100% - 5px) center !important;
+    }
+}
+
+.select--primary {
+    background-color: #fff;
+    border: 2px solid var(--red);
+}
+
+.select--secondary {
+    background-color: var(--grey-light);
+    border: 1px solid var(--grey);
+}
