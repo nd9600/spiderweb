@@ -64,6 +64,7 @@ export default {
             svg: null,
             rootG: null,
             zoom: null,
+            shouldResetZooming: false,
 
             linksG: null,
             nodesG: null,
@@ -84,6 +85,7 @@ export default {
     },
     watch: {
         selectedGraphIds() {
+            this.shouldResetZooming = true;
             this.debouncedMakeGraphSvg();
         },
         postsInSelectedGraphs() {
