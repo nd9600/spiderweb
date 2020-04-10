@@ -7,6 +7,8 @@ const state = {
     newLinkTarget: null,
     newLinkGraphId: 1,
     newLinkType: "reply",
+
+    linkToEdit: null,
 };
 
 const getters = {
@@ -15,6 +17,14 @@ const getters = {
 const mutations = {
     setShowClickButtonMenu(state, showClickButtonMenu) {
         state.showClickButtonMenu = showClickButtonMenu;
+        if (!showClickButtonMenu) {
+            state.newLinkSource = null;
+            state.newLinkTarget = null;
+            state.newLinkGraphId = 1;
+            state.newLinkType = "reply";
+
+            state.linkToEdit = null;
+        }
     },
 
     setClickMode(state, clickMode) {
@@ -32,15 +42,19 @@ const mutations = {
     setNewLinkType(state, newLinkType) {
         state.newLinkType = newLinkType;
     },
+
+    setLinkToEdit(state, linkToEdit) {
+        state.linkToEdit = linkToEdit;
+    },
 };
 
 const actions = {
     async handlePostClick(context, post) {
         if (typeof post !== "object") {
-            console.log(post);
-            alert("no post clicked");
+            console.error("no post clicked, clicked", post);
             return;
         }
+
         switch (context.state.clickMode) {
             case "openPosts":
             default: {
@@ -89,11 +103,29 @@ const actions = {
                     break;
                 }
             }
+
+            case "changeLink": {
+                return;
+            }
         }
     },
 
     async handleLinkClick(context, link) {
         console.log(link);
+        if (typeof link !== "object") {
+            console.error("no link clicked, clicked", link);
+            return;
+        }
+
+        switch (context.state.clickMode) {
+            case "changeLink": {
+                context.commit("setLinkToEdit", link.id)
+                break;
+            }
+            default: {
+                return;
+            }
+        }
     }
 };
 

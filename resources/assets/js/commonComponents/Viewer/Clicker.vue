@@ -20,6 +20,14 @@
                 >
                     <span class="linkIcon"></span> Add link between <span class="mx-2 text-red">↔</span> posts
                 </button>
+
+                <button
+                    class="clicker__actionButton"
+                    type="button"
+                    @click.prevent="toggleClickMode('changeLink')"
+                >
+                    <span class="linkIcon"></span> ✎ &#x1f5d1; Change/remove link
+                </button>
             </div>
 
             <div
@@ -88,6 +96,19 @@
                         x
                     </button>
                 </template>
+                <template v-else-if="clickMode === 'changeLink'">
+                    <sub
+                        v-if="linkToEdit === null"
+                        class="text-xs text-gray-500"
+                    >
+                        click on a link to change it
+                    </sub>
+                    <LinkEditor
+                        v-else
+                        :link="links[linkToEdit]"
+                        @removedLink="linkToEdit = null"
+                    />
+                </template>
             </div>
         </div>
     </div>
@@ -95,14 +116,16 @@
 <script>
 import {mapState, mapGetters, mapMutations} from "vuex";
 
+import LinkEditor from "@/js/commonComponents/Links/LinkEditor";
+
 export default {
     name: "Clicker",
-
+    components: {LinkEditor},
     computed: {
-        ...mapState("postsModule", ["graphs", "selectedGraphIds"]),
+        ...mapState("postsModule", ["graphs", "selectedGraphIds", "links"]),
         ...mapGetters("postsModule", ["titleOrBody"]),
 
-        ...mapState("clickerModule", ["newLinkSource"]),
+        ...mapState("clickerModule", ["newLinkSource", "linkToEdit"]),
 
         showClickButtonMenu: {
             get() {
@@ -138,7 +161,7 @@ export default {
         },
 
         shouldShowContextMenu() {
-            return this.clickMode === "addLink";
+            return this.clickMode !== "openPosts";
         }
     },
     created() {
@@ -146,6 +169,17 @@ export default {
             ? this.selectedGraphIds[0]
             : 1;
         this.newLinkGraphId = initialGraphId;
+    },
+    watch: {
+        clickMode(newClickMode, previousClickMode) {
+            if (newClickMode === "changeLink") {
+                document.querySelector(":root")
+                    .style.setProperty("--link-stroke-width", "40px");
+            } else if (previousClickMode === "changeLink") {
+                document.querySelector(":root")
+                    .style.setProperty("--link-stroke-width", "20px");
+            }
+        }
     },
     methods: {
         ...mapMutations("clickerModule", [
@@ -167,7 +201,8 @@ export default {
         },
 
         toggleClickMode(clickMode) {
-            this.clickMode = (this.clickMode === clickMode) // clicking on the existing button means you want to close the open dialog
+            const previousClickMode = this.clickMode;
+            this.clickMode = (previousClickMode === clickMode) // clicking on the existing button means you want to close the open dialog
                 ? "openPosts"
                 : clickMode;
         }
@@ -220,7 +255,17 @@ export default {
     padding: 0.5rem 0.75rem;
     border-radius: 2rem;
     white-space: nowrap;
+    transition: all 0.3s ease;
 }
+.clicker__actionButton:hover,
+.clicker__actionButton:focus,
+.clicker__actionButton:active {
+    background-color: #e8e8e8;
+}
+.clicker__actionButton:not(:last-of-type) {
+    margin-bottom: 1rem;
+}
+
 .linkIcon {
     display: inline-block;
     width: 28px;

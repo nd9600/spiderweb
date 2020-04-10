@@ -13,24 +13,6 @@
             </button>
         </div>
         <div>
-            <span class="font-bold">
-                Posts
-            </span>
-            <span
-                v-for="postId in graph.nodes"
-                :key="postId"
-                class="flex justify-between items-center mb-2"
-            >
-                {{ titleOrBody(postId) }}
-
-                <button
-                    class="py-1 px-2 btn btn--secondary"
-                    @click="removePostFromGraph({graphId, postId})"
-                >
-                    Remove
-                </button>
-            </span>
-
             <div
                 v-if="possiblePostIdsToAddToGraph.length > 0"
                 class="mb-4"
@@ -110,7 +92,7 @@ export default {
         },
     },
     methods: {
-        ...mapMutations("postsModule", ["addPostToGraph", "removePostFromGraph", "changeGraphName", "removeGraph"]),
+        ...mapMutations("postsModule", ["addPostToGraph", "changeGraphName", "removeGraph"]),
         addPostToGraphLocal() {
             this.addPostToGraph({
                 graphId: this.graphId,

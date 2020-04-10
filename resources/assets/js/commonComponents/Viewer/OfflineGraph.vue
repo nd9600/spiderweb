@@ -296,7 +296,7 @@ export default {
                     );
 
                     document.querySelector(":root")
-                        .style.setProperty("--text-size", newTextSize + "px");
+                        .style.setProperty("--node-text-size", newTextSize + "px");
                 });
             this.resetZoomToCenter();
         },
@@ -330,7 +330,8 @@ export default {
 
 <style>
     :root {
-        --text-size: 48px;
+        --node-text-size: 48px;
+        --link-stroke-width: 20px;
     }
     #graphSvg {
         min-width: 33%;
@@ -338,7 +339,7 @@ export default {
 
     .graph__link {
         fill: none;
-        stroke-width: 20px;
+        stroke-width: var(--link-stroke-width);
         cursor: pointer;
     }
 
@@ -353,7 +354,7 @@ export default {
         text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
         fill: #333333;
 
-        font-size: var(--text-size);
+        font-size: var(--node-text-size);
         font-weight: bold;
         stroke-width: 0;
     }
