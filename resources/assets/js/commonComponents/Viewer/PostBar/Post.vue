@@ -27,7 +27,7 @@
                     :class="selectedPostIds.length === 1 ? 'line-through' : ''"
                     :disabled="selectedPostIds.length === 1"
                 >
-                    move
+                    <span class="text-xl">⇄</span>
                 </button>
                 <button
                     class="focusButton bottomLink bottomLink--unselected"
@@ -37,7 +37,7 @@
                     :disabled="!isVisibleInGraph"
                     @click="$root.$emit('focusOnPost', post.id)"
                 >
-                    focus
+                    <span class="text-base">&#128269;</span>
                 </button>
                 <button
                     class="bottomLink"
