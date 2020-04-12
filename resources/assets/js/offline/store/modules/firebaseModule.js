@@ -32,7 +32,7 @@ const mutations = {
 
 const actions = {
     async setFirebaseConfig(context, firebaseConfig) {
-        if(firebaseConfig.apiKey === "") {
+        if (firebaseConfig.apiKey === "") {
             throw new Error("firebase config is wrong, please check it");
         }
         context.commit("setFirebaseConfig", firebaseConfig);

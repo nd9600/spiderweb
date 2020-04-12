@@ -1,11 +1,39 @@
 <template>
     <section>
-        <p
+        <div
             v-if="loadingApp"
             class="px-4 md:px-8"
         >
             loading..
-        </p>
+
+            <div
+                v-if="failedToLoadData"
+                class="mt-4"
+            >
+                <p class="text-red font-bold">
+                    Couldn't load data from Firebase
+                </p>
+
+                <button
+                    class="btn btn--primary"
+                    type="button"
+                    @click="refreshPage"
+                >
+                    Refresh
+                </button>
+
+                <button
+                    class="btn btn--secondary"
+                    type="button"
+                    @click="switchToLoadingDataFromLocalStorage"
+                >
+                    Load data from Local Storage instead
+                </button>
+                <sub class="my-2 text-xs text-gray-500">
+                    (the data in Firebase will still be there)
+                </sub>
+            </div>
+        </div>
         <template v-else>
             <nav
                 class="flex flex-wrap"
@@ -31,7 +59,7 @@
 </template>
 
 <script>
-import {mapState} from "vuex";
+import {mapActions, mapState} from "vuex";
 
 import Viewer from "@/js/commonComponents/Viewer/Viewer";
 import Graphs from "@/js/commonComponents/Graphs/Graphs";
@@ -70,7 +98,25 @@ export default {
         };
     },
     computed: {
-        ...mapState(["loadingApp"])
+        ...mapState(["loadingApp", "failedToLoadData"])
+    },
+    methods: {
+        ...mapActions(["loadStateFromStorage"]),
+        ...mapActions("settingsModule", [
+            "setStorageMethod",
+        ]),
+
+        refreshPage() {
+            window.location.reload();
+        },
+
+        async switchToLoadingDataFromLocalStorage() {
+            await this.setStorageMethod({
+                storageMethod: "local",
+                shouldTakeDataFrom: "local"
+            });
+            await this.loadStateFromStorage();
+        }
     }
 };
 </script>

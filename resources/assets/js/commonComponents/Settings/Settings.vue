@@ -74,10 +74,17 @@
 
                     <button
                         class="btn btn--primary"
+                        type="button"
+                        :disabled="cantChangeStorageMethod"
                         @click="changeStorageMethod"
                     >
                         Change storage method
                     </button>
+                    <p 
+                        v-if="cantChangeStorageMethod"
+                    >
+                        Firebase config invalid
+                    </p>
                 </div>
             </div>
 
@@ -295,6 +302,14 @@ export default {
                 this.setPostWidth(postWidth);
             }
         },
+
+        cantChangeStorageMethod() {
+            if (this.storageMethodInComponent !== "firebase") {
+                return false;
+            }
+            const firebaseConfig = JSON.parse(this.firebaseConfig);
+            return firebaseConfig.apiKey === "";
+        }
     },
     created() {
         this.storageMethodInComponent = this.storageMethod;
@@ -315,8 +330,8 @@ export default {
             "setFirebaseConfig"
         ]),
 
-        changeStorageMethod() {
-            this.setStorageMethod({
+        async changeStorageMethod() {
+            await this.setStorageMethod({
                 storageMethod: this.storageMethodInComponent,
                 shouldTakeDataFrom: this.shouldTakeDataFrom
             });

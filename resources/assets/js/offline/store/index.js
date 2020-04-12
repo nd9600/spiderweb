@@ -21,7 +21,8 @@ const store = new Vuex.Store({
         clickerModule
     },
     state: {
-        loadingApp: true
+        loadingApp: true,
+        failedToLoadData: false
     },
     getters: {
         storageObject(state) {
@@ -35,6 +36,9 @@ const store = new Vuex.Store({
     mutations: {
         setLoadingApp(state, loadingApp) {
             state.loadingApp = loadingApp;
+        },
+        setFailedToLoadData(state, failedToLoadData) {
+            state.failedToLoadData = failedToLoadData;
         }
     },
     actions: {
@@ -77,20 +81,29 @@ const store = new Vuex.Store({
                 }
                 case "firebase": {
                     try {
+                        let loadedDataSuccesfully = false;
                         const firebaseDB = firebaseDbFactory(localStorageObject.firebaseModule.firebaseConfig);
                         firebaseDB.ref(STORAGE_KEY).once("value")
                             .then(
                                 (snapshot) => {
-                                    const firebaseStorageObject = JSON.parse(snapshot.val());
-                                    context.dispatch("importState", firebaseStorageObject);
+                                    // const firebaseStorageObject = JSON.parse(snapshot.val());
+                                    // context.dispatch("importState", firebaseStorageObject);
+                                    // context.commit("setLoadingApp", false);
+                                    // loadedDataSuccesfully = true;
                                 }
                             ).catch((error) => {
                                 console.log(error);
                                 alert("There was an error loading the state from Firebase, please refresh the page/change your Firebase config in 'settings', and try again");
-                            })
-                            .finally(() => {
-                                context.commit("setLoadingApp", false);
                             });
+
+                        setTimeout(
+                            () => {
+                                if (!loadedDataSuccesfully) {
+                                    context.commit("setFailedToLoadData", true);
+                                }
+                            },
+                            5000
+                        );
                     } catch (error) {
                         context.commit("settingsModule/setStorageMethod", "local", {root: true});
                         context.commit("setLoadingApp", false);
@@ -180,6 +193,7 @@ store.subscribe(
             "settingsModule/setStorageMethod",
             "firebaseModule/setState",
             "setLoadingApp",
+            "setFailedToLoadData"
         ];
         const shouldSaveState = state.settingsModule.shouldAutosave
             && !mutationsToIgnore.includes(mutation.type)
