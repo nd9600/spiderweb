@@ -86,10 +86,10 @@ const store = new Vuex.Store({
                         firebaseDB.ref(STORAGE_KEY).once("value")
                             .then(
                                 (snapshot) => {
-                                    // const firebaseStorageObject = JSON.parse(snapshot.val());
-                                    // context.dispatch("importState", firebaseStorageObject);
-                                    // context.commit("setLoadingApp", false);
-                                    // loadedDataSuccesfully = true;
+                                    const firebaseStorageObject = JSON.parse(snapshot.val());
+                                    context.dispatch("importState", firebaseStorageObject);
+                                    context.commit("setLoadingApp", false);
+                                    loadedDataSuccesfully = true;
                                 }
                             ).catch((error) => {
                                 console.log(error);

@@ -50,7 +50,7 @@
                         href="https://firebase.google.com/docs/web/setup?authuser=0#config-object"
                         class="link"
                         target="_blank"
-                    >here</a>, it must be like <pre class="inline bg-red-700 text-white p-1">{"apiKey":"xyz",..}</pre>
+                    >here</a>, it must be like <pre class="inline bg-red-700 text-white p-1"><code>{"apiKey":"xyz",..}</code></pre>
                 </sub>
 
                 <div
@@ -71,26 +71,27 @@
                             </option>
                         </select>
                     </label>
-
+                    
                     <button
                         class="btn btn--primary"
                         type="button"
-                        :disabled="cantChangeStorageMethod"
+                        :disabled="!canChangeStorageMethod"
                         @click="changeStorageMethod"
                     >
                         Change storage method
                     </button>
-                    <p 
-                        v-if="cantChangeStorageMethod"
+                    <p
+                        v-if="!canChangeStorageMethod"
                     >
-                        Firebase config invalid
+                        Firebase config invalid, it should look like
+                        <pre><code class="whitespace-pre-wrap bg-red-700 text-white p-1">{"apiKey":"xx","authDomain":"x.firebaseapp.com","databaseURL":"https://x.firebaseio.com","projectId":"spiderweb-e49bd","storageBucket":"x.appspot.com","messagingSenderId":"123","appId":"xyz"}</code></pre>
                     </p>
                 </div>
             </div>
 
             <template v-if="storageMethodInComponent === 'firebase'">
                 <pre><textarea
-                        v-model="firebaseConfig"
+                        v-model="firebaseConfigInComponent"
                         class="p-2 w-full h-48 rounded text-gray-800 placeholder-gray-600"
                         required="required"
                 /></pre>
@@ -232,7 +233,8 @@ export default {
     data() {
         return {
             storageMethodInComponent: "local",
-            shouldTakeDataFrom: "local" // "local" | "firebase"
+            shouldTakeDataFrom: "local", // "local" | "firebase",
+            firebaseConfigInComponent: "",
         };
     },
     computed: {
@@ -303,16 +305,23 @@ export default {
             }
         },
 
-        cantChangeStorageMethod() {
+        canChangeStorageMethod() {
             if (this.storageMethodInComponent !== "firebase") {
+                return true;
+            }
+            try {
+                const firebaseConfig = JSON.parse(this.firebaseConfigInComponent);
+                return typeof firebaseConfig === "object"
+                    && typeof firebaseConfig.apiKey === "string"
+                    && firebaseConfig.apiKey.trim() !== "";
+            } catch (e) {
                 return false;
             }
-            const firebaseConfig = JSON.parse(this.firebaseConfig);
-            return firebaseConfig.apiKey === "";
         }
     },
     created() {
         this.storageMethodInComponent = this.storageMethod;
+        this.firebaseConfigInComponent = this.firebaseConfig;
     },
     methods: {
         ...mapMutations("settingsModule", [
@@ -331,6 +340,7 @@ export default {
         ]),
 
         async changeStorageMethod() {
+            this.firebaseConfig = this.firebaseConfigInComponent;
             await this.setStorageMethod({
                 storageMethod: this.storageMethodInComponent,
                 shouldTakeDataFrom: this.shouldTakeDataFrom
