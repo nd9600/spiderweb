@@ -112,7 +112,7 @@ export default {
 
         async switchToLoadingDataFromLocalStorage() {
             await this.setStorageMethod({
-                remoteStorageMethod: null,
+                remoteStorageMethod: "none",
                 shouldTakeDataFrom: "local"
             });
             await this.loadStateFromStorage();

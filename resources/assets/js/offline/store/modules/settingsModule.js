@@ -3,7 +3,7 @@ import {setProperty} from "@/js/helpers/vuexHelpers";
 
 const state = {
     shouldAutosave: true,
-    remoteStorageMethod: null, // null | firebase
+    remoteStorageMethod: "none", // none | firebase
 
     canOpenMultiplePosts: true,
 
@@ -26,7 +26,7 @@ const mutations = {
 
         state.shouldAutosave = newState.shouldAutosave || true;
         state.canOpenMultiplePosts = newState.canOpenMultiplePosts || true;
-        state.remoteStorageMethod = newState.remoteStorageMethod || null;
+        state.remoteStorageMethod = newState.remoteStorageMethod || "none";
         state.graphAndPostsDirection = newState.graphAndPostsDirection || "vertical";
         state.graphHeight = newState.graphHeight || 66;
         state.postBarHeight = newState.postBarHeight || 66;
@@ -73,7 +73,7 @@ const mutations = {
 const actions = {
     setRemoteStorageMethod(context, {remoteStorageMethod, shouldTakeDataFrom}) {
         // if you're making the remoteStorageMethod be Firebase, then you can choose to either keep the data that's already in Firebase, or overwrite it with the data from Local Storage
-        const thereAreDifferentDataSources = remoteStorageMethod !== null;
+        const thereAreDifferentDataSources = remoteStorageMethod !== "none";
 
         context.commit("setRemoteStorageMethod", remoteStorageMethod);
         if (thereAreDifferentDataSources) {

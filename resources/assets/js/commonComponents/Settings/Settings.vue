@@ -37,8 +37,8 @@
                         v-model="remoteStorageMethodInComponent"
                         class="ml-4 text-red select"
                     >
-                        <option :value="null">shouldn't</option>
-                        <option :value="'firebase'">should</option>
+                        <option value="none">shouldn't</option>
+                        <option value="firebase">should</option>
                     </select>
                     be backed up to Firebase
 
@@ -56,7 +56,7 @@
                 </label>
 
                 <div
-                    v-if="remoteStorageMethodInComponent !== null"
+                    v-if="remoteStorageMethodInComponent !== 'none'"
                     class="w-full flex flex-col items-start"
                 >
                     <label
@@ -246,7 +246,7 @@ export default {
     name: "Settings",
     data() {
         return {
-            remoteStorageMethodInComponent: null, // null | "firebase"
+            remoteStorageMethodInComponent: "none", // "none" | "firebase"
             shouldTakeDataFrom: null, // "local" | "firebase",
             firebaseConfigInComponent: "",
         };

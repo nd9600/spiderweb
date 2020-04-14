@@ -108,7 +108,7 @@ const store = new Vuex.Store({
                     }
                     break;
                 }
-                case null:
+                case "none":
                 default: {
                     context.dispatch("importState", localStorageObject);
                     context.commit("setLoadingApp", false);
