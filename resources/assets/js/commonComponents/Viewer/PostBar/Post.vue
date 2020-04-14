@@ -21,20 +21,17 @@
         <div>
             <div>
                 <button
+                    v-if="selectedPostIds.length > 1"
                     class="post__dragHandle bottomLink bottomLink--unselected"
                     type="button"
-                    title="click and drag this to move the post"
-                    :class="selectedPostIds.length === 1 ? 'line-through' : ''"
-                    :disabled="selectedPostIds.length === 1"
                 >
                     <span class="text-xl">⇄</span>
                 </button>
                 <button
+                    v-if="isVisibleInGraph"
                     class="focusButton bottomLink bottomLink--unselected"
-                    :class="!isVisibleInGraph ? 'line-through' : ''"
                     type="button"
                     title="focus on this post in the viewer above"
-                    :disabled="!isVisibleInGraph"
                     @click="$root.$emit('focusOnPost', post.id)"
                 >
                     <span class="text-base">&#128269;</span>

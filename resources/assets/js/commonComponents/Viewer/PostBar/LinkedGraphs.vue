@@ -17,7 +17,7 @@
 
                 <button
                     class="ml-8 py-1 px-2 text-xs btn btn--secondary"
-                    @click="removePostFromGraph({graphId, postId: post.id})"
+                    @click.stop="removePostFromGraph({graphId, postId: post.id})"
                 >
                     remove from graph
                 </button>
