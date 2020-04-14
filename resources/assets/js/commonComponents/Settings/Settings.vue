@@ -27,75 +27,89 @@
         <div
             class="setting flex flex-col"
             :class="{
-                'w-full md:w-1/2': storageMethod === 'firebase'
+                'w-full md:w-1/2': remoteStorageMethod === 'firebase'
             }"
         >
-            <div>
+            <div class="flex flex-col items-start">
                 <label>
-                    Data should be stored using
+                    Data
                     <select
-                        v-model="storageMethodInComponent"
+                        v-model="remoteStorageMethodInComponent"
                         class="ml-4 text-red select"
                     >
-                        <option value="local">Local storage</option>
-                        <option value="firebase">Firebase</option>
+                        <option :value="null">shouldn't</option>
+                        <option :value="'firebase'">should</option>
                     </select>
+                    be backed up to Firebase
+
+                    <sub
+                        v-if="remoteStorageMethodInComponent === 'firebase'"
+                        class="ml-1 text-xs text-gray-500"
+                    >
+                        copy your Firebase config from <a
+                            href="https://firebase.google.com/docs/web/setup?authuser=0#config-object"
+                            class="link"
+                            target="_blank"
+                        >here</a>, it must be like
+                        <pre class="inline bg-red-700 text-white p-1"><code>{"apiKey":"xyz",..}</code></pre>
+                    </sub>
                 </label>
 
-                <sub 
-                    v-if="storageMethodInComponent === 'firebase'"
-                    class="ml-1 text-xs text-gray-500"
-                >
-                    copy your Firebase config from <a
-                        href="https://firebase.google.com/docs/web/setup?authuser=0#config-object"
-                        class="link"
-                        target="_blank"
-                    >here</a>, it must be like <pre class="inline bg-red-700 text-white p-1"><code>{"apiKey":"xyz",..}</code></pre>
-                </sub>
-
                 <div
-                    v-if="storageMethodInComponent !== storageMethod"
-                    class="flex flex-col items-start"
+                    v-if="remoteStorageMethodInComponent !== null"
+                    class="w-full flex flex-col items-start"
                 >
-                    <label>
-                        When I change from storing data using <span class="italic">{{ storageMethod === "local" ? "Local storage" : "Firebase" }}</span> to <span class="italic">{{ storageMethodInComponent === "local" ? "Local storage" : "Firebase" }}</span>, data should be taken from
+                    <label
+                        v-if="remoteStorageMethodInComponent !== remoteStorageMethod"
+                    >
+                        When I start backing up data to Firebase, I want to
                         <select
                             v-model="shouldTakeDataFrom"
                             class="text-red select"
                         >
+                            <option
+                                v-if="shouldTakeDataFrom === null"
+                                :value="null"
+                                disabled
+                            >
+                                [please choose an option]
+                            </option>
                             <option value="local">
-                                Local storage
+                                keep using the data that's been stored locally
                             </option>
                             <option value="firebase">
-                                Firebase
+                                use any data that's been stored in Firebase
                             </option>
                         </select>
                     </label>
-                    
-                    <button
-                        class="btn btn--primary"
-                        type="button"
-                        :disabled="!canChangeStorageMethod"
-                        @click="changeStorageMethod"
-                    >
-                        Change storage method
-                    </button>
+
+                    <pre
+                        v-if="remoteStorageMethodInComponent === 'firebase'"
+                        class="w-full"
+                    ><label><textarea
+                        v-model="firebaseConfigInComponent"
+                        class="p-2 w-full h-48 rounded border text-gray-800 placeholder-gray-600"
+                        required="required"
+                    /></label></pre>
+
                     <p
-                        v-if="!canChangeStorageMethod"
+                        v-if="!firebaseConfigIsValid"
                     >
                         Firebase config invalid, it should look like
                         <pre><code class="whitespace-pre-wrap bg-red-700 text-white p-1">{"apiKey":"xx","authDomain":"x.firebaseapp.com","databaseURL":"https://x.firebaseio.com","projectId":"spiderweb-e49bd","storageBucket":"x.appspot.com","messagingSenderId":"123","appId":"xyz"}</code></pre>
                     </p>
                 </div>
-            </div>
 
-            <template v-if="storageMethodInComponent === 'firebase'">
-                <pre><textarea
-                        v-model="firebaseConfigInComponent"
-                        class="p-2 w-full h-48 rounded text-gray-800 placeholder-gray-600"
-                        required="required"
-                /></pre>
-            </template>
+                <button
+                    v-if="remoteStorageMethodInComponent !== remoteStorageMethod"
+                    class="btn btn--primary"
+                    type="button"
+                    :disabled="!canChangeStorageMethod"
+                    @click="changeStorageMethod"
+                >
+                    Change storage method
+                </button>
+            </div>
         </div>
 
         <div class="setting">
@@ -232,8 +246,8 @@ export default {
     name: "Settings",
     data() {
         return {
-            storageMethodInComponent: "local",
-            shouldTakeDataFrom: "local", // "local" | "firebase",
+            remoteStorageMethodInComponent: null, // null | "firebase"
+            shouldTakeDataFrom: null, // "local" | "firebase",
             firebaseConfigInComponent: "",
         };
     },
@@ -246,8 +260,8 @@ export default {
                 this.setShouldAutosave(shouldAutosave);
             }
         },
-        storageMethod() {
-            return this.$store.state.settingsModule.storageMethod;
+        remoteStorageMethod() {
+            return this.$store.state.settingsModule.remoteStorageMethod;
         },
         firebaseConfig: {
             get() {
@@ -305,10 +319,7 @@ export default {
             }
         },
 
-        canChangeStorageMethod() {
-            if (this.storageMethodInComponent !== "firebase") {
-                return true;
-            }
+        firebaseConfigIsValid() {
             try {
                 const firebaseConfig = JSON.parse(this.firebaseConfigInComponent);
                 return typeof firebaseConfig === "object"
@@ -317,10 +328,20 @@ export default {
             } catch (e) {
                 return false;
             }
+        },
+        canChangeStorageMethod() {
+            if (this.remoteStorageMethodInComponent !== "firebase") {
+                return true;
+            }
+            if (this.shouldTakeDataFrom === null) {
+                return false;
+            }
+
+            return this.firebaseConfigIsValid;
         }
     },
     created() {
-        this.storageMethodInComponent = this.storageMethod;
+        this.remoteStorageMethodInComponent = this.remoteStorageMethod;
         this.firebaseConfigInComponent = this.firebaseConfig;
     },
     methods: {
@@ -333,7 +354,7 @@ export default {
             "setPostWidth"
         ]),
         ...mapActions("settingsModule", [
-            "setStorageMethod",
+            "setRemoteStorageMethod",
         ]),
         ...mapActions("firebaseModule", [
             "setFirebaseConfig"
@@ -341,8 +362,8 @@ export default {
 
         async changeStorageMethod() {
             this.firebaseConfig = this.firebaseConfigInComponent;
-            await this.setStorageMethod({
-                storageMethod: this.storageMethodInComponent,
+            await this.setRemoteStorageMethod({
+                remoteStorageMethod: this.remoteStorageMethodInComponent,
                 shouldTakeDataFrom: this.shouldTakeDataFrom
             });
         }

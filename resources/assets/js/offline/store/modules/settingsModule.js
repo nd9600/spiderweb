@@ -2,7 +2,7 @@ import {isInteger} from "@/js/helpers/numberHelpers";
 
 const state = {
     shouldAutosave: true,
-    storageMethod: "local", // local | firebase
+    remoteStorageMethod: null, // null | firebase
 
     canOpenMultiplePosts: true,
 
@@ -21,7 +21,7 @@ const mutations = {
     setState(state, newState) {
         state.shouldAutosave = newState.shouldAutosave || true;
         state.canOpenMultiplePosts = newState.canOpenMultiplePosts || true;
-        state.storageMethod = newState.storageMethod || "local";
+        state.remoteStorageMethod = newState.remoteStorageMethod || null;
         state.graphAndPostsDirection = newState.graphAndPostsDirection || "vertical";
         state.graphHeight = newState.graphHeight || 66;
         state.postBarHeight = newState.postBarHeight || 66;
@@ -31,8 +31,8 @@ const mutations = {
     setShouldAutosave(state, shouldAutosave) {
         state.shouldAutosave = shouldAutosave;
     },
-    setStorageMethod(state, storageMethod) {
-        state.storageMethod = storageMethod;
+    setRemoteStorageMethod(state, remoteStorageMethod) {
+        state.remoteStorageMethod = remoteStorageMethod;
     },
 
     setCanOpenMultiplePosts(state, canOpenMultiplePosts) {
@@ -65,11 +65,13 @@ const mutations = {
 };
 
 const actions = {
-    setStorageMethod(context, {storageMethod, shouldTakeDataFrom}) {
-        const isStorageMethodChanging = context.state.storageMethod !== storageMethod;
+    setRemoteStorageMethod(context, {remoteStorageMethod, shouldTakeDataFrom}) {
 
-        context.commit("setStorageMethod", storageMethod);
-        if (isStorageMethodChanging) {
+        // if you're making the remoteStorageMethod be Firebase, then you can choose to either keep the data that's already in Firebase, or overwrite it with the data from Local Storage
+        const thereAreDifferentDataSources = remoteStorageMethod !== null;
+
+        context.commit("setRemoteStorageMethod", remoteStorageMethod);
+        if (thereAreDifferentDataSources) {
             context.dispatch(
                 "loadDataFrom",
                 shouldTakeDataFrom,

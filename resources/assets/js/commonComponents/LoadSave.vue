@@ -83,7 +83,7 @@
     },
     "settingsModule": {
         "shouldAutosave": true,
-        "storageMethod": "local",
+        "remoteStorageMethod": "firebase",
         "canOpenMultiplePosts": true,
         "graphHeight": 66,
         "postBarHeight": 66
