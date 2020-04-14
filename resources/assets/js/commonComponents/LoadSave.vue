@@ -1,6 +1,9 @@
 <template>
     <section>
-        <div class="flex justify-around">
+        <div
+            v-if="!shouldAutosave"
+            class="mb-8 flex justify-around"
+        >
             <button
                 class="btn btn--primary"
                 @click="saveStateToStorage"
@@ -9,11 +12,27 @@
             </button>
         </div>
 
-        <div class="mt-8 flex justify-around items-start">
-            <div class="inline-block">
+        <div class="flex justify-around items-start">
+            <div class="w-1/2 flex flex-col items-start">
+                <label class="mb-4">
+                    <button
+                        class="btn btn--secondary"
+                        @click="$refs.fileInput.click()"
+                    >
+                        Upload a data/settings file that's been previously exported
+                    </button>
+                    <input
+                        ref="fileInput"
+                        type="file"
+                        class="hidden"
+                        accept="application/json"
+                        @change="onFileUpload"
+                    />
+                </label>
+
                 <div
                     v-if="fileToImportIsValid"
-                    class="flex flex-col items-start"
+                    class="mb-4 flex flex-col items-start"
                 >
                     <label>
                         Import data
@@ -42,24 +61,39 @@
                         </sub>
                     </p>
 
-                    <label v-if="shouldImportSettings && !shouldImportData">
-                        If changing storage method, take data from
+                    <label v-if="shouldImportSettings">
+                        If the settings I'm importing will start backing up data to Firebase (and I wasn't already),
                         <select
                             v-model="shouldTakeDataFrom"
-                            class="p-2 rounded text-gray-700 bg-white"
+                            class="select text-red"
                         >
                             <option value="local">
-                                Local storage
+                                keep using the data that's been stored locally
                             </option>
                             <option value="firebase">
-                                Firebase
+                                use any data that's been stored in Firebase, and overwrite what I've stored locally
                             </option>
                         </select>
+                    </label>
+                    <label v-if="shouldImportData && shouldTakeDataFrom === 'local'">
+                        If my settings will back up data to Firebase (and I'm not overwriting the locally-stored data with what's in Firebase),
+                        <select
+                            v-model="shouldSaveNewlyImportedDataToFirebase"
+                            class="select text-red"
+                        >
+                            <option :value="true">
+                                I want to
+                            </option>
+                            <option :value="false">
+                                I don't want
+                            </option>
+                        </select>
+                        to immediately save any newly-imported data to Firebase
                     </label>
 
                     <p>
                         <sub class="text-gray-500">
-                            The file you're importing must be like this:
+                            The file you're importing must look like this:
                         </sub>
                     </p>
 
@@ -102,43 +136,35 @@
 }</code></pre>
                 </div>
 
-                <label>
-                    <button
-                        class="btn btn--secondary"
-                        @click="$refs.fileInput.click()"
-                    >
-                        Upload
-                    </button>
-                    <input
-                        ref="fileInput"
-                        type="file"
-                        class="hidden"
-                        accept="application/json"
-                        @change="onFileUpload"
-                    />
-                </label>
-
                 <button
                     class="btn btn--primary"
                     :disabled="!fileToImportIsValid || (!shouldImportData && !shouldImportSettings)"
                     @click="importState"
                 >
-                    Import
+                    Import the uploaded file
+                </button>
+                <sub
+                    v-if="fileToImport !== null && (!fileToImportIsValid || (!shouldImportData && !shouldImportSettings))"
+                    class="my-2 text-xs text-gray-500"
+                >
+                    {{ !fileToImportIsValid ? 'the file you\'ve uploaded isn\'t valid' : ((!shouldImportData && !shouldImportSettings) ? 'you must click one of the \'import\' buttons above' : '') }}
+                </sub>
+            </div>
+            <div class="w-1/2">
+                <button
+                    class="btn btn--primary"
+                    @click="exportState"
+                >
+                    Export data and settings
                 </button>
             </div>
-            <button
-                class="btn btn--primary"
-                @click="exportState"
-            >
-                Export
-            </button>
         </div>
     </section>
 </template>
 
 <script>
 import moment from "moment";
-import { mapGetters, mapActions } from "vuex";
+import {mapState, mapGetters, mapActions} from "vuex";
 
 export default {
     name: "LoadSave",
@@ -148,10 +174,13 @@ export default {
             shouldImportData: false,
             shouldImportSettings: false,
 
-            shouldTakeDataFrom: "local" // "local" | "firebase"
+            shouldTakeDataFrom: "local", // "local" | "firebase"
+            shouldSaveNewlyImportedDataToFirebase: true,
         };
     },
     computed: {
+        ...mapState("settingsModule", ["shouldAutosave"]),
+
         ...mapGetters(["storageObject"]),
 
         fileToImportIsValid() {
@@ -204,7 +233,12 @@ export default {
                 }
             }
             this.fileToImport = null;
-            await this.saveStateToLocalStorage();
+
+            if (this.shouldSaveNewlyImportedDataToFirebase) {
+                await this.saveStateToStorage();
+            } else {
+                await this.saveStateToLocalStorage();
+            }
         },
 
         exportState() {
@@ -230,7 +264,3 @@ export default {
     }
 };
 </script>
-
-<style scoped>
-
-</style>

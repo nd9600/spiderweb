@@ -83,9 +83,11 @@ const store = new Vuex.Store({
                                     const firebaseStorageObject = JSON.parse(snapshot.val());
                                     if (firebaseStorageObject !== null) {
                                         context.dispatch("importState", firebaseStorageObject);
+                                        loadedDataSuccesfully = true;
+                                        context.commit("setLoadingApp", false);
+                                    } else {
+                                        context.commit("setFailedToLoadData", true);
                                     }
-                                    context.commit("setLoadingApp", false);
-                                    loadedDataSuccesfully = true;
                                 }
                             ).catch((error) => {
                                 console.log(error);
@@ -101,7 +103,7 @@ const store = new Vuex.Store({
                             5000
                         );
                     } catch (error) {
-                        context.commit("settingsModule/setStorageMethod", "local", {root: true});
+                        context.commit("settingsModule/setRemoteStorageMethod", "none", {root: true});
                         context.commit("setLoadingApp", false);
                         alert(error);
                         return;

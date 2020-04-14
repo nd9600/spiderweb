@@ -30,7 +30,7 @@
                     Load data from Local Storage instead
                 </button>
                 <sub class="my-2 text-xs text-gray-500">
-                    (the data in Firebase will still be there)
+                    (any data stored in Firebase will still be there)
                 </sub>
             </div>
         </div>
@@ -102,16 +102,14 @@ export default {
     },
     methods: {
         ...mapActions(["loadStateFromStorage"]),
-        ...mapActions("settingsModule", [
-            "setStorageMethod",
-        ]),
+        ...mapActions("settingsModule", ["setRemoteStorageMethod",]),
 
         refreshPage() {
             window.location.reload();
         },
 
         async switchToLoadingDataFromLocalStorage() {
-            await this.setStorageMethod({
+            await this.setRemoteStorageMethod({
                 remoteStorageMethod: "none",
                 shouldTakeDataFrom: "local"
             });

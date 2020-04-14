@@ -40,7 +40,12 @@
                         <option value="none">shouldn't</option>
                         <option value="firebase">should</option>
                     </select>
-                    be backed up to Firebase
+                    be backed up to <a
+                        href="https://firebase.google.com/docs/database"
+                        class="link"
+                    >
+                        Firebase's Realtime Database
+                    </a>
 
                     <sub
                         v-if="remoteStorageMethodInComponent === 'firebase'"
@@ -78,7 +83,7 @@
                                 keep using the data that's been stored locally
                             </option>
                             <option value="firebase">
-                                use any data that's been stored in Firebase
+                                use any data that's been stored in Firebase, and overwrite what I've stored locally
                             </option>
                         </select>
                     </label>
