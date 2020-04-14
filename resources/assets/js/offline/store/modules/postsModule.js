@@ -136,6 +136,10 @@ const getters = {
 
 const mutations = {
     setState(state, newState) {
+        if (Object.keys(newState).length === 0) {
+            return;
+        }
+
         state.posts = newState.posts;
         state.links = newState.links;
         state.graphs = newState.graphs;

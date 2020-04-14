@@ -1,4 +1,5 @@
 import {isInteger} from "@/js/helpers/numberHelpers";
+import {setProperty} from "@/js/helpers/vuexHelpers";
 
 const state = {
     shouldAutosave: true,
@@ -19,6 +20,10 @@ const getters = {
 
 const mutations = {
     setState(state, newState) {
+        if (Object.keys(newState).length === 0) {
+            return;
+        }
+
         state.shouldAutosave = newState.shouldAutosave || true;
         state.canOpenMultiplePosts = newState.canOpenMultiplePosts || true;
         state.remoteStorageMethod = newState.remoteStorageMethod || null;
@@ -32,7 +37,8 @@ const mutations = {
         state.shouldAutosave = shouldAutosave;
     },
     setRemoteStorageMethod(state, remoteStorageMethod) {
-        state.remoteStorageMethod = remoteStorageMethod;
+        console.log("setting remoteStorageMethod to", remoteStorageMethod);
+        setProperty(state, ["remoteStorageMethod"], remoteStorageMethod);
     },
 
     setCanOpenMultiplePosts(state, canOpenMultiplePosts) {
@@ -66,7 +72,6 @@ const mutations = {
 
 const actions = {
     setRemoteStorageMethod(context, {remoteStorageMethod, shouldTakeDataFrom}) {
-
         // if you're making the remoteStorageMethod be Firebase, then you can choose to either keep the data that's already in Firebase, or overwrite it with the data from Local Storage
         const thereAreDifferentDataSources = remoteStorageMethod !== null;
 

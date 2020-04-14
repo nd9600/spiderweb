@@ -361,7 +361,9 @@ export default {
         ]),
 
         async changeStorageMethod() {
-            this.firebaseConfig = this.firebaseConfigInComponent;
+            if (this.firebaseConfig !== this.firebaseConfigInComponent) {
+                this.firebaseConfig = this.firebaseConfigInComponent;
+            }
             await this.setRemoteStorageMethod({
                 remoteStorageMethod: this.remoteStorageMethodInComponent,
                 shouldTakeDataFrom: this.shouldTakeDataFrom
