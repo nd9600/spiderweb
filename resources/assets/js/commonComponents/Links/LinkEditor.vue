@@ -57,24 +57,25 @@
 
         <p class="mb-2">
             →
-            <template
+            <span
                 v-if="!wantsToChangeTarget"
+                class="text-red"
             >
-                <span class="text-red">
-                    {{ titleOrBody(target) }}
-                </span>
-                <button
-                    class="btn btn--secondary ml-4"
-                    type="button"
-                    @click="wantsToChangeTarget = !wantsToChangeTarget"
-                >
-                    Change
-                </button>
-            </template>
+                {{ titleOrBody(target) }}
+            </span>
             <post-search
                 v-else
+                class="ml-2"
                 @clickedOnResult="onPostClick('target', $event)"
             />
+
+            <button
+                class="btn btn--secondary ml-4"
+                type="button"
+                @click="wantsToChangeTarget = !wantsToChangeTarget"
+            >
+                Change
+            </button>
         </p>
 
         <button

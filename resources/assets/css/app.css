@@ -58,7 +58,6 @@ body {
   margin: 0;
   background-color: var(--white);
   color: var(--grey);
-  counter-reset: sidenote-counter;
 }
 
 .text-red {

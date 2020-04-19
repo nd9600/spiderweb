@@ -1,22 +1,23 @@
 <template>
-    <div>
+    <span>
         <label>
             <input
                 v-model="searchTerm"
-                class="p-2 rounded text-gray-800 placeholder-gray-600"
+                class="p-2 rounded text-gray-800 placeholder-gray-600 border"
                 type="text"
                 placeholder="On the Origin of Species"
                 minlength="0"
                 maxlength="1000"
             />
         </label>
-        <div
+        <span
             v-if="searchResults.length > 0"
+            class="block"
         >
-            <div
+            <span
                 v-for="post in searchResults"
                 :key="post.id"
-                class="cursor-pointer p-1 hover:bg-red-300"
+                class="cursor-pointer p-1 block hover:bg-red-300"
                 @click="$emit('clickedOnResult', post)"
             >
                 <span
@@ -28,9 +29,9 @@
                 <span>
                     {{ post.body.substr(0, 30) }}{{ post.body.length > 30 ? "..." : "" }}
                 </span>
-            </div>
-        </div>
-    </div>
+            </span>
+        </span>
+    </span>
 </template>
 
 <script>
