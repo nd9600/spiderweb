@@ -9,6 +9,8 @@ const state = {
     newLinkType: "reply",
 
     linkToEdit: null,
+    wantsToChangeSource: false,
+    wantsToChangeTarget: false,
 };
 
 const getters = {
@@ -24,6 +26,8 @@ const mutations = {
             state.newLinkType = "reply";
 
             state.linkToEdit = null;
+            state.wantsToChangeSource = false;
+            state.wantsToChangeTarget = false;
         }
     },
 
@@ -45,6 +49,12 @@ const mutations = {
 
     setLinkToEdit(state, linkToEdit) {
         state.linkToEdit = linkToEdit;
+    },
+    setWantsToChangeSource(state, wantsToChangeSource) {
+        state.wantsToChangeSource = wantsToChangeSource;
+    },
+    setWantsToChangeTarget(state, wantsToChangeTarget) {
+        state.wantsToChangeTarget = wantsToChangeTarget;
     },
 };
 
@@ -105,7 +115,10 @@ const actions = {
             }
 
             case "changeLink": {
-                return;
+                if (context.state.wantsToChangeSource) {
+                    alert("A post can't be linked to itself");
+                    return;
+                }
             }
         }
     },
@@ -119,7 +132,7 @@ const actions = {
 
         switch (context.state.clickMode) {
             case "changeLink": {
-                context.commit("setLinkToEdit", link.id)
+                context.commit("setLinkToEdit", link.id);
                 break;
             }
             default: {

@@ -46,14 +46,22 @@
                 class="ml-2"
                 @clickedOnResult="onPostClick('source', $event)"
             />
+            <span :class="wantsToChangeSource ? 'block' : ''">
+                <sub
+                    v-if="wantsToChangeSource"
+                    class="my-2 text-xs text-gray-500"
+                >
+                    search for a post's title/body, or click on a post
+                </sub>
 
-            <button
-                class="btn btn--secondary mt-2 ml-4"
-                type="button"
-                @click="wantsToChangeSource = !wantsToChangeSource"
-            >
-                {{ wantsToChangeSource ? "Cancel" : "Change" }}
-            </button>
+                <button
+                    class="btn btn--secondary mt-2 ml-4"
+                    type="button"
+                    @click="wantsToChangeSource = !wantsToChangeSource"
+                >
+                    {{ wantsToChangeSource ? "Cancel" : "Change" }}
+                </button>
+            </span>
         </p>
 
         <p class="mb-2">
@@ -70,19 +78,29 @@
                 @clickedOnResult="onPostClick('target', $event)"
             />
 
-            <button
-                class="btn btn--secondary mt-2 ml-4"
-                type="button"
-                @click="wantsToChangeTarget = !wantsToChangeTarget"
-            >
-                {{ wantsToChangeTarget ? "Cancel" : "Change" }}
-            </button>
+            <span :class="wantsToChangeTarget ? 'block' : ''">
+                <sub
+                    v-if="wantsToChangeTarget"
+                    class="my-2 text-xs text-gray-500"
+                >
+                    search for a post's title/body, or click on a post
+                </sub>
+
+                <button
+                    class="btn btn--secondary mt-2 ml-4"
+                    type="button"
+                    @click="wantsToChangeTarget = !wantsToChangeTarget"
+                >
+                    {{ wantsToChangeTarget ? "Cancel" : "Change" }}
+                </button>
+            </span>
         </p>
 
         <button
             class="btn btn--secondary py-1 px-2 block"
             @click="removeLinkLocal"
-        > &#x1f5d1; remove link
+        >
+            &#x1f5d1; remove link
         </button>
     </div>
 </template>
@@ -110,20 +128,36 @@ export default {
             source: this.link.source,
             target: this.link.target,
             type: this.link.type,
-
-            wantsToChangeSource: false,
-            wantsToChangeTarget: false,
         };
     },
     computed: {
         ...mapState("postsModule", ["graphs", "posts", "selectedGraphNames"]),
         ...mapGetters("postsModule", ["postIds", "graphNames", "titleOrBody"]),
 
-        possibleTargets() {
-            return this.postIds.filter(id => id !== this.source);
+        wantsToChangeSource: {
+            get() {
+                return this.$store.state.clickerModule.wantsToChangeSource;
+            },
+            set(wantsToChangeSource) {
+                this.setWantsToChangeSource(wantsToChangeSource);
+            }
+        },
+        wantsToChangeTarget: {
+            get() {
+                return this.$store.state.clickerModule.wantsToChangeTarget;
+            },
+            set(wantsToChangeTarget) {
+                this.setWantsToChangeTarget(wantsToChangeTarget);
+            }
         }
     },
     watch: {
+        // link(link) {
+        //     this.graphId = link.graph;
+        //     this.source = link.source;
+        //     this.target = link.target;
+        //     this.type = link.type;
+        // },
         "graphId": "updateLinkLocal",
         "source": "updateLinkLocal",
         "target": "updateLinkLocal",
@@ -131,6 +165,7 @@ export default {
     },
     methods: {
         ...mapMutations("postsModule", ["updateLink", "removeLink"]),
+        ...mapMutations("clickerModule", ["setWantsToChangeSource", "setWantsToChangeTarget"]),
 
         onPostClick(sourceOrTarget, post) {
             if (sourceOrTarget === "source") {
