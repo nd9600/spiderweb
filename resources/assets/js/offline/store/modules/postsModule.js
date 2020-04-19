@@ -136,7 +136,10 @@ const getters = {
 
 const mutations = {
     setState(state, newState) {
-        if (Object.keys(newState).length === 0) {
+        if (
+            Object.keys(newState).length === 0
+            || Object.keys(newState.posts).length === 0
+        ) {
             return;
         }
 
