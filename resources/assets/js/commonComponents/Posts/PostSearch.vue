@@ -5,9 +5,10 @@
                 v-model="searchTerm"
                 class="p-2 rounded text-gray-800 placeholder-gray-600 border"
                 type="text"
-                placeholder="On the Origin of Species"
+                placeholder="title/body: On the Origin of Species"
                 minlength="0"
-                maxlength="1000"
+                maxlength="50"
+                title="search for a post"
             />
         </label>
         <span

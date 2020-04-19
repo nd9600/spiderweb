@@ -35,24 +35,25 @@
 
         <p class="my-2">
             from
-            <template
+            <span
                 v-if="!wantsToChangeSource"
+                class="text-red"
             >
-                <span class="text-red">
-                    {{ titleOrBody(source) }}
-                </span>
-                <button
-                    class="btn btn--secondary ml-4"
-                    type="button"
-                    @click="wantsToChangeSource = !wantsToChangeSource"
-                >
-                    Change
-                </button>
-            </template>
+                {{ titleOrBody(source) }}
+            </span>
             <post-search
                 v-else
+                class="ml-2"
                 @clickedOnResult="onPostClick('source', $event)"
             />
+
+            <button
+                class="btn btn--secondary mt-2 ml-4"
+                type="button"
+                @click="wantsToChangeSource = !wantsToChangeSource"
+            >
+                {{ wantsToChangeSource ? "Cancel" : "Change" }}
+            </button>
         </p>
 
         <p class="mb-2">
@@ -70,11 +71,11 @@
             />
 
             <button
-                class="btn btn--secondary ml-4"
+                class="btn btn--secondary mt-2 ml-4"
                 type="button"
                 @click="wantsToChangeTarget = !wantsToChangeTarget"
             >
-                Change
+                {{ wantsToChangeTarget ? "Cancel" : "Change" }}
             </button>
         </p>
 
