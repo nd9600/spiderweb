@@ -16,6 +16,8 @@
                     link
                 </option>
             </select>
+        </label>
+        <label>
             in the graph
             <select
                 v-model.number="graphId"
@@ -29,40 +31,57 @@
                     {{ graph.name }}
                 </option>
             </select>
-
-            from
-            <select
-                v-model.number="source"
-                class="select select--secondary mb-2 text-red"
-            >
-                <option
-                    v-for="postId in postIds"
-                    :key="postId"
-                    :value="postId"
-                >
-                    {{ titleOrBody(postId) }}
-                </option>
-            </select>
-            →
-            <select
-                v-model.number="target"
-                class="select select--secondary mb-2 text-red"
-            >
-                <option
-                    v-for="postId in possibleTargets"
-                    :key="postId"
-                    :value="postId"
-                >
-                    {{ titleOrBody(postId) }}
-                </option>
-            </select>
-
-            <button
-                class="btn btn--secondary py-1 px-2 block"
-                @click="removeLinkLocal"
-            > &#x1f5d1; remove link
-            </button>
         </label>
+
+        <p class="my-2">
+            from
+            <template
+                v-if="!wantsToChangeSource"
+            >
+                <span class="text-red">
+                    {{ titleOrBody(source) }}
+                </span>
+                <button
+                    class="btn btn--secondary ml-4"
+                    type="button"
+                    @click="wantsToChangeSource = !wantsToChangeSource"
+                >
+                    Change
+                </button>
+            </template>
+            <post-search
+                v-else
+                @clickedOnResult="onPostClick('source', $event)"
+            />
+        </p>
+
+        <p class="mb-2">
+            →
+            <template
+                v-if="!wantsToChangeTarget"
+            >
+                <span class="text-red">
+                    {{ titleOrBody(target) }}
+                </span>
+                <button
+                    class="btn btn--secondary ml-4"
+                    type="button"
+                    @click="wantsToChangeTarget = !wantsToChangeTarget"
+                >
+                    Change
+                </button>
+            </template>
+            <post-search
+                v-else
+                @clickedOnResult="onPostClick('target', $event)"
+            />
+        </p>
+
+        <button
+            class="btn btn--secondary py-1 px-2 block"
+            @click="removeLinkLocal"
+        > &#x1f5d1; remove link
+        </button>
     </div>
 </template>
 
@@ -70,8 +89,13 @@
 import {mapState, mapGetters, mapMutations} from "vuex";
 import moment from "moment";
 
+import PostSearch from "@/js/commonComponents/Posts/PostSearch";
+
 export default {
     name: "LinkEditor",
+    components: {
+        PostSearch
+    },
     props: {
         link: {
             type: Object,
@@ -84,6 +108,9 @@ export default {
             source: this.link.source,
             target: this.link.target,
             type: this.link.type,
+
+            wantsToChangeSource: false,
+            wantsToChangeTarget: false,
         };
     },
     computed: {
@@ -102,6 +129,16 @@ export default {
     },
     methods: {
         ...mapMutations("postsModule", ["updateLink", "removeLink"]),
+
+        onPostClick(sourceOrTarget, post) {
+            if (sourceOrTarget === "source") {
+                this.source = post.id;
+                this.wantsToChangeSource = false;
+            } else {
+                this.target = post.id;
+                this.wantsToChangeTarget = false;
+            }
+        },
 
         updateLinkLocal() {
             this.updateLink({

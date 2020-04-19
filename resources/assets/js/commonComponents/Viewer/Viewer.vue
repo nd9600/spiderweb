@@ -40,16 +40,16 @@
 </template>
 
 <script>
+import {mapState} from "vuex";
+
 import OfflineGraph from "./OfflineGraph";
 import PostBar from "./PostBar/PostBar";
-
-import {mapState} from "vuex";
 
 export default {
     name: "Viewer",
     components: {
         OfflineGraph,
-        PostBar
+        PostBar,
     },
     computed: {
         ...mapState("settingsModule", ["graphAndPostsDirection", "graphHeight", "postBarHeight"]),
@@ -63,6 +63,6 @@ export default {
                 this.$store.commit("postsModule/setSelectedGraphIds", selectedGraphIds);
             }
         },
-    },
+    }
 };
 </script>
