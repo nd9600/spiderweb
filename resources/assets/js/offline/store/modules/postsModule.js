@@ -62,17 +62,17 @@ const getters = {
         return Object.keys(state.posts).map(n => parseInt(n, 10));
     },
 
-    unlinkedPosts(state) {
-        let linkedPostIDs = [];
+    unattachedPosts(state) {
+        let attachedPostIDs = [];
         for (let graphObj of Object.values(state.graphs)) {
-            linkedPostIDs = linkedPostIDs.concat(graphObj.nodes);
+            attachedPostIDs = attachedPostIDs.concat(graphObj.nodes);
         }
-        const uniqueLinkedPostIDs = [...new Set(linkedPostIDs)];
+        const uniqueAttachedPostIDs = [...new Set(attachedPostIDs)];
         const postIDs = Object.keys(state.posts)
             .map(n => parseInt(n, 10));
 
         return postIDs
-            .filter(id => !uniqueLinkedPostIDs.includes(id))
+            .filter(id => !uniqueAttachedPostIDs.includes(id))
             .map(id => state.posts[id]);
     },
 
