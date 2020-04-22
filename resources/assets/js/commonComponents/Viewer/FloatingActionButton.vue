@@ -10,7 +10,7 @@
 
         <div class="clicker__container text-xs md:text-base">
             <div
-                v-if="showClickButtonMenu"
+                v-if="shouldShowClickButtonMenu"
                 class="clicker__actionButtons"
             >
                 <button
@@ -27,6 +27,22 @@
                     @click.prevent="toggleClickMode('changeLink')"
                 >
                     <span class="linkIcon"></span> ✎ &#x1f5d1; Change/remove link
+                </button>
+
+                <button
+                    class="clicker__actionButton"
+                    type="button"
+                    @click.prevent="toggleClickMode('addPost')"
+                >
+                    Add post
+                </button>
+
+                <button
+                    class="clicker__actionButton"
+                    type="button"
+                    @click.prevent="toggleClickMode('attachPostsToGraphs')"
+                >
+                    Attach posts to graphs
                 </button>
             </div>
 
@@ -109,6 +125,11 @@
                         @removedLink="linkToEdit = null"
                     />
                 </template>
+                <PostMaker
+                    v-else-if="clickMode === 'addPost'"
+                    @madePost="madePost"
+                />
+                <PostAttacher v-else-if="clickMode === 'attachPostsToGraphs'" />
             </div>
         </div>
     </div>
@@ -117,22 +138,28 @@
 import {mapState, mapGetters, mapMutations} from "vuex";
 
 import LinkEditor from "@/js/commonComponents/Links/LinkEditor";
+import PostMaker from "@/js/commonComponents/Posts/PostMaker";
+import PostAttacher from "@/js/commonComponents/Posts/PostAttacher";
 
 export default {
-    name: "Clicker",
-    components: {LinkEditor},
+    name: "FloatingActionButton",
+    components: {
+        LinkEditor,
+        PostMaker,
+        PostAttacher
+    },
     computed: {
         ...mapState("postsModule", ["graphs", "selectedGraphIds", "links"]),
         ...mapGetters("postsModule", ["titleOrBody"]),
 
         ...mapState("clickerModule", ["newLinkSource", "linkToEdit"]),
 
-        showClickButtonMenu: {
+        shouldShowClickButtonMenu: {
             get() {
-                return this.$store.state.clickerModule.showClickButtonMenu;
+                return this.$store.state.clickerModule.shouldShowClickButtonMenu;
             },
-            set(showClickButtonMenu) {
-                this.setShowClickButtonMenu(showClickButtonMenu);
+            set(shouldShowClickButtonMenu) {
+                this.setshouldShowClickButtonMenu(shouldShowClickButtonMenu);
             }
         },
         clickMode: {
@@ -164,12 +191,6 @@ export default {
             return this.clickMode !== "openPosts";
         }
     },
-    created() {
-        const initialGraphId = this.selectedGraphIds.length > 0
-            ? this.selectedGraphIds[0]
-            : 1;
-        this.newLinkGraphId = initialGraphId;
-    },
     watch: {
         clickMode(newClickMode, previousClickMode) {
             if (newClickMode === "changeLink") {
@@ -181,9 +202,15 @@ export default {
             }
         }
     },
+    created() {
+        const initialGraphId = this.selectedGraphIds.length > 0
+            ? this.selectedGraphIds[0]
+            : 1;
+        this.newLinkGraphId = initialGraphId;
+    },
     methods: {
         ...mapMutations("clickerModule", [
-            "setShowClickButtonMenu",
+            "setshouldShowClickButtonMenu",
             "setClickMode",
             "setNewLinkSource",
             "setNewLinkTarget",
@@ -192,8 +219,8 @@ export default {
         ]),
 
         toggleClickButtonMenu() {
-            const menuWasPreviouslyShown = this.showClickButtonMenu;
-            this.showClickButtonMenu = !this.showClickButtonMenu;
+            const menuWasPreviouslyShown = this.shouldShowClickButtonMenu;
+            this.shouldShowClickButtonMenu = !this.shouldShowClickButtonMenu;
 
             if (!menuWasPreviouslyShown) {
                 this.clickMode = "openPosts";
@@ -205,6 +232,11 @@ export default {
             this.clickMode = (previousClickMode === clickMode) // clicking on the existing button means you want to close the open dialog
                 ? "openPosts"
                 : clickMode;
+        },
+
+        madePost() {
+            this.toggleClickMode("openPosts");
+            this.shouldShowClickButtonMenu = false;
         }
     }
 };

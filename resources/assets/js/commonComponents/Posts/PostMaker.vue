@@ -33,6 +33,26 @@
             ></textarea>
         </label>
 
+        <label
+            v-if="shouldShowPostAttacher"
+            class="mb-2 flex justify-between items-start text-xs"
+        >
+            <span>I want to attach the post to these graphs:</span>
+            <select
+                v-model.number="graphIdsToAttachNewPostTo"
+                class="select select--secondary"
+                multiple
+            >
+                <option
+                    v-for="(graph, graphId) in graphs"
+                    :key="graphId"
+                    :value="graphId"
+                >
+                    {{ graph.name }}
+                </option>
+            </select>
+        </label>
+
         <button
             type="submit"
             class="mb-5 btn btn--primary"
@@ -46,19 +66,30 @@
 
 <script>
 import moment from "moment";
-import {mapActions } from "vuex";
+import {mapState, mapMutations, mapActions} from "vuex";
 
 export default {
     name: "PostMaker",
+    props: {
+        shouldShowPostAttacher: {
+            type: Boolean,
+            default: true
+        }
+    },
     data() {
         return {
             showTitleInput: false,
 
             title: "",
             body: "",
+            graphIdsToAttachNewPostTo: []
         };
     },
+    computed: {
+        ...mapState("postsModule", ["graphs"]),
+    },
     methods: {
+        ...mapMutations("postsModule", ["addPostToGraph"]),
         ...mapActions("postsModule", ["makeNewPost"]),
 
         toggleTitleInput() {
@@ -79,12 +110,21 @@ export default {
                 updated_at: moment().format(),
             };
             const newPostWithId = await this.makeNewPost(newPost);
+            if (this.graphIdsToAttachNewPostTo.length > 0) {
+                for (const graphId of this.graphIdsToAttachNewPostTo) {
+                    this.addPostToGraph({
+                        graphId,
+                        postId: newPostWithId.id
+                    });
+                }
+            }
             this.resetNewPost();
             this.$emit("madePost", newPostWithId);
         },
         resetNewPost() {
             this.title = "";
             this.body = "";
+            this.graphIdsToAttachNewPostTo = [];
         }
     }
 };

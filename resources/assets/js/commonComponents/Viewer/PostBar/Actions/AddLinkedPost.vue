@@ -60,7 +60,8 @@
             </h4>
 
             <hr class="mb-1">
-            <post-maker
+            <PostMaker
+                :shouldShowPostAttacher="false"
                 @madePost="addLinkToPost"
             />
         </template>

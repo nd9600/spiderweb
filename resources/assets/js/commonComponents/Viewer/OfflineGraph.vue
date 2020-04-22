@@ -39,7 +39,7 @@
                 <g class="graph__nodes"></g>
             </g>
         </svg>
-        <Clicker />
+        <FloatingActionButton />
     </section>
 </template>
 
@@ -48,7 +48,7 @@ import * as d3 from "d3";
 import debounce from "lodash.debounce";
 
 import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
-import Clicker from "./Clicker";
+import FloatingActionButton from "./FloatingActionButton";
 
 const WIDTH = 400;
 const HEIGHT = 200;
@@ -57,7 +57,7 @@ const INITIAL_ZOOM = 0.5;
 export default {
     name: "OfflineGraph",
     components: {
-        Clicker
+        FloatingActionButton
     },
     data() {
         return {
@@ -78,7 +78,7 @@ export default {
         ...mapState("postsModule", ["selectedGraphIds"]),
         ...mapGetters("postsModule", ["postsInSelectedGraphs", "linksInSelectedGraphs", "graphColour", "titleOrBody", "isNeighbour"]),
 
-        ...mapState("clickerModule", ["showClickButtonMenu", "clickMode"]),
+        ...mapState("clickerModule", ["shouldShowClickButtonMenu", "clickMode"]),
         selectedPostIds() {
             return this.$store.state.postsModule.selectedPostIds;
         }
@@ -116,7 +116,7 @@ export default {
     },
     methods: {
         ...mapMutations("postsModule", ["selectPostId"]),
-        ...mapMutations("clickerModule", ["setShowClickButtonMenu", "setClickMode"]),
+        ...mapMutations("clickerModule", ["setshouldShowClickButtonMenu", "setClickMode"]),
 
         ...mapActions("clickerModule", ["handlePostClick", "handleLinkClick"]),
 
@@ -125,8 +125,8 @@ export default {
                 return;
             }
 
-            if (this.showClickButtonMenu) {
-                this.setShowClickButtonMenu(false);
+            if (this.shouldShowClickButtonMenu) {
+                this.setshouldShowClickButtonMenu(false);
             }
 
             if (this.clickMode !== "openPosts") {

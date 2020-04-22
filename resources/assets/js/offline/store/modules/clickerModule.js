@@ -1,7 +1,7 @@
 const state = {
-    showClickButtonMenu: false,
+    shouldShowClickButtonMenu: false,
 
-    clickMode: "openPosts", // openPosts | addLink
+    clickMode: "openPosts", // openPosts | addLink | changeLink | addPost | attachPostsToGraphs
 
     newLinkSource: null,
     newLinkTarget: null,
@@ -17,9 +17,9 @@ const getters = {
 };
 
 const mutations = {
-    setShowClickButtonMenu(state, showClickButtonMenu) {
-        state.showClickButtonMenu = showClickButtonMenu;
-        if (!showClickButtonMenu) {
+    setshouldShowClickButtonMenu(state, shouldShowClickButtonMenu) {
+        state.shouldShowClickButtonMenu = shouldShowClickButtonMenu;
+        if (!shouldShowClickButtonMenu) {
             state.newLinkSource = null;
             state.newLinkTarget = null;
             state.newLinkGraphId = 1;
