@@ -18,7 +18,7 @@
                     type="button"
                     @click.prevent="toggleClickMode('addLink')"
                 >
-                    Add link between <span class="mx-2 text-red">↔</span> posts
+                    <span class="mr-2 text-xl text-red">↔</span> Add link between posts
                 </button>
 
                 <button
@@ -26,7 +26,7 @@
                     type="button"
                     @click.prevent="toggleClickMode('changeLink')"
                 >
-                    ✎ &#x1f5d1; Change/remove link
+                    <span class="mr-2 text-xl">✎</span> Change/remove link
                 </button>
 
                 <button
@@ -34,7 +34,7 @@
                     type="button"
                     @click.prevent="toggleClickMode('addPost')"
                 >
-                    <span class="mr-2 text-lg font-bold text-red">+</span> Add post
+                    <span class="mr-2 text-xl font-bold text-red">+</span> Add post
                 </button>
 
                 <button
