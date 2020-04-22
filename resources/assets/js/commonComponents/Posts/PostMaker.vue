@@ -42,6 +42,7 @@
                 v-model.number="graphIdsToAttachNewPostTo"
                 class="select select--secondary"
                 multiple
+                :size="Math.min(Object.keys(graphs).length, 3)"
             >
                 <option
                     v-for="(graph, graphId) in graphs"

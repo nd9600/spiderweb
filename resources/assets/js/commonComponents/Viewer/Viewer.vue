@@ -6,9 +6,9 @@
             </span>
             <select
                 v-model.number="selectedGraphIds"
-                class="p-2 rounded text-gray-700"
+                class="select select--secondary"
                 multiple
-                size="7"
+                :size="Math.min(Object.keys(graphs).length, 7)"
             >
                 <option
                     v-for="(graph, graphId) in graphs"

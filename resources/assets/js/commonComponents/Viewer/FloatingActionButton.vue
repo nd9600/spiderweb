@@ -18,7 +18,7 @@
                     type="button"
                     @click.prevent="toggleClickMode('addLink')"
                 >
-                    <span class="linkIcon"></span> Add link between <span class="mx-2 text-red">↔</span> posts
+                    Add link between <span class="mx-2 text-red">↔</span> posts
                 </button>
 
                 <button
@@ -26,7 +26,7 @@
                     type="button"
                     @click.prevent="toggleClickMode('changeLink')"
                 >
-                    <span class="linkIcon"></span> ✎ &#x1f5d1; Change/remove link
+                    ✎ &#x1f5d1; Change/remove link
                 </button>
 
                 <button
@@ -34,7 +34,7 @@
                     type="button"
                     @click.prevent="toggleClickMode('addPost')"
                 >
-                    Add post
+                    <span class="mr-2 text-lg font-bold text-red">+</span> Add post
                 </button>
 
                 <button
@@ -42,7 +42,7 @@
                     type="button"
                     @click.prevent="toggleClickMode('attachPostsToGraphs')"
                 >
-                    Attach posts to graphs
+                    <span class="linkIcon"></span> Attach posts to graphs
                 </button>
             </div>
 
@@ -283,6 +283,8 @@ export default {
 }
 .clicker__actionButton {
     display: flex;
+    align-items: center;
+
     border: 1px solid var(--red);
     padding: 0.5rem 0.75rem;
     border-radius: 2rem;
