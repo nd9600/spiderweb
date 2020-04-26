@@ -21,6 +21,7 @@
             class="mt-2 pl-4 flex flex-col items-start text-xs"
         >
             <select
+                v-if="Object.keys(graphs).length > 1"
                 v-model.number="graphIdsToAttachPostTo"
                 class="select select--secondary"
                 multiple
@@ -34,6 +35,13 @@
                     {{ graph.name }}
                 </option>
             </select>
+            <span
+                v-else
+                class="block text-xs text-gray-500"
+            >
+                you can only attach the post to the graph '{{ Object.values(graphs)[0].name }}'
+            </span>
+
             <button
                 class="btn btn--primary mt-2"
                 :disabled="graphIdsToAttachPostTo.length === 0"
@@ -63,6 +71,11 @@ export default {
     },
     computed: {
         ...mapState("postsModule", ["graphs"]),
+    },
+    created() {
+        if (Object.keys(this.graphs).length === 1) {
+            this.graphIdsToAttachPostTo = Object.keys(this.graphs)[0];
+        }
     },
     methods: {
         ...mapMutations("postsModule", ["addPostToGraph"]),
