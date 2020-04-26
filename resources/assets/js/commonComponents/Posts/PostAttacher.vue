@@ -1,37 +1,88 @@
 <template>
-    <div>
-        <section
-            v-if="unattachedPosts.length > 0"
-            class="w-full"
+    <div
+        class="postToAttach p-2"
+    >
+        <p
+            v-if="post.title.length > 0"
+            class="p-1 cursor-pointer hover:bg-red-300 font-bold"
+            @click.stop="shouldExpand = !shouldExpand"
         >
-            <h4
-                class="h h--4"
-                title="posts that aren't in any graph yet"
-            >
-                Posts that haven't been attached to any graph yet
-            </h4>
+            {{ post.title }}
+        </p>
+        <p
+            v-if="post.body.length > 0"
+            class="pl-4"
+        >
+            {{ post.body.substr(0, 30) }}{{ post.body.length > 30 ? "..." : "" }}
+        </p>
 
-            <UnattachedPost
-                v-for="post in unattachedPosts"
-                :key="post.id"
-                :post="post"
-            />
-        </section>
+        <label
+            v-if="shouldExpand"
+            class="mt-2 pl-4 flex flex-col items-start text-xs"
+        >
+            <select
+                v-model.number="graphIdsToAttachPostTo"
+                class="select select--secondary"
+                multiple
+                :size="Math.min(Object.keys(graphs).length, 3)"
+            >
+                <option
+                    v-for="(graph, graphId) in graphs"
+                    :key="graphId"
+                    :value="graphId"
+                >
+                    {{ graph.name }}
+                </option>
+            </select>
+            <button
+                class="btn btn--primary mt-2"
+                :disabled="graphIdsToAttachPostTo.length === 0"
+                @click="attachPost"
+            >
+                Attach
+            </button>
+        </label>
     </div>
 </template>
-
 <script>
-import {mapGetters, mapState} from "vuex";
-import UnattachedPost from "./UnattachedPost";
+import {mapState, mapMutations} from "vuex";
 
 export default {
     name: "PostAttacher",
-    components: {
-        UnattachedPost
+    props: {
+        post: {
+            type: Object,
+            required: true
+        }
+    },
+    data() {
+        return {
+            shouldExpand: false,
+            graphIdsToAttachPostTo: []
+        };
     },
     computed: {
-        ...mapState("postsModule", ["posts", "links"]),
-        ...mapGetters("postsModule", ["unattachedPosts"])
+        ...mapState("postsModule", ["graphs"]),
+    },
+    methods: {
+        ...mapMutations("postsModule", ["addPostToGraph"]),
+
+        attachPost() {
+            if (this.graphIdsToAttachPostTo.length > 0) {
+                for (const graphId of this.graphIdsToAttachPostTo) {
+                    this.addPostToGraph({
+                        graphId,
+                        postId: this.post.id
+                    });
+                }
+            }
+        }
     }
 };
 </script>
+
+<style scoped>
+    .postToAttach:not(:last-of-type) {
+        border-bottom: 1px solid #f56565;
+    }
+</style>

@@ -129,7 +129,7 @@
                     v-else-if="clickMode === 'addPost'"
                     @madePost="madePost"
                 />
-                <PostAttacher v-else-if="clickMode === 'attachPostsToGraphs'" />
+                <PostsAttacher v-else-if="clickMode === 'attachPostsToGraphs'" />
             </div>
         </div>
     </div>
@@ -139,14 +139,14 @@ import {mapState, mapGetters, mapMutations} from "vuex";
 
 import LinkEditor from "@/js/commonComponents/Links/LinkEditor";
 import PostMaker from "@/js/commonComponents/Posts/PostMaker";
-import PostAttacher from "@/js/commonComponents/Posts/PostAttacher";
+import PostsAttacher from "@/js/commonComponents/Posts/PostsAttacher";
 
 export default {
     name: "FloatingActionButton",
     components: {
         LinkEditor,
         PostMaker,
-        PostAttacher
+        PostsAttacher
     },
     computed: {
         ...mapState("postsModule", ["graphs", "selectedGraphIds", "links"]),
