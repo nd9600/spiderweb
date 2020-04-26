@@ -2,20 +2,23 @@
     <div
         class="postToAttach p-2"
     >
-        <p
-            v-if="post.title.length > 0"
-            class="p-1 cursor-pointer hover:bg-red-300 font-bold"
-            @click.stop="shouldExpand = !shouldExpand"
+        <template
+            v-if="!initialShouldExpand"
         >
-            {{ post.title }}
-        </p>
-        <p
-            v-if="post.body.length > 0"
-            class="pl-4"
-        >
-            {{ post.body.substr(0, 30) }}{{ post.body.length > 30 ? "..." : "" }}
-        </p>
-
+            <p
+                v-if="post.title.length > 0"
+                class="p-1 cursor-pointer hover:bg-red-300 font-bold"
+                @click.stop="shouldExpand = !shouldExpand"
+            >
+                {{ post.title }}
+            </p>
+            <p
+                v-if="post.body.length > 0"
+                class="pl-4"
+            >
+                {{ post.body.substr(0, 30) }}{{ post.body.length > 30 ? "..." : "" }}
+            </p>
+        </template>
         <label
             v-if="shouldExpand"
             class="mt-2 pl-4 flex flex-col items-start text-xs"
@@ -61,11 +64,15 @@ export default {
         post: {
             type: Object,
             required: true
+        },
+        initialShouldExpand: {
+            type: Boolean,
+            default: false,
         }
     },
     data() {
         return {
-            shouldExpand: false,
+            shouldExpand: this.initialShouldExpand,
             graphIdsToAttachPostTo: []
         };
     },
@@ -88,6 +95,7 @@ export default {
                         postId: this.post.id
                     });
                 }
+                this.$emit("attachedPost", this.graphIdsToAttachPostTo);
             }
         }
     }

@@ -241,7 +241,9 @@ const mutations = {
     },
 
     addPostToGraph(state, {graphId, postId}) {
-        state.graphs[graphId].nodes.push(postId);
+        if (!state.graphs[graphId].nodes.includes(postId)) {
+            state.graphs[graphId].nodes.push(postId);
+        }
     },
     removePostFromGraph(state, {graphId, postId}) {
         // when we remove a post, we need to remove any links that include it

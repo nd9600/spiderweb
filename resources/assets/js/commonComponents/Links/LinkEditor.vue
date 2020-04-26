@@ -72,7 +72,7 @@
             >
                 {{ titleOrBody(target) }}
             </span>
-            <post-search
+            <PostSearch
                 v-else
                 class="ml-2"
                 @clickedOnResult="onPostClick('target', $event)"
