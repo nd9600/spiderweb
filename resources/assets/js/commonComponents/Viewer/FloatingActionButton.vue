@@ -8,7 +8,12 @@
             +
         </button>
 
-        <div class="clicker__container text-xs md:text-base">
+        <div
+            :style="{
+                'max-height': graphHeight + 'vh'
+            }"
+            class="clicker__container text-xs md:text-base"
+        >
             <div
                 v-if="shouldShowClickButtonMenu"
                 class="clicker__actionButtons"
@@ -149,6 +154,8 @@ export default {
         PostsAttacher
     },
     computed: {
+        ...mapState("settingsModule", ["graphHeight"]),
+
         ...mapState("postsModule", ["graphs", "selectedGraphIds", "links"]),
         ...mapGetters("postsModule", ["titleOrBody"]),
 
@@ -318,5 +325,6 @@ export default {
     background-color: white;
     border: 1px solid var(--red);
     color: #333;
+    overflow-y: auto;
 }
 </style>
