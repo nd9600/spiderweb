@@ -17,7 +17,7 @@ const getters = {
 };
 
 const mutations = {
-    setshouldShowClickButtonMenu(state, shouldShowClickButtonMenu) {
+    setShouldShowClickButtonMenu(state, shouldShowClickButtonMenu) {
         state.shouldShowClickButtonMenu = shouldShowClickButtonMenu;
         if (!shouldShowClickButtonMenu) {
             state.newLinkSource = null;
@@ -115,16 +115,40 @@ const actions = {
             }
 
             case "changeLink": {
+                console.log(post);
                 if (context.state.wantsToChangeSource) {
-                    alert("A post can't be linked to itself");
-                    return;
+                    context.commit(
+                        "postsModule/changeLinkSource",
+                        {
+                            id: context.state.linkToEdit,
+                            source: post.id
+                        },
+                        {
+                            root: true
+                        }
+                    );
+                    context.commit("setWantsToChangeSource", false);
+
+                } else if (context.state.wantsToChangeTarget) {
+                    context.commit(
+                        "postsModule/changeLinkTarget",
+                        {
+                            id: context.state.linkToEdit,
+                            target: post.id
+                        },
+                        {
+                            root: true
+                        }
+                    );
+                    context.commit("setWantsToChangeTarget", false);
                 }
+                context.commit("setClickMode", "openPosts");
+                context.commit("setLinkToEdit", null);
             }
         }
     },
 
     async handleLinkClick(context, link) {
-        console.log(link);
         if (typeof link !== "object") {
             console.error("no link clicked, clicked", link);
             return;

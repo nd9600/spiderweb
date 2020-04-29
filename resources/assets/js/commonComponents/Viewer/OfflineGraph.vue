@@ -116,7 +116,7 @@ export default {
     },
     methods: {
         ...mapMutations("postsModule", ["selectPostId"]),
-        ...mapMutations("clickerModule", ["setshouldShowClickButtonMenu", "setClickMode"]),
+        ...mapMutations("clickerModule", ["setShouldShowClickButtonMenu", "setClickMode"]),
 
         ...mapActions("clickerModule", ["handlePostClick", "handleLinkClick"]),
 
@@ -126,7 +126,7 @@ export default {
             }
 
             if (this.shouldShowClickButtonMenu) {
-                this.setshouldShowClickButtonMenu(false);
+                this.setShouldShowClickButtonMenu(false);
             }
 
             if (this.clickMode !== "openPosts") {

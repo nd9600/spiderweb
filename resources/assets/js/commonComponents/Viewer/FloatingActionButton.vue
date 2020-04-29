@@ -166,7 +166,7 @@ export default {
                 return this.$store.state.clickerModule.shouldShowClickButtonMenu;
             },
             set(shouldShowClickButtonMenu) {
-                this.setshouldShowClickButtonMenu(shouldShowClickButtonMenu);
+                this.setShouldShowClickButtonMenu(shouldShowClickButtonMenu);
             }
         },
         clickMode: {
@@ -217,7 +217,7 @@ export default {
     },
     methods: {
         ...mapMutations("clickerModule", [
-            "setshouldShowClickButtonMenu",
+            "setShouldShowClickButtonMenu",
             "setClickMode",
             "setNewLinkSource",
             "setNewLinkTarget",

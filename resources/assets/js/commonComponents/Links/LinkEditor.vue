@@ -65,7 +65,7 @@
         </p>
 
         <p class="mb-2">
-            →
+            to
             <span
                 v-if="!wantsToChangeTarget"
                 class="text-red"

@@ -364,6 +364,40 @@ const mutations = {
 
         Vue.set(state.links, link.id, link);
     },
+    changeLinkSource(state, {id, source}) {
+        let link = JSON.parse(JSON.stringify(state.links[id]));
+        if (
+            link.source === source
+            || link.target === source
+        ) {
+            return; // you can't link a post to itself
+        }
+
+        const postIdsAlreadyInGraph = state.graphs[link.graph].nodes;
+        if (!postIdsAlreadyInGraph.includes(source)) {
+            state.graphs[link.graph].nodes.push(source);
+        }
+        link.source = source;
+
+        Vue.set(state.links, id, link);
+    },
+    changeLinkTarget(state, {id, target}) {
+        let link = JSON.parse(JSON.stringify(state.links[id]));
+        if (
+            link.source === target
+            || link.target === target
+        ) {
+            return; // you can't link a post to itself
+        }
+
+        const postIdsAlreadyInGraph = state.graphs[link.graph].nodes;
+        if (!postIdsAlreadyInGraph.includes(target)) {
+            state.graphs[link.graph].nodes.push(target);
+        }
+        link.target = target;
+
+        Vue.set(state.links, id, link);
+    },
     removeLink(state, {id}) {
         Vue.delete(state.links, id);
     },
