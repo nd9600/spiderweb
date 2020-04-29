@@ -3,7 +3,7 @@
         <label>
             <input
                 v-model="searchTerm"
-                class="p-2 rounded text-gray-800 placeholder-gray-600 border"
+                class="p-2 w-full input input--primary"
                 type="text"
                 placeholder="On the Origin of Species"
                 minlength="0"

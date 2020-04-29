@@ -41,7 +41,7 @@
             >
                 {{ titleOrBody(source) }}
             </span>
-            <post-search
+            <PostSearch
                 v-else
                 class="ml-2"
                 @clickedOnResult="onPostClick('source', $event)"
