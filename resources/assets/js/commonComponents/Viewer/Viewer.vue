@@ -4,20 +4,30 @@
             <span class="block h h--4">
                 Graphs
             </span>
-            <select
-                v-model.number="selectedGraphIds"
-                class="select select--secondary"
-                multiple
-                :size="Math.min(Object.keys(graphs).length, 7)"
-            >
-                <option
-                    v-for="(graph, graphId) in graphs"
-                    :key="graphId"
-                    :value="graphId"
+            <span class="flex">
+                <button
+                    class="btn btn--secondary mr-2"
+                    type="button"
+                    title="scroll to the posts"
+                    @click="scrollToPostBar"
                 >
-                    {{ graph.name }}
-                </option>
-            </select>
+                    ↧
+                </button>
+                <select
+                    v-model.number="selectedGraphIds"
+                    class="select select--secondary w-full"
+                    multiple
+                    :size="Math.min(Object.keys(graphs).length, 7)"
+                >
+                    <option
+                        v-for="(graph, graphId) in graphs"
+                        :key="graphId"
+                        :value="graphId"
+                    >
+                        {{ graph.name }}
+                    </option>
+                </select>
+            </span>
         </label>
         <div
             class="flex"
@@ -25,7 +35,8 @@
                 'flex-direction': graphAndPostsDirection === 'horizontal' ? 'row' : 'column'
             }"
         >
-            <offline-graph
+            <OfflineGraph
+                ref="offlineGraph"
                 :style="{
                     'min-height': graphHeight + 'vh'
                 }"
@@ -36,6 +47,15 @@
                 }"
             />
         </div>
+
+        <button
+            class="btn btn--secondary"
+            type="button"
+            title="scroll to the graph"
+            @click="scrollToGraph"
+        >
+            ↥
+        </button>
     </div>
 </template>
 
@@ -63,6 +83,14 @@ export default {
                 this.$store.commit("postsModule/setSelectedGraphIds", selectedGraphIds);
             }
         },
+    },
+    methods: {
+        scrollToPostBar() {
+            window.scrollBy(0, document.getElementById("postBar").getBoundingClientRect().top - 5);
+        },
+        scrollToGraph() {
+            window.scrollTo(0, 0);
+        }
     }
 };
 </script>

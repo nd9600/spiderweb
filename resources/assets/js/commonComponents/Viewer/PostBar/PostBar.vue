@@ -1,17 +1,20 @@
 <template>
-    <VueDraggable
-        v-model="selectedPostIds"
-        class="w-full flex items-start overflow-x-auto postBar"
-        :handle="'.post__dragHandle'"
-    >
-        <post
-            v-for="selectedPostId in selectedPostIds"
-            :key="selectedPostId"
-            class="m-2 p-2"
-            :post="posts[selectedPostId]"
+    <section>
+        <VueDraggable
+            id="postBar"
+            v-model="selectedPostIds"
+            class="w-full flex items-start overflow-x-auto postBar"
+            :handle="'.post__dragHandle'"
         >
-        </post>
-    </VueDraggable>
+            <post
+                v-for="selectedPostId in selectedPostIds"
+                :key="selectedPostId"
+                class="m-2 p-2"
+                :post="posts[selectedPostId]"
+            >
+            </post>
+        </VueDraggable>
+    </section>
 </template>
 
 <script>

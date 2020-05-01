@@ -1,5 +1,5 @@
 <template>
-    <section class="h-full w-full relative pb-4 pr-8 md:pr-16 flex">
+    <section class="h-full w-full relative pb-4 px-0 flex">
         <svg
             id="graphSvg"
             class="w-full cursor-move border bg-white"
