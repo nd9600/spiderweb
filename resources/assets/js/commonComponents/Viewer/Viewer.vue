@@ -49,7 +49,7 @@
         </div>
 
         <button
-            class="btn btn--secondary"
+            class="btn btn--secondary mt-4"
             type="button"
             title="scroll to the graph"
             @click="scrollToGraph"

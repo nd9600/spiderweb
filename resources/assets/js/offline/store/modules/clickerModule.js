@@ -167,7 +167,7 @@ const actions = {
                     targetCoordinates[0] - coordinates[0],
                     targetCoordinates[1] - coordinates[1]
                 );
-                
+
                 if (distanceBetweenClickAndSource < distanceBetweenClickAndTarget) {
                     return link.target.id;
                 } else if (distanceBetweenClickAndTarget < distanceBetweenClickAndSource) {
