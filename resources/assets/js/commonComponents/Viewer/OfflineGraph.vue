@@ -171,7 +171,18 @@ export default {
                 .classed("graph__link", true)
                 .attr("stroke", (link) => this.graphColour(link.graph))
                 .attr("marker-end", "url(#arrowhead)")
-                .on("click", this.handleLinkClick);
+                .on("click", async function (link) {
+                    const returnedValue = await vm.handleLinkClick(
+                        {
+                            link,
+                            coordinates: d3.mouse(this)
+                        }
+                    );
+                    if (returnedValue != null) {
+                        const postIdToFocusOn = returnedValue;
+                        vm.focusOnPost(postIdToFocusOn);
+                    }
+                });
 
             let nodeGroups = this.nodesG
                 .selectAll("g")

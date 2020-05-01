@@ -148,13 +148,34 @@ const actions = {
         }
     },
 
-    async handleLinkClick(context, link) {
+    async handleLinkClick(context, {link, coordinates}) {
         if (typeof link !== "object") {
             console.error("no link clicked, clicked", link);
             return;
         }
 
         switch (context.state.clickMode) {
+            case "openPosts": {
+                const sourceCoordinates = [link.source.x, link.source.y];
+                const targetCoordinates = [link.target.x, link.target.y];
+
+                const distanceBetweenClickAndSource = Math.hypot(
+                    sourceCoordinates[0] - coordinates[0],
+                    sourceCoordinates[1] - coordinates[1]
+                );
+                const distanceBetweenClickAndTarget = Math.hypot(
+                    targetCoordinates[0] - coordinates[0],
+                    targetCoordinates[1] - coordinates[1]
+                );
+                
+                if (distanceBetweenClickAndSource < distanceBetweenClickAndTarget) {
+                    return link.target.id;
+                } else if (distanceBetweenClickAndTarget < distanceBetweenClickAndSource) {
+                    return link.source.id;
+                } else {
+                    return;
+                }
+            }
             case "changeLink": {
                 context.commit("setLinkToEdit", link.id);
                 break;
