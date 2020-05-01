@@ -180,7 +180,7 @@ export default {
                     );
                     if (returnedValue != null) {
                         const postIdToFocusOn = returnedValue;
-                        vm.focusOnPost(postIdToFocusOn);
+                        vm.focusOnPost(postIdToFocusOn, 1.5);
                     }
                 });
 
@@ -323,16 +323,15 @@ export default {
                 });
         },
 
-        focusOnPost(id) {
+        focusOnPost(id, speed = 1) {
             const post = this.nodesWithCoordinates[id];
             this.svg.transition()
-                .duration(1500)
+                .duration(1500 / speed)
                 .call(
                     this.zoom.transform,
                     d3.zoomIdentity
-                        .translate(WIDTH / 2, HEIGHT / 2)
                         .scale(INITIAL_ZOOM)
-                        .translate(-post.x + WIDTH + 100, -post.y + HEIGHT + 100)
+                        .translate(-post.x + 550, -post.y + 500) // magic numbers that work on desktop and my phone
                 );
         }
     }
