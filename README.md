@@ -70,6 +70,8 @@ To work on the online version:
 5. `php artisan serve`, then it'll be available on `localhost:8000`
 
 ## Known bugs/limitations
+If you find any more bugs, I'd appreciate it if you made [an issue](https://github.com/nd9600/spiderweb/issues/new).
+
 ### Focusing on posts on phones in landscape
 Focusing on a post (by pressing the little magnifying glass) works perfectly fine on a desktop, and on a phone in portrait, but on a phone in landscape (on my phone, at least), it zooms the graph over to a position where the post is _almost_ visible, but not quite.
 

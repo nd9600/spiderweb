@@ -2,13 +2,13 @@
     <div
         class="postToAttach p-2"
     >
-        <template
+        <div
             v-if="!initialShouldExpand"
+            class="p-1 cursor-pointer hover:bg-red-300 font-bold"
+            @click.stop="shouldExpand = !shouldExpand"
         >
             <p
                 v-if="post.title.length > 0"
-                class="p-1 cursor-pointer hover:bg-red-300 font-bold"
-                @click.stop="shouldExpand = !shouldExpand"
             >
                 {{ post.title }}
             </p>
@@ -18,7 +18,7 @@
             >
                 {{ post.body.substr(0, 30) }}{{ post.body.length > 30 ? "..." : "" }}
             </p>
-        </template>
+        </div>
         <label
             v-if="shouldExpand"
             class="mt-2 pl-4 flex flex-col items-start text-xs"
