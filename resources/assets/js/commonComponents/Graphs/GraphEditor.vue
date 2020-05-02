@@ -13,36 +13,6 @@
             </button>
         </div>
         <div>
-            <div
-                v-if="possiblePostIdsToAddToGraph.length > 0"
-                class="mb-4"
-            >
-                <label>
-                    <span class="block h h--4">
-                        Add post to graph
-                    </span>
-                    <select
-                        v-model.number="postIdToAddToGraph"
-                        class="p-2 rounded text-gray-700 bg-white"
-                    >
-                        <option
-                            v-for="postId in possiblePostIdsToAddToGraph"
-                            :key="postId"
-                            :value="postId"
-                        >
-                            {{ titleOrBody(postId) }}
-                        </option>
-                    </select>
-                </label>
-                <button
-                    class="py-1 px-2 btn btn--secondary"
-                    :disabled="postIdToAddToGraph === null"
-                    @click="addPostToGraphLocal"
-                >
-                    Add
-                </button>
-            </div>
-
             <label>
                 <input
                     v-model="newGraphName"
@@ -87,20 +57,9 @@ export default {
         graph() {
             return this.graphs[this.graphId];
         },
-        possiblePostIdsToAddToGraph() {
-            return this.postIds.filter(id => !this.graph.nodes.includes(id));
-        },
     },
     methods: {
-        ...mapMutations("postsModule", ["addPostToGraph", "changeGraphName", "removeGraph"]),
-        addPostToGraphLocal() {
-            this.addPostToGraph({
-                graphId: this.graphId,
-                postId: this.postIdToAddToGraph
-            });
-            this.postIdToAddToGraph = null;
-        },
-
+        ...mapMutations("postsModule", ["changeGraphName", "removeGraph"]),
         changeGraphNameLocal() {
             if (this.newGraphName.trim().length === 0) {
                 return;

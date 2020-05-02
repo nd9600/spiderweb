@@ -21,9 +21,9 @@
                 <button
                     class="clicker__actionButton"
                     type="button"
-                    @click.prevent="toggleClickMode('addLink')"
+                    @click.prevent="toggleClickMode('attachPostsToGraphs')"
                 >
-                    <span class="mr-2 text-xl text-red">↔</span> Add link between posts
+                    <span class="linkIcon"></span> Attach posts to graphs
                 </button>
 
                 <button
@@ -37,17 +37,17 @@
                 <button
                     class="clicker__actionButton"
                     type="button"
-                    @click.prevent="toggleClickMode('addPost')"
+                    @click.prevent="toggleClickMode('addLink')"
                 >
-                    <span class="mr-2 text-xl font-bold text-red">+</span> Add post
+                    <span class="mr-2 text-xl text-red">↔</span> Add link between posts
                 </button>
 
                 <button
                     class="clicker__actionButton"
                     type="button"
-                    @click.prevent="toggleClickMode('attachPostsToGraphs')"
+                    @click.prevent="toggleClickMode('addPost')"
                 >
-                    <span class="linkIcon"></span> Attach posts to graphs
+                    <span class="mr-2 text-xl font-bold text-red">+</span> Add post
                 </button>
             </div>
 
