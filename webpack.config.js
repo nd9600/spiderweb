@@ -2,6 +2,7 @@ const path = require("path");
 const webpack = require("webpack");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
 const WebpackAssetsManifest = require("webpack-assets-manifest");
+// const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 const entrypoints = {
     "js/offline/graph": "./resources/assets/js/offline/graph.js"
@@ -83,7 +84,8 @@ module.exports = (env, argv) => {
             new WebpackAssetsManifest({
                 output: path.resolve(__dirname, "rev-manifest.json"),
                 merge: true
-            })
+            }),
+            // new BundleAnalyzerPlugin()
         ],
 
         // devtool: false,

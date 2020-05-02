@@ -86,7 +86,7 @@ I've made the focusing center the graph so that it looks good on a desktop and o
 Questions that would probably be frequently asked if I had users
 
 ### Why does Spiderweb [x]?
-I've made Spiderweb for myself, so right now it only does what I want or need it to do. If you'd like it to do something, just shoot me an [issue](https://github.com/nd9600/spiderweb/issues/new).
+I've made Spiderweb for myself, so right now it only does what I want or need it to do. If you'd like it to do something else, just shoot me an [issue](https://github.com/nd9600/spiderweb/issues/new).
 
 ### Why doesn't Spiderweb [x]?
 Either
