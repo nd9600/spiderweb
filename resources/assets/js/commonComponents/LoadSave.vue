@@ -62,7 +62,7 @@
                     </p>
 
                     <label v-if="shouldImportSettings">
-                        If the settings I'm importing will start backing up data to Firebase (and I wasn't already),
+                        If the settings I'm importing will start syncing data with Firebase (and I wasn't already),
                         <select
                             v-model="shouldTakeDataFrom"
                             class="select text-red"

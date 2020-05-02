@@ -40,7 +40,7 @@
                         <option value="none">shouldn't</option>
                         <option value="firebase">should</option>
                     </select>
-                    be backed up to <a
+                    be synced to <a
                         href="https://firebase.google.com/docs/database"
                         class="link"
                     >
@@ -67,7 +67,7 @@
                     <label
                         v-if="remoteStorageMethodInComponent !== remoteStorageMethod"
                     >
-                        When I start backing up data to Firebase, I want to
+                        When I start syncing data with Firebase, I want to
                         <select
                             v-model="shouldTakeDataFrom"
                             class="text-red select"

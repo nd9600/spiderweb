@@ -1,8 +1,6 @@
 <template>
     <section>
-        <div
-            v-if="linkedGraphs.length > 0"
-        >
+        <div>
             <h4 class="h h--4">
                 Graphs that include this post
             </h4>

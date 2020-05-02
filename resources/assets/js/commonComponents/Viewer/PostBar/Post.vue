@@ -37,16 +37,17 @@
                     <span class="text-base">&#128269;</span>
                 </button>
                 <button
+                    v-if="hasLinkedPosts"
                     class="bottomLink"
-                    :class="[bottomTab === 'linked-posts' ? 'bottomLink--selected' : 'bottomLink--unselected', !hasLinkedPosts ? 'line-through' : '']"
+                    :class="bottomTab === 'linked-posts' ? 'bottomLink--selected' : 'bottomLink--unselected'"
                     type="button"
                     title="posts that link to or from this one"
-                    :disabled="!hasLinkedPosts"
                     @click="toggleBottomTab('linked-posts')"
                 >
                     linked posts
                 </button>
                 <button
+                    v-if="isAttachedToAGraph"
                     class="bottomLink"
                     :class="bottomTab === 'linked-graphs' ? 'bottomLink--selected' : 'bottomLink--unselected'"
                     title="graphs that include this post"
@@ -104,12 +105,14 @@ export default {
         ...mapState("settingsModule", ["postWidth"]),
         ...mapState("postsModule", ["selectedPostIds"]),
 
-        ...mapGetters("postsModule", ["postIdsInSelectedGraphs", "postIdsThatLinkToPost"]),
-
+        ...mapGetters("postsModule", ["postIdsInSelectedGraphs", "postIdsThatLinkToPost", "graphIdsThatIncludeThisPost"]),
         hasLinkedPosts() {
             const linkedPosts = this.postIdsThatLinkToPost(this.post.id);
             return Object.keys(linkedPosts.to).length > 0
                 || Object.keys(linkedPosts.from).length > 0;
+        },
+        isAttachedToAGraph() {
+            return this.graphIdsThatIncludeThisPost(this.post.id).length > 0;
         },
         isVisibleInGraph() {
             return this.postIdsInSelectedGraphs.includes(this.post.id);

@@ -9,11 +9,13 @@ Spiderweb lets you
 * _link_ the posts together
 * view the graphs of posts you've made - you can look at more than one graph at a time
 
+It's completely offline, and doesn't many any HTTP requests at all - though you can optionally choose to sync your data with a [Firebase Realtime Database](https://firebase.google.com/docs/database) if you want, with [your own API keys](https://firebase.google.com/docs/web/setup?authuser=0#config-object)
+
 ![Spiderweb's UI](https://user-images.githubusercontent.com/9141675/80801405-33e89780-8ba4-11ea-9bf6-19d115c6a402.png)
 
 ---
 
-I'm primarily making Spiderweb for myself, but I'll happily take feature requests.
+I'm mainly making Spiderweb for myself, but I'll happily take feature requests.
 
 ## Usage
 ### Offline version
@@ -31,7 +33,7 @@ The `Load/save` tab lets you import and export your data and settings.
 
 Inside the `Settings` tab you can choose 
 * whether you want your data to be saved automatically
-* if your data should be synced to a [Firebase Realtime Database](https://firebase.google.com/docs/database)
+* if your data should be synced to a [Firebase Realtime Database](https://firebase.google.com/docs/database) (with [your own API keys](https://firebase.google.com/docs/web/setup?authuser=0#config-object))
 
 etc.
 
@@ -47,18 +49,17 @@ Posts, links and graphs are all kinda independent:
 * Deleting a graph doesn't delete the posts in it, only the links - you can add the posts to another graph
 
 ### Online version
-I haven't made it yet
+I haven't made it yet, but you can host a release wherever you want yourself.
 
 ## Development
 ### Offline
 To work on the offline version:
 
-
 1. You need [Node](https://nodejs.org/en/) ([NVM](https://github.com/nvm-sh/nvm) is good for this) and [Gulp](https://gulpjs.com/docs/en/getting-started/quick-start), then
 2. `git clone git@github.com:nd9600/spiderweb.git && cd spiderweb`
 3. `npm install && gulp && npm run dev`
 4. Copy the `assets` folder from `public/` into `dist`/
-5. Then you can open `dist/index.html` and it should load - you might need to change the URLs to the JS files in the `<script>`s at the bottom to get it to work
+5. Then you can open `dist/index.html` and it should load - you might need to change the URLs to the stylesheets & the JS files in the `<script>`s at the bottom to get it to work
 
 ### Online
 To work on the online version:
