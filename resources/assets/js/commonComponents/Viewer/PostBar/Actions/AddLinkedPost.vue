@@ -13,7 +13,7 @@
                 Link in graph:
                 <select
                     v-model.number="graphId"
-                    class="p-2 rounded text-gray-700 bg-white"
+                    class="select select--secondary max-w-full"
                 >
                     <option
                         v-for="(graph, id) in graphs"
@@ -41,7 +41,7 @@
                 link type:
                 <select
                     v-model="linkType"
-                    class="p-2 rounded text-gray-700 bg-white"
+                    class="select select--secondary max-w-full"
                 >
                     <option value="reply">
                         reply

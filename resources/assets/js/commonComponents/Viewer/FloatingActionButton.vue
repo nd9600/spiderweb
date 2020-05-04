@@ -280,7 +280,7 @@ export default {
 
     background-color: #f7f7f7e6;
     border-radius: 10px;
-    max-width: 85vw;
+    max-width: 50vw;
 }
 
 .clicker__actionButtons {
