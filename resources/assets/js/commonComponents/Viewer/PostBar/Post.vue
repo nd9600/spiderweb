@@ -12,11 +12,28 @@
             >
                 x
             </button>
+
             <h3
                 v-if="post.title.length > 0"
                 class="h h--3 whitespace-pre-wrap"
-            >{{ post.title }}</h3>
-            <p class="whitespace-pre-wrap font-sans">{{ post.body }}</p>
+            ><button
+                v-if="isVisibleInGraph"
+                class="focusButton mr-2"
+                type="button"
+                title="focus on this post in the viewer above"
+                @click="$root.$emit('focusOnPost', post.id)"
+            >
+                <span class="text-base">&#128269;</span>
+            </button>{{ post.title }}</h3>
+            <p class="whitespace-pre-wrap font-sans"><button
+                v-if="isVisibleInGraph && post.title.length === 0"
+                class="focusButton mr-2"
+                type="button"
+                title="focus on this post in the viewer above"
+                @click="$root.$emit('focusOnPost', post.id)"
+            >
+                <span class="text-base">&#128269;</span>
+            </button>{{ post.body }}</p>
         </div>
         <div>
             <div>
@@ -26,15 +43,6 @@
                     type="button"
                 >
                     <span class="text-xl">⇄</span>
-                </button>
-                <button
-                    v-if="isVisibleInGraph"
-                    class="focusButton bottomLink bottomLink--unselected"
-                    type="button"
-                    title="focus on this post in the viewer above"
-                    @click="$root.$emit('focusOnPost', post.id)"
-                >
-                    <span class="text-base">&#128269;</span>
                 </button>
                 <button
                     v-if="hasLinkedPosts"

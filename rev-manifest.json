@@ -1,8 +1,8 @@
 {
   "assets/css/app.css": "assets/css/app-cd703adbcf.css",
   "assets/css/tailwind.min.css": "assets/css/tailwind-f2d43b4b82.min.css",
-  "js/offline/graph.js": "js/offline/graph-b1c7c500241c0e2858d6.js",
+  "js/offline/graph.js": "js/offline/graph.js",
   "js/offline/graph.js.map": "js/offline/graph-b1c7c500241c0e2858d6.js.map",
-  "js/vendors.js": "js/vendors-b1c7c500241c0e2858d6.js",
+  "js/vendors.js": "js/vendors.js",
   "js/vendors.js.map": "js/vendors-b1c7c500241c0e2858d6.js.map"
 }
