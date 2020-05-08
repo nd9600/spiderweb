@@ -193,7 +193,8 @@ store.subscribe(
     (mutation, state) => {
         const mutationsToIgnore = [
             "setLoadingApp",
-            "setFailedToLoadData"
+            "setFailedToLoadData",
+            "settingsModule/setRemoteStorageMethod" // see the comment in settingsModule.actions.setRemoteStorageMethod
         ];
         const shouldSaveState = state.settingsModule.shouldAutosave
             && !mutationsToIgnore.includes(mutation.type)

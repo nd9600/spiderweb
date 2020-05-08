@@ -71,13 +71,13 @@ const mutations = {
 };
 
 const actions = {
-    setRemoteStorageMethod(context, {remoteStorageMethod, shouldTakeDataFrom}) {
-        // if you're making the remoteStorageMethod be Firebase, then you can choose to either keep the data that's already in Firebase, or overwrite it with the data from Local Storage
+    async setRemoteStorageMethod(context, {remoteStorageMethod, shouldTakeDataFrom}) {
+        // if you're making the remoteStorageMethod be Firebase, then you can choose to either keep the data that's in Local Storage, or overwrite it with the data that's already in Firebase
         const thereAreDifferentDataSources = remoteStorageMethod !== "none";
 
         context.commit("setRemoteStorageMethod", remoteStorageMethod);
         if (thereAreDifferentDataSources) {
-            context.dispatch(
+            await context.dispatch(
                 "loadDataFrom",
                 shouldTakeDataFrom,
                 {
@@ -85,6 +85,23 @@ const actions = {
                 }
             );
         }
+
+        /*
+        if remoteStorageMethod == "firebase" && shouldTakeDataFrom == "firebase", and we autosaved this mutation, this would happen:
+        1. remoteStorageMethod set to Firebase
+        2. subscriber in index.js runs, autosaving state with remoteStorageMethod == "firebase" but *without* the data loaded from Firebase
+        3. `loadDataFrom` action runs, since it's async, and then loads data from Firebase, *BUT* we've just autosaved our data to Firebase
+        we're loading the data we've just autosaved, which is exactly what we don't want to happen!
+
+        so we intentionally don't autosave the data, and instead save it manually _after_ `loadDataFrom` finishes
+         */
+        await context.dispatch(
+            "saveStateToLocalStorage",
+            null,
+            {
+                root: true
+            }
+        );
     }
 };
 
