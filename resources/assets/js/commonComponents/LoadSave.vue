@@ -272,8 +272,8 @@ export default {
                 await this.importData(parsedState);
             }
 
+            const willStartSyncingWithFirebaseAfterImport = parsedState.settingsModule.remoteStorageMethod && parsedState.settingsModule.remoteStorageMethod === "firebase";
             if (this.shouldImportSettings) {
-                const willStartSyncingWithFirebaseAfterImport = parsedState.settingsModule.remoteStorageMethod && parsedState.settingsModule.remoteStorageMethod === "firebase";
                 if (
                     this.shouldShowTakeDataFromSelect
                     && this.shouldTakeDataFrom !== null
@@ -292,7 +292,11 @@ export default {
             }
             this.fileToImport = null;
 
-            if (this.shouldShowFirebaseSavingSelect && this.shouldSaveNewlyImportedDataToFirebase) {
+            if (
+                this.shouldShowFirebaseSavingSelect
+                && willStartSyncingWithFirebaseAfterImport
+                && this.shouldSaveNewlyImportedDataToFirebase
+            ) {
                 await this.saveStateToStorage();
             } else {
                 await this.saveStateToLocalStorage();
