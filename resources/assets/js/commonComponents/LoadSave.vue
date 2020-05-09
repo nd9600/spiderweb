@@ -62,7 +62,7 @@
                     </p>
 
                     <label
-                        v-if="shouldImportData"
+                        v-if="shouldShowFirebaseSavingSelect"
                         class="mt-2 pt-2 border-t border-r-0 border-b-0 border-l-0 border-gray-400"
                     >
                         <select
@@ -85,13 +85,14 @@
                         </select>
                         immediately save any newly-imported data to Firebase (if I'll be syncing data with Firebase)
                     </label>
-                    <!-- if you're importing data, you'll want to use it, not take data from Firebase -->
+
                     <label
-                        v-if="shouldImportSettings && !isAlreadySyncingWithFirebase && !shouldImportData"
+                        v-if="shouldShowTakeDataFromSelect"
                         class="mt-2 pt-2 border-t border-r-0 border-b-0 border-l-0 border-gray-400"
                     >
                         If the settings I'm importing will start syncing data with Firebase,
                         <select
+                            ref="shouldTakeDataFromSelect"
                             v-model="shouldTakeDataFrom"
                             class="select text-red"
                         >
@@ -206,6 +207,19 @@ export default {
         isAlreadySyncingWithFirebase() {
             return this.$store.state.settingsModule.remoteStorageMethod === "firebase";
         },
+        shouldShowFirebaseSavingSelect() {
+            // you can only save newly imported data to Firebase if you already _are_ syncing with Firebase, or will after you import settings
+            return this.shouldImportData
+                && (
+                    this.isAlreadySyncingWithFirebase
+                    || this.shouldImportSettings
+                );
+        },
+        shouldShowTakeDataFromSelect() {
+            return this.shouldImportSettings
+                && !this.isAlreadySyncingWithFirebase // if you're already syncing with Firebase, your local data and the data in Firebase will be the same, so you don't need to choose between them
+                && !this.shouldImportData; // if you're importing data, you'll want to use it, not take data from Firebase
+        },
 
         fileToImportIsValid() {
             return this.fileToImport !== null
@@ -217,13 +231,11 @@ export default {
                     !this.shouldImportData && !this.shouldImportSettings
                 )
                 || (
-                    this.shouldImportData
+                    this.shouldShowFirebaseSavingSelect
                     && this.shouldSaveNewlyImportedDataToFirebase === null
                 )
                 || (
-                    this.shouldImportSettings
-                    && !this.isAlreadySyncingWithFirebase
-                    && !this.shouldImportData
+                    this.shouldShowTakeDataFromSelect
                     && this.shouldTakeDataFrom === null
                 );
         }
@@ -256,8 +268,6 @@ export default {
                 return;
             }
 
-            // todo: make this more like the HTML above
-
             if (this.shouldImportData) {
                 await this.importData(parsedState);
             }
@@ -265,8 +275,8 @@ export default {
             if (this.shouldImportSettings) {
                 const willStartSyncingWithFirebaseAfterImport = parsedState.settingsModule.remoteStorageMethod && parsedState.settingsModule.remoteStorageMethod === "firebase";
                 if (
-                    !this.shouldImportData // if you're importing the data as well as the settings, you obviously want to use the imported data, not take any from Firebase
-                    && !this.isAlreadySyncingWithFirebase
+                    this.shouldShowTakeDataFromSelect
+                    && this.shouldTakeDataFrom !== null
                     && willStartSyncingWithFirebaseAfterImport
                 ) {
                     await this.importSettings({
@@ -282,7 +292,7 @@ export default {
             }
             this.fileToImport = null;
 
-            if (this.shouldImportData && this.shouldSaveNewlyImportedDataToFirebase) {
+            if (this.shouldShowFirebaseSavingSelect && this.shouldSaveNewlyImportedDataToFirebase) {
                 await this.saveStateToStorage();
             } else {
                 await this.saveStateToLocalStorage();
