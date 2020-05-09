@@ -61,34 +61,54 @@
                         </sub>
                     </p>
 
-                    <label v-if="shouldImportSettings">
-                        If the settings I'm importing will start syncing data with Firebase (and I wasn't already),
-                        <select
-                            v-model="shouldTakeDataFrom"
-                            class="select text-red"
-                        >
-                            <option value="local">
-                                keep using the data that's been stored locally
-                            </option>
-                            <option value="firebase">
-                                use any data that's been stored in Firebase, and overwrite what I've stored locally
-                            </option>
-                        </select>
-                    </label>
-                    <label v-if="shouldImportData && shouldTakeDataFrom === 'local'">
-                        If my settings will back up data to Firebase (and I'm not overwriting the locally-stored data with what's in Firebase),
+                    <label
+                        v-if="shouldImportData"
+                        class="mt-2 pt-2 border-t border-r-0 border-b-0 border-l-0 border-gray-400"
+                    >
                         <select
                             v-model="shouldSaveNewlyImportedDataToFirebase"
                             class="select text-red"
                         >
+                            <option
+                                v-if="shouldSaveNewlyImportedDataToFirebase === null"
+                                :value="null"
+                                disabled
+                            >
+                                [please choose an option]
+                            </option>
                             <option :value="true">
                                 I want to
                             </option>
                             <option :value="false">
-                                I don't want
+                                I don't want to
                             </option>
                         </select>
-                        to immediately save any newly-imported data to Firebase
+                        immediately save any newly-imported data to Firebase (if I'll be syncing data with Firebase)
+                    </label>
+                    <!-- if you're importing data, you'll want to use it, not take data from Firebase -->
+                    <label
+                        v-if="shouldImportSettings && !isAlreadySyncingWithFirebase && !shouldImportData"
+                        class="mt-2 pt-2 border-t border-r-0 border-b-0 border-l-0 border-gray-400"
+                    >
+                        If the settings I'm importing will start syncing data with Firebase,
+                        <select
+                            v-model="shouldTakeDataFrom"
+                            class="select text-red"
+                        >
+                            <option
+                                v-if="shouldTakeDataFrom === null"
+                                :value="null"
+                                disabled
+                            >
+                                [please choose an option]
+                            </option>
+                            <option value="local">
+                                keep using the data that's been stored locally
+                            </option>
+                            <option value="firebase">
+                                use any data that's already been stored in Firebase, and overwrite what I've stored locally
+                            </option>
+                        </select>
                     </label>
 
                     <p>
@@ -138,7 +158,7 @@
 
                 <button
                     class="btn btn--primary"
-                    :disabled="!fileToImportIsValid || (!shouldImportData && !shouldImportSettings)"
+                    :disabled="importButtonIsDisabled"
                     @click="importState"
                 >
                     Import the uploaded file
@@ -174,8 +194,8 @@ export default {
             shouldImportData: false,
             shouldImportSettings: false,
 
-            shouldTakeDataFrom: "local", // "local" | "firebase"
-            shouldSaveNewlyImportedDataToFirebase: true,
+            shouldTakeDataFrom: null, // "local" | "firebase"
+            shouldSaveNewlyImportedDataToFirebase: null,
         };
     },
     computed: {
@@ -183,9 +203,29 @@ export default {
 
         ...mapGetters(["storageObject"]),
 
+        isAlreadySyncingWithFirebase() {
+            return this.$store.state.settingsModule.remoteStorageMethod === "firebase";
+        },
+
         fileToImportIsValid() {
             return this.fileToImport !== null
                 && this.fileToImport.type === "application/json";
+        },
+        importButtonIsDisabled() {
+            return !this.fileToImportIsValid
+                || (
+                    !this.shouldImportData && !this.shouldImportSettings
+                )
+                || (
+                    this.shouldImportData
+                    && this.shouldSaveNewlyImportedDataToFirebase === null
+                )
+                || (
+                    this.shouldImportSettings
+                    && !this.isAlreadySyncingWithFirebase
+                    && !this.shouldImportData
+                    && this.shouldTakeDataFrom === null
+                );
         }
     },
     methods: {
@@ -234,7 +274,7 @@ export default {
             }
             this.fileToImport = null;
 
-            if (this.shouldSaveNewlyImportedDataToFirebase) {
+            if (this.shouldImportData && this.shouldSaveNewlyImportedDataToFirebase) {
                 await this.saveStateToStorage();
             } else {
                 await this.saveStateToLocalStorage();

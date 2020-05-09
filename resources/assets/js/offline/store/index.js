@@ -61,6 +61,7 @@ const store = new Vuex.Store({
                     break;
                 }
                 default:
+                    break;
             }
         },
         async loadStateFromStorage(context) {

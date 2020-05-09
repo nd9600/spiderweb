@@ -83,7 +83,7 @@
                                 keep using the data that's been stored locally
                             </option>
                             <option value="firebase">
-                                use any data that's been stored in Firebase, and overwrite what I've stored locally
+                                use any data that's already been stored in Firebase, and overwrite what I've stored locally
                             </option>
                         </select>
                     </label>
