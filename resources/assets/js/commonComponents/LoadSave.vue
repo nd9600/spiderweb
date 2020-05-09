@@ -256,11 +256,19 @@ export default {
                 return;
             }
 
+            // todo: make this more like the HTML above
+
             if (this.shouldImportData) {
                 await this.importData(parsedState);
             }
+
             if (this.shouldImportSettings) {
-                if (!this.shouldImportData) { // if you're importing the data as well as the settings, you obviously want to use the imported data
+                const willStartSyncingWithFirebaseAfterImport = parsedState.settingsModule.remoteStorageMethod && parsedState.settingsModule.remoteStorageMethod === "firebase";
+                if (
+                    !this.shouldImportData // if you're importing the data as well as the settings, you obviously want to use the imported data, not take any from Firebase
+                    && !this.isAlreadySyncingWithFirebase
+                    && willStartSyncingWithFirebaseAfterImport
+                ) {
                     await this.importSettings({
                         storageObject: parsedState,
                         shouldTakeDataFrom: this.shouldTakeDataFrom
