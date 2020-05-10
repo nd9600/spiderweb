@@ -23,7 +23,7 @@
             v-if="shouldExpand"
             class="mt-2 pl-4 flex flex-col items-start text-xs"
         >
-            <template v-if="canAttachPostToAnyOtherGraphs">
+            <template v-if="graphsNotAlreadyAttachedTo.length > 0">
                 <select
                     v-if="Object.keys(graphs).length > 1"
                     v-model.number="graphIdsToAttachPostTo"
@@ -32,7 +32,7 @@
                     :size="Math.min(Object.keys(graphs).length, 3)"
                 >
                     <option
-                        v-for="(graph, graphId) in graphs"
+                        v-for="(graph, graphId) in graphsNotAlreadyAttachedTo"
                         :key="graphId"
                         :value="graphId"
                     >
@@ -88,10 +88,14 @@ export default {
         ...mapState("postsModule", ["graphs"]),
         ...mapGetters("postsModule", ["graphIdsThatIncludeThisPost"]),
 
-        canAttachPostToAnyOtherGraphs() {
-            const numberOfGraphs = Object.keys(this.graphs).length;
-            const numberOfGraphsThePostIsAlreadyAttachedTo = this.graphIdsThatIncludeThisPost(this.post.id).length;
-            return numberOfGraphsThePostIsAlreadyAttachedTo < numberOfGraphs;
+        graphsNotAlreadyAttachedTo() {
+            const graphsAlreadyAttachedTo = this.graphIdsThatIncludeThisPost(this.post.id)
+                .map(id => parseInt(id, 10));
+            return Object.keys(this.graphs)
+                .filter(id => {
+                    return !graphsAlreadyAttachedTo.includes(Number(id));
+                })
+                .map(id => this.graphs[id]);
         }
     },
     created() {
