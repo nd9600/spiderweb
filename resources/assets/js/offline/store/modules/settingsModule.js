@@ -24,8 +24,12 @@ const mutations = {
             return;
         }
 
-        state.shouldAutosave = newState.shouldAutosave || true;
-        state.canOpenMultiplePosts = newState.canOpenMultiplePosts || true;
+        state.shouldAutosave = newState.shouldAutosave == null
+            ? true
+            : newState.shouldAutosave;
+        state.canOpenMultiplePosts = newState.canOpenMultiplePosts == null
+            ? true
+            : newState.canOpenMultiplePosts;
         state.remoteStorageMethod = newState.remoteStorageMethod || "none";
         state.graphAndPostsDirection = newState.graphAndPostsDirection || "vertical";
         state.graphHeight = newState.graphHeight || 66;
