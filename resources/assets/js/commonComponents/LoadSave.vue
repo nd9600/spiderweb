@@ -62,31 +62,6 @@
                     </p>
 
                     <label
-                        v-if="shouldShowFirebaseSavingSelect"
-                        class="mt-2 pt-2 border-t border-r-0 border-b-0 border-l-0 border-gray-400"
-                    >
-                        <select
-                            v-model="shouldSaveNewlyImportedDataToFirebase"
-                            class="select text-red"
-                        >
-                            <option
-                                v-if="shouldSaveNewlyImportedDataToFirebase === null"
-                                :value="null"
-                                disabled
-                            >
-                                [please choose an option]
-                            </option>
-                            <option :value="true">
-                                I want to
-                            </option>
-                            <option :value="false">
-                                I don't want to
-                            </option>
-                        </select>
-                        immediately save any newly-imported data to Firebase (if I'll be syncing data with Firebase)
-                    </label>
-
-                    <label
                         v-if="shouldShowTakeDataFromSelect"
                         class="mt-2 pt-2 border-t border-r-0 border-b-0 border-l-0 border-gray-400"
                     >
@@ -196,7 +171,6 @@ export default {
             shouldImportSettings: false,
 
             shouldTakeDataFrom: null, // "local" | "firebase"
-            shouldSaveNewlyImportedDataToFirebase: null,
         };
     },
     computed: {
@@ -206,14 +180,6 @@ export default {
 
         isAlreadySyncingWithFirebase() {
             return this.$store.state.settingsModule.remoteStorageMethod === "firebase";
-        },
-        shouldShowFirebaseSavingSelect() {
-            // you can only save newly imported data to Firebase if you already _are_ syncing with Firebase, or will after you import settings
-            return this.shouldImportData
-                && (
-                    this.isAlreadySyncingWithFirebase
-                    || this.shouldImportSettings
-                );
         },
         shouldShowTakeDataFromSelect() {
             return this.shouldImportSettings
@@ -231,17 +197,13 @@ export default {
                     !this.shouldImportData && !this.shouldImportSettings
                 )
                 || (
-                    this.shouldShowFirebaseSavingSelect
-                    && this.shouldSaveNewlyImportedDataToFirebase === null
-                )
-                || (
                     this.shouldShowTakeDataFromSelect
                     && this.shouldTakeDataFrom === null
                 );
         }
     },
     methods: {
-        ...mapActions(["saveStateToLocalStorage", "saveStateToStorage", "loadStateFromStorage", "importData", "importSettings"]),
+        ...mapActions(["saveStateToStorage", "loadStateFromStorage", "importData", "importSettings"]),
 
         onFileUpload(event) {
             const files = event.target.files || event.dataTransfer.files;
@@ -291,16 +253,7 @@ export default {
                 }
             }
             this.fileToImport = null;
-
-            if (
-                this.shouldShowFirebaseSavingSelect
-                && willStartSyncingWithFirebaseAfterImport
-                && this.shouldSaveNewlyImportedDataToFirebase
-            ) {
-                await this.saveStateToStorage();
-            } else {
-                await this.saveStateToLocalStorage();
-            }
+            await this.saveStateToStorage();
         },
 
         exportState() {

@@ -107,7 +107,7 @@
 
                 <button
                     v-if="remoteStorageMethodInComponent !== remoteStorageMethod"
-                    class="btn btn--primary"
+                    class="btn btn--primary mt-2"
                     type="button"
                     :disabled="!canChangeStorageMethod"
                     @click="changeStorageMethod"

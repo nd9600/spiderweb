@@ -72,7 +72,6 @@ const store = new Vuex.Store({
             }
 
             const remoteStorageMethod = localStorageObject.settingsModule.remoteStorageMethod;
-            console.log("remoteStorageMethod:", remoteStorageMethod);
             switch (remoteStorageMethod) {
                 case "firebase": {
                     try {
@@ -132,22 +131,16 @@ const store = new Vuex.Store({
                 }
                 case "firebase": {
                     context.commit("setLoadingApp", true);
-                    const firebaseDB = firebaseDbFactory(context.state.firebaseModule.firebaseConfig);
-                    firebaseDB.ref(STORAGE_KEY).once("value")
-                        .then(
-                            (snapshot) => {
-                                const firebaseStorageObject = JSON.parse(snapshot.val());
-                                if (firebaseStorageObject !== null) {
-                                    context.dispatch("importData", firebaseStorageObject);
-                                }
-                            }
-                        ).catch((error) => {
-                            console.log(error);
-                            alert("There was an error loading the data from Firebase, please refresh the page/change your Firebase config in 'settings', and try again");
-                        })
-                        .finally(() => {
-                            context.commit("setLoadingApp", false);
-                        });
+                    try {
+                        const firebaseDB = firebaseDbFactory(context.state.firebaseModule.firebaseConfig);
+                        const firebaseSnapshot = await firebaseDB.ref(STORAGE_KEY).once("value");
+                        const firebaseStorageObject = JSON.parse(firebaseSnapshot.val());
+                        await context.dispatch("importData", firebaseStorageObject);
+                    } catch(error) {
+                        console.log(error);
+                        alert("There was an error loading the data from Firebase, please refresh the page/change your Firebase config in 'settings', and try again");
+                    }
+                    context.commit("setLoadingApp", false);
                     break;
                 }
                 default: {
@@ -184,7 +177,7 @@ const store = new Vuex.Store({
             }
 
             if (isStorageMethodChanging) {
-                context.dispatch("loadDataFrom", shouldTakeDataFrom);
+                await context.dispatch("loadDataFrom", shouldTakeDataFrom);
             }
         }
     }

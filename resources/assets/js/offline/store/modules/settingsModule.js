@@ -37,7 +37,6 @@ const mutations = {
         state.shouldAutosave = shouldAutosave;
     },
     setRemoteStorageMethod(state, remoteStorageMethod) {
-        console.log("setting remoteStorageMethod to", remoteStorageMethod);
         setProperty(state, ["remoteStorageMethod"], remoteStorageMethod);
     },
 

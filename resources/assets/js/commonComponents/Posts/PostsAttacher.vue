@@ -61,7 +61,6 @@ export default {
     },
     methods: {
         onPostClick(post) {
-            console.log(post);
             if (
                 this.postToAttach === null
                 || this.postToAttach.id !== post.id
