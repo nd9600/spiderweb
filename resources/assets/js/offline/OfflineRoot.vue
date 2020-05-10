@@ -6,7 +6,6 @@
 
 <script>
 import OfflineApp from "@/js/commonComponents/OfflineApp";
-
 import { mapActions } from "vuex";
 
 export default {

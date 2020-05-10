@@ -23,40 +23,48 @@
             v-if="shouldExpand"
             class="mt-2 pl-4 flex flex-col items-start text-xs"
         >
-            <select
-                v-if="Object.keys(graphs).length > 1"
-                v-model.number="graphIdsToAttachPostTo"
-                class="select select--secondary"
-                multiple
-                :size="Math.min(Object.keys(graphs).length, 3)"
-            >
-                <option
-                    v-for="(graph, graphId) in graphs"
-                    :key="graphId"
-                    :value="graphId"
+            <template v-if="canAttachPostToAnyOtherGraphs">
+                <select
+                    v-if="Object.keys(graphs).length > 1"
+                    v-model.number="graphIdsToAttachPostTo"
+                    class="select select--secondary"
+                    multiple
+                    :size="Math.min(Object.keys(graphs).length, 3)"
                 >
-                    {{ graph.name }}
-                </option>
-            </select>
+                    <option
+                        v-for="(graph, graphId) in graphs"
+                        :key="graphId"
+                        :value="graphId"
+                    >
+                        {{ graph.name }}
+                    </option>
+                </select>
+                <span
+                    v-else
+                    class="block text-xs text-gray-500"
+                >
+                    you can only attach the post to the graph '{{ Object.values(graphs)[0].name }}'
+                </span>
+
+                <button
+                    class="btn btn--primary mt-2"
+                    :disabled="graphIdsToAttachPostTo.length === 0"
+                    @click="attachPost"
+                >
+                    Attach
+                </button>
+            </template>
             <span
                 v-else
                 class="block text-xs text-gray-500"
             >
-                you can only attach the post to the graph '{{ Object.values(graphs)[0].name }}'
+                this post is already attached to all the graphs
             </span>
-
-            <button
-                class="btn btn--primary mt-2"
-                :disabled="graphIdsToAttachPostTo.length === 0"
-                @click="attachPost"
-            >
-                Attach
-            </button>
         </label>
     </div>
 </template>
 <script>
-import {mapState, mapMutations} from "vuex";
+import {mapState, mapMutations, mapGetters} from "vuex";
 
 export default {
     name: "PostAttacher",
@@ -78,6 +86,13 @@ export default {
     },
     computed: {
         ...mapState("postsModule", ["graphs"]),
+        ...mapGetters("postsModule", ["graphIdsThatIncludeThisPost"]),
+
+        canAttachPostToAnyOtherGraphs() {
+            const numberOfGraphs = Object.keys(this.graphs).length;
+            const numberOfGraphsThePostIsAlreadyAttachedTo = this.graphIdsThatIncludeThisPost(this.post.id).length;
+            return numberOfGraphsThePostIsAlreadyAttachedTo < numberOfGraphs;
+        }
     },
     created() {
         if (Object.keys(this.graphs).length === 1) {

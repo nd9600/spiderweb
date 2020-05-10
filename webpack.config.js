@@ -5,7 +5,7 @@ const WebpackAssetsManifest = require("webpack-assets-manifest");
 // const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 const entrypoints = {
-    "js/offline/graph": "./resources/assets/js/offline/graph.js"
+    "assets/js/offline/graph": "./resources/assets/js/offline/graph.js"
 };
 
 module.exports = (env, argv) => {
@@ -64,7 +64,7 @@ module.exports = (env, argv) => {
                 cacheGroups: {
                     vendor: {
                         test: /[\\/]node_modules[\\/]/,
-                        name: "js/vendors",
+                        name: "assets/js/vendors",
                         chunks: "all",
                         minChunks: 1
                     }
@@ -83,7 +83,7 @@ module.exports = (env, argv) => {
 
             new WebpackAssetsManifest({
                 output: path.resolve(__dirname, "rev-manifest.json"),
-                merge: true
+                merge: true,
             }),
             // new BundleAnalyzerPlugin()
         ],
@@ -97,7 +97,7 @@ module.exports = (env, argv) => {
             filename: mode === "production"
                 ? "[name]-[hash].js" // "false"
                 : "[name].js",
-            path: path.resolve(__dirname, "public/assets/"),
+            path: path.resolve(__dirname, "public/"),
             publicPath: "/",
         },
     };
