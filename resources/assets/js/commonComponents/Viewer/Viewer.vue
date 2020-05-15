@@ -1,7 +1,10 @@
 <template>
     <div class="flex flex-col">
         <label class="mb-4 flex flex-col">
-            <span class="block h h--4">
+            <span
+                id="graphsList"
+                class="block h h--4"
+            >
                 Graphs
             </span>
             <span class="flex">
@@ -89,7 +92,7 @@ export default {
             window.scrollBy(0, document.getElementById("postBar").getBoundingClientRect().top - 5);
         },
         scrollToGraph() {
-            window.scrollTo(0, 0);
+            window.scrollTo(0, document.getElementById("graphsList").offsetTop - 5);
         }
     }
 };
