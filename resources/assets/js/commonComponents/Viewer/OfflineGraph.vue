@@ -49,10 +49,7 @@ import debounce from "lodash.debounce";
 
 import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
 import FloatingActionButton from "./FloatingActionButton";
-
-const WIDTH = 400;
-const HEIGHT = 200;
-const INITIAL_ZOOM = 0.5;
+import {WIDTH, HEIGHT, INITIAL_ZOOM} from "@/js/commonComponents/constants";
 
 export default {
     name: "OfflineGraph",
@@ -63,7 +60,10 @@ export default {
         return {
             svg: null,
             rootG: null,
+
+            shouldSaveZoomChanges: false,
             zoom: null,
+            zoomBehaviour: null,
             shouldResetZooming: false,
 
             linksG: null,
@@ -94,6 +94,24 @@ export default {
         linksInSelectedGraphs() {
             this.debouncedMakeGraphSvg();
         },
+        zoom({x, y, scale}) {
+            this.rootG.attr("transform", `translate(${x} ${y}) scale(${scale})`);
+
+            const unshiftedTextScaleFactor = INITIAL_ZOOM / scale;
+            const textScaleFactor = unshiftedTextScaleFactor < 1
+                ? unshiftedTextScaleFactor
+                : 1 + ((unshiftedTextScaleFactor - 1) * 0.35); // I don't want the text to get big really quickly
+            const originalTextSize = 48;
+            const maxTextSize = 220;
+            const newTextSize = Math.min(
+                maxTextSize,
+                Math.ceil(originalTextSize * textScaleFactor)
+            );
+
+            document.querySelector(":root")
+                .style.setProperty("--node-text-size", newTextSize + "px");
+            this.debouncedSaveZoomState();
+        }
     },
     mounted() {
         this.svg = d3.select("#graphSvg");
@@ -108,6 +126,15 @@ export default {
             .attr("stroke-width", 1.5);
 
         this.setupZooming();
+        this.svg.call(this.zoomBehaviour)
+            .call(
+                this.zoomBehaviour.transform,
+                d3.zoomIdentity
+                    .translate(
+                        this.$store.state.postsModule.zoom.x, // sets initial x/y and zoom amount
+                        this.$store.state.postsModule.zoom.y
+                    ).scale(this.$store.state.postsModule.zoom.scale)
+            );
         this.$nextTick(() => {
             this.debouncedMakeGraphSvg();
         });
@@ -115,7 +142,7 @@ export default {
         this.$root.$on("focusOnPost", this.focusOnPost);
     },
     methods: {
-        ...mapMutations("postsModule", ["selectPostId"]),
+        ...mapMutations("postsModule", ["selectPostId", "setZoom"]),
         ...mapMutations("clickerModule", ["setShouldShowClickButtonMenu", "setClickMode"]),
 
         ...mapActions("clickerModule", ["handlePostClick", "handleLinkClick"]),
@@ -138,10 +165,10 @@ export default {
             function() {
                 this.makeGraphSvg();
             },
-            250,
+            500,
             {
                 "leading": false,
-                "trailing": true, // we always need to call it the final time, so that D3 picks up any new nodes or links,
+                "trailing": true,
             }
         ),
         makeGraphSvg() {
@@ -279,6 +306,12 @@ export default {
                 });
             }
 
+            if (!this.shouldSaveZoomChanges) {
+                this.$nextTick(() => {
+                    this.shouldSaveZoomChanges = true;
+                });
+            }
+
             let postsKeyedById = {};
             for (const post of nodes) {
                 postsKeyedById[post.id] = post;
@@ -286,49 +319,59 @@ export default {
             this.nodesWithCoordinates = postsKeyedById;
         },
 
+        /**
+         * @link https://github.com/d3/d3-zoom/blob/v1.8.3/README.md#zoom
+         */
         setupZooming() {
-            this.zoom = d3.zoom()
+            /*
+            Zooms work like this:
+                there's a zoom _behaviour_, which is a function and object - it's normally applied to a selection with `selection.call(zoomBehaviour)` (which is the same as `zoomBehaviour(selection)`). Applying the behaviour binds the panning and zooming event listeners and initialises the zoom transform
+                the behaviour doesn't store the state of the zoom, a zoom _transform_ does
+                doing `zoom.transform(selection, transform)` sets the zoom transform on that selection to be the transform argument, which is what you do to programmatically zoom - it seems to trigger the behaviour's "zoom" event listener
+
+                d3.zoomIdentity.translate(x, y).scale(k) makes a new transform
+             */
+            this.zoomBehaviour = d3.zoom()
                 .scaleExtent([0.05, 2]) // limits zooming so you can only zoom between 0.2x and 2x
                 .on("zoom", () => {
                     const x = d3.event.transform.x;
                     const y = d3.event.transform.y;
                     const scale = d3.event.transform.k;
-                    this.rootG.attr("transform", `translate(${x} ${y}) scale(${scale})`);
-
-                    const unshiftedTextScaleFactor = INITIAL_ZOOM / scale;
-                    const textScaleFactor = unshiftedTextScaleFactor < 1
-                        ? unshiftedTextScaleFactor
-                        : 1 + ((unshiftedTextScaleFactor - 1) * 0.35); // I don't want the text to get big really quickly
-                    const originalTextSize = 48;
-                    const maxTextSize = 220;
-                    const newTextSize = Math.min(
-                        maxTextSize,
-                        Math.ceil(originalTextSize * textScaleFactor)
-                    );
-
-                    document.querySelector(":root")
-                        .style.setProperty("--node-text-size", newTextSize + "px");
+                    this.zoom = {x, y, scale};
                 });
-            this.resetZoomToCenter();
-        },
-        resetZoomToCenter() {
-            this.svg.call(this.zoom)
-                .call(
-                    this.zoom.transform,
-                    d3.zoomIdentity
-                        .translate(WIDTH / 2, HEIGHT / 2)
-                        .scale(INITIAL_ZOOM)) // sets initial x/y and zoom amount
+            this.svg.call(this.zoomBehaviour)
                 .on("wheel", () => {
                     d3.event.preventDefault();
                 });
         },
+        resetZoomToCenter() {
+            this.svg.call(this.zoomBehaviour)
+                .call(
+                    this.zoomBehaviour.transform,
+                    d3.zoomIdentity
+                        .translate(WIDTH / 2, HEIGHT / 2)
+                        .scale(INITIAL_ZOOM)
+                ); // sets initial x/y and zoom amount
+        },
+        debouncedSaveZoomState: debounce(
+            function() {
+                if (this.shouldSaveZoomChanges) {
+                    this.setZoom(this.zoom);
+                }
+            },
+            250,
+            {
+                "leading": false,
+                "trailing": true, // we always need to call it the final time, so that D3 picks up any new nodes or links,
+            }
+        ),
 
         focusOnPost(id, speed = 1) {
             const post = this.nodesWithCoordinates[id];
             this.svg.transition()
                 .duration(1500 / speed)
                 .call(
-                    this.zoom.transform,
+                    this.zoomBehaviour.transform,
                     d3.zoomIdentity
                         .scale(INITIAL_ZOOM)
                         .translate(-post.x + 550, -post.y + 500) // magic numbers that work on desktop and my phone

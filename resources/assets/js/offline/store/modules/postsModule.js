@@ -1,5 +1,7 @@
 import Vue from "vue";
 
+import {WIDTH, HEIGHT, INITIAL_ZOOM} from "@/js/commonComponents/constants";
+
 function stringToColour(str) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -27,7 +29,12 @@ const state = {
     },
 
     selectedPostIds: [],
-    selectedGraphIds: [1]
+    selectedGraphIds: [1],
+    zoom: {
+        x: WIDTH / 2,
+        y: HEIGHT / 2,
+        scale: INITIAL_ZOOM,
+    }
 };
 
 const getters = {
@@ -146,8 +153,13 @@ const mutations = {
         state.posts = newState.posts;
         state.links = newState.links;
         state.graphs = newState.graphs;
-        state.selectedPostIds = newState.selectedPostIds;
-        state.selectedGraphIds = newState.selectedGraphIds;
+        state.selectedPostIds = newState.selectedPostIds || [];
+        state.selectedGraphIds = newState.selectedGraphIds || [];
+        state.zoom = newState.zoom || {
+            x: WIDTH / 2,
+            y: HEIGHT / 2,
+            scale: INITIAL_ZOOM,
+        };
     },
 
     setSelectedPostIds(state, selectedPostIds) {
@@ -401,6 +413,10 @@ const mutations = {
     removeLink(state, {id}) {
         Vue.delete(state.links, id);
     },
+
+    setZoom(state, zoom) {
+        state.zoom = zoom;
+    }
 };
 
 const actions = {

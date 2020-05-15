@@ -52,7 +52,9 @@
                 </button>
             </nav>
             <div class="min-h-full py-4 px-4 md:px-8 componentContainer">
-                <component :is="currentTab" />
+                <keep-alive>
+                    <component :is="currentTab" />
+                </keep-alive>
             </div>
         </template>
     </section>
