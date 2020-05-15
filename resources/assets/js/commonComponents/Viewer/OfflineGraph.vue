@@ -319,11 +319,9 @@ export default {
             this.nodesWithCoordinates = postsKeyedById;
         },
 
-        /**
-         * @link https://github.com/d3/d3-zoom/blob/v1.8.3/README.md#zoom
-         */
         setupZooming() {
             /*
+            https://github.com/d3/d3-zoom/blob/v1.8.3/README.md#zoom
             Zooms work like this:
                 there's a zoom _behaviour_, which is a function and object - it's normally applied to a selection with `selection.call(zoomBehaviour)` (which is the same as `zoomBehaviour(selection)`). Applying the behaviour binds the panning and zooming event listeners and initialises the zoom transform
                 the behaviour doesn't store the state of the zoom, a zoom _transform_ does
