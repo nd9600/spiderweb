@@ -58,7 +58,7 @@
                     <span class="text-base">&#128269;</span>
                 </button>{{ post.title }}
             </h3>
-            <p class="whitespace-pre-wrap font-sans">
+            <div>
                 <button
                     v-if="isVisibleInGraph && post.title.length === 0"
                     class="focusButton mr-2"
@@ -67,8 +67,12 @@
                     @click="$root.$emit('focusOnPost', post.id)"
                 >
                     <span class="text-base">&#128269;</span>
-                </button>{{ post.body }}
-            </p>
+                </button>
+                <p
+                    class="whitespace-pre-wrap font-sans markdownContent"
+                    v-html="marked(post.body)"
+                ></p>
+            </div>
         </div>
         <div class="flex justify-between">
             <span>
@@ -133,12 +137,21 @@
 </template>
 
 <script>
+import marked from "marked";
 import {mapState, mapMutations, mapGetters} from "vuex";
 
 import PostEditor from "@/js/commonComponents/Posts/PostEditor";
 import LinkedPosts from "./LinkedPosts";
 import LinkedGraphs from "./LinkedGraphs";
 import AddLinkedPost from "./AddLinkedPost";
+
+const renderer = new marked.Renderer();
+const linkRenderer = renderer.link;
+renderer.link = (href, title, text) => {
+    const html = linkRenderer.call(renderer, href, title, text);
+    return html.replace(/^<a /, '<a target="_blank" rel="nofollow" ');
+};
+marked.use({ renderer });
 
 export default {
     name: "Post",
@@ -177,6 +190,7 @@ export default {
         }
     },
     methods: {
+        marked,
         ...mapMutations("postsModule", ["unselectPostId", "movePostLeft", "movePostRight"]),
 
         toggleBottomTab(tab) {
