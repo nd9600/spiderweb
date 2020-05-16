@@ -15,6 +15,14 @@ function stringToColour(str) {
     return colour;
 }
 
+function arrayMove(array, fromIndex, toIndex) {
+    let arrayCopy = array.slice(0);
+    const element = array[fromIndex];
+    arrayCopy.splice(fromIndex, 1);
+    arrayCopy.splice(toIndex, 0, element);
+    return arrayCopy;
+}
+
 const state = {
     posts: {},
     links: {},
@@ -189,6 +197,20 @@ const mutations = {
                 state.selectedPostIds = [id];
             }
         }
+    },
+    movePostLeft(state, id) {
+        const currentIndex = state.selectedPostIds.indexOf(id);
+        const newIndex = currentIndex === 0
+            ? state.selectedPostIds.length - 1
+            : currentIndex - 1;
+        state.selectedPostIds = arrayMove(state.selectedPostIds, currentIndex, newIndex);
+    },
+    movePostRight(state, id) {
+        const currentIndex = state.selectedPostIds.indexOf(id);
+        const newIndex = currentIndex === (state.selectedPostIds.length - 1)
+            ? 0
+            : currentIndex + 1;
+        state.selectedPostIds = arrayMove(state.selectedPostIds, currentIndex, newIndex);
     },
 
     setSelectedGraphIds(state, selectedGraphIds) {

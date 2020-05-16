@@ -73,6 +73,15 @@
         <div class="flex justify-between">
             <span>
                 <button
+                    v-if="selectedPostIds.length > 1"
+                    class="bottomLink bottomLink--unselected"
+                    type="button"
+                    title="move this post left"
+                    @click="movePostLeft(post.id)"
+                >
+                    <span class="text-xl">⇐</span>
+                </button>
+                <button
                     v-if="isAttachedToAGraph"
                     class="bottomLink"
                     :class="bottomTab === 'linked-graphs' ? 'bottomLink--selected' : 'bottomLink--unselected'"
@@ -105,10 +114,12 @@
                 </button>
                 <button
                     v-if="selectedPostIds.length > 1"
-                    class="post__dragHandle bottomLink bottomLink--unselected"
+                    class="bottomLink bottomLink--unselected"
                     type="button"
+                    title="move this post right"
+                    @click="movePostRight(post.id)"
                 >
-                    <span class="text-xl">⇄</span>
+                    <span class="text-xl">⇒</span>
                 </button>
             </span>
         </div>
@@ -166,7 +177,7 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("postsModule", ["unselectPostId"]),
+        ...mapMutations("postsModule", ["unselectPostId", "movePostLeft", "movePostRight"]),
 
         toggleBottomTab(tab) {
             this.bottomTab = this.bottomTab === tab
@@ -192,10 +203,6 @@ export default {
         .post {
             min-width: 92% !important;
         }
-    }
-
-    .post__dragHandle {
-        cursor: grab;
     }
 
     .focusButton {
