@@ -28,6 +28,7 @@
                 v-model="body"
                 class="p-2 h-48 rounded text-gray-800 placeholder-gray-600"
                 required="required"
+                placeholder="you can type Markdown here"
                 minlength="1"
                 maxlength="10000"
             />

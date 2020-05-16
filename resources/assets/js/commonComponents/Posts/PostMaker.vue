@@ -26,7 +26,7 @@
             <textarea
                 v-model="body"
                 class="p-2 h-48 rounded text-gray-800 placeholder-gray-600 textareaBody"
-                placeholder="But with regard to the material world, we can at least go so far as this—we can perceive that events are brought about not by insulated interpositions of Divine power, exerted in each particular case, but by the establishment of general laws"
+                placeholder="[Markdown] But with regard to the material world, we can at least go so far as this—we can perceive that events are brought about not by insulated interpositions of Divine power, exerted in each particular case, but by the establishment of general laws"
                 required="required"
                 minlength="1"
                 maxlength="10000"
