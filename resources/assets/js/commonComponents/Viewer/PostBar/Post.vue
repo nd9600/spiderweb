@@ -6,49 +6,11 @@
         }"
     >
         <div>
-            <span class="absolute right-0 mr-2">
-                <button
-                    type="button"
-                    class="mr-2 opacity-25 hover:opacity-100 transition-150"
-                    @click="toggleBottomTab('post-editor')"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 14 16"
-                    >
-                        <path
-                            fill-rule="evenodd"
-                            d="M0 12v3h3l8-8-3-3-8 8zm3 2H1v-2h1v1h1v1zm10.3-9.3L12 6 9 3l1.3-1.3a.996.996 0 011.41 0l1.59 1.59c.39.39.39 1.02 0 1.41z"
-                        >
-                        </path>
-                    </svg>
-                </button>
-                <button
-                    type="button"
-                    class="opacity-25 hover:opacity-100 transition-150"
-                    @click="unselectPostId(post.id)"
-                >
-                    <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 128 128"
-                    >
-                        <path
-                            fill-rule="evenodd"
-                            d="M65.086 75.41l-50.113 50.113c-3.121 3.121-8.192 3.126-11.316.002-3.118-3.118-3.123-8.19.002-11.316l50.114-50.114L3.659 13.982C.538 10.86.533 5.79 3.657 2.666c3.118-3.118 8.19-3.123 11.316.002l50.113 50.114L115.2 2.668c3.121-3.121 8.192-3.126 11.316-.002 3.118 3.118 3.123 8.19-.002 11.316L76.4 64.095l50.114 50.114c3.121 3.121 3.126 8.192.002 11.316-3.118 3.118-8.19 3.123-11.316-.002L65.086 75.409z"
-                        >
-                        </path>
-                    </svg>
-                </button>
-            </span>
-
-            <h3
-                v-if="post.title.length > 0"
-                class="h h--3 whitespace-pre-wrap"
-            >
-                <button
+            <div class="flex justify-between">
+                <h3
+                    v-if="post.title.length > 0"
+                    class="h h--3 mr-2 whitespace-pre-wrap"
+                ><button
                     v-if="isVisibleInGraph"
                     class="focusButton mr-2"
                     type="button"
@@ -56,8 +18,45 @@
                     @click="$root.$emit('focusOnPost', post.id)"
                 >
                     <span class="text-base">&#128269;</span>
-                </button>{{ post.title }}
-            </h3>
+                </button>{{ post.title }}</h3>
+                <span style="min-width: 48px;">
+                    <button
+                        type="button"
+                        class="mr-2 opacity-25 hover:opacity-100 transition-150"
+                        @click="toggleBottomTab('post-editor')"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 14 16"
+                        >
+                            <path
+                                fill-rule="evenodd"
+                                d="M0 12v3h3l8-8-3-3-8 8zm3 2H1v-2h1v1h1v1zm10.3-9.3L12 6 9 3l1.3-1.3a.996.996 0 011.41 0l1.59 1.59c.39.39.39 1.02 0 1.41z"
+                            >
+                            </path>
+                        </svg>
+                    </button>
+                    <button
+                        type="button"
+                        class="opacity-25 hover:opacity-100 transition-150"
+                        @click="unselectPostId(post.id)"
+                    >
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 128 128"
+                        >
+                            <path
+                                fill-rule="evenodd"
+                                d="M65.086 75.41l-50.113 50.113c-3.121 3.121-8.192 3.126-11.316.002-3.118-3.118-3.123-8.19.002-11.316l50.114-50.114L3.659 13.982C.538 10.86.533 5.79 3.657 2.666c3.118-3.118 8.19-3.123 11.316.002l50.113 50.114L115.2 2.668c3.121-3.121 8.192-3.126 11.316-.002 3.118 3.118 3.123 8.19-.002 11.316L76.4 64.095l50.114 50.114c3.121 3.121 3.126 8.192.002 11.316-3.118 3.118-8.19 3.123-11.316-.002L65.086 75.409z"
+                            >
+                            </path>
+                        </svg>
+                    </button>
+                </span>
+            </div>
             <div>
                 <button
                     v-if="isVisibleInGraph && post.title.length === 0"
@@ -69,9 +68,8 @@
                     <span class="text-base">&#128269;</span>
                 </button>
                 <p
-                    class="whitespace-pre-wrap font-sans markdownContent"
-                    v-html="marked(post.body)"
-                ></p>
+                    class="whitespace-pre-wrap font-sans"
+                >{{ post.body }}</p>
             </div>
         </div>
         <div class="flex justify-between">
@@ -137,21 +135,12 @@
 </template>
 
 <script>
-import marked from "marked";
 import {mapState, mapMutations, mapGetters} from "vuex";
 
 import PostEditor from "@/js/commonComponents/Posts/PostEditor";
 import LinkedPosts from "./LinkedPosts";
 import LinkedGraphs from "./LinkedGraphs";
 import AddLinkedPost from "./AddLinkedPost";
-
-const renderer = new marked.Renderer();
-const linkRenderer = renderer.link;
-renderer.link = (href, title, text) => {
-    const html = linkRenderer.call(renderer, href, title, text);
-    return html.replace(/^<a /, '<a target="_blank" rel="nofollow" ');
-};
-marked.use({ renderer });
 
 export default {
     name: "Post",
@@ -190,7 +179,6 @@ export default {
         }
     },
     methods: {
-        marked,
         ...mapMutations("postsModule", ["unselectPostId", "movePostLeft", "movePostRight"]),
 
         toggleBottomTab(tab) {
