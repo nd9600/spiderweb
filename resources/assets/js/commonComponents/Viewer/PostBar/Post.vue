@@ -6,24 +6,33 @@
         }"
     >
         <div>
-            <div class="flex justify-between">
-                <h3
-                    v-if="post.title.length > 0"
-                    class="h h--3 mr-2 whitespace-pre-wrap"
-                ><button
-                    v-if="isVisibleInGraph"
-                    class="focusButton mr-2"
-                    type="button"
-                    title="focus on this post in the viewer above"
-                    @click="$root.$emit('focusOnPost', post.id)"
-                >
-                    <span class="text-base">&#128269;</span>
-                </button>{{ post.title }}</h3>
+            <div
+                class="flex justify-between"
+            >
+                <template>
+                    <h3
+                        v-if="post.title.length > 0"
+                        class="h h--3 mr-2 whitespace-pre-wrap"
+                    ><button
+                        v-if="isVisibleInGraph"
+                        class="focusButton mr-2"
+                        type="button"
+                        title="focus on this post in the viewer above"
+                        @click="$root.$emit('focusOnPost', post.id)"
+                    >
+                        <span class="text-base">&#128269;</span>
+                    </button>{{ post.title }}</h3>
+                    <span v-else> </span> <!-- exists so that the icons will always be at the end -->
+                </template>
                 <span style="min-width: 48px;">
                     <button
                         type="button"
-                        class="mr-2 opacity-25 hover:opacity-100 transition-150"
-                        @click="toggleBottomTab('post-editor')"
+                        :class="{
+                            'opacity-25 hover:opacity-100': !showPostEditor,
+                            'opacity-100 hover:opacity-25': showPostEditor,
+                        }"
+                        class="mr-2 transition-150"
+                        @click="showPostEditor = !showPostEditor"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -57,7 +66,7 @@
                     </button>
                 </span>
             </div>
-            <div>
+            <div v-if="!showPostEditor">
                 <button
                     v-if="isVisibleInGraph && post.title.length === 0"
                     class="focusButton mr-2"
@@ -71,6 +80,10 @@
                     class="whitespace-pre-wrap font-sans"
                 >{{ post.body }}</p>
             </div>
+            <PostEditor
+                v-else
+                :post="post"
+            />
         </div>
         <div class="flex justify-between">
             <span>
@@ -142,6 +155,7 @@ import LinkedPosts from "./LinkedPosts";
 import LinkedGraphs from "./LinkedGraphs";
 import AddLinkedPost from "./AddLinkedPost";
 
+
 export default {
     name: "Post",
     components: {
@@ -158,7 +172,8 @@ export default {
     },
     data() {
         return {
-            bottomTab: "" // linked-posts | linked-graphs | post-editor add-linked-post
+            showPostEditor: false,
+            bottomTab: "" // linked-posts | linked-graphs | add-linked-post
         };
     },
     computed: {

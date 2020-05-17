@@ -146,7 +146,7 @@
                     {{ !fileToImportIsValid ? 'the file you\'ve uploaded isn\'t valid' : ((!shouldImportData && !shouldImportSettings) ? 'you must click one of the \'import\' buttons above' : '') }}
                 </sub>
             </div>
-            <div class="w-1/2">
+            <div class="w-1/2 flex justify-end">
                 <button
                     class="btn btn--primary"
                     @click="exportState"
