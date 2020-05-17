@@ -66,7 +66,6 @@
 </template>
 
 <script>
-import moment from "moment";
 import {mapState, mapMutations, mapActions} from "vuex";
 
 export default {
@@ -107,8 +106,8 @@ export default {
             let newPost = {
                 title: this.title,
                 body: this.body,
-                created_at: moment().format(),
-                updated_at: moment().format(),
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
             };
             const newPostWithId = await this.makeNewPost(newPost);
             if (this.graphIdsToAttachNewPostTo.length > 0) {

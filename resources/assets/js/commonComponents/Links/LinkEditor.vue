@@ -107,7 +107,6 @@
 
 <script>
 import {mapState, mapGetters, mapMutations} from "vuex";
-import moment from "moment";
 
 import PostSearch from "@/js/commonComponents/Posts/PostSearch";
 
@@ -184,7 +183,7 @@ export default {
                 source: this.source,
                 target: this.target,
                 type: this.type,
-                updated_at: moment().format()
+                updated_at: new Date().toISOString()
             });
             this.$emit("updatedLink", this.link.id);
         },

@@ -47,7 +47,6 @@
 
 <script>
 import {mapGetters, mapMutations} from "vuex";
-import moment from "moment";
 
 export default {
     name: "PostEditor",
@@ -73,7 +72,7 @@ export default {
                 this.updatePost({
                     ...this.post,
                     title,
-                    updated_at: moment().format()
+                    updated_at: new Date().toISOString()
                 });
             }
         },
@@ -85,7 +84,7 @@ export default {
                 this.updatePost({
                     ...this.post,
                     body,
-                    updated_at: moment().format
+                    updated_at: new Date().toISOString()
                 });
             }
         },

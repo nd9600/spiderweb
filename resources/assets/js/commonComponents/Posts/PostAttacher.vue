@@ -32,9 +32,9 @@
                     :size="Math.min(Object.keys(graphs).length, 3)"
                 >
                     <option
-                        v-for="(graph, graphId) in graphsNotAlreadyAttachedTo"
-                        :key="graphId"
-                        :value="graphId"
+                        v-for="graph in graphsNotAlreadyAttachedTo"
+                        :key="graph.id"
+                        :value="graph.id"
                     >
                         {{ graph.name }}
                     </option>
@@ -89,13 +89,14 @@ export default {
         ...mapGetters("postsModule", ["graphIdsThatIncludeThisPost"]),
 
         graphsNotAlreadyAttachedTo() {
+            const vm = this;
             const graphsAlreadyAttachedTo = this.graphIdsThatIncludeThisPost(this.post.id)
                 .map(id => parseInt(id, 10));
             return Object.keys(this.graphs)
                 .filter(id => {
                     return !graphsAlreadyAttachedTo.includes(Number(id));
                 })
-                .map(id => this.graphs[id]);
+                .map(id => vm.graphs[id]);
         }
     },
     created() {

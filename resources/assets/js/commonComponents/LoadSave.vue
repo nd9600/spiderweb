@@ -159,7 +159,6 @@
 </template>
 
 <script>
-import moment from "moment";
 import {mapState, mapGetters, mapActions} from "vuex";
 
 export default {
@@ -261,7 +260,9 @@ export default {
                 [JSON.stringify(this.storageObject)],
                 {type: "application/json"}
             );
-            const now = moment().format("Y-MM-DD_HH:mm:ss");
+            const now = new Date().toISOString()
+                .replace("T", "_")
+                .replace("Z", "");
 
             this.downloadData(blob, `spiderwebExport-${now}.json`);
         },
