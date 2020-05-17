@@ -77,8 +77,9 @@
                     <span class="text-base">&#128269;</span>
                 </button>
                 <p
-                    class="whitespace-pre-wrap font-sans"
-                >{{ post.body }}</p>
+                    class="font-sans markdownContent"
+                    v-html="marked(post.body)"
+                ></p>
             </div>
             <PostEditor
                 v-else
@@ -149,12 +150,25 @@
 
 <script>
 import {mapState, mapMutations, mapGetters} from "vuex";
+import marked from "marked";
 
 import PostEditor from "@/js/commonComponents/Posts/PostEditor";
 import LinkedPosts from "./LinkedPosts";
 import LinkedGraphs from "./LinkedGraphs";
 import AddLinkedPost from "./AddLinkedPost";
 
+const renderer = new marked.Renderer();
+const linkRenderer = renderer.link;
+renderer.link = (href, title, text) => {
+    const html = linkRenderer.call(renderer, href, title, text);
+    return html.replace(/^<a /, '<a target="_blank" rel="nofollow" ');
+};
+marked.setOptions({
+    breaks: true,
+    gfm: true,
+    headerIds: false
+});
+marked.use({ renderer });
 
 export default {
     name: "Post",
@@ -194,6 +208,7 @@ export default {
         }
     },
     methods: {
+        marked,
         ...mapMutations("postsModule", ["unselectPostId", "movePostLeft", "movePostRight"]),
 
         toggleBottomTab(tab) {
