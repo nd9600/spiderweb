@@ -91,3 +91,11 @@
     color: #6a737d;
     border-left: .25em solid var(--red);
 }
+
+.markdownContent hr {
+    height: 2px;
+    padding: 0;
+    margin: 1.5rem 3rem;
+    background-color: #24242424;
+    border: 0;
+}

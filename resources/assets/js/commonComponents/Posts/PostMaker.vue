@@ -4,7 +4,7 @@
             class="mb-5 flex flex-col"
         >
             <button
-                class="text-left underline"
+                class="text-left font-bold underline"
                 @click.prevent="toggleTitleInput"
             >
                 Title
@@ -13,7 +13,7 @@
                 v-if="showTitleInput"
                 ref="inputTitle"
                 v-model="title"
-                class="p-2 rounded text-gray-800 placeholder-gray-600"
+                class="p-2 rounded border text-gray-800 placeholder-gray-600"
                 type="text"
                 placeholder="On the Origin of Species"
                 minlength="0"
@@ -22,10 +22,10 @@
         </label>
 
         <label class="mb-5 flex flex-col">
-            Body
+            <span class="font-bold">Body</span>
             <textarea
                 v-model="body"
-                class="p-2 h-48 rounded text-gray-800 placeholder-gray-600 textareaBody"
+                class="p-2 h-48 rounded border text-gray-800 placeholder-gray-600 textareaBody"
                 placeholder="[Markdown] But with regard to the material world, we can at least go so far as this—we can perceive that events are brought about not by insulated interpositions of Divine power, exerted in each particular case, but by the establishment of general laws"
                 required="required"
                 minlength="1"
