@@ -196,6 +196,8 @@ export default {
                 .data(links, link => link.id)
                 .join("line")
                 .classed("graph__link", true)
+                .classed("graph__link--sidenote", (link) => link.type === "sidenote")
+                .classed("graph__link--link", (link) => link.type === "link")
                 .attr("stroke", (link) => this.graphColour(link.graph))
                 .attr("marker-end", "url(#arrowhead)")
                 .on("click", async function (link) {
@@ -392,6 +394,12 @@ export default {
         fill: none;
         stroke-width: var(--link-stroke-width);
         cursor: pointer;
+    }
+    .graph__link--sidenote {
+        stroke-dasharray: 50, 50;
+    }
+    .graph__link--link {
+        stroke-dasharray: 10, 10;
     }
 
     .node__circle {
