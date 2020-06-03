@@ -2,7 +2,7 @@
     <section
         class="relative post"
         :style="{
-            'min-width': postWidth + 'vw'
+            'min-width': minPostWidth + 'vw'
         }"
     >
         <div>
@@ -205,6 +205,14 @@ export default {
         },
         isVisibleInGraph() {
             return this.postIdsInSelectedGraphs.includes(this.post.id);
+        },
+
+        minPostWidth() {
+            // this means if only 2 posts are open, each will be at least 46% wide
+            //                    3 posts are open, each will be at least 30% wide, ...
+            // without this, one post could be 70%, the other 30%, which looks really bad
+            const numberOfPostsCurrentlySelected = this.selectedPostIds.length;
+            return Math.max(this.postWidth, Math.floor(92 / numberOfPostsCurrentlySelected));
         }
     },
     methods: {
