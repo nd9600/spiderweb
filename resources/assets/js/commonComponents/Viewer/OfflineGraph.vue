@@ -282,7 +282,10 @@ export default {
                 });
                 
             d3.selectAll(".node *")
-                .on("click", this.handlePostClick);
+                .on("click", this.handlePostClick)
+                .call(
+                    d3.drag().clickDistance(4) // if the mouse moves less than 4 units while clicking, it's counted as a click
+                );
 
             // set x and y co-ordinates of the links, and nodes
             simulation.on("tick", () => {
