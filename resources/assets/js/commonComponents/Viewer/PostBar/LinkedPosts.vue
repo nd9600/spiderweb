@@ -1,76 +1,70 @@
 <template>
     <section>
         <div class="flex justify-between items-center">
-            <div
-                v-if="Object.keys(linkedPosts.to).length > 0"
-            >
-                <div
-                    v-for="(postId, linkId) in linkedPosts.to"
-                    :key="linkId"
-                    class="mb-2"
-                >
-                    <a
-                        class="link text-xs md:text-sm"
-                        title="view this post"
-                        @click="togglePostIdLocal(postId)"
+            <template v-if="Object.keys(linkedPosts.to).length > 0">
+                <div>
+                    <div
+                        v-for="(postId, linkId) in linkedPosts.to"
+                        :key="linkId"
+                        class="mb-4 flex justify-between items-start"
                     >
-                        {{ titleOrBody(postId) }}
-                    </a>
-                    <button
-                        class="ml-2 py-1 px-2 btn btn--secondary"
-                        title="remove link"
-                        @click="removeLink({id: linkId})"
-                    >
-                        x
-                    </button>
+                        <a
+                            class="link text-xs md:text-sm"
+                            title="view this post"
+                            @click="togglePostIdLocal(postId)"
+                        >
+                            {{ titleOrBody(postId) }}
+                        </a>
+                        <button
+                            class="ml-2 py-1 px-2 btn btn--secondary"
+                            title="remove link"
+                            @click="removeLink({id: linkId})"
+                        >
+                            x
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            <h4
-                v-if="Object.keys(linkedPosts.to).length > 0"
-                class="h h--4 mx-1 flex flex-col"
-            >
-                <span>→</span>
-                <span>→</span>
-                <span>→</span>
-            </h4>
+                <h4 class="h h--4 mx-4 flex flex-col">
+                    <span>→</span>
+                    <span>→</span>
+                    <span>→</span>
+                </h4>
+            </template>
 
             <span>
                 {{ titleOrBody(post.id) }}
             </span>
 
-            <h4
-                v-if="Object.keys(linkedPosts.from).length > 0"
-                class="h h--4 mx-1 flex flex-col"
-            >
-                <span>→</span>
-                <span>→</span>
-                <span>→</span>
-            </h4>
+            <template v-if="Object.keys(linkedPosts.from).length > 0">
+                <h4 class="h h--4 mx-4 flex flex-col">
+                    <span>→</span>
+                    <span>→</span>
+                    <span>→</span>
+                </h4>
 
-            <div
-                v-if="Object.keys(linkedPosts.from).length > 0"
-            >
-                <div
-                    v-for="(postId, linkId) in linkedPosts.from"
-                    :key="linkId"
-                    class="mb-2"
-                >
-                    <a
-                        class="link text-xs md:text-sm"
-                        @click="togglePostIdLocal(postId)"
+                <div>
+                    <div
+                        v-for="(postId, linkId) in linkedPosts.from"
+                        :key="linkId"
+                        class="mb-4 flex justify-between items-start"
                     >
-                        {{ titleOrBody(postId) }}
-                    </a>
-                    <button
-                        class="ml-2 py-1 px-2 btn btn--secondary"
-                        title="remove link"
-                        @click="removeLink({id: linkId})"
-                    >
-                        x
-                    </button>
+                        <a
+                            class="link text-xs md:text-sm"
+                            @click="togglePostIdLocal(postId)"
+                        >
+                            {{ titleOrBody(postId) }}
+                        </a>
+                        <button
+                            class="ml-2 py-1 px-2 btn btn--secondary"
+                            title="remove link"
+                            @click="removeLink({id: linkId})"
+                        >
+                            x
+                        </button>
+                    </div>
                 </div>
-            </div>
+            </template>
         </div>
     </section>
 </template>
