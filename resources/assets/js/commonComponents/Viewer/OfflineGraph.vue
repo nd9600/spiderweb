@@ -211,7 +211,8 @@ export default {
                         const postIdToFocusOn = returnedValue;
                         vm.focusOnPost(postIdToFocusOn, 1.5);
                     }
-                });
+                })
+                .call(d3.drag().clickDistance(4));
 
             let nodeGroups = this.nodesG
                 .selectAll("g")
@@ -283,9 +284,7 @@ export default {
                 
             d3.selectAll(".node *")
                 .on("click", this.handlePostClick)
-                .call(
-                    d3.drag().clickDistance(4) // if the mouse moves less than 4 units while clicking, it's counted as a click
-                );
+                .call(d3.drag().clickDistance(4)); // if the mouse moves less than 4 units while clicking, it's counted as a click
 
             // set x and y co-ordinates of the links, and nodes
             simulation.on("tick", () => {
