@@ -6,9 +6,7 @@
         }"
     >
         <div>
-            <div
-                class="flex justify-between"
-            >
+            <div class="flex justify-between">
                 <template>
                     <h3
                         v-if="post.title.length > 0"
@@ -69,7 +67,7 @@
             <div v-if="!showPostEditor">
                 <button
                     v-if="isVisibleInGraph && post.title.length === 0"
-                    class="focusButton mr-2"
+                    class="focusButton mr-2 float-left"
                     type="button"
                     title="focus on this post in the viewer above"
                     @click="$root.$emit('focusOnPost', post.id)"
