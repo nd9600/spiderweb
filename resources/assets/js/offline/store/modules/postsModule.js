@@ -92,14 +92,17 @@ const getters = {
     },
 
     titleOrBody: (state) => (postId) => {
-        const MAX_TITLE_LENGTH = 30;
+        const MAX_BODY_LENGTH = 30;
 
         const post = state.posts[postId];
-        const strToReturn = (post.title.length > 0
-            ? post.title
-            : post.body.split("\n")[0]).trim(); // we don't want to show text after a newline
-        return strToReturn.length > MAX_TITLE_LENGTH
-            ? strToReturn.substr(0, MAX_TITLE_LENGTH) + ".."
+        const possibleTitle = post.title.split("\n")[0].trim(); // we don't want to show text after a newline
+        if (possibleTitle.length > 0) {
+            return possibleTitle;
+        }
+
+        const strToReturn = post.body.split("\n")[0].trim();
+        return strToReturn.length > MAX_BODY_LENGTH
+            ? strToReturn.substr(0, MAX_BODY_LENGTH) + ".."
             : strToReturn;
     },
 
