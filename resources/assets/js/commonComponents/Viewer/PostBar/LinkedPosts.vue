@@ -20,7 +20,7 @@
                                 {{ posts[postId].title }}
                             </span>
                             <p
-                                v-if="posts[postId].title.length > 0"
+                                v-if="posts[postId].body.length > 0"
                                 class="text-xs"
                             >
                                 {{ posts[postId].body.substr(0, 200) }}{{ posts[postId].body.length > 200 ? "..." : "" }}
