@@ -62,6 +62,14 @@
                 >
                     <span class="mr-2 text-xl font-bold text-red">+</span> Add post
                 </button>
+
+                <button
+                    class="clicker__actionButton"
+                    type="button"
+                    @click.prevent="toggleClickMode('searchForPosts')"
+                >
+                    <span class="mr-2 text-xl font-bold text-red">&#128269;</span> Search for posts
+                </button>
             </div>
 
             <div
@@ -148,6 +156,10 @@
                     @madePost="madePost"
                 />
                 <PostsAttacher v-else-if="clickMode === 'attachPostsToGraphs'" />
+                <PostSearch
+                    v-else-if="clickMode === 'searchForPosts'"
+                    @clickedOnResult="selectPost($event)"
+                />
             </div>
         </div>
     </div>
@@ -158,16 +170,18 @@ import {mapState, mapGetters, mapMutations} from "vuex";
 import LinkEditor from "@/js/commonComponents/Links/LinkEditor";
 import PostMaker from "@/js/commonComponents/Posts/PostMaker";
 import PostsAttacher from "@/js/commonComponents/Posts/PostsAttacher";
+import PostSearch from "@/js/commonComponents/Posts/PostSearch";
 
 export default {
     name: "FloatingActionButton",
     components: {
         LinkEditor,
         PostMaker,
-        PostsAttacher
+        PostsAttacher,
+        PostSearch
     },
     computed: {
-        ...mapState("settingsModule", ["graphHeight"]),
+        ...mapState("settingsModule", ["graphHeight", "canOpenMultiplePosts"]),
 
         ...mapState("postsModule", ["graphs", "selectedGraphIds", "links"]),
         ...mapGetters("postsModule", ["titleOrBody"]),
@@ -237,6 +251,9 @@ export default {
             "setNewLinkGraphId",
             "setNewLinkType",
         ]),
+        ...mapMutations("postsModule", [
+            "selectPostId",
+        ]),
 
         toggleClickButtonMenu() {
             const menuWasPreviouslyShown = this.shouldShowClickButtonMenu;
@@ -257,6 +274,13 @@ export default {
         madePost() {
             this.toggleClickMode("openPosts");
             this.shouldShowClickButtonMenu = false;
+        },
+
+        selectPost(post) {
+            this.selectPostId({
+                id: post.id,
+                canOpenMultiplePosts: this.canOpenMultiplePosts
+            });
         }
     }
 };

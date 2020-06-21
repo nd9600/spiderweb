@@ -1,7 +1,8 @@
 <template>
-    <span>
+    <div>
         <label>
             <input
+                ref="searchInput"
                 v-model="searchTerm"
                 class="p-2 w-full input input--primary"
                 type="text"
@@ -11,14 +12,11 @@
                 title="search for a post"
             />
         </label>
-        <span
-            v-if="searchResults.length > 0"
-            class="block"
-        >
-            <span
+        <div v-if="searchResults.length > 0">
+            <div
                 v-for="post in searchResults"
                 :key="post.id"
-                class="cursor-pointer p-1 block hover:bg-red-300"
+                class="mt-2 p-1 cursor-pointer bg-red-200 hover:bg-red-300 rounded-lg"
                 @click="$emit('clickedOnResult', post)"
             >
                 <span
@@ -27,12 +25,15 @@
                 >
                     {{ post.title }}
                 </span>
-                <span>
-                    {{ post.body.substr(0, 30) }}{{ post.body.length > 30 ? "..." : "" }}
-                </span>
-            </span>
-        </span>
-    </span>
+                <p
+                    v-if="post.body.length > 0"
+                    class="text-xs"
+                >
+                    {{ post.body.substr(0, 200) }}{{ post.body.length > 200 ? "..." : "" }}
+                </p>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -76,5 +77,8 @@ export default {
                 }).slice(0, 25);
         }
     },
+    mounted() {
+        this.$refs.searchInput.focus();
+    }
 };
 </script>

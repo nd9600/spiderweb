@@ -142,7 +142,7 @@ export default {
         this.$root.$on("focusOnPost", this.focusOnPost);
     },
     methods: {
-        ...mapMutations("postsModule", ["selectPostId", "setZoom"]),
+        ...mapMutations("postsModule", ["setZoom"]),
         ...mapMutations("clickerModule", ["setShouldShowClickButtonMenu", "setClickMode"]),
 
         ...mapActions("clickerModule", ["handlePostClick", "handleLinkClick"]),
