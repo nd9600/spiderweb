@@ -8,13 +8,24 @@
                         :key="linkId"
                         class="mb-4 flex justify-between items-start"
                     >
-                        <a
-                            class="link text-xs md:text-sm"
+                        <div
+                            class="p-1 cursor-pointer bg-red-200 hover:bg-red-300 rounded-lg text-xs md:text-sm"
                             title="view this post"
                             @click="togglePostIdLocal(postId)"
                         >
-                            {{ titleOrBody(postId) }}
-                        </a>
+                            <span
+                                v-if="posts[postId].title.length > 0"
+                                class="font-bold"
+                            >
+                                {{ posts[postId].title }}
+                            </span>
+                            <p
+                                v-if="posts[postId].title.length > 0"
+                                class="text-xs"
+                            >
+                                {{ posts[postId].body.substr(0, 200) }}{{ posts[postId].body.length > 200 ? "..." : "" }}
+                            </p>
+                        </div>
                         <button
                             class="ml-2 py-1 px-2 btn btn--secondary"
                             title="remove link"
@@ -49,12 +60,24 @@
                         :key="linkId"
                         class="mb-4 flex justify-between items-start"
                     >
-                        <a
-                            class="link text-xs md:text-sm"
+                        <div
+                            class="p-1 cursor-pointer bg-red-200 hover:bg-red-300 rounded-lg text-xs md:text-sm"
+                            title="view this post"
                             @click="togglePostIdLocal(postId)"
                         >
-                            {{ titleOrBody(postId) }}
-                        </a>
+                            <span
+                                v-if="posts[postId].title.length > 0"
+                                class="font-bold"
+                            >
+                                {{ posts[postId].title }}
+                            </span>
+                            <p
+                                v-if="posts[postId].body.length > 0"
+                                class="text-xs"
+                            >
+                                {{ posts[postId].body.substr(0, 200) }}{{ posts[postId].body.length > 200 ? "..." : "" }}
+                            </p>
+                        </div>
                         <button
                             class="ml-2 py-1 px-2 btn btn--secondary"
                             title="remove link"
@@ -82,6 +105,7 @@ export default {
     },
     computed: {
         ...mapState("settingsModule", ["canOpenMultiplePosts"]),
+        ...mapState("postsModule", ["posts"]),
         ...mapGetters("postsModule", ["titleOrBody", "postIdsThatLinkToPost"]),
 
         linkedPosts() {
