@@ -151,6 +151,7 @@ export default {
         }
     },
     watch: {
+        // todo: fix this bug
         // link(link) {
         //     this.graphId = link.graph;
         //     this.source = link.source;
