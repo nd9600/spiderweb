@@ -88,7 +88,6 @@ const actions = {
                     break;
                 } else {
                     if (context.state.newLinkSource === post.id) {
-                        alert("A post can't be linked to itself");
                         return;
                     }
 
@@ -115,7 +114,6 @@ const actions = {
             }
 
             case "changeLink": {
-                console.log(post);
                 if (context.state.wantsToChangeSource) {
                     context.commit(
                         "postsModule/changeLinkSource",

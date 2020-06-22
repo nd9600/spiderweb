@@ -33,7 +33,7 @@
             </select>
         </label>
 
-        <p class="my-2">
+        <p class="mt-2 mb-6">
             from
             <span
                 v-if="!wantsToChangeSource"
@@ -64,7 +64,9 @@
             </span>
         </p>
 
-        <p class="mb-2">
+        <hr>
+
+        <p class="mt-6 mb-10">
             to
             <span
                 v-if="!wantsToChangeTarget"
@@ -97,7 +99,7 @@
         </p>
 
         <button
-            class="btn btn--secondary py-1 px-2 block"
+            class="btn btn--secondary mb-4 py-1 px-2 block"
             @click="removeLinkLocal"
         >
             &#x1f5d1; remove link

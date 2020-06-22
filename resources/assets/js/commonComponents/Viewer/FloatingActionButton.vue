@@ -76,68 +76,7 @@
                 v-if="shouldShowContextMenu"
                 class="clicker__contextMenu"
             >
-                <template v-if="clickMode === 'addLink'">
-                    <label class="mb-4">
-                        The new link will be a
-                        <select
-                            v-model="newLinkType"
-                            class="select select--secondary mb-2"
-                        >
-                            <option value="reply">
-                                reply
-                            </option>
-                            <option value="sidenote">
-                                sidenote
-                            </option>
-                            <option value="link">
-                                link
-                            </option>
-                        </select>
-                        in the graph
-                        <select
-                            v-model.number="newLinkGraphId"
-                            class="select select--secondary max-w-full"
-                        >
-                            <option
-                                v-for="(graph, id) in graphs"
-                                :key="id"
-                                :value="id"
-                                class="truncate"
-                            >
-                                {{ graph.name }}
-                            </option>
-                        </select>
-                    </label>
-
-                    <label
-                        v-if="newLinkSource"
-                        class="mt-4 pt-4 block"
-                        style="border-top: 1px solid var(--red)"
-                    >
-                        It'll be from
-                        <span class="inline-block">
-                            <span class="text-red">{{ titleOrBody(newLinkSource) }}</span>
-                            →
-                            <span class="text-red">[the next post you click on]</span>
-                        </span>
-                    </label>
-
-                    <sub class="my-2 text-xs text-gray-500">
-                        {{ newLinkSource === null ? "click on a post to choose a source for the link" : "the link will be created when you click on another post" }}
-
-                    </sub>
-
-                    <button
-                        v-if="newLinkSource !== null"
-                        class="btn btn--secondary"
-                        type="button"
-                        :disabled="newLinkSource == null"
-                        title="remove this source"
-                        @click="setNewLinkSource(null)"
-                    >
-                        x
-                    </button>
-                </template>
+                <LinkAdder v-if="clickMode === 'addLink'"/>
                 <template v-else-if="clickMode === 'changeLink'">
                     <sub
                         v-if="linkToEdit === null"
@@ -148,7 +87,7 @@
                     <LinkEditor
                         v-else
                         :link="links[linkToEdit]"
-                        @removedLink="linkToEdit = null"
+                        @removedLink="onRemovedLink"
                     />
                 </template>
                 <PostMaker
@@ -168,6 +107,7 @@
 import {mapState, mapGetters, mapMutations} from "vuex";
 
 import LinkEditor from "@/js/commonComponents/Links/LinkEditor";
+import LinkAdder from "@/js/commonComponents/Links/LinkAdder";
 import PostMaker from "@/js/commonComponents/Posts/PostMaker";
 import PostsAttacher from "@/js/commonComponents/Posts/PostsAttacher";
 import PostSearch from "@/js/commonComponents/Posts/PostSearch";
@@ -176,6 +116,7 @@ export default {
     name: "FloatingActionButton",
     components: {
         LinkEditor,
+        LinkAdder,
         PostMaker,
         PostsAttacher,
         PostSearch
@@ -204,22 +145,6 @@ export default {
                 this.setClickMode(clickMode);
             }
         },
-        newLinkGraphId: {
-            get() {
-                return this.$store.state.clickerModule.newLinkGraphId;
-            },
-            set(newLinkGraphId) {
-                this.setNewLinkGraphId(newLinkGraphId);
-            }
-        },
-        newLinkType: {
-            get() {
-                return this.$store.state.clickerModule.newLinkType;
-            },
-            set(newLinkType) {
-                this.setNewLinkType(newLinkType);
-            }
-        },
 
         shouldShowContextMenu() {
             return this.clickMode !== "openPosts";
@@ -246,10 +171,7 @@ export default {
         ...mapMutations("clickerModule", [
             "setShouldShowClickButtonMenu",
             "setClickMode",
-            "setNewLinkSource",
-            "setNewLinkTarget",
-            "setNewLinkGraphId",
-            "setNewLinkType",
+            "setLinkToEdit"
         ]),
         ...mapMutations("postsModule", [
             "selectPostId",
@@ -281,6 +203,11 @@ export default {
                 id: post.id,
                 canOpenMultiplePosts: this.canOpenMultiplePosts
             });
+        },
+
+        onRemovedLink() {
+            this.setLinkToEdit(null);
+            this.clickMode = "openPosts";
         }
     }
 };
