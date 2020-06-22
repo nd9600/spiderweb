@@ -32,12 +32,7 @@
                 </select>
             </span>
         </label>
-        <div
-            class="flex"
-            :style="{
-                'flex-direction': graphAndPostsDirection === 'horizontal' ? 'row' : 'column'
-            }"
-        >
+        <div class="flex flex-col">
             <OfflineGraph
                 ref="offlineGraph"
                 :style="{
@@ -75,7 +70,7 @@ export default {
         PostBar,
     },
     computed: {
-        ...mapState("settingsModule", ["graphAndPostsDirection", "graphHeight", "postBarHeight"]),
+        ...mapState("settingsModule", ["graphHeight", "postBarHeight"]),
         ...mapState("postsModule", ["graphs"]),
 
         selectedGraphIds: {

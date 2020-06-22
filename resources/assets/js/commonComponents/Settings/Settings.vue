@@ -136,17 +136,6 @@
 
         <div class="setting">
             <label class="block">
-                The viewer should be oriented like this
-                <select
-                    v-model="graphAndPostsDirection"
-                    class="mb-2 text-red select"
-                >
-                    <option value="horizontal">→</option>
-                    <option value="vertical">↓</option>
-                </select>
-            </label>
-
-            <label class="block">
                 The graph should take up
                 <input
                     v-model.number="graphHeight"
@@ -201,8 +190,7 @@
             </label>
 
             <div
-                class="p-1 h-64 w-64 flex overflow-auto border border-solid border-gray-600"
-                :class="graphAndPostsDirection === 'horizontal' ? 'flex-row' : 'flex-col'"
+                class="p-1 h-64 w-64 flex flex-col overflow-auto border border-solid border-gray-600"
             >
                 <div
                     class="p-1 w-full border border-solid border-gray-600"
@@ -213,11 +201,7 @@
                     Graph
                 </div>
                 <div
-                    class="p-1 w-full border border-solid border-gray-600 flex items-start overflow-x-auto"
-                    :class="{
-                        'mt-1': graphAndPostsDirection === 'vertical',
-                        'ml-1': graphAndPostsDirection === 'horizontal',
-                    }"
+                    class="mt-1 p-1 w-full border border-solid border-gray-600 flex items-start overflow-x-auto"
                     :style="{
                         'min-height': postBarHeight + '%'
                     }"
@@ -290,15 +274,6 @@ export default {
             }
         },
 
-        graphAndPostsDirection: {
-            get() {
-                return this.$store.state.settingsModule.graphAndPostsDirection;
-            },
-            set(graphAndPostsDirection) {
-                this.setGraphAndPostsDirection(graphAndPostsDirection);
-            }
-        },
-
         graphHeight: {
             get() {
                 return this.$store.state.settingsModule.graphHeight;
@@ -353,7 +328,6 @@ export default {
         ...mapMutations("settingsModule", [
             "setShouldAutosave",
             "setCanOpenMultiplePosts",
-            "setGraphAndPostsDirection",
             "setGraphHeight",
             "setPostBarHeight",
             "setPostWidth"
