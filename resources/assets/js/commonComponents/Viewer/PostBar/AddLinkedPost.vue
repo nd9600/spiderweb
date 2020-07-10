@@ -80,12 +80,12 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["graphs", "selectedGraphIds"]),
+        ...mapState("postsModule", ["graphs", "selectedSubgraphIds"]),
         ...mapGetters("postsModule", ["titleOrBody"]),
     },
     created() {
-        const initialGraphId = this.selectedGraphIds.length > 0
-            ? this.selectedGraphIds[0]
+        const initialGraphId = this.selectedSubgraphIds.length > 0
+            ? this.selectedSubgraphIds[0]
             : 1;
         this.graphId = initialGraphId;
     },

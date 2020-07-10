@@ -105,11 +105,21 @@
                 "id": 1,
                 "name": "default",
                 "nodes": [],
+                "subgraphs": []
+            }
+        },
+        "subgraphs": {
+            "1": {
+                "id": 1,
+                "name": "default",
+                "nodes": [],
+                "links": [],
                 "colour": "black"
             }
         },
         "selectedPostIds": [],
-        "selectedGraphIds": []
+        "selectedGraphId": 1,
+        "selectedSubgraphIds": []
     },
     "settingsModule": {
         "shouldAutosave": true,

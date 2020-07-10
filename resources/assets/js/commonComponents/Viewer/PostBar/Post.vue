@@ -96,7 +96,7 @@
                     <span class="text-xl">⇐</span>
                 </button>
                 <button
-                    v-if="isAttachedToAGraph"
+                    v-if="isPartOfASubgraph"
                     class="bottomLink"
                     :class="bottomTab === 'linked-graphs' ? 'bottomLink--selected' : 'bottomLink--unselected'"
                     title="graphs that include this post"
@@ -192,17 +192,17 @@ export default {
         ...mapState("settingsModule", ["postWidth"]),
         ...mapState("postsModule", ["selectedPostIds"]),
 
-        ...mapGetters("postsModule", ["postIdsInSelectedGraphs", "postIdsThatLinkToPost", "graphIdsThatIncludeThisPost"]),
+        ...mapGetters("postsModule", ["postIdsInSelectedSubgraphs", "postIdsThatLinkToPost", "linkedSubgraphs"]),
         hasLinkedPosts() {
             const linkedPosts = this.postIdsThatLinkToPost(this.post.id);
             return Object.keys(linkedPosts.to).length > 0
                 || Object.keys(linkedPosts.from).length > 0;
         },
-        isAttachedToAGraph() {
-            return this.graphIdsThatIncludeThisPost(this.post.id).length > 0;
+        isPartOfASubgraph() {
+            return this.linkedSubgraphs(this.post.id).length > 0;
         },
         isVisibleInGraph() {
-            return this.postIdsInSelectedGraphs.includes(this.post.id);
+            return this.postIdsInSelectedSubgraphs.includes(this.post.id);
         },
 
         minPostWidth() {

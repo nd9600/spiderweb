@@ -5,19 +5,19 @@
                 Graphs that include this post
             </h4>
             <a
-                v-for="graphId in linkedGraphs"
+                v-for="graphId in linkedSubgraphs"
                 :key="graphId"
                 class="link block mb-2 text-xs md:text-base"
                 title="show/hide this graph"
-                @click="toggleGraphId(graphId)"
+                @click="toggleSubgraphId(graphId)"
             >
-                {{ graphs[graphId].name }}
+                {{ subgraphs[graphId].name }}
 
                 <button
                     class="ml-8 py-1 px-2 text-xs btn btn--secondary"
-                    @click.stop="removePostFromGraph({graphId, postId: post.id})"
+                    @click.stop="removePostFromSubgraph({graphId, postId: post.id})"
                 >
-                    remove from graph
+                    remove from subgraph
                 </button>
             </a>
         </div>
@@ -36,15 +36,15 @@ export default {
         }
     },
     computed: {
-        ...mapState("postsModule", ["graphs"]),
-        ...mapGetters("postsModule", ["graphIdsThatIncludeThisPost"]),
+        ...mapState("postsModule", ["subgraphs"]),
+        ...mapGetters("postsModule", ["linkedSubgraphs"]),
 
-        linkedGraphs() {
-            return this.graphIdsThatIncludeThisPost(this.post.id);
+        linkedSubgraphs() {
+            return this.linkedSubgraphs(this.post.id);
         }
     },
     methods: {
-        ...mapMutations("postsModule", ["toggleGraphId", "removePostFromGraph"]),
+        ...mapMutations("postsModule", ["toggleSubgraphId", "removePostFromSubgraph"]),
 
     }
 };

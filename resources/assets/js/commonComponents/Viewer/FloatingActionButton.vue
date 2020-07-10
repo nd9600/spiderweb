@@ -124,7 +124,7 @@ export default {
     computed: {
         ...mapState("settingsModule", ["graphHeight", "canOpenMultiplePosts"]),
 
-        ...mapState("postsModule", ["graphs", "selectedGraphIds", "links"]),
+        ...mapState("postsModule", ["graphs", "selectedSubgraphIds", "links"]),
         ...mapGetters("postsModule", ["titleOrBody"]),
 
         ...mapState("clickerModule", ["newLinkSource", "linkToEdit"]),
@@ -162,8 +162,8 @@ export default {
         }
     },
     created() {
-        const initialGraphId = this.selectedGraphIds.length > 0
-            ? this.selectedGraphIds[0]
+        const initialGraphId = this.selectedSubgraphIds.length > 0
+            ? this.selectedSubgraphIds[0]
             : 1;
         this.newLinkGraphId = initialGraphId;
     },

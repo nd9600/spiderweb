@@ -75,8 +75,8 @@ export default {
     computed: {
         ...mapState("settingsModule", ["canOpenMultiplePosts"]),
 
-        ...mapState("postsModule", ["selectedGraphIds"]),
-        ...mapGetters("postsModule", ["postsInSelectedGraphs", "linksInSelectedGraphs", "graphColour", "titleOrBody", "isNeighbour"]),
+        ...mapState("postsModule", ["selectedSubgraphIds"]),
+        ...mapGetters("postsModule", ["postsInSelectedSubgraphs", "linksInSelectedSubgraphs", "graphColour", "titleOrBody", "isNeighbour"]),
 
         ...mapState("clickerModule", ["shouldShowClickButtonMenu", "clickMode"]),
         selectedPostIds() {
@@ -84,14 +84,14 @@ export default {
         }
     },
     watch: {
-        selectedGraphIds() {
+        selectedSubgraphIds() {
             this.shouldResetZooming = true;
             this.debouncedMakeGraphSvg();
         },
-        postsInSelectedGraphs() {
+        postsInSelectedSubgraphs() {
             this.debouncedMakeGraphSvg();
         },
-        linksInSelectedGraphs() {
+        linksInSelectedSubgraphs() {
             this.debouncedMakeGraphSvg();
         },
         zoom({x, y, scale}) {
@@ -173,8 +173,8 @@ export default {
         ),
         makeGraphSvg() {
             //todo: almost definitely in-efficient
-            const nodes = JSON.parse(JSON.stringify(this.postsInSelectedGraphs));
-            const links = JSON.parse(JSON.stringify(this.linksInSelectedGraphs));
+            const nodes = JSON.parse(JSON.stringify(this.postsInSelectedSubgraphs));
+            const links = JSON.parse(JSON.stringify(this.linksInSelectedSubgraphs));
 
             const vm = this;
             

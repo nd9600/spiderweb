@@ -32,12 +32,24 @@ const state = {
             id: 1,
             name: "default",
             nodes: [],
+            subgraphs: [],
+        }
+    },
+    subgraphs: {
+        /*
+        1: {
+            id: 1,
+            name: "default",
+            nodes: [],
+            links: [],
             colour: "black"
         }
+        */
     },
 
     selectedPostIds: [],
-    selectedGraphIds: [1],
+    selectedGraphId: 1,
+    selectedSubgraphIds: [],
     zoom: {
         x: WIDTH / 2,
         y: HEIGHT / 2,
@@ -51,26 +63,27 @@ const getters = {
     },
 
     // graph getters
-    postIdsInSelectedGraphs(state) {
+    postIdsInSelectedSubgraphs(state) {
         let postIDs = [];
-        for (let selectedGraphId of state.selectedGraphIds) {
-            postIDs = postIDs.concat(state.graphs[selectedGraphId].nodes);
+        for (let selectedSubgraphId of state.selectedSubgraphIds) {
+            postIDs = postIDs.concat(state.subgraphs[selectedSubgraphId].nodes);
         }
         const uniquePostIDs = [...new Set(postIDs)];
         return uniquePostIDs;
     },
-    postsInSelectedGraphs(state, getters) {
-        return getters.postIdsInSelectedGraphs.map(id => state.posts[id]);
+    postsInSelectedSubgraphs(state, getters) {
+        return getters.postIdsInSelectedSubgraphs.map(id => state.posts[id]);
     },
-    linksInSelectedGraphs(state) {
-        return Object.values(state.links)
-            .filter(link => {
-                return state.selectedGraphIds.includes(link.graph);
-            });
+    linksInSelectedSubgraphs(state) {
+        let linkIDs = [];
+        for (let selectedSubgraphId of state.selectedSubgraphIds) {
+            linkIDs = linkIDs.concat(state.subgraphs[selectedSubgraphId].links);
+        }
+        return linkIDs.map(id => state.links[id]);
     },
 
     // node/link getters
-    graphColour: (state) => (id) => state.graphs[id].colour || stringToColour(`${String(id)}salt and pepper are good for hashes`), // if we just hash the id, the colours are almost identical
+    graphColour: (state) => (id) => state.subgraphs[id].colour || stringToColour(`${String(id)}salt and pepper are good for hashes`), // if we just hash the id, the colours are almost identical
 
     // post linking getters
     postIds(state) {
@@ -108,7 +121,7 @@ const getters = {
 
     neighbourIndex(state, getters) {
         let neighbourIndex = {};
-        getters.linksInSelectedGraphs.forEach(function (link) {
+        getters.linksInSelectedSubgraphs.forEach(function (link) {
             const lowerId = Math.min(link.source, link.target);
             const higherId = Math.max(link.source, link.target);
             neighbourIndex[lowerId + "," + higherId] = 1;
@@ -140,15 +153,15 @@ const getters = {
         };
     },
 
-    graphIdsThatIncludeThisPost: (state) => (postId) => {
-        let graphIdsThatIncludeThisPost = [];
+    linkedSubgraphs: (state) => (postId) => {
+        let linkedSubgraphs = [];
 
         for (let graph of Object.values(state.graphs)) {
             if (graph.nodes.includes(postId)) {
-                graphIdsThatIncludeThisPost.push(graph.id);
+                linkedSubgraphs.push(graph.id);
             }
         }
-        return graphIdsThatIncludeThisPost;
+        return linkedSubgraphs;
     }
 };
 
@@ -164,8 +177,9 @@ const mutations = {
         state.posts = newState.posts;
         state.links = newState.links;
         state.graphs = newState.graphs;
+        state.subgraphs = newState.subgraphs || {};
         state.selectedPostIds = newState.selectedPostIds || [];
-        state.selectedGraphIds = newState.selectedGraphIds || [];
+        state.selectedSubgraphIds = newState.selectedSubgraphIds || [];
         state.zoom = newState.zoom || {
             x: WIDTH / 2,
             y: HEIGHT / 2,
@@ -216,62 +230,57 @@ const mutations = {
         state.selectedPostIds = arrayMove(state.selectedPostIds, currentIndex, newIndex);
     },
 
-    setSelectedGraphIds(state, selectedGraphIds) {
-        state.selectedGraphIds = selectedGraphIds;
+    setSelectedSubgraphIds(state, selectedSubgraphIds) {
+        state.selectedSubgraphIds = selectedSubgraphIds;
     },
-    selectGraphId(state, graphId) {
-        if (!state.selectedGraphIds.includes(graphId)) {
-            state.selectedGraphIds.push(graphId);
-        }
-    },
-    toggleGraphId(state, graphId) {
-        if (state.selectedGraphIds.includes(graphId)) {
-            state.selectedGraphIds.splice(state.selectedGraphIds.indexOf(graphId), 1);
+    toggleSubgraphId(state, subgraphId) {
+        if (state.selectedSubgraphIds.includes(subgraphId)) {
+            state.selectedSubgraphIds.splice(state.selectedSubgraphIds.indexOf(subgraphId), 1);
         } else {
-            state.selectedGraphIds.push(graphId);
+            state.selectedSubgraphIds.push(subgraphId);
         }
     },
 
-    makeNewGraph(state, newGraphName) {
-        if (newGraphName.trim().length === 0) {
+    makeNewSubgraph(state, newSubgraphName) {
+        if (newSubgraphName.trim().length === 0) {
             return;
         }
 
-        const existingGraphNames = Object.values(state.graphs).map(graph => graph.name);
-        if (existingGraphNames.includes(newGraphName)) {
-            alert("You're trying to add a graph that already exists, choose a different name");
+        const existingGraphNames = Object.values(state.subgraphs).map(subgraph => subgraph.name);
+        if (existingGraphNames.includes(newSubgraphName)) {
+            alert("You're trying to make a subgraph that already exists, choose a different name");
             return;
         }
 
-        const existingGraphIds = Object.keys(state.graphs);
+        const existingSubgraphIds = Object.keys(state.subgraphs);
 
-        const highestGraphId = existingGraphIds.length === 0
+        const highestSubgraphId = existingSubgraphIds.length === 0
             ? 0
             : (
                 Math.max(
-                    ...existingGraphIds
+                    ...existingSubgraphIds
                         .map(id => parseInt(id, 10))
                 )
             );
-        const newGraphId = highestGraphId + 1;
+        const newSubgraphId = highestSubgraphId + 1;
 
         Vue.set(
-            state.graphs,
-            newGraphId,
+            state.subgraphs,
+            newSubgraphId,
             {
-                id: newGraphId,
-                name: newGraphName,
+                id: newSubgraphId,
+                name: newSubgraphName,
                 nodes: []
             }
         );
     },
-    changeGraphName(state, {graphId, newGraphName}) {
-        state.graphs[graphId].name = newGraphName;
+    changeSubgraphName(state, {subgraphId, newSubgraphName}) {
+        state.subgraphs[subgraphId].name = newSubgraphName;
     },
     removeGraph(state, graphId) {
-        const newSelectedGraphIds = state.selectedGraphIds
-            .filter(selectedGraphId => selectedGraphId !== parseInt(graphId, 10));
-        state.selectedGraphIds = newSelectedGraphIds.length === 0
+        const newSelectedGraphIds = state.selectedSubgraphIds
+            .filter(selectedSubgraphId => selectedSubgraphId !== parseInt(graphId, 10));
+        state.selectedSubgraphIds = newSelectedGraphIds.length === 0
             ? [1]
             : newSelectedGraphIds;
         Vue.delete(state.graphs, graphId);
@@ -282,7 +291,7 @@ const mutations = {
             state.graphs[graphId].nodes.push(postId);
         }
     },
-    removePostFromGraph(state, {graphId, postId}) {
+    removePostFromSubgraph(state, {graphId, postId}) {
         // when we remove a post, we need to remove any links that include it
         let linksAfterPostRemoval = {};
         for (const link of Object.values(state.links)) {

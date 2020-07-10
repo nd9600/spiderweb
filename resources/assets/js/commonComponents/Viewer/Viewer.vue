@@ -17,7 +17,7 @@
                     ↧
                 </button>
                 <select
-                    v-model.number="selectedGraphIds"
+                    v-model.number="selectedSubgraphIds"
                     class="select select--secondary w-full"
                     multiple
                     :size="Math.min(Object.keys(graphs).length, 7)"
@@ -73,12 +73,12 @@ export default {
         ...mapState("settingsModule", ["graphHeight", "postBarHeight"]),
         ...mapState("postsModule", ["graphs"]),
 
-        selectedGraphIds: {
+        selectedSubgraphIds: {
             get() {
-                return this.$store.state.postsModule.selectedGraphIds;
+                return this.$store.state.postsModule.selectedSubgraphIds;
             },
-            set(selectedGraphIds) {
-                this.$store.commit("postsModule/setSelectedGraphIds", selectedGraphIds);
+            set(selectedSubgraphIds) {
+                this.$store.commit("postsModule/setSelectedSubgraphIds", selectedSubgraphIds);
             }
         },
     },

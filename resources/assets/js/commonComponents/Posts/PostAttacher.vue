@@ -86,11 +86,11 @@ export default {
     },
     computed: {
         ...mapState("postsModule", ["graphs"]),
-        ...mapGetters("postsModule", ["graphIdsThatIncludeThisPost"]),
+        ...mapGetters("postsModule", ["linkedSubgraphs"]),
 
         graphsNotAlreadyAttachedTo() {
             const vm = this;
-            const graphsAlreadyAttachedTo = this.graphIdsThatIncludeThisPost(this.post.id)
+            const graphsAlreadyAttachedTo = this.linkedSubgraphs(this.post.id)
                 .map(id => parseInt(id, 10));
             return Object.keys(this.graphs)
                 .filter(id => {

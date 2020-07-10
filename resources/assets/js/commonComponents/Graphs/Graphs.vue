@@ -9,19 +9,19 @@
             
             <h2 class="h h--2">
                 <label class="flex flex-col items-start">
-                    Make new graph
+                    Make new subgraph
                     <input 
-                        v-model="newGraphName" 
+                        v-model="newSubgraphName" 
                         type="text"
                         class="mb-2 p-2 rounded text-gray-800 text-base placeholder-gray-600"
-                        placeholder="foo graph"
-                        @keyup.enter="makeNewGraphLocal"
+                        placeholder="foo subgraph"
+                        @keyup.enter="makeNewSubgraphLocal"
                     />
                     <button
                         type="submit"
                         class="btn btn--primary"
-                        :disabled="newGraphName.trim().length === 0"
-                        @click="makeNewGraphLocal"
+                        :disabled="newSubgraphName.trim().length === 0"
+                        @click="makeNewSubgraphLocal"
                     >
                         Create
                     </button>
@@ -36,9 +36,9 @@
                 </h2>
 
                 <GraphEditor
-                    v-for="(graph, graphId) in graphs"
-                    :key="graphId"
-                    :graphId="graphId"
+                    v-for="(subgraph, subgraphId) in subgraphs"
+                    :key="subgraphId"
+                    :graphId="subgraphId"
                     class="m-4 p-4 border"
                 />
             </section>
@@ -55,7 +55,7 @@ export default {
     components: {GraphEditor},
     data() {
         return {
-            newGraphName: "",
+            newSubgraphName: "",
         };
     },
     computed: {
@@ -63,11 +63,11 @@ export default {
         ...mapGetters("postsModule", ["postIds", "titleOrBody"]),
     },
     methods: {
-        ...mapMutations("postsModule", ["makeNewGraph"]),
+        ...mapMutations("postsModule", ["makeNewSubgraph"]),
 
-        makeNewGraphLocal() {
-            this.makeNewGraph(this.newGraphName);
-            this.newGraphName = "";
+        makeNewSubgraphLocal() {
+            this.makeNewSubgraph(this.newSubgraphName);
+            this.newSubgraphName = "";
         }
     }
 };
