@@ -288,6 +288,11 @@ const mutations = {
         Vue.delete(state.subgraphs, subgraphId);
     },
     addPostToSubgraph(state, {subgraphId, postId}) {
+        // we also need to add it to the graph that contains the subgraph, if it's not there already
+        if (!state.graphs[state.selectedGraphId].nodes.includes(postId)) {
+            state.graphs[state.selectedGraphId].nodes.push(postId);
+        }
+
         if (!state.subgraphs[subgraphId].nodes.includes(postId)) {
             state.subgraphs[subgraphId].nodes.push(postId);
         }
@@ -495,9 +500,6 @@ const actions = {
         context.commit("addPost", newPost);
         return newPost;
     },
-    async replyToPost(context, {postId, newPost}) {
-
-    }
 };
 
 
