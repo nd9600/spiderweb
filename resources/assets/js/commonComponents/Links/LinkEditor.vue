@@ -133,7 +133,7 @@ export default {
     },
     computed: {
         ...mapState("postsModule", ["graphs", "posts", "selectedGraphNames"]),
-        ...mapGetters("postsModule", ["postIds", "graphNames", "titleOrBody"]),
+        ...mapGetters("postsModule", ["postIds", "titleOrBody"]),
 
         wantsToChangeSource: {
             get() {

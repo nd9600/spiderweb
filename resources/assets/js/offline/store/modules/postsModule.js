@@ -58,11 +58,13 @@ const state = {
 };
 
 const getters = {
-    graphNames(state) {
-        return Object.values(state.graphs).map(graph => graph.name);
+    // graph getters
+
+    subgraphsInSelectedGraph(state) {
+        const graph = state.graphs[state.selectedGraphId];
+        return graph.subgraphs.map(id => state.subgraphs[id]);
     },
 
-    // graph getters
     postIdsInSelectedSubgraphs(state) {
         let postIDs = [];
         for (let selectedSubgraphId of state.selectedSubgraphIds) {
@@ -277,13 +279,35 @@ const mutations = {
     changeSubgraphName(state, {subgraphId, newSubgraphName}) {
         state.subgraphs[subgraphId].name = newSubgraphName;
     },
-    removeGraph(state, graphId) {
-        const newSelectedGraphIds = state.selectedSubgraphIds
-            .filter(selectedSubgraphId => selectedSubgraphId !== parseInt(graphId, 10));
-        state.selectedSubgraphIds = newSelectedGraphIds.length === 0
-            ? [1]
-            : newSelectedGraphIds;
-        Vue.delete(state.graphs, graphId);
+    removeSubgraph(state, subgraphId) {
+        const newSelectedSubgraphIds = state.selectedSubgraphIds
+            .filter(selectedSubgraphId => selectedSubgraphId !== parseInt(subgraphId, 10));
+        state.selectedSubgraphIds = newSelectedSubgraphIds.length === 0
+            ? []
+            : newSelectedSubgraphIds;
+        Vue.delete(state.subgraphs, subgraphId);
+    },
+    addPostToSubgraph(state, {subgraphId, postId}) {
+        if (!state.subgraphs[subgraphId].nodes.includes(postId)) {
+            state.subgraphs[subgraphId].nodes.push(postId);
+        }
+    },
+    removePostFromSubgraph(state, {subgraphId, postId}) {
+        // when we remove a post, we need to remove any links that include it
+        for (const link of Object.values(state.links)) {
+            const isRemovingPostFromThisGraph = link.graph === parseInt(subgraphId, 10); // this is a string, like `"2"`, _not_ `2`
+            const postIsSourceOrTarget =
+                link.source === postId
+                || link.target === postId;
+            if (
+                isRemovingPostFromThisGraph
+                && postIsSourceOrTarget
+            ) {
+                state.subgraphs[subgraphId].links.splice(state.subgraphs[subgraphId].links.indexOf(link.id), 1);
+            }
+        }
+
+        state.subgraphs[subgraphId].nodes.splice(state.subgraphs[subgraphId].nodes.indexOf(postId), 1);
     },
 
     addPostToGraph(state, {graphId, postId}) {
@@ -291,7 +315,7 @@ const mutations = {
             state.graphs[graphId].nodes.push(postId);
         }
     },
-    removePostFromSubgraph(state, {graphId, postId}) {
+    removePostFromGraph(state, {graphId, postId}) {
         // when we remove a post, we need to remove any links that include it
         let linksAfterPostRemoval = {};
         for (const link of Object.values(state.links)) {
@@ -308,7 +332,7 @@ const mutations = {
             linksAfterPostRemoval[link.id] = link;
         }
         Vue.set(state, "links", linksAfterPostRemoval);
-        
+
         Vue.set(
             state.graphs[graphId],
             "nodes",

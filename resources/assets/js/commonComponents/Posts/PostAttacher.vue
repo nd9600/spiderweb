@@ -23,32 +23,32 @@
             v-if="shouldExpand"
             class="mt-2 pl-4 flex flex-col items-start text-xs"
         >
-            <template v-if="graphsNotAlreadyAttachedTo.length > 0">
+            <template v-if="subgraphsNotAlreadyAttachedTo.length > 0">
                 <select
-                    v-if="Object.keys(graphs).length > 1"
-                    v-model.number="graphIdsToAttachPostTo"
+                    v-if="Object.keys(subgraphsInSelectedGraph).length > 1"
+                    v-model.number="subgraphIdsToAttachPostTo"
                     class="select select--secondary"
                     multiple
-                    :size="Math.min(Object.keys(graphs).length, 3)"
+                    :size="Math.min(Object.keys(subgraphsInSelectedGraph).length, 3)"
                 >
                     <option
-                        v-for="graph in graphsNotAlreadyAttachedTo"
-                        :key="graph.id"
-                        :value="graph.id"
+                        v-for="subgraph in subgraphsNotAlreadyAttachedTo"
+                        :key="subgraph.id"
+                        :value="subgraph.id"
                     >
-                        {{ graph.name }}
+                        {{ subgraph.name }}
                     </option>
                 </select>
                 <span
                     v-else
                     class="block text-xs text-gray-500"
                 >
-                    you can only attach the post to the graph '{{ Object.values(graphs)[0].name }}'
+                    you can only attach the post to the subgraph '{{ Object.values(subgraphsInSelectedGraph)[0].name }}'
                 </span>
 
                 <button
                     class="btn btn--primary mt-2"
-                    :disabled="graphIdsToAttachPostTo.length === 0"
+                    :disabled="subgraphIdsToAttachPostTo.length === 0"
                     @click="attachPost"
                 >
                     Attach
@@ -58,13 +58,13 @@
                 v-else
                 class="block text-xs text-gray-500"
             >
-                this post is already attached to all the graphs
+                this post is already attached to all the subgraphs
             </span>
         </label>
     </div>
 </template>
 <script>
-import {mapState, mapMutations, mapGetters} from "vuex";
+import {mapMutations, mapGetters} from "vuex";
 
 export default {
     name: "PostAttacher",
@@ -81,41 +81,40 @@ export default {
     data() {
         return {
             shouldExpand: this.initialShouldExpand,
-            graphIdsToAttachPostTo: []
+            subgraphIdsToAttachPostTo: []
         };
     },
     computed: {
-        ...mapState("postsModule", ["graphs"]),
-        ...mapGetters("postsModule", ["linkedSubgraphs"]),
+        ...mapGetters("postsModule", ["subgraphsInSelectedGraph", "linkedSubgraphs"]),
 
-        graphsNotAlreadyAttachedTo() {
+        subgraphsNotAlreadyAttachedTo() {
             const vm = this;
-            const graphsAlreadyAttachedTo = this.linkedSubgraphs(this.post.id)
+            const subgraphsAlreadyAttachedTo = this.linkedSubgraphs(this.post.id)
                 .map(id => parseInt(id, 10));
-            return Object.keys(this.graphs)
+            return Object.keys(this.subgraphsInSelectedGraph)
                 .filter(id => {
-                    return !graphsAlreadyAttachedTo.includes(Number(id));
+                    return !subgraphsAlreadyAttachedTo.includes(Number(id));
                 })
-                .map(id => vm.graphs[id]);
+                .map(id => vm.subgraphs[id]);
         }
     },
     created() {
-        if (Object.keys(this.graphs).length === 1) {
-            this.graphIdsToAttachPostTo = Object.keys(this.graphs)[0];
+        if (Object.keys(this.subgraphsInSelectedGraph).length === 1) {
+            this.subgraphIdsToAttachPostTo = Object.keys(this.subgraphsInSelectedGraph)[0];
         }
     },
     methods: {
-        ...mapMutations("postsModule", ["addPostToGraph"]),
+        ...mapMutations("postsModule", ["addPostToSubgraph"]),
 
         attachPost() {
-            if (this.graphIdsToAttachPostTo.length > 0) {
-                for (const graphId of this.graphIdsToAttachPostTo) {
-                    this.addPostToGraph({
-                        graphId,
+            if (this.subgraphIdsToAttachPostTo.length > 0) {
+                for (const subgraphId of this.subgraphIdsToAttachPostTo) {
+                    this.addPostToSubgraph({
+                        subgraphId,
                         postId: this.post.id
                     });
                 }
-                this.$emit("attachedPost", this.graphIdsToAttachPostTo);
+                this.$emit("attachedPost", this.subgraphIdsToAttachPostTo);
             }
         }
     }

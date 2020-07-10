@@ -37,19 +37,19 @@
             v-if="shouldShowPostAttacher"
             class="mb-2 flex justify-between items-start text-xs"
         >
-            <span>I want to attach the post to these graphs:</span>
+            <span>I want to attach the post to these subgraphs:</span>
             <select
-                v-model.number="graphIdsToAttachNewPostTo"
+                v-model.number="subgraphIdsToAttachPostTo"
                 class="select select--secondary"
                 multiple
-                :size="Math.min(Object.keys(graphs).length, 3)"
+                :size="Math.min(Object.keys(subgraphsInSelectedGraph).length, 3)"
             >
                 <option
-                    v-for="(graph, graphId) in graphs"
-                    :key="graphId"
-                    :value="graphId"
+                    v-for="(subgraph, subgraphId) in subgraphsInSelectedGraph"
+                    :key="subgraphId"
+                    :value="subgraphId"
                 >
-                    {{ graph.name }}
+                    {{ subgraph.name }}
                 </option>
             </select>
         </label>
@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import {mapState, mapMutations, mapActions} from "vuex";
+import {mapGetters, mapMutations, mapActions} from "vuex";
 
 export default {
     name: "PostMaker",
@@ -82,14 +82,14 @@ export default {
 
             title: "",
             body: "",
-            graphIdsToAttachNewPostTo: []
+            subgraphIdsToAttachPostTo: []
         };
     },
     computed: {
-        ...mapState("postsModule", ["graphs"]),
+        ...mapGetters("postsModule", ["subgraphsInSelectedGraph"]),
     },
     methods: {
-        ...mapMutations("postsModule", ["addPostToGraph"]),
+        ...mapMutations("postsModule", ["addPostToSubgraph"]),
         ...mapActions("postsModule", ["makeNewPost"]),
 
         toggleTitleInput() {
@@ -110,9 +110,9 @@ export default {
                 updated_at: new Date().toISOString(),
             };
             const newPostWithId = await this.makeNewPost(newPost);
-            if (this.graphIdsToAttachNewPostTo.length > 0) {
-                for (const graphId of this.graphIdsToAttachNewPostTo) {
-                    this.addPostToGraph({
+            if (this.subgraphIdsToAttachPostTo.length > 0) {
+                for (const graphId of this.subgraphIdsToAttachPostTo) {
+                    this.addPostToSubgraph({
                         graphId,
                         postId: newPostWithId.id
                     });
@@ -124,7 +124,7 @@ export default {
         resetNewPost() {
             this.title = "";
             this.body = "";
-            this.graphIdsToAttachNewPostTo = [];
+            this.subgraphIdsToAttachPostTo = [];
         }
     }
 };
