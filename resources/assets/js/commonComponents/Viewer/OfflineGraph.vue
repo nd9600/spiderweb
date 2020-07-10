@@ -51,25 +51,35 @@ import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
 import FloatingActionButton from "./FloatingActionButton";
 import {WIDTH, HEIGHT, INITIAL_ZOOM} from "@/js/commonComponents/constants";
 
+const ZOOM_KEY = "ZOOM";
+
 export default {
     name: "OfflineGraph",
     components: {
         FloatingActionButton
     },
     data() {
+        const storedZoom = JSON.parse(localStorage.getItem(ZOOM_KEY));
+        const zoom = storedZoom === null
+            ? {
+                x: WIDTH / 2,
+                y: HEIGHT / 2,
+                scale: INITIAL_ZOOM,
+            }
+            : storedZoom;
         return {
             svg: null,
             rootG: null,
 
             shouldSaveZoomChanges: false,
-            zoom: null,
+            zoom: zoom,
             zoomBehaviour: null,
             shouldResetZooming: false,
 
             linksG: null,
             nodesG: null,
 
-            nodesWithCoordinates: {} // after D3 has added `x` and `y` coordinates to each object
+            nodesWithCoordinates: {}, // after D3 has added `x` and `y` coordinates to each object,
         };
     },
     computed: {
@@ -131,9 +141,9 @@ export default {
                 this.zoomBehaviour.transform,
                 d3.zoomIdentity
                     .translate(
-                        this.$store.state.postsModule.zoom.x, // sets initial x/y and zoom amount
-                        this.$store.state.postsModule.zoom.y
-                    ).scale(this.$store.state.postsModule.zoom.scale)
+                        this.zoom.x, // sets initial x/y and zoom amount
+                        this.zoom.y
+                    ).scale(this.zoom.scale)
             );
         this.$nextTick(() => {
             this.debouncedMakeGraphSvg();
@@ -142,7 +152,6 @@ export default {
         this.$root.$on("focusOnPost", this.focusOnPost);
     },
     methods: {
-        ...mapMutations("postsModule", ["setZoom"]),
         ...mapMutations("clickerModule", ["setShouldShowClickButtonMenu", "setClickMode"]),
 
         ...mapActions("clickerModule", ["handlePostClick", "handleLinkClick"]),
@@ -358,13 +367,13 @@ export default {
         debouncedSaveZoomState: debounce(
             function() {
                 if (this.shouldSaveZoomChanges) {
-                    this.setZoom(this.zoom);
+                    localStorage.setItem(ZOOM_KEY, JSON.stringify(this.zoom));
                 }
             },
-            250,
+            100,
             {
                 "leading": false,
-                "trailing": true, // we always need to call it the final time, so that D3 picks up any new nodes or links,
+                "trailing": true, // we always need to call it the final time, so that we save the last zoom position
             }
         ),
 
