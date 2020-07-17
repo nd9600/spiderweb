@@ -67,8 +67,13 @@ const getters = {
 
     postIdsInSelectedSubgraphs(state) {
         let postIDs = [];
-        for (let selectedSubgraphId of state.selectedSubgraphIds) {
-            postIDs = postIDs.concat(state.subgraphs[selectedSubgraphId].nodes);
+
+        if (state.selectedSubgraphIds.length > 0) {
+            for (let selectedSubgraphId of state.selectedSubgraphIds) {
+                postIDs = postIDs.concat(state.subgraphs[selectedSubgraphId].nodes);
+            }
+        } else {
+            postIDs = state.graphs[state.selectedGraphId].nodes;
         }
         const uniquePostIDs = [...new Set(postIDs)];
         return uniquePostIDs;
@@ -77,11 +82,18 @@ const getters = {
         return getters.postIdsInSelectedSubgraphs.map(id => state.posts[id]);
     },
     linksInSelectedSubgraphs(state) {
-        let linkIDs = [];
-        for (let selectedSubgraphId of state.selectedSubgraphIds) {
-            linkIDs = linkIDs.concat(state.subgraphs[selectedSubgraphId].links);
+        if (state.selectedSubgraphIds.length > 0) {
+            let linkIDs = [];
+            for (let selectedSubgraphId of state.selectedSubgraphIds) {
+                linkIDs = linkIDs.concat(state.subgraphs[selectedSubgraphId].links);
+            }
+            return linkIDs.map(id => state.links[id]);
+        } else {
+            return Object.values(state.links)
+                .filter(link => {
+                    return state.selectedGraphId === link.graph;
+                });
         }
-        return linkIDs.map(id => state.links[id]);
     },
 
     // node/link getters
@@ -230,6 +242,10 @@ const mutations = {
             ? 0
             : currentIndex + 1;
         state.selectedPostIds = arrayMove(state.selectedPostIds, currentIndex, newIndex);
+    },
+
+    setSelectedGraphId(state, selectedGraphId) {
+        state.selectedGraphId = selectedGraphId;
     },
 
     setSelectedSubgraphIds(state, selectedSubgraphIds) {

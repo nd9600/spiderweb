@@ -34,7 +34,26 @@
         </label>
 
         <label
-            v-if="shouldShowPostAttacher"
+            v-if="shouldShowPostAttacher && selectedGraphId !== null"
+            class="mb-2 text-xs"
+        >
+            <span>I </span>
+            <select
+                v-model="shouldAttachPostToGraph"
+                class="select select--secondary pl-0 py-0 pr-3 text-red"
+            >
+                <option :value="true">
+                    want
+                </option>
+                <option :value="false">
+                    don't want
+                </option>
+            </select>
+            <span>to attach the post to the currently-open graph</span>
+        </label>
+
+        <label
+            v-if="shouldShowPostAttacher && Object.keys(subgraphsInSelectedGraph).length > 0"
             class="mb-2 flex justify-between items-start text-xs"
         >
             <span>I want to attach the post to these subgraphs:</span>
@@ -66,7 +85,7 @@
 </template>
 
 <script>
-import {mapGetters, mapMutations, mapActions} from "vuex";
+import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
 
 export default {
     name: "PostMaker",
@@ -82,14 +101,16 @@ export default {
 
             title: "",
             body: "",
+            shouldAttachPostToGraph: true,
             subgraphIdsToAttachPostTo: []
         };
     },
     computed: {
+        ...mapState("postsModule", ["selectedGraphId"]),
         ...mapGetters("postsModule", ["subgraphsInSelectedGraph"]),
     },
     methods: {
-        ...mapMutations("postsModule", ["addPostToSubgraph"]),
+        ...mapMutations("postsModule", ["addPostToGraph", "addPostToSubgraph"]),
         ...mapActions("postsModule", ["makeNewPost"]),
 
         toggleTitleInput() {
@@ -110,14 +131,23 @@ export default {
                 updated_at: new Date().toISOString(),
             };
             const newPostWithId = await this.makeNewPost(newPost);
+
+            if (this.shouldAttachPostToGraph) {
+                this.addPostToGraph({
+                    graphId: this.selectedGraphId,
+                    postId: newPostWithId.id
+                });
+            }
+
             if (this.subgraphIdsToAttachPostTo.length > 0) {
-                for (const graphId of this.subgraphIdsToAttachPostTo) {
+                for (const subgraphId of this.subgraphIdsToAttachPostTo) {
                     this.addPostToSubgraph({
-                        graphId,
+                        subgraphId,
                         postId: newPostWithId.id
                     });
                 }
             }
+
             this.resetNewPost();
             this.$emit("madePost", newPostWithId);
         },

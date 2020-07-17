@@ -7,29 +7,46 @@
             >
                 Graphs
             </span>
-            <span class="flex">
+            <span class="flex items-start">
                 <button
-                    class="btn btn--secondary mr-2"
+                    class="btn btn--secondary"
                     type="button"
                     title="scroll to the posts"
                     @click="scrollToPostBar"
                 >
                     ↧
                 </button>
-                <select
-                    v-model.number="selectedSubgraphIds"
-                    class="select select--secondary w-full"
-                    multiple
-                    :size="Math.min(Object.keys(graphs).length, 7)"
-                >
-                    <option
-                        v-for="(graph, graphId) in graphs"
-                        :key="graphId"
-                        :value="graphId"
+                <label class="ml-4 mr-2">
+                    <select
+                        v-model.number="selectedGraphId"
+                        class="select select--secondary w-full"
+                        :size="Math.min(Object.keys(graphs).length, 3)"
                     >
-                        {{ graph.name }}
-                    </option>
-                </select>
+                        <option
+                            v-for="(graph, graphId) in graphs"
+                            :key="graphId"
+                            :value="graphId"
+                        >
+                            {{ graph.name }}
+                        </option>
+                    </select>
+                </label>
+                <label>
+                    <select
+                        v-model.number="selectedSubgraphIds"
+                        class="select select--secondary w-full"
+                        multiple
+                        :size="Math.min(Object.keys(subgraphsInSelectedGraph).length, 7)"
+                    >
+                        <option
+                            v-for="subgraph in subgraphsInSelectedGraph"
+                            :key="subgraph.id"
+                            :value="subgraph.id"
+                        >
+                            {{ graph.name }}
+                        </option>
+                    </select>
+                </label>
             </span>
         </label>
         <div class="flex flex-col">
@@ -58,7 +75,7 @@
 </template>
 
 <script>
-import {mapState} from "vuex";
+import {mapGetters, mapState} from "vuex";
 
 import OfflineGraph from "./OfflineGraph";
 import PostBar from "./PostBar/PostBar";
@@ -72,7 +89,16 @@ export default {
     computed: {
         ...mapState("settingsModule", ["graphHeight", "postBarHeight"]),
         ...mapState("postsModule", ["graphs"]),
+        ...mapGetters("postsModule", ["subgraphsInSelectedGraph"]),
 
+        selectedGraphId: {
+            get() {
+                return this.$store.state.postsModule.selectedGraphId;
+            },
+            set(selectedGraphId) {
+                this.$store.commit("postsModule/setSelectedGraphId", selectedGraphId);
+            }
+        },
         selectedSubgraphIds: {
             get() {
                 return this.$store.state.postsModule.selectedSubgraphIds;
