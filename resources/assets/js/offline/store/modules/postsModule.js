@@ -85,9 +85,20 @@ const getters = {
         if (state.selectedSubgraphIds.length > 0) {
             let linkIDs = [];
             for (let selectedSubgraphId of state.selectedSubgraphIds) {
-                linkIDs = linkIDs.concat(state.subgraphs[selectedSubgraphId].links);
+                linkIDs = linkIDs.concat(
+                    state.subgraphs[selectedSubgraphId].links
+                        .map(linkId => ({
+                            linkId,
+                            subgraphId: selectedSubgraphId
+                        }))
+                );
             }
-            return linkIDs.map(id => state.links[id]);
+            return linkIDs
+                .map(({linkId, subgraphId}) => {
+                    let link = JSON.parse(JSON.stringify(state.links[linkId]));
+                    link.subgraphId = subgraphId;
+                    return link;
+                });
         } else {
             return Object.values(state.links)
                 .filter(link => {
@@ -97,7 +108,12 @@ const getters = {
     },
 
     // node/link getters
-    graphColour: (state) => (id) => state.subgraphs[id].colour || stringToColour(`${String(id)}salt and pepper are good for hashes`), // if we just hash the id, the colours are almost identical
+    subgraphColour: (state) => (subgraphId) => {
+        if (typeof id === "undefined") {
+            return "black";
+        }
+        return state.subgraphs[subgraphId] && state.subgraphs[subgraphId].colour || stringToColour(`${String(subgraphId)}salt and pepper are good for hashes`);
+    }, // if we just hash the id, the colours are almost identical
 
     // post linking getters
     postIds(state) {
@@ -288,7 +304,8 @@ const mutations = {
             {
                 id: newSubgraphId,
                 name: newSubgraphName,
-                nodes: []
+                nodes: [],
+                links: []
             }
         );
     },

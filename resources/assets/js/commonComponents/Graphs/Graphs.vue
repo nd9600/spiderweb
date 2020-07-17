@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-col">
-        <section v-if="Object.keys(graphs).length > 0">
+        <section v-if="Object.keys(subgraphs).length > 0">
             <h1 class="h h--1">
                 Graphs
             </h1>
@@ -38,7 +38,7 @@
                 <GraphEditor
                     v-for="(subgraph, subgraphId) in subgraphs"
                     :key="subgraphId"
-                    :graphId="subgraphId"
+                    :subgraphId="subgraphId"
                     class="m-4 p-4 border"
                 />
             </section>
@@ -59,7 +59,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["graphs"]),
+        ...mapState("postsModule", ["subgraphs"]),
         ...mapGetters("postsModule", ["postIds", "titleOrBody"]),
     },
     methods: {

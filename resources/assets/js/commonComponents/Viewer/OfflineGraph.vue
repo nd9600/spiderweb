@@ -76,7 +76,7 @@ export default {
         ...mapState("settingsModule", ["canOpenMultiplePosts"]),
 
         ...mapState("postsModule", ["selectedSubgraphIds"]),
-        ...mapGetters("postsModule", ["postsInSelectedSubgraphs", "linksInSelectedSubgraphs", "graphColour", "titleOrBody", "isNeighbour"]),
+        ...mapGetters("postsModule", ["postsInSelectedSubgraphs", "linksInSelectedSubgraphs", "subgraphColour", "titleOrBody", "isNeighbour"]),
 
         ...mapState("clickerModule", ["shouldShowClickButtonMenu", "clickMode"]),
         selectedPostIds() {
@@ -198,7 +198,7 @@ export default {
                 .classed("graph__link", true)
                 .classed("graph__link--sidenote", (link) => link.type === "sidenote")
                 .classed("graph__link--link", (link) => link.type === "link")
-                .attr("stroke", (link) => this.graphColour(link.graph))
+                .attr("stroke", (link) => this.subgraphColour(link.subgraphId))
                 .attr("marker-end", "url(#arrowhead)")
                 .on("click", async function (link) {
                     const returnedValue = await vm.handleLinkClick(
