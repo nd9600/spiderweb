@@ -5,7 +5,7 @@
                 Graphs that include this post
             </h4>
             <a
-                v-for="graphId in linkedSubgraphs"
+                v-for="graphId in linkedSubgraphs(post.id)"
                 :key="graphId"
                 class="link block mb-2 text-xs md:text-base"
                 title="show/hide this graph"
@@ -38,10 +38,6 @@ export default {
     computed: {
         ...mapState("postsModule", ["subgraphs"]),
         ...mapGetters("postsModule", ["linkedSubgraphs"]),
-
-        linkedSubgraphs() {
-            return this.linkedSubgraphs(this.post.id);
-        }
     },
     methods: {
         ...mapMutations("postsModule", ["toggleSubgraphId", "removePostFromSubgraph"]),

@@ -170,9 +170,9 @@ const getters = {
     linkedSubgraphs: (state) => (postId) => {
         let linkedSubgraphs = [];
 
-        for (let graph of Object.values(state.graphs)) {
-            if (graph.nodes.includes(postId)) {
-                linkedSubgraphs.push(graph.id);
+        for (let subgraph of Object.values(state.subgraphs)) {
+            if (subgraph.nodes.includes(postId)) {
+                linkedSubgraphs.push(subgraph.id);
             }
         }
         return linkedSubgraphs;
