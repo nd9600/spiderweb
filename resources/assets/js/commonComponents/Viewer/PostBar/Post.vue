@@ -98,10 +98,10 @@
                 <button
                     v-if="isPartOfASubgraph"
                     class="bottomLink"
-                    :class="bottomTab === 'linked-graphs' ? 'bottomLink--selected' : 'bottomLink--unselected'"
+                    :class="bottomTab === 'linked-subgraphs' ? 'bottomLink--selected' : 'bottomLink--unselected'"
                     title="graphs that include this post"
                     type="button"
-                    @click="toggleBottomTab('linked-graphs')"
+                    @click="toggleBottomTab('linked-subgraphs')"
                 >
                     <span class="text-xs">linked graphs</span>
                 </button>
@@ -152,7 +152,7 @@ import marked from "marked";
 
 import PostEditor from "@/js/commonComponents/Posts/PostEditor";
 import LinkedPosts from "./LinkedPosts";
-import LinkedGraphs from "./LinkedGraphs";
+import LinkedSubgraphs from "./LinkedSubgraphs";
 import AddLinkedPost from "./AddLinkedPost";
 
 const renderer = new marked.Renderer();
@@ -173,7 +173,7 @@ export default {
     components: {
         PostEditor,
         LinkedPosts,
-        LinkedGraphs,
+        LinkedSubgraphs,
         AddLinkedPost,
     },
     props: {
@@ -185,7 +185,7 @@ export default {
     data() {
         return {
             showPostEditor: false,
-            bottomTab: "" // linked-posts | linked-graphs | add-linked-post
+            bottomTab: "" // linked-posts | linked-subgraphs | add-linked-post
         };
     },
     computed: {
