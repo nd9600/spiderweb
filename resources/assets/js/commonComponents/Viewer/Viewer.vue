@@ -16,21 +16,14 @@
                 >
                     ↧
                 </button>
-                <label class="ml-4 mr-2">
-                    <select
-                        v-model.number="selectedGraphId"
-                        class="select select--secondary w-full"
-                        :size="Math.min(Object.keys(graphs).length, 3)"
-                    >
-                        <option
-                            v-for="(graph, graphId) in graphs"
-                            :key="graphId"
-                            :value="graphId"
-                        >
-                            {{ graph.name }}
-                        </option>
-                    </select>
-                </label>
+                <button
+                    type="role"
+                    class="btn btn--secondary ml-4 mr-2"
+                    :disabled="subgraphsInSelectedGraph.length === 0 || selectedSubgraphIds.length === 0"
+                    @click="selectedSubgraphIds = []"
+                >
+                    View all subgraphs
+                </button>
                 <label>
                     <select
                         v-model.number="selectedSubgraphIds"
@@ -106,7 +99,7 @@ export default {
             set(selectedSubgraphIds) {
                 this.$store.commit("postsModule/setSelectedSubgraphIds", selectedSubgraphIds);
             }
-        },
+        }
     },
     methods: {
         scrollToPostBar() {
