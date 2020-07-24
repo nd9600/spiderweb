@@ -114,7 +114,7 @@
                 "name": "default",
                 "nodes": [],
                 "links": [],
-                "colour": "black"
+                "colour": "#000000"
             }
         },
         "selectedPostIds": [],

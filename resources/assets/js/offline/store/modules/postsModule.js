@@ -42,7 +42,7 @@ const state = {
             name: "default",
             nodes: [],
             links: [],
-            colour: "black"
+            colour: "#000000"
         }
         */
     },
@@ -110,7 +110,7 @@ const getters = {
     // node/link getters
     subgraphColour: (state) => (subgraphId) => {
         if (typeof id === "undefined") {
-            return "black";
+            return "#000000";
         }
         return state.subgraphs[subgraphId] && state.subgraphs[subgraphId].colour || stringToColour(`${String(subgraphId)}salt and pepper are good for hashes`);
     }, // if we just hash the id, the colours are almost identical
@@ -311,6 +311,9 @@ const mutations = {
     },
     changeSubgraphName(state, {subgraphId, newSubgraphName}) {
         state.subgraphs[subgraphId].name = newSubgraphName;
+    },
+    changeSubgraphColour(state, {subgraphId, colour}) {
+        state.subgraphs[subgraphId].colour = colour;
     },
     removeSubgraph(state, subgraphId) {
         const newSelectedSubgraphIds = state.selectedSubgraphIds

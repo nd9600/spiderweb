@@ -1,7 +1,10 @@
 <template>
     <div>
         <div class="flex justify-between">
-            <h3 class="h h--3">
+            <h3
+                class="h h--3"
+                :style="{color: newSubgraphColour}"
+            >
                 {{ subgraph.name }}
             </h3>
             <button
@@ -12,7 +15,7 @@
                 Remove
             </button>
         </div>
-        <div>
+        <div class="flex flex-col">
             <label>
                 <input
                     v-model="newSubgraphName"
@@ -27,6 +30,21 @@
                     @click="changeSubgraphNameLocal"
                 >
                     Change subgraph name
+                </button>
+            </label>
+            <label class="mt-2 flex items-center">
+                <span class="mr-4">Colour: </span>
+                <input
+                    v-model="newSubgraphColour"
+                    class="ml-4 mr-1"
+                    type="color"
+                />
+                <button
+                    class="py-1 px-2 btn btn--secondary"
+                    :disabled="newSubgraphColour === subgraph.colour"
+                    @click="changeSubgraphColour({subgraphId, colour: newSubgraphColour})"
+                >
+                    Change subgraph colour
                 </button>
             </label>
         </div>
@@ -47,7 +65,8 @@ export default {
     data() {
         return {
             postIdToAddToGraph: null,
-            newSubgraphName: ""
+            newSubgraphName: "",
+            newSubgraphColour: "#000000"
         };
     },
     computed: {
@@ -56,10 +75,13 @@ export default {
 
         subgraph() {
             return this.subgraphs[this.subgraphId];
-        },
+        }
+    },
+    mounted() {
+        this.newSubgraphColour = this.subgraph.colour || "#000000";
     },
     methods: {
-        ...mapMutations("postsModule", ["changeSubgraphName", "removeSubgraph"]),
+        ...mapMutations("postsModule", ["changeSubgraphName", "changeSubgraphColour", "removeSubgraph"]),
         changeSubgraphNameLocal() {
             if (this.newSubgraphName.trim().length === 0) {
                 return;
