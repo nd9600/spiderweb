@@ -18,10 +18,10 @@
                 </button>
                 <button
                     v-if="subgraphsInSelectedGraph.length > 0"
-                    type="role"
+                    type="button"
                     class="btn btn--secondary ml-4 mr-2"
-                    :disabled="selectedSubgraphIds.length === 0"
-                    @click="selectedSubgraphIds = []"
+                    :disabled="selectedSubgraphIds.length === subgraphsInSelectedGraph.length"
+                    @click="selectAllSubgraphs"
                 >
                     View all subgraphs
                 </button>
@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import {mapGetters, mapState} from "vuex";
+import {mapGetters, mapMutations, mapState} from "vuex";
 
 import OfflineGraph from "./OfflineGraph";
 import PostBar from "./PostBar/PostBar";
@@ -103,6 +103,8 @@ export default {
         }
     },
     methods: {
+        ...mapMutations("postsModule", ["selectAllSubgraphs"]),
+
         scrollToPostBar() {
             window.scrollBy(0, document.getElementById("postBar").getBoundingClientRect().top - 5);
         },

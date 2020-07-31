@@ -279,6 +279,9 @@ const mutations = {
     setSelectedSubgraphIds(state, selectedSubgraphIds) {
         state.selectedSubgraphIds = selectedSubgraphIds;
     },
+    selectAllSubgraphs(state) {
+        state.selectedSubgraphIds = state.graphs[state.selectedGraphId].subgraphs;
+    },
     toggleSubgraphId(state, subgraphId) {
         if (state.selectedSubgraphIds.includes(subgraphId)) {
             state.selectedSubgraphIds.splice(state.selectedSubgraphIds.indexOf(subgraphId), 1);
