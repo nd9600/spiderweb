@@ -249,7 +249,6 @@ export default {
 
 .clicker__actionButtons {
     padding: 10px;
-    margin-bottom: 10px;
     max-width: 100%;
 }
 .clicker__actionButton {
@@ -268,7 +267,19 @@ export default {
     background-color: #e8e8e8;
 }
 .clicker__actionButton:not(:last-of-type) {
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .clicker__actionButton {
+        border: 0;
+        border-radius: 0;
+        padding: 0.25rem;
+    }
+
+    .clicker__actionButton:not(:last-of-type) {
+        margin-bottom: 0.25rem;
+    }
 }
 
 .linkIcon {
@@ -282,8 +293,7 @@ export default {
 
 .clicker__contextMenu {
     border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 10px;
+    padding: 5px;
     max-width: 100%;
 
     background-color: white;
