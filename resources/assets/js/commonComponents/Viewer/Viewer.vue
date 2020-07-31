@@ -1,48 +1,60 @@
 <template>
     <div class="flex flex-col">
-        <label class="mb-4 flex flex-col">
-            <span
-                id="graphsList"
-                class="block h h--4"
+        <div class="flex items-start">
+            <button
+                class="btn btn--secondary"
+                type="button"
+                title="scroll to the posts"
+                @click.stop="scrollToPostBar"
             >
-                Graphs
-            </span>
-            <span class="flex items-start">
-                <button
-                    class="btn btn--secondary"
-                    type="button"
-                    title="scroll to the posts"
-                    @click="scrollToPostBar"
+                ↧
+            </button>
+            <div class="ml-4 flex flex-col items-start">
+                <p
+                    id="graphsList"
+                    class="block h h--4"
                 >
-                    ↧
-                </button>
-                <button
-                    v-if="subgraphsInSelectedGraph.length > 0"
-                    type="button"
-                    class="btn btn--secondary ml-4 mr-2"
-                    :disabled="selectedSubgraphIds.length === subgraphsInSelectedGraph.length"
-                    @click="selectAllSubgraphs"
-                >
-                    View all subgraphs
-                </button>
-                <label v-if="subgraphsInSelectedGraph.length > 0">
-                    <select
-                        v-model.number="selectedSubgraphIds"
-                        class="select select--secondary w-full"
-                        multiple
-                        :size="Math.min(Object.keys(subgraphsInSelectedGraph).length, 7)"
-                    >
-                        <option
-                            v-for="subgraph in subgraphsInSelectedGraph"
-                            :key="subgraph.id"
-                            :value="subgraph.id"
+                    Subgraphs
+                </p>
+                <div class="flex">
+                    <div class="mr-2 flex flex-col items-start">
+                        <button
+                            v-if="subgraphsInSelectedGraph.length > 0"
+                            class="btn btn--secondary"
+                            type="button"
+                            :disabled="selectedSubgraphIds.length === subgraphsInSelectedGraph.length"
+                            @click.stop="selectAllSubgraphs"
                         >
-                            {{ subgraph.name }}
-                        </option>
-                    </select>
-                </label>
-            </span>
-        </label>
+                            View all subgraphs
+                        </button>
+                        <button
+                            v-if="selectedSubgraphIds.length > 0"
+                            class="my-1 ml-2 text-sm hover:underline"
+                            type="button"
+                            @click.stop="selectedSubgraphIds = []"
+                        >
+                            clear
+                        </button>
+                    </div>
+                    <label v-if="subgraphsInSelectedGraph.length > 0">
+                        <select
+                            v-model.number="selectedSubgraphIds"
+                            class="select select--secondary w-full"
+                            multiple
+                            :size="Math.min(Object.keys(subgraphsInSelectedGraph).length, 7)"
+                        >
+                            <option
+                                v-for="subgraph in subgraphsInSelectedGraph"
+                                :key="subgraph.id"
+                                :value="subgraph.id"
+                            >
+                                {{ subgraph.name }}
+                            </option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+        </div>
         <div class="flex flex-col">
             <OfflineGraph
                 ref="offlineGraph"
