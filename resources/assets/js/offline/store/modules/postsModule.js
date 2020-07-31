@@ -321,6 +321,7 @@ const mutations = {
                 links: []
             }
         );
+        state.graphs[state.selectedGraphId].subgraphs.push(newSubgraphId);
     },
     changeSubgraphName(state, {subgraphId, newSubgraphName}) {
         state.subgraphs[subgraphId].name = newSubgraphName;
@@ -335,6 +336,10 @@ const mutations = {
             ? []
             : newSelectedSubgraphIds;
         Vue.delete(state.subgraphs, subgraphId);
+        state.graphs[state.selectedGraphId].subgraphs.splice(
+            state.graphs[state.selectedGraphId].subgraphs.indexOf(subgraphId),
+            1
+        );
     },
     addPostToSubgraph(state, {subgraphId, postId}) {
         // we also need to add it to the graph that contains the subgraph, if it's not there already

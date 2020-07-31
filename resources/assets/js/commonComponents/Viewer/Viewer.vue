@@ -36,7 +36,7 @@
                             :key="subgraph.id"
                             :value="subgraph.id"
                         >
-                            {{ graph.name }}
+                            {{ subgraph.name }}
                         </option>
                     </select>
                 </label>

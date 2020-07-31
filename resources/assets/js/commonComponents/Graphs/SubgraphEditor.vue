@@ -57,7 +57,7 @@ export default {
     name: "SubgraphEditor",
     props: {
         subgraphId: {
-            type: String,
+            type: Number,
             required: true
         },
     },

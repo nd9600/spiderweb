@@ -31,15 +31,15 @@
 
         <hr class="my-5">
 
-        <section>
+        <section v-if="subgraphsInSelectedGraph.length > 0">
             <h2 class="h h--2">
                 Edit subgraphs
             </h2>
 
             <SubgraphEditor
-                v-for="(subgraph, subgraphId) in subgraphs"
-                :key="subgraphId"
-                :subgraphId="subgraphId"
+                v-for="subgraph in subgraphsInSelectedGraph"
+                :key="subgraph.id"
+                :subgraphId="subgraph.id"
                 class="m-4 p-4 border border-gray-500"
             />
         </section>
@@ -60,7 +60,7 @@ export default {
     },
     computed: {
         ...mapState("postsModule", ["subgraphs"]),
-        ...mapGetters("postsModule", ["postIds", "titleOrBody"]),
+        ...mapGetters("postsModule", ["subgraphsInSelectedGraph", "postIds", "titleOrBody"]),
     },
     methods: {
         ...mapMutations("postsModule", ["makeNewSubgraph"]),
