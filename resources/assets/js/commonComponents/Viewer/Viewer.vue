@@ -17,14 +17,15 @@
                     ↧
                 </button>
                 <button
+                    v-if="subgraphsInSelectedGraph.length > 0"
                     type="role"
                     class="btn btn--secondary ml-4 mr-2"
-                    :disabled="subgraphsInSelectedGraph.length === 0 || selectedSubgraphIds.length === 0"
+                    :disabled="selectedSubgraphIds.length === 0"
                     @click="selectedSubgraphIds = []"
                 >
                     View all subgraphs
                 </button>
-                <label>
+                <label v-if="subgraphsInSelectedGraph.length > 0">
                     <select
                         v-model.number="selectedSubgraphIds"
                         class="select select--secondary w-full"
