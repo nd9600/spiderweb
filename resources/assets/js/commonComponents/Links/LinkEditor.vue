@@ -17,11 +17,13 @@
                 </option>
             </select>
         </label>
-        <label v-if="subgraphs.length > 0">
+        <label v-if="Object.keys(subgraphs).length > 0">
             in the subgraph
             <select
                 v-model.number="subgraphsLinkIsIn"
                 class="select select--secondary mb-2"
+                multiple
+                :size="Math.min(Object.keys(subgraphs).length, 3)"
             >
                 <option
                     v-for="(subgraph, id) in subgraphs"
@@ -174,7 +176,7 @@ export default {
         "type": "updateLinkLocal",
     },
     methods: {
-        ...mapMutations("postsModule", ["updateLink", "removeLink"]),
+        ...mapMutations("postsModule", ["setSubgraphsLinkIsIn", "updateLink", "removeLink"]),
         ...mapMutations("clickerModule", ["setWantsToChangeSource", "setWantsToChangeTarget"]),
 
         onPostClick(sourceOrTarget, post) {

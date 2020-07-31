@@ -110,8 +110,7 @@ const getters = {
 
     // node/link getters
     subgraphColour: (state) => (subgraphId) => {
-        console.log(subgraphId);
-        if (typeof id === "undefined") {
+        if (typeof subgraphId === "undefined") {
             return "#000000";
         }
         return state.subgraphs[subgraphId] && state.subgraphs[subgraphId].colour || stringToColour(`${String(subgraphId)}salt and pepper are good for hashes`);
@@ -372,11 +371,21 @@ const mutations = {
         for (const subgraphId of Object.keys(state.subgraphs)) {
             const indexOfLink = state.subgraphs[subgraphId].links.indexOf(linkId);
             const alreadyInSubgraph = indexOfLink >= 0;
-            const shouldBeInSubgraph = subgraphsLinkIsIn.includes(subgraphId);
+            const shouldBeInSubgraph = subgraphsLinkIsIn.includes(Number(subgraphId));
 
             if (alreadyInSubgraph && !shouldBeInSubgraph) {
                 state.subgraphs[subgraphId].links.splice(indexOfLink, 1);
             } else if (!alreadyInSubgraph && shouldBeInSubgraph) {
+                // add source and/or target posts to the subgraph, if they're not there already
+                const link = state.links[linkId];
+                const postIdsAlreadyInSubgraph = state.subgraphs[subgraphId].nodes;
+                if (!postIdsAlreadyInSubgraph.includes(link.source)) {
+                    state.subgraphs[subgraphId].nodes.push(link.source);
+                }
+                if (!postIdsAlreadyInSubgraph.includes(link.target)) {
+                    state.subgraphs[subgraphId].nodes.push(link.target);
+                }
+
                 state.subgraphs[subgraphId].links.push(linkId);
             }
         }
