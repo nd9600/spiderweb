@@ -1,8 +1,5 @@
 <template>
-    <div
-        v-if="Object.keys(subgraphs).length > 0"
-        class="flex flex-col"
-    >
+    <div class="flex flex-col">
         <h1 class="h h--1">
             Subgraphs
         </h1>

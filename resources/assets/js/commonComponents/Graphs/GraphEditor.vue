@@ -5,7 +5,7 @@
                 {{ graph.name }}
             </h3>
             <button
-                v-if="graphId !== 1"
+                v-if="graphId !== '1'"
                 class="py-1 px-2 btn btn--secondary"
                 @click="removeGraph(graphId)"
             >

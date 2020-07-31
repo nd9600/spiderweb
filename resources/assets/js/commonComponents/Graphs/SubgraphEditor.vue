@@ -8,7 +8,6 @@
                 {{ subgraph.name }}
             </h3>
             <button
-                v-if="subgraphId !== 1"
                 class="py-1 px-2 btn btn--secondary"
                 @click="removeSubgraph(subgraphId)"
             >
