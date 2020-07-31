@@ -1,22 +1,6 @@
 <template>
     <section>
         <label class="mb-3 block">
-            Link in graph:
-            <select
-                v-model.number="graphId"
-                class="select select--secondary max-w-full"
-            >
-                <option
-                    v-for="(graph, id) in graphs"
-                    :key="id"
-                    :value="id"
-                >
-                    {{ graph.name }}
-                </option>
-            </select>
-        </label>
-
-        <label class="mb-3 block">
             {{ titleOrBody(post.id) }}
             <button
                 class="mx-4 link"
@@ -46,6 +30,27 @@
             </select>
         </label>
 
+        <label
+            v-if="Object.keys(subgraphsInSelectedGraph).length > 0"
+            class="mb-2 flex items-start text-xs"
+        >
+            <span>I want to attach the post to these subgraphs:</span>
+            <select
+                v-model.number="subgraphIdsToAttachPostTo"
+                class="select select--secondary"
+                multiple
+                :size="Math.min(Object.keys(subgraphsInSelectedGraph).length, 3)"
+            >
+                <option
+                    v-for="(subgraph, subgraphId) in subgraphsInSelectedGraph"
+                    :key="subgraphId"
+                    :value="subgraphId"
+                >
+                    {{ subgraph.name }}
+                </option>
+            </select>
+        </label>
+
         <h4 class="mt-5 h h--4">
             Add post
         </h4>
@@ -53,7 +58,7 @@
         <hr class="mb-1">
         <PostMaker
             :shouldShowPostAttacher="false"
-            @madePost="addLinkToPost"
+            @madePost="addedPost"
         />
     </section>
 </template>
@@ -76,12 +81,13 @@ export default {
         return {
             graphId: 1,
             fromOrToNewPost: "to",
-            linkType: "reply"
+            linkType: "reply",
+            subgraphIdsToAttachPostTo: []
         };
     },
     computed: {
         ...mapState("postsModule", ["graphs", "selectedSubgraphIds"]),
-        ...mapGetters("postsModule", ["titleOrBody"]),
+        ...mapGetters("postsModule", ["titleOrBody", "subgraphsInSelectedGraph"]),
     },
     created() {
         const initialGraphId = this.selectedSubgraphIds.length > 0
@@ -90,7 +96,7 @@ export default {
         this.graphId = initialGraphId;
     },
     methods: {
-        ...mapMutations("postsModule", ["addLink"]),
+        ...mapMutations("postsModule", ["addLink", "addPostToSubgraph"]),
 
         toggleFromOrToTheNewPost() {
             const newValue = this.fromOrToNewPost === "from"
@@ -99,7 +105,7 @@ export default {
             this.fromOrToNewPost = newValue;
         },
 
-        addLinkToPost(newPost) {
+        addedPost(newPost) {
             const source = this.fromOrToNewPost === "from"
                 ? newPost.id
                 : this.post.id;
@@ -110,8 +116,18 @@ export default {
                 source: source,
                 target: target,
                 graph: this.graphId,
-                type: this.linkType
+                type: this.linkType,
+                subgraphIds: this.subgraphIdsToAttachPostTo
             });
+
+            if (this.subgraphIdsToAttachPostTo.length > 0) {
+                for (const subgraphId of this.subgraphIdsToAttachPostTo) {
+                    this.addPostToSubgraph({
+                        subgraphId,
+                        postId: newPost.id
+                    });
+                }
+            }
         }
     }
 };

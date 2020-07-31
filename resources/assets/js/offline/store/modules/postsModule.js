@@ -75,7 +75,7 @@ const getters = {
         } else {
             postIDs = state.graphs[state.selectedGraphId].nodes;
         }
-        const uniquePostIDs = [...new Set(postIDs)];
+        const uniquePostIDs = [...new Set(postIDs.filter(id => id != null))];
         return uniquePostIDs;
     },
     postsInSelectedSubgraphs(state, getters) {
@@ -95,6 +95,7 @@ const getters = {
                 );
             }
             return linkIDs
+                .filter(id => id != null)
                 .map(({linkId, subgraphId}) => {
                     let link = JSON.parse(JSON.stringify(state.links[linkId]));
                     link.subgraphId = subgraphId;
@@ -456,12 +457,19 @@ const mutations = {
             };
             Vue.set(state.graphs, graphId, newGraph);
         }
+        for (let [subgraphId, subgraph] of Object.entries(state.subgraphs)) {
+            const newSubgraph = {
+                ...subgraph,
+                nodes: subgraph.nodes.filter(postId => postId !== id)
+            };
+            Vue.set(state.subgraphs, subgraphId, newSubgraph);
+        }
 
         Vue.set(state, "links", linksAfterPostRemoval);
         Vue.delete(state.posts, id);
     },
 
-    addLink(state, {source, target, graph, type = "reply"}) {
+    addLink(state, {source, target, graph, type = "reply", subgraphIds = []}) {
         const existingLinkIds = Object.keys(state.links);
         const highestLinkId = existingLinkIds.length === 0
             ? 0
@@ -505,6 +513,12 @@ const mutations = {
             target,
             type
         });
+
+        if (subgraphIds.length > 0) {
+            for (const subgraphId of subgraphIds) {
+                state.subgraphs[subgraphId].links.push(newLinkId);
+            }
+        }
     },
     updateLink(state, link) {
         // add source and/or target posts to the graph, if they're not there already
