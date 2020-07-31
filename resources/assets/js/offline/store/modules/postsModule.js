@@ -82,6 +82,7 @@ const getters = {
         return getters.postIdsInSelectedSubgraphs.map(id => state.posts[id]);
     },
     linksInSelectedSubgraphs(state) {
+        // if we have subgraphs, add the `subgraphId` to each link object
         if (state.selectedSubgraphIds.length > 0) {
             let linkIDs = [];
             for (let selectedSubgraphId of state.selectedSubgraphIds) {
@@ -109,6 +110,7 @@ const getters = {
 
     // node/link getters
     subgraphColour: (state) => (subgraphId) => {
+        console.log(subgraphId);
         if (typeof id === "undefined") {
             return "#000000";
         }
@@ -192,6 +194,17 @@ const getters = {
             }
         }
         return linkedSubgraphs;
+    },
+
+    subgraphsLinkIsIn: (state) => (linkId) => {
+        let subgraphsLinkIsIn = [];
+
+        for (let subgraph of Object.values(state.subgraphs)) {
+            if (subgraph.links.includes(linkId)) {
+                subgraphsLinkIsIn.push(subgraph.id);
+            }
+        }
+        return subgraphsLinkIsIn;
     }
 };
 
@@ -349,6 +362,19 @@ const mutations = {
         }
 
         state.subgraphs[subgraphId].nodes.splice(state.subgraphs[subgraphId].nodes.indexOf(postId), 1);
+    },
+    setSubgraphsLinkIsIn(state, {linkId, subgraphsLinkIsIn}) {
+        for (const subgraphId of Object.keys(state.subgraphs)) {
+            const indexOfLink = state.subgraphs[subgraphId].links.indexOf(linkId);
+            const alreadyInSubgraph = indexOfLink >= 0;
+            const shouldBeInSubgraph = subgraphsLinkIsIn.includes(subgraphId);
+
+            if (alreadyInSubgraph && !shouldBeInSubgraph) {
+                state.subgraphs[subgraphId].links.splice(indexOfLink, 1);
+            } else if (!alreadyInSubgraph && shouldBeInSubgraph) {
+                state.subgraphs[subgraphId].links.push(linkId);
+            }
+        }
     },
 
     addPostToGraph(state, {graphId, postId}) {

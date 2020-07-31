@@ -17,18 +17,18 @@
                 </option>
             </select>
         </label>
-        <label>
-            in the graph
+        <label v-if="subgraphs.length > 0">
+            in the subgraph
             <select
-                v-model.number="graphId"
+                v-model.number="subgraphsLinkIsIn"
                 class="select select--secondary mb-2"
             >
                 <option
-                    v-for="(graph, id) in graphs"
+                    v-for="(subgraph, id) in subgraphs"
                     :key="id"
                     :value="id"
                 >
-                    {{ graph.name }}
+                    {{ subgraph.name }}
                 </option>
             </select>
         </label>
@@ -125,15 +125,23 @@ export default {
     },
     data() {
         return {
-            graphId: this.link.graph,
             source: this.link.source,
             target: this.link.target,
             type: this.link.type,
         };
     },
     computed: {
-        ...mapState("postsModule", ["graphs", "posts", "selectedGraphNames"]),
+        ...mapState("postsModule", ["subgraphs", "posts"]),
         ...mapGetters("postsModule", ["postIds", "titleOrBody"]),
+
+        subgraphsLinkIsIn: {
+            get() {
+                return this.$store.getters["postsModule/subgraphsLinkIsIn"](this.link.id);
+            },
+            set(subgraphsLinkIsIn) {
+                this.setSubgraphsLinkIsIn({linkId: this.link.id, subgraphsLinkIsIn});
+            }
+        },
 
         wantsToChangeSource: {
             get() {
@@ -160,7 +168,7 @@ export default {
         //     this.target = link.target;
         //     this.type = link.type;
         // },
-        "graphId": "updateLinkLocal",
+        "subgraphId": "updateLinkLocal",
         "source": "updateLinkLocal",
         "target": "updateLinkLocal",
         "type": "updateLinkLocal",
@@ -182,7 +190,7 @@ export default {
         updateLinkLocal() {
             this.updateLink({
                 id: this.link.id,
-                graph: this.graphId,
+                graph: this.link.graph,
                 source: this.source,
                 target: this.target,
                 type: this.type,
