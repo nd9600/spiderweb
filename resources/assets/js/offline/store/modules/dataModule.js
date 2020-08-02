@@ -5,6 +5,33 @@ import posts from "./dataModules/posts";
 import links from "./dataModules/links";
 import subgraphs from "./dataModules/subgraphs";
 
+/*
+We have multiple graphs
+ * each graph can have multiple nodes (which are posts) and multiple (directed) links
+ * each graph can be subgraphs, which are named and coloured subsets of posts and links
+
+Posts can live independently of graphs, but links can't - they're a part of graphs
+
+When you create a graph, it has no posts, links or subgraphs
+When you delete a graph, also remove any links or subgraphs it has
+
+When you create a post, do nothing else
+When you add a post (to a graph), do nothing else
+When you remove a post (from a graph), also remove any links that have it as a source or target, remove it from any subgraphs, and remove it from any graphs
+
+When you create a link (to a graph), if its target or source post isn't in the graph, add them to the graph
+When you delete a link (from a graph), remove it from any subgraphs
+
+When you add a post (to a subgraph), do nothing else
+When you remove a post (from a subgraph), also remove any links from the subgraph that have it as a source or target
+
+When you add a link (to a subgraph), if its target or source post isn't in the subgraph, add them to the subgraph
+When you remove a link (from a subgraph), do nothing else
+
+When you create a subgraph, it has no posts or links
+When you delete a subgraph, do nothing else
+ */
+
 function arrayMove(array, fromIndex, toIndex) {
     let arrayCopy = array.slice(0);
     const element = array[fromIndex];
