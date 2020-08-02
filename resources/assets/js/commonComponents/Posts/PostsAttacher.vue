@@ -56,8 +56,8 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["posts", "links"]),
-        ...mapGetters("postsModule", ["unattachedPosts"])
+        ...mapState("dataModule", ["posts", "links"]),
+        ...mapGetters("dataModule", ["unattachedPosts"])
     },
     methods: {
         onPostClick(post) {

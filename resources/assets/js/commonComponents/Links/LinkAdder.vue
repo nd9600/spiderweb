@@ -79,8 +79,8 @@ export default {
         PostSearch
     },
     computed: {
-        ...mapState("postsModule", ["graphs"]),
-        ...mapGetters("postsModule", ["titleOrBody"]),
+        ...mapState("dataModule", ["graphs"]),
+        ...mapGetters("dataModule", ["titleOrBody"]),
 
         ...mapState("clickerModule", ["newLinkSource"]),
 

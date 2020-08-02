@@ -97,7 +97,7 @@
                         class="overflow-y-auto"
                         style="max-height: 33vh"
                     ><code>{
-    "postsModule": {
+    "dataModule": {
         "posts": {},
         "links": {},
         "graphs": {
@@ -231,7 +231,7 @@ export default {
             const parsedState = JSON.parse(stateString);
 
             if (
-                !("postsModule" in parsedState)
+                !("dataModule" in parsedState)
                 || !("settingsModule" in parsedState)
                 || !("firebaseModule" in parsedState)
             ) {

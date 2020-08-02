@@ -27,10 +27,10 @@ export default {
         Post,
     },
     computed: {
-        ...mapState("postsModule", ["posts"]),
+        ...mapState("dataModule", ["posts"]),
         selectedPostIds: {
             get() {
-                return this.$store.state.postsModule.selectedPostIds;
+                return this.$store.state.dataModule.selectedPostIds;
             },
             set(selectedPostIds) {
                 this.setSelectedPostIds(selectedPostIds);
@@ -38,7 +38,7 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("postsModule", ["setSelectedPostIds"])
+        ...mapMutations("dataModule", ["setSelectedPostIds"])
     },
 };
 </script>

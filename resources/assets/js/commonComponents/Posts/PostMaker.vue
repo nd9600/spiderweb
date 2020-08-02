@@ -106,12 +106,12 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["selectedGraphId"]),
-        ...mapGetters("postsModule", ["subgraphsInSelectedGraph"]),
+        ...mapState("dataModule", ["selectedGraphId"]),
+        ...mapGetters("dataModule", ["subgraphsInSelectedGraph"]),
     },
     methods: {
-        ...mapMutations("postsModule", ["addPostToGraph", "addPostToSubgraph"]),
-        ...mapActions("postsModule", ["makeNewPost"]),
+        ...mapMutations("dataModule", ["addPostToGraph", "addPostToSubgraph"]),
+        ...mapActions("dataModule", ["makeNewPost"]),
 
         toggleTitleInput() {
             const dontLetUserHideTitleInput = this.showTitleInput

@@ -86,8 +86,8 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["graphs", "selectedSubgraphIds"]),
-        ...mapGetters("postsModule", ["titleOrBody", "subgraphsInSelectedGraph"]),
+        ...mapState("dataModule", ["graphs", "selectedSubgraphIds"]),
+        ...mapGetters("dataModule", ["titleOrBody", "subgraphsInSelectedGraph"]),
     },
     created() {
         const initialGraphId = this.selectedSubgraphIds.length > 0
@@ -96,7 +96,7 @@ export default {
         this.graphId = initialGraphId;
     },
     methods: {
-        ...mapMutations("postsModule", ["addLink", "addPostToSubgraph"]),
+        ...mapMutations("dataModule", ["addLink", "addPostToSubgraph"]),
 
         toggleFromOrToTheNewPost() {
             const newValue = this.fromOrToNewPost === "from"

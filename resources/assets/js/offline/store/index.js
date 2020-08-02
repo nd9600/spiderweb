@@ -3,7 +3,7 @@ import Vuex from "vuex";
 
 import settingsModule from "./modules/settingsModule";
 import firebaseModule from "./modules/firebaseModule";
-import postsModule from "./modules/postsModule";
+import dataModule from "./modules/dataModule";
 import clickerModule from "./modules/clickerModule";
 
 import firebaseDbFactory from "./firebaseDbFactory";
@@ -17,7 +17,7 @@ const store = new Vuex.Store({
     modules: {
         settingsModule,
         firebaseModule,
-        postsModule,
+        dataModule,
         clickerModule
     },
     state: {
@@ -27,7 +27,7 @@ const store = new Vuex.Store({
     getters: {
         storageObject(state) {
             return {
-                postsModule: state.postsModule,
+                dataModule: state.dataModule,
                 settingsModule: state.settingsModule,
                 firebaseModule: state.firebaseModule
             };
@@ -150,8 +150,8 @@ const store = new Vuex.Store({
         },
 
         async importState(context, storageObject) {
-            if (storageObject.postsModule) {
-                context.commit("postsModule/setState", storageObject.postsModule);
+            if (storageObject.dataModule || storageObject.postsModule) { // was changed from "postsModule" to "dataModule" in v0.4
+                context.commit("dataModule/setState", storageObject.dataModule || storageObject.postsModule);
             }
 
             if (storageObject.settingsModule) {
@@ -162,8 +162,8 @@ const store = new Vuex.Store({
             }
         },
         async importData(context, storageObject) {
-            if (storageObject.postsModule) {
-                context.commit("postsModule/setState", storageObject.postsModule);
+            if (storageObject.dataModule) {
+                context.commit("dataModule/setState", storageObject.dataModule);
             }
         },
         async importSettings(context, {storageObject, shouldTakeDataFrom}) {
@@ -201,7 +201,7 @@ store.subscribe(
         }
 
         const storageObject = {
-            postsModule: state.postsModule,
+            dataModule: state.dataModule,
             settingsModule: state.settingsModule,
             firebaseModule: state.firebaseModule,
         };

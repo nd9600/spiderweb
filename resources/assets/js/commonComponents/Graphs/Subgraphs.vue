@@ -59,11 +59,11 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["subgraphs"]),
-        ...mapGetters("postsModule", ["subgraphsInSelectedGraph", "postIds", "titleOrBody"]),
+        ...mapState("dataModule", ["subgraphs"]),
+        ...mapGetters("dataModule", ["subgraphsInSelectedGraph", "postIds", "titleOrBody"]),
     },
     methods: {
-        ...mapMutations("postsModule", ["makeNewSubgraph"]),
+        ...mapMutations("dataModule", ["makeNewSubgraph"]),
 
         makeNewSubgraphLocal() {
             this.makeNewSubgraph(this.newSubgraphName);

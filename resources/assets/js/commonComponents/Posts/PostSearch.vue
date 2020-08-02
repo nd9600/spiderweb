@@ -46,8 +46,8 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["posts"]),
-        ...mapGetters("postsModule", ["titleOrBody", "postIdsThatLinkToPost"]),
+        ...mapState("dataModule", ["posts"]),
+        ...mapGetters("dataModule", ["titleOrBody", "postIdsThatLinkToPost"]),
 
         searchResults() {
             const searchTerm = this.searchTerm.trim().toLowerCase();

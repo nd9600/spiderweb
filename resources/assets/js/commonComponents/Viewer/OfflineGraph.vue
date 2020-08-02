@@ -75,12 +75,12 @@ export default {
     computed: {
         ...mapState("settingsModule", ["canOpenMultiplePosts"]),
 
-        ...mapState("postsModule", ["selectedSubgraphIds"]),
-        ...mapGetters("postsModule", ["postsInSelectedSubgraphs", "linksInSelectedSubgraphs", "subgraphColour", "titleOrBody", "isNeighbour"]),
+        ...mapState("dataModule", ["selectedSubgraphIds"]),
+        ...mapGetters("dataModule", ["postsInSelectedSubgraphs", "linksInSelectedSubgraphs", "subgraphColour", "titleOrBody", "isNeighbour"]),
 
         ...mapState("clickerModule", ["shouldShowClickButtonMenu", "clickMode"]),
         selectedPostIds() {
-            return this.$store.state.postsModule.selectedPostIds;
+            return this.$store.state.dataModule.selectedPostIds;
         }
     },
     watch: {
@@ -131,9 +131,9 @@ export default {
                 this.zoomBehaviour.transform,
                 d3.zoomIdentity
                     .translate(
-                        this.$store.state.postsModule.zoom.x, // sets initial x/y and zoom amount
-                        this.$store.state.postsModule.zoom.y
-                    ).scale(this.$store.state.postsModule.zoom.scale)
+                        this.$store.state.dataModule.zoom.x, // sets initial x/y and zoom amount
+                        this.$store.state.dataModule.zoom.y
+                    ).scale(this.$store.state.dataModule.zoom.scale)
             );
         this.$nextTick(() => {
             this.debouncedMakeGraphSvg();
@@ -142,7 +142,7 @@ export default {
         this.$root.$on("focusOnPost", this.focusOnPost);
     },
     methods: {
-        ...mapMutations("postsModule", ["setZoom"]),
+        ...mapMutations("dataModule", ["setZoom"]),
         ...mapMutations("clickerModule", ["setShouldShowClickButtonMenu", "setClickMode"]),
 
         ...mapActions("clickerModule", ["handlePostClick", "handleLinkClick"]),

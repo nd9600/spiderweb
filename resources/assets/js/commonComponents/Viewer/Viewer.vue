@@ -94,28 +94,28 @@ export default {
     },
     computed: {
         ...mapState("settingsModule", ["graphHeight", "postBarHeight"]),
-        ...mapState("postsModule", ["graphs"]),
-        ...mapGetters("postsModule", ["subgraphsInSelectedGraph"]),
+        ...mapState("dataModule", ["graphs"]),
+        ...mapGetters("dataModule", ["subgraphsInSelectedGraph"]),
 
         selectedGraphId: {
             get() {
-                return this.$store.state.postsModule.selectedGraphId;
+                return this.$store.state.dataModule.selectedGraphId;
             },
             set(selectedGraphId) {
-                this.$store.commit("postsModule/setSelectedGraphId", selectedGraphId);
+                this.$store.commit("dataModule/setSelectedGraphId", selectedGraphId);
             }
         },
         selectedSubgraphIds: {
             get() {
-                return this.$store.state.postsModule.selectedSubgraphIds;
+                return this.$store.state.dataModule.selectedSubgraphIds;
             },
             set(selectedSubgraphIds) {
-                this.$store.commit("postsModule/setSelectedSubgraphIds", selectedSubgraphIds);
+                this.$store.commit("dataModule/setSelectedSubgraphIds", selectedSubgraphIds);
             }
         }
     },
     methods: {
-        ...mapMutations("postsModule", ["selectAllSubgraphs"]),
+        ...mapMutations("dataModule", ["selectAllSubgraphs"]),
 
         scrollToPostBar() {
             window.scrollBy(0, document.getElementById("postBar").getBoundingClientRect().top - 5);

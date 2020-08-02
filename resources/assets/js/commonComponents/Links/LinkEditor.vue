@@ -133,12 +133,12 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["subgraphs", "posts"]),
-        ...mapGetters("postsModule", ["postIds", "titleOrBody"]),
+        ...mapState("dataModule", ["subgraphs", "posts"]),
+        ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
 
         subgraphsLinkIsIn: {
             get() {
-                return this.$store.getters["postsModule/subgraphsLinkIsIn"](this.link.id);
+                return this.$store.getters["dataModule/subgraphsLinkIsIn"](this.link.id);
             },
             set(subgraphsLinkIsIn) {
                 this.setSubgraphsLinkIsIn({linkId: this.link.id, subgraphsLinkIsIn});
@@ -176,7 +176,7 @@ export default {
         "type": "updateLinkLocal",
     },
     methods: {
-        ...mapMutations("postsModule", ["setSubgraphsLinkIsIn", "updateLink", "removeLink"]),
+        ...mapMutations("dataModule", ["setSubgraphsLinkIsIn", "updateLink", "removeLink"]),
         ...mapMutations("clickerModule", ["setWantsToChangeSource", "setWantsToChangeTarget"]),
 
         onPostClick(sourceOrTarget, post) {

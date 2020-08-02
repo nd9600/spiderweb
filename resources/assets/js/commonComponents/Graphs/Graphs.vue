@@ -84,20 +84,20 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["graphs"]),
-        ...mapGetters("postsModule", ["postIds", "titleOrBody"]),
+        ...mapState("dataModule", ["graphs"]),
+        ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
 
         selectedGraphId: {
             get() {
-                return this.$store.state.postsModule.selectedGraphId;
+                return this.$store.state.dataModule.selectedGraphId;
             },
             set(selectedGraphId) {
-                this.$store.commit("postsModule/setSelectedGraphId", selectedGraphId);
+                this.$store.commit("dataModule/setSelectedGraphId", selectedGraphId);
             }
         },
     },
     methods: {
-        ...mapMutations("postsModule", ["makeNewGraph"]),
+        ...mapMutations("dataModule", ["makeNewGraph"]),
 
         makeNewGraphLocal() {
             this.makeNewGraph(this.newGraphName);

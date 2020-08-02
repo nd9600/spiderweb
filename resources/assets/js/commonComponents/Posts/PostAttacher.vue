@@ -102,8 +102,8 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["selectedGraphId"]),
-        ...mapGetters("postsModule", ["subgraphsInSelectedGraph", "linkedSubgraphs"]),
+        ...mapState("dataModule", ["selectedGraphId"]),
+        ...mapGetters("dataModule", ["subgraphsInSelectedGraph", "linkedSubgraphs"]),
 
         subgraphsNotAlreadyAttachedTo() {
             const vm = this;
@@ -122,7 +122,7 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("postsModule", ["addPostToGraph", "addPostToSubgraph"]),
+        ...mapMutations("dataModule", ["addPostToGraph", "addPostToSubgraph"]),
 
         attachPost() {
             if (this.shouldAttachPostToGraph) {

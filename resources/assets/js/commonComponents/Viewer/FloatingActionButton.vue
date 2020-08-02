@@ -124,8 +124,8 @@ export default {
     computed: {
         ...mapState("settingsModule", ["graphHeight", "canOpenMultiplePosts"]),
 
-        ...mapState("postsModule", ["graphs", "selectedSubgraphIds", "links"]),
-        ...mapGetters("postsModule", ["titleOrBody"]),
+        ...mapState("dataModule", ["graphs", "selectedSubgraphIds", "links"]),
+        ...mapGetters("dataModule", ["titleOrBody"]),
 
         ...mapState("clickerModule", ["newLinkSource", "linkToEdit"]),
 
@@ -173,7 +173,7 @@ export default {
             "setClickMode",
             "setLinkToEdit"
         ]),
-        ...mapMutations("postsModule", [
+        ...mapMutations("dataModule", [
             "selectPostId",
         ]),
 

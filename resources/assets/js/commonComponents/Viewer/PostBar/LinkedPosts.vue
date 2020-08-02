@@ -105,15 +105,15 @@ export default {
     },
     computed: {
         ...mapState("settingsModule", ["canOpenMultiplePosts"]),
-        ...mapState("postsModule", ["posts"]),
-        ...mapGetters("postsModule", ["titleOrBody", "postIdsThatLinkToPost"]),
+        ...mapState("dataModule", ["posts"]),
+        ...mapGetters("dataModule", ["titleOrBody", "postIdsThatLinkToPost"]),
 
         linkedPosts() {
             return this.postIdsThatLinkToPost(this.post.id);
         }
     },
     methods: {
-        ...mapMutations("postsModule", ["togglePostId", "removeLink"]),
+        ...mapMutations("dataModule", ["togglePostId", "removeLink"]),
         togglePostIdLocal(postId) {
             this.togglePostId({
                 id: postId,

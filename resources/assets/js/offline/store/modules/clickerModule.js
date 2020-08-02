@@ -69,7 +69,7 @@ const actions = {
             case "openPosts":
             default: {
                 context.commit(
-                    "postsModule/selectPostId",
+                    "dataModule/selectPostId",
                     {
                         id: post.id,
                         canOpenMultiplePosts: context.rootState.settingsModule.canOpenMultiplePosts
@@ -94,7 +94,7 @@ const actions = {
                     context.commit("setNewLinkTarget", post.id);
 
                     context.commit(
-                        "postsModule/addLink",
+                        "dataModule/addLink",
                         {
                             source: context.state.newLinkSource,
                             target: context.state.newLinkTarget,
@@ -116,7 +116,7 @@ const actions = {
             case "changeLink": {
                 if (context.state.wantsToChangeSource) {
                     context.commit(
-                        "postsModule/changeLinkSource",
+                        "dataModule/changeLinkSource",
                         {
                             id: context.state.linkToEdit,
                             source: post.id
@@ -129,7 +129,7 @@ const actions = {
 
                 } else if (context.state.wantsToChangeTarget) {
                     context.commit(
-                        "postsModule/changeLinkTarget",
+                        "dataModule/changeLinkTarget",
                         {
                             id: context.state.linkToEdit,
                             target: post.id

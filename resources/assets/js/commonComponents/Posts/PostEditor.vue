@@ -62,7 +62,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("postsModule", ["titleOrBody"]),
+        ...mapGetters("dataModule", ["titleOrBody"]),
 
         title: {
             get() {
@@ -90,7 +90,7 @@ export default {
         },
     },
     methods: {
-        ...mapMutations("postsModule", ["updatePost", "removePost"]),
+        ...mapMutations("dataModule", ["updatePost", "removePost"]),
 
         toggleTitleInput() {
             const dontLetUserHideTitleInput = this.showTitleInput

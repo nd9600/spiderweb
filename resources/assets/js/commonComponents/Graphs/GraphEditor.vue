@@ -51,15 +51,15 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["graphs"]),
-        ...mapGetters("postsModule", ["postIds", "titleOrBody"]),
+        ...mapState("dataModule", ["graphs"]),
+        ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
 
         graph() {
             return this.graphs[this.graphId];
         },
     },
     methods: {
-        ...mapMutations("postsModule", ["changeGraphName", "removeGraph"]),
+        ...mapMutations("dataModule", ["changeGraphName", "removeGraph"]),
         changeGraphNameLocal() {
             if (this.newGraphName.trim().length === 0) {
                 return;

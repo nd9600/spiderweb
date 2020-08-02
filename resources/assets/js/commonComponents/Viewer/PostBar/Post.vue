@@ -190,9 +190,9 @@ export default {
     },
     computed: {
         ...mapState("settingsModule", ["postWidth"]),
-        ...mapState("postsModule", ["selectedPostIds"]),
+        ...mapState("dataModule", ["selectedPostIds"]),
 
-        ...mapGetters("postsModule", ["postIdsInSelectedSubgraphs", "postIdsThatLinkToPost", "linkedSubgraphs"]),
+        ...mapGetters("dataModule", ["postIdsInSelectedSubgraphs", "postIdsThatLinkToPost", "linkedSubgraphs"]),
         hasLinkedPosts() {
             const linkedPosts = this.postIdsThatLinkToPost(this.post.id);
             return Object.keys(linkedPosts.to).length > 0
@@ -215,7 +215,7 @@ export default {
     },
     methods: {
         marked,
-        ...mapMutations("postsModule", ["unselectPostId", "movePostLeft", "movePostRight"]),
+        ...mapMutations("dataModule", ["unselectPostId", "movePostLeft", "movePostRight"]),
 
         toggleBottomTab(tab) {
             this.bottomTab = this.bottomTab === tab

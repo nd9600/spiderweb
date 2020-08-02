@@ -36,11 +36,11 @@ export default {
         }
     },
     computed: {
-        ...mapState("postsModule", ["subgraphs"]),
-        ...mapGetters("postsModule", ["linkedSubgraphs"]),
+        ...mapState("dataModule", ["subgraphs"]),
+        ...mapGetters("dataModule", ["linkedSubgraphs"]),
     },
     methods: {
-        ...mapMutations("postsModule", ["toggleSubgraphId", "removePostFromSubgraph"]),
+        ...mapMutations("dataModule", ["toggleSubgraphId", "removePostFromSubgraph"]),
 
     }
 };

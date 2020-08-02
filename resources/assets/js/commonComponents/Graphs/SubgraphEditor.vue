@@ -69,8 +69,8 @@ export default {
         };
     },
     computed: {
-        ...mapState("postsModule", ["subgraphs"]),
-        ...mapGetters("postsModule", ["postIds", "titleOrBody"]),
+        ...mapState("dataModule", ["subgraphs"]),
+        ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
 
         subgraph() {
             return this.subgraphs[this.subgraphId];
@@ -80,7 +80,7 @@ export default {
         this.newSubgraphColour = this.subgraph.colour || "#000000";
     },
     methods: {
-        ...mapMutations("postsModule", ["changeSubgraphName", "changeSubgraphColour", "removeSubgraph"]),
+        ...mapMutations("dataModule", ["changeSubgraphName", "changeSubgraphColour", "removeSubgraph"]),
         changeSubgraphNameLocal() {
             if (this.newSubgraphName.trim().length === 0) {
                 return;
