@@ -84,11 +84,11 @@ const mutations = {
         state.selectedSubgraphIds = newSelectedSubgraphIds.length === 0
             ? []
             : newSelectedSubgraphIds;
-        Vue.delete(state.subgraphs, subgraphId);
         state.graphs[state.selectedGraphId].subgraphs.splice(
             state.graphs[state.selectedGraphId].subgraphs.indexOf(subgraphId),
             1
         );
+        Vue.delete(state.subgraphs, subgraphId);
     },
     addPostToSubgraph(state, {subgraphId, postId}) {
         // we also need to add it to the graph that contains the subgraph, if it's not there already

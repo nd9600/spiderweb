@@ -90,7 +90,7 @@ export default {
         },
     },
     methods: {
-        ...mapMutations("dataModule", ["updatePost", "removePost"]),
+        ...mapMutations("dataModule", ["updatePost", "deletePost"]),
 
         toggleTitleInput() {
             const dontLetUserHideTitleInput = this.showTitleInput
@@ -106,7 +106,7 @@ export default {
             if (!confirm("Are you sure you want to remove this post? ")) {
                 return;
             }
-            this.removePost({
+            this.deletePost({
                 id: this.post.id
             });
         }

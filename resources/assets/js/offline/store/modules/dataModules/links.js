@@ -18,30 +18,6 @@ const getters = {
 };
 
 const mutations = {
-    setSubgraphsLinkIsIn(state, {linkId, subgraphsLinkIsIn}) {
-        for (const subgraphId of Object.keys(state.subgraphs)) {
-            const indexOfLink = state.subgraphs[subgraphId].links.indexOf(linkId);
-            const alreadyInSubgraph = indexOfLink >= 0;
-            const shouldBeInSubgraph = subgraphsLinkIsIn.includes(Number(subgraphId));
-
-            if (alreadyInSubgraph && !shouldBeInSubgraph) {
-                state.subgraphs[subgraphId].links.splice(indexOfLink, 1);
-            } else if (!alreadyInSubgraph && shouldBeInSubgraph) {
-                // add source and/or target posts to the subgraph, if they're not there already
-                const link = state.links[linkId];
-                const postIdsAlreadyInSubgraph = state.subgraphs[subgraphId].nodes;
-                if (!postIdsAlreadyInSubgraph.includes(link.source)) {
-                    state.subgraphs[subgraphId].nodes.push(link.source);
-                }
-                if (!postIdsAlreadyInSubgraph.includes(link.target)) {
-                    state.subgraphs[subgraphId].nodes.push(link.target);
-                }
-
-                state.subgraphs[subgraphId].links.push(linkId);
-            }
-        }
-    },
-
     addLink(state, {source, target, graph, type = "reply", subgraphIds = []}) {
         const existingLinkIds = Object.keys(state.links);
         const highestLinkId = existingLinkIds.length === 0
@@ -139,7 +115,40 @@ const mutations = {
 
         Vue.set(state.links, id, link);
     },
+    setSubgraphsLinkIsIn(state, {linkId, subgraphsLinkIsIn}) {
+        for (const subgraphId of Object.keys(state.subgraphs)) {
+            const indexOfLink = state.subgraphs[subgraphId].links.indexOf(linkId);
+            const alreadyInSubgraph = indexOfLink >= 0;
+            const shouldBeInSubgraph = subgraphsLinkIsIn.includes(Number(subgraphId));
+
+            if (alreadyInSubgraph && !shouldBeInSubgraph) {
+                state.subgraphs[subgraphId].links.splice(indexOfLink, 1);
+            } else if (!alreadyInSubgraph && shouldBeInSubgraph) {
+                // add source and/or target posts to the subgraph, if they're not there already
+                const link = state.links[linkId];
+                const postIdsAlreadyInSubgraph = state.subgraphs[subgraphId].nodes;
+                if (!postIdsAlreadyInSubgraph.includes(link.source)) {
+                    state.subgraphs[subgraphId].nodes.push(link.source);
+                }
+                if (!postIdsAlreadyInSubgraph.includes(link.target)) {
+                    state.subgraphs[subgraphId].nodes.push(link.target);
+                }
+
+                state.subgraphs[subgraphId].links.push(linkId);
+            }
+        }
+    },
+
     removeLink(state, {id}) {
+        // we also need to remove it from any subgraphs
+        for (const subgraphId of Object.keys(state.subgraphs)) {
+            const indexOfLink = state.subgraphs[subgraphId].links.indexOf(id);
+            const alreadyInSubgraph = indexOfLink >= 0;
+            if (alreadyInSubgraph) {
+                state.subgraphs[subgraphId].links.splice(indexOfLink, 1);
+            }
+        }
+
         Vue.delete(state.links, id);
     },
 };

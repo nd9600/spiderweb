@@ -85,14 +85,14 @@ const getters = {
 };
 
 const mutations = {
-    addPost(state, newPost) {
+    createPost(state, newPost) {
         Vue.set(state.posts, newPost.id, newPost);
         return newPost;
     },
     updatePost(state, post) {
         Vue.set(state.posts, post.id, post);
     },
-    removePost(state, {id}) {
+    deletePost(state, {id}) {
         if (state.selectedPostIds.includes(id)) {
             state.selectedPostIds.splice(state.selectedPostIds.indexOf(id), 1);
         }
@@ -109,7 +109,7 @@ const mutations = {
             linksAfterPostRemoval[link.id] = link;
         }
 
-        // we also need to remove the individual posts from `graphs[graph].nodes`
+        // we also need to remove the post from any graphs or subgraphs
         for (let [graphId, graph] of Object.entries(state.graphs)) {
             const newGraph = {
                 ...graph,
@@ -145,7 +145,7 @@ const actions = {
         const newPostId = highestPostId + 1;
 
         newPost.id = newPostId;
-        context.commit("addPost", newPost);
+        context.commit("createPost", newPost);
         return newPost;
     },
 };

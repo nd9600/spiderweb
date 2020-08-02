@@ -66,7 +66,7 @@ const mutations = {
         }
     },
     removePostFromGraph(state, {graphId, postId}) {
-        // when we remove a post, we need to remove any links that include it
+        // when we remove a post from a graph, we need to remove any links that include it
         let linksAfterPostRemoval = {};
         for (const link of Object.values(state.links)) {
             const isRemovingPostFromThisGraph = link.graph === parseInt(graphId, 10); // this is a string, like `"2"`, _not_ `2`
@@ -82,6 +82,16 @@ const mutations = {
             linksAfterPostRemoval[link.id] = link;
         }
         Vue.set(state, "links", linksAfterPostRemoval);
+
+        // and remove it from any subgraphs it's in
+        for (let subgraphId of state.graphs[graphId].subgraphs) {
+            const subgraph = state.subgraphs[subgraphId];
+            const newSubgraph = {
+                ...subgraph,
+                nodes: subgraph.nodes.filter(postId => postId !== postId)
+            };
+            Vue.set(state.subgraphs, subgraphId, newSubgraph);
+        }
 
         Vue.set(
             state.graphs[graphId],
