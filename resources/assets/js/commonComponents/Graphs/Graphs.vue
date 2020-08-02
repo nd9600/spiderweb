@@ -1,9 +1,6 @@
 <template>
-    <div
-        v-if="Object.keys(graphs).length > 0"
-        class="flex flex-col"
-    >
-        <section>
+    <div class="flex flex-col">
+        <section v-if="Object.keys(graphs).length > 1">
             <label>
                 <p class="h h--4">
                     Currently-open graph
@@ -22,9 +19,9 @@
                     </option>
                 </select>
             </label>
-        </section>
 
-        <hr class="my-5">
+            <hr class="my-5">
+        </section>
 
         <Subgraphs class="pl-10" />
 

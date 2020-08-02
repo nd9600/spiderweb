@@ -133,6 +133,7 @@ const mutations = {
         state.graphs = newState.graphs;
         state.subgraphs = newState.subgraphs || {};
         state.selectedPostIds = newState.selectedPostIds || [];
+        state.selectedGraphId = newState.selectedGraphId || 1;
         state.selectedSubgraphIds = newState.selectedSubgraphIds || [];
         state.zoom = newState.zoom || {
             x: WIDTH / 2,
@@ -186,6 +187,7 @@ const mutations = {
 
     setSelectedGraphId(state, selectedGraphId) {
         state.selectedGraphId = selectedGraphId;
+        state.selectedSubgraphIds = [];
     },
 
     setSelectedSubgraphIds(state, selectedSubgraphIds) {

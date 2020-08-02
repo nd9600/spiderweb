@@ -10,16 +10,19 @@
                 ↧
             </button>
             <div class="ml-4 flex flex-col items-start">
+                <span id="graphsList"></span>
                 <p
-                    id="graphsList"
+                    v-if="subgraphsInSelectedGraph.length > 0"
                     class="block h h--4"
                 >
                     Subgraphs
                 </p>
-                <div class="flex">
+                <div
+                    v-if="subgraphsInSelectedGraph.length > 0"
+                    class="flex"
+                >
                     <div class="mr-2 flex flex-col items-start">
                         <button
-                            v-if="subgraphsInSelectedGraph.length > 0"
                             class="btn btn--secondary"
                             type="button"
                             :disabled="selectedSubgraphIds.length === subgraphsInSelectedGraph.length"
@@ -36,7 +39,7 @@
                             clear
                         </button>
                     </div>
-                    <label v-if="subgraphsInSelectedGraph.length > 0">
+                    <label>
                         <select
                             v-model.number="selectedSubgraphIds"
                             class="select select--secondary w-full"
