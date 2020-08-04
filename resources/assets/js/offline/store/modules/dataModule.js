@@ -199,8 +199,8 @@ const mutations = {
     },
 
     setSelectedGraphId(state, selectedGraphId) {
-        state.selectedGraphId = selectedGraphId;
         state.selectedSubgraphIds = [];
+        state.selectedGraphId = selectedGraphId;
     },
 
     setSelectedSubgraphIds(state, selectedSubgraphIds) {

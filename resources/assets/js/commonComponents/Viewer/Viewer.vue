@@ -9,14 +9,32 @@
             >
                 ↧
             </button>
+            <label class="ml-4">
+                <span class="block h h--4">
+                    Graphs
+                </span>
+                <select
+                    v-model.number="selectedGraphId"
+                    class="select select--secondary w-full"
+                    :size="Math.min(Object.keys(graphs).length, 3)"
+                >
+                    <option
+                        v-for="(graph, graphId) in graphs"
+                        :key="graphId"
+                        :value="graphId"
+                    >
+                        {{ graph.name }}
+                    </option>
+                </select>
+            </label>
             <div class="ml-4 flex flex-col items-start">
                 <span id="graphsList"></span>
-                <p
+                <h4
                     v-if="subgraphsInSelectedGraph.length > 0"
-                    class="block h h--4"
+                    class="h h--4"
                 >
                     Subgraphs
-                </p>
+                </h4>
                 <div
                     v-if="subgraphsInSelectedGraph.length > 0"
                     class="flex"

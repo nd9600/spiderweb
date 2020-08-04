@@ -182,7 +182,7 @@ export default {
 
             const vm = this;
             console.log("rendered");
-            
+
             // setup force simulation
             const simulation = d3.forceSimulation(nodes)
                 .force("link", d3.forceLink(links)
@@ -238,6 +238,8 @@ export default {
             nodeGroups
                 .selectAll("g")
                 .attr("dataset-id", post => post.id);
+
+            // if the nodes aren't being made, that might be because the .node circles don't exist in the DOM when this function is called
 
             const node = d3.selectAll(".node").select("circle")
                 .classed("node__circle", true)

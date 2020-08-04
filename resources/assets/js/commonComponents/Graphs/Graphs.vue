@@ -1,28 +1,5 @@
 <template>
     <div class="flex flex-col">
-        <section v-if="Object.keys(graphs).length > 1">
-            <label>
-                <p class="h h--4">
-                    Currently-open graph
-                </p>
-                <select
-                    v-model.number="selectedGraphId"
-                    class="select select--secondary"
-                    :size="Math.min(Object.keys(graphs).length, 3)"
-                >
-                    <option
-                        v-for="(graph, graphId) in graphs"
-                        :key="graphId"
-                        :value="graphId"
-                    >
-                        {{ graph.name }}
-                    </option>
-                </select>
-            </label>
-
-            <hr class="my-5">
-        </section>
-
         <Subgraphs class="pl-10" />
 
         <hr class="my-5">
@@ -83,15 +60,6 @@ export default {
     computed: {
         ...mapState("dataModule", ["graphs"]),
         ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
-
-        selectedGraphId: {
-            get() {
-                return this.$store.state.dataModule.selectedGraphId;
-            },
-            set(selectedGraphId) {
-                this.$store.commit("dataModule/setSelectedGraphId", selectedGraphId);
-            }
-        },
     },
     methods: {
         ...mapMutations("dataModule", ["makeNewGraph"]),
