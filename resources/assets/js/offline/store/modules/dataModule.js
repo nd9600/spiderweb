@@ -106,9 +106,22 @@ const getters = {
                     return link;
                 });
         } else {
+            let linkToSubgraphMap = {};
+            for (let subgraph of Object.values(state.subgraphs)) {
+                for (let linkId of subgraph.links) {
+                    linkToSubgraphMap[linkId] = subgraph.id;
+                }
+            }
             return Object.values(state.links)
                 .filter(link => {
                     return state.selectedGraphId === link.graph;
+                })
+                .map(link => {
+                    const subgraphId = linkToSubgraphMap[link.id];
+                    if (subgraphId) {
+                        link.subgraphId = subgraphId;
+                    }
+                    return link;
                 });
         }
     },

@@ -75,7 +75,7 @@ export default {
     computed: {
         ...mapState("settingsModule", ["canOpenMultiplePosts"]),
 
-        ...mapState("dataModule", ["selectedSubgraphIds"]),
+        ...mapState("dataModule", ["selectedGraphId", "selectedSubgraphIds"]),
         ...mapGetters("dataModule", ["postsInSelectedSubgraphs", "linksInSelectedSubgraphs", "subgraphColour", "titleOrBody", "isNeighbour"]),
 
         ...mapState("clickerModule", ["shouldShowClickButtonMenu", "clickMode"]),
@@ -84,6 +84,10 @@ export default {
         }
     },
     watch: {
+        selectedGraphId() {
+            this.shouldResetZooming = true;
+            this.debouncedMakeGraphSvg();
+        },
         selectedSubgraphIds() {
             this.shouldResetZooming = true;
             this.debouncedMakeGraphSvg();
@@ -177,6 +181,7 @@ export default {
             const links = JSON.parse(JSON.stringify(this.linksInSelectedSubgraphs));
 
             const vm = this;
+            console.log("rendered");
             
             // setup force simulation
             const simulation = d3.forceSimulation(nodes)
