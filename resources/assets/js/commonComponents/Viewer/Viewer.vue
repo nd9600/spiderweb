@@ -9,7 +9,10 @@
             >
                 ↧
             </button>
-            <label class="ml-4">
+            <label
+                v-if="Object.keys(graphs).length > 1"
+                class="ml-4"
+            >
                 <span class="block h h--4">
                     Graphs
                 </span>
