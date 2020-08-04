@@ -1,11 +1,5 @@
 <template>
     <div class="flex flex-col">
-        <h1 class="h h--1">
-            Subgraphs
-        </h1>
-
-        <hr class="my-5">
-
         <section>
             <h2 class="h h--2">
                 Make new subgraph
@@ -31,13 +25,13 @@
 
         <hr class="my-5">
 
-        <section v-if="subgraphsInSelectedGraph.length > 0">
+        <section v-if="subgraphsInGraph.length > 0">
             <h2 class="h h--2">
-                Edit subgraphs
+                Subgraphs
             </h2>
 
             <SubgraphEditor
-                v-for="subgraph in subgraphsInSelectedGraph"
+                v-for="subgraph in subgraphsInGraph"
                 :key="subgraph.id"
                 :subgraphId="subgraph.id"
                 class="m-4 p-4 border border-gray-500"
@@ -53,20 +47,34 @@ import SubgraphEditor from "./SubgraphEditor";
 export default {
     name: "Subgraphs",
     components: {SubgraphEditor},
+    props: {
+        graphId: {
+            type: String,
+            required: true
+        },
+    },
     data() {
         return {
             newSubgraphName: "",
         };
     },
     computed: {
-        ...mapState("dataModule", ["subgraphs"]),
-        ...mapGetters("dataModule", ["subgraphsInSelectedGraph", "postIds", "titleOrBody"]),
+        ...mapState("dataModule", ["graphs", "subgraphs"]),
+        ...mapGetters("dataModule", ["subgraphsInGraph", "postIds", "titleOrBody"]),
+
+        subgraphsInGraph() {
+            return this.graphs[this.graphId].subgraphs
+                .map(id => this.subgraphs[id]);
+        }
     },
     methods: {
         ...mapMutations("dataModule", ["makeNewSubgraph"]),
 
         makeNewSubgraphLocal() {
-            this.makeNewSubgraph(this.newSubgraphName);
+            this.makeNewSubgraph({
+                graphId: this.graphId,
+                newSubgraphName: this.newSubgraphName
+            });
             this.newSubgraphName = "";
         }
     }

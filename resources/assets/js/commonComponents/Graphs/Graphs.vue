@@ -1,9 +1,5 @@
 <template>
     <div class="flex flex-col">
-        <Subgraphs class="pl-10" />
-
-        <hr class="my-5">
-
         <section>
             <h2 class="h h--2">
                 Make new graph
@@ -46,12 +42,11 @@
 
 <script>
 import {mapGetters, mapMutations, mapState} from "vuex";
-import Subgraphs from "./Subgraphs";
 import GraphEditor from "./GraphEditor";
 
 export default {
     name: "Graphs",
-    components: {Subgraphs, GraphEditor},
+    components: {GraphEditor},
     data() {
         return {
             newGraphName: "",

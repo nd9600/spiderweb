@@ -41,11 +41,11 @@
             <label class="mt-2 pl-4 flex flex-col items-start text-xs">
                 <template v-if="subgraphsNotAlreadyAttachedTo.length > 0">
                     <select
-                        v-if="Object.keys(subgraphsInSelectedGraph).length > 1"
+                        v-if="subgraphsInSelectedGraph.length > 1"
                         v-model.number="subgraphIdsToAttachPostTo"
                         class="select select--secondary"
                         multiple
-                        :size="Math.min(Object.keys(subgraphsInSelectedGraph).length, 3)"
+                        :size="Math.min(subgraphsInSelectedGraph.length, 3)"
                     >
                         <option
                             v-for="subgraph in subgraphsNotAlreadyAttachedTo"
@@ -59,11 +59,11 @@
                         v-else
                         class="block text-xs text-gray-500"
                     >
-                        you can only attach the post to the subgraph '{{ Object.values(subgraphsInSelectedGraph)[0].name }}'
+                        you can only attach the post to the subgraph '{{ subgraphsInSelectedGraph[0].name }}'
                     </span>
                 </template>
                 <span
-                    v-else-if="Object.keys(subgraphsInSelectedGraph).length > 0"
+                    v-else-if="subgraphsInSelectedGraph.length > 0"
                     class="block text-xs text-gray-500"
                 >
                     this post is already attached to all the subgraphs
@@ -106,19 +106,15 @@ export default {
         ...mapGetters("dataModule", ["subgraphsInSelectedGraph", "linkedSubgraphs"]),
 
         subgraphsNotAlreadyAttachedTo() {
-            const vm = this;
             const subgraphsAlreadyAttachedTo = this.linkedSubgraphs(this.post.id)
                 .map(id => parseInt(id, 10));
-            return Object.keys(this.subgraphsInSelectedGraph)
-                .filter(id => {
-                    return !subgraphsAlreadyAttachedTo.includes(Number(id));
-                })
-                .map(id => vm.subgraphs[id]);
+            return this.subgraphsInSelectedGraph
+                .filter(subgraph => !subgraphsAlreadyAttachedTo.includes(Number(subgraph.id)));
         }
     },
     created() {
-        if (Object.keys(this.subgraphsInSelectedGraph).length === 1) {
-            this.subgraphIdsToAttachPostTo = Object.keys(this.subgraphsInSelectedGraph)[0];
+        if (this.subgraphsInSelectedGraph.length === 1) {
+            this.subgraphIdsToAttachPostTo = this.subgraphsInSelectedGraph[0];
         }
     },
     methods: {

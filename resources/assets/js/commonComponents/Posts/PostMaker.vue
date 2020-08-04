@@ -53,7 +53,7 @@
         </label>
 
         <label
-            v-if="shouldShowPostAttacher && Object.keys(subgraphsInSelectedGraph).length > 0"
+            v-if="shouldShowPostAttacher && subgraphsInSelectedGraph.length > 0"
             class="mb-2 flex justify-between items-start text-xs"
         >
             <span>I want to attach the post to these subgraphs:</span>
@@ -61,12 +61,12 @@
                 v-model.number="subgraphIdsToAttachPostTo"
                 class="select select--secondary"
                 multiple
-                :size="Math.min(Object.keys(subgraphsInSelectedGraph).length, 3)"
+                :size="Math.min(subgraphsInSelectedGraph.length, 3)"
             >
                 <option
-                    v-for="(subgraph, subgraphId) in subgraphsInSelectedGraph"
-                    :key="subgraphId"
-                    :value="subgraphId"
+                    v-for="subgraph in subgraphsInSelectedGraph"
+                    :key="subgraph.id"
+                    :value="subgraph.id"
                 >
                     {{ subgraph.name }}
                 </option>

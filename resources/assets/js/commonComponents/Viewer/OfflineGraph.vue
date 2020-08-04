@@ -181,7 +181,6 @@ export default {
             const links = JSON.parse(JSON.stringify(this.linksInSelectedSubgraphs));
 
             const vm = this;
-            console.log("rendered");
 
             // setup force simulation
             const simulation = d3.forceSimulation(nodes)

@@ -132,16 +132,11 @@ const mutations = {
 
 const actions = {
     async makeNewPost(context, newPost) {
-        const existingPostIds = Object.keys(state.posts);
+        const existingPostIds = Object.keys(context.state.posts).map(id => parseInt(id, 10));
 
         const highestPostId = existingPostIds.length === 0
             ? 0
-            : (
-                Math.max(
-                    ...existingPostIds
-                        .map(id => parseInt(id, 10))
-                )
-            );
+            : Math.max(...existingPostIds);
         const newPostId = highestPostId + 1;
 
         newPost.id = newPostId;

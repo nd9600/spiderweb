@@ -30,14 +30,23 @@
                 </button>
             </label>
         </div>
+
+        <Subgraphs
+            class="pl-10"
+            :graphId="graphId"
+        />
     </div>
 </template>
 
 <script>
 import {mapGetters, mapMutations, mapState} from "vuex";
+import Subgraphs from "./Subgraphs";
 
 export default {
     name: "GraphEditor",
+    components: {
+        Subgraphs
+    },
     props: {
         graphId: {
             type: String,

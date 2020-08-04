@@ -37,7 +37,7 @@ const getters = {
 };
 
 const mutations = {
-    makeNewSubgraph(state, newSubgraphName) {
+    makeNewSubgraph(state, {graphId, newSubgraphName}) {
         if (newSubgraphName.trim().length === 0) {
             return;
         }
@@ -70,7 +70,7 @@ const mutations = {
                 links: []
             }
         );
-        state.graphs[state.selectedGraphId].subgraphs.push(newSubgraphId);
+        state.graphs[graphId].subgraphs.push(newSubgraphId);
     },
     changeSubgraphName(state, {subgraphId, newSubgraphName}) {
         state.subgraphs[subgraphId].name = newSubgraphName;

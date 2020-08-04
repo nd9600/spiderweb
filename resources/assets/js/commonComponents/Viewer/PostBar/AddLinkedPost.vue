@@ -31,7 +31,7 @@
         </label>
 
         <label
-            v-if="Object.keys(subgraphsInSelectedGraph).length > 0"
+            v-if="subgraphsInSelectedGraph.length > 0"
             class="mb-2 flex items-start text-xs"
         >
             <span>I want to attach the post to these subgraphs:</span>
@@ -39,12 +39,12 @@
                 v-model.number="subgraphIdsToAttachPostTo"
                 class="select select--secondary"
                 multiple
-                :size="Math.min(Object.keys(subgraphsInSelectedGraph).length, 3)"
+                :size="Math.min(subgraphsInSelectedGraph.length, 3)"
             >
                 <option
-                    v-for="(subgraph, subgraphId) in subgraphsInSelectedGraph"
-                    :key="subgraphId"
-                    :value="subgraphId"
+                    v-for="subgraph in subgraphsInSelectedGraph"
+                    :key="subgraph.id"
+                    :value="subgraph.id"
                 >
                     {{ subgraph.name }}
                 </option>
@@ -79,21 +79,17 @@ export default {
     },
     data() {
         return {
-            graphId: 1,
             fromOrToNewPost: "to",
             linkType: "reply",
             subgraphIdsToAttachPostTo: []
         };
     },
     computed: {
-        ...mapState("dataModule", ["graphs", "selectedSubgraphIds"]),
+        ...mapState("dataModule", ["graphs", "selectedGraphId", "selectedSubgraphIds"]),
         ...mapGetters("dataModule", ["titleOrBody", "subgraphsInSelectedGraph"]),
     },
     created() {
-        const initialGraphId = this.selectedSubgraphIds.length > 0
-            ? this.selectedSubgraphIds[0]
-            : 1;
-        this.graphId = initialGraphId;
+        this.subgraphIdsToAttachPostTo = this.selectedSubgraphIds;
     },
     methods: {
         ...mapMutations("dataModule", ["addLink", "addPostToSubgraph"]),
@@ -115,7 +111,7 @@ export default {
             this.addLink({
                 source: source,
                 target: target,
-                graph: this.graphId,
+                graph: this.selectedGraphId,
                 type: this.linkType,
                 subgraphIds: this.subgraphIdsToAttachPostTo
             });

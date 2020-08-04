@@ -62,7 +62,7 @@
                             v-model.number="selectedSubgraphIds"
                             class="select select--secondary w-full"
                             multiple
-                            :size="Math.min(Object.keys(subgraphsInSelectedGraph).length, 7)"
+                            :size="Math.min(subgraphsInSelectedGraph.length, 7)"
                         >
                             <option
                                 v-for="subgraph in subgraphsInSelectedGraph"
