@@ -7,7 +7,6 @@
         >
             +
         </button>
-
         <div
             :style="{
                 'max-height': graphHeight + 'vh'
@@ -15,7 +14,45 @@
             class="clicker__container text-xs md:text-base"
         >
             <div
-                v-if="shouldShowClickButtonMenu"
+                v-if="shouldShowContextMenu"
+                class="clicker__contextMenu"
+            >
+                <button
+                    type="button"
+                    class="btn btn--secondary"
+                    @click="clickMode = 'openPosts'"
+                >
+                    Reset
+                </button>
+
+                <hr class="my-2">
+
+                <LinkAdder v-if="clickMode === 'addLink'"/>
+                <template v-else-if="clickMode === 'changeLink'">
+                    <sub
+                        v-if="linkToEdit === null"
+                        class="text-xs text-gray-500"
+                    >
+                        click on a link to change it
+                    </sub>
+                    <LinkEditor
+                        v-else
+                        :link="links[linkToEdit]"
+                        @removedLink="onRemovedLink"
+                    />
+                </template>
+                <PostMaker
+                    v-else-if="clickMode === 'addPost'"
+                    @madePost="madePost"
+                />
+                <PostsAttacher v-else-if="clickMode === 'attachPostsToGraphs'" />
+                <PostSearch
+                    v-else-if="clickMode === 'searchForPosts'"
+                    @clickedOnResult="selectPost($event)"
+                />
+            </div>
+            <div
+                v-else-if="shouldShowClickButtonMenu"
                 class="clicker__actionButtons"
             >
                 <button
@@ -70,35 +107,6 @@
                 >
                     <span class="mr-2 text-xl font-bold text-red">&#128269;</span> Search for posts
                 </button>
-            </div>
-
-            <div
-                v-if="shouldShowContextMenu"
-                class="clicker__contextMenu"
-            >
-                <LinkAdder v-if="clickMode === 'addLink'"/>
-                <template v-else-if="clickMode === 'changeLink'">
-                    <sub
-                        v-if="linkToEdit === null"
-                        class="text-xs text-gray-500"
-                    >
-                        click on a link to change it
-                    </sub>
-                    <LinkEditor
-                        v-else
-                        :link="links[linkToEdit]"
-                        @removedLink="onRemovedLink"
-                    />
-                </template>
-                <PostMaker
-                    v-else-if="clickMode === 'addPost'"
-                    @madePost="madePost"
-                />
-                <PostsAttacher v-else-if="clickMode === 'attachPostsToGraphs'" />
-                <PostSearch
-                    v-else-if="clickMode === 'searchForPosts'"
-                    @clickedOnResult="selectPost($event)"
-                />
             </div>
         </div>
     </div>
@@ -244,7 +252,13 @@ export default {
 
     background-color: #f7f7f7e6;
     border-radius: 10px;
+    min-width: 14vw;
     max-width: 50vw;
+}
+@media (max-width: 768px) {
+    .clicker__container {
+        min-width: 40vw;
+    }
 }
 
 .clicker__actionButtons {
@@ -292,13 +306,8 @@ export default {
 }
 
 .clicker__contextMenu {
-    border-radius: 10px;
-    padding: 5px;
+    padding: 10px;
     max-width: 100%;
-
-    background-color: white;
-    border: 1px solid var(--red);
-    color: #333;
     overflow-y: auto;
 }
 </style>

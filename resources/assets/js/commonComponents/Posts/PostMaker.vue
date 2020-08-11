@@ -54,7 +54,7 @@
 
         <label
             v-if="shouldShowPostAttacher && subgraphsInSelectedGraph.length > 0"
-            class="mb-2 flex justify-between items-start text-xs"
+            class="mb-2 flex flex-col items-start text-xs"
         >
             <span>I want to attach the post to these subgraphs:</span>
             <select
