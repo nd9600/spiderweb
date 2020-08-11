@@ -1,0 +1,110 @@
+{
+    "postsModule": {
+        "posts": {
+            "1": {
+                "title": "",
+                "body": "Many software designers think they are making a machine - their biggest concern is behaviour: what functions must the software have? what commands must it accept? what parameters can be adjusted? for websites, what pages are there? how are they linked together? what are the dynamic features?\nThe designers start by specifying functionality, but the essence of information SW is presentation.\n\nThe design of information software should be approached initially and primarily as a graphic design project.\nThe most important concern should be appearance - not what does colour should this button be?, but what and how information is presented.\nThe designer should ask\n\n    what is relevant information?\n    what questions will the viewer want to ask?\n    what situations will they want to compare?\n    what decision are they trying to make?\n    how can the data be presented most efficiently?\n    how can the visual vocabulary and techniques of graphic design direct the user's eyes to the solution?\n\nDesigners must start by considering what the software looks like, because the user users it to learn, and they learn by looking at it.\n\nIf information software can't present its data as well as a piece of paper, how have we progressed?\n",
+                "created_at": "2020-06-03T12:31:23.935Z",
+                "updated_at": "2020-06-03T12:33:21.431Z",
+                "id": 1
+            },
+            "2": {
+                "title": "",
+                "body": "All information graphics must show the viewer enough information to answer their questions. Many SW designers seem to forget to present the data, instead focusing on functionality.\nTake these Amazon search results from 2006:",
+                "created_at": "2020-06-03T12:33:53.859Z",
+                "updated_at": "2020-06-03T12:33:53.859Z",
+                "id": 2
+            },
+            "3": {
+                "title": "",
+                "body": "test",
+                "created_at": "2020-06-19T10:11:22.585Z",
+                "updated_at": "2020-06-19T10:11:22.585Z",
+                "id": 3
+            },
+            "4": {
+                "title": "title",
+                "body": "test 2",
+                "created_at": "2020-06-19T10:11:47.459Z",
+                "updated_at": "2020-06-19T12:42:33.465Z",
+                "id": 4
+            },
+            "7": {
+                "title": "short",
+                "body": "",
+                "created_at": "2020-06-19T12:13:54.581Z",
+                "updated_at": "2020-06-19T12:13:54.581Z",
+                "id": 7
+            }
+        },
+        "links": {
+            "1": {
+                "id": 1,
+                "graph": 1,
+                "source": 1,
+                "target": 2,
+                "type": "reply"
+            },
+            "2": {
+                "id": 2,
+                "graph": 1,
+                "source": 2,
+                "target": 4,
+                "type": "reply"
+            },
+            "3": {
+                "id": 3,
+                "graph": 1,
+                "source": 7,
+                "target": 2,
+                "type": "reply"
+            }
+        },
+        "graphs": {
+            "1": {
+                "id": 1,
+                "name": "default",
+                "nodes": [
+                    1,
+                    2,
+                    4,
+                    7
+                ],
+                "colour": "black"
+            },
+            "2": {
+                "id": 2,
+                "name": "foo",
+                "nodes": [
+                    3
+                ]
+            }
+        },
+        "selectedPostIds": [
+            4,
+            2
+        ],
+        "selectedGraphIds": [
+            1
+        ]
+    },
+    "settingsModule": {
+        "shouldAutosave": true,
+        "remoteStorageMethod": "none",
+        "canOpenMultiplePosts": true,
+        "graphHeight": 66,
+        "postBarHeight": 66,
+        "postWidth": 24
+    },
+    "firebaseModule": {
+        "firebaseConfig": {
+            "apiKey": "",
+            "authDomain": "xxx.firebaseapp.com",
+            "databaseURL": "https://xxx.firebaseio.com",
+            "projectId": "xxx",
+            "storageBucket": "xxx.appspot.com",
+            "messagingSenderId": "123",
+            "appId": "456"
+        }
+    }
+}

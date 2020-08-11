@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\ConvertDataToV04Format;
 use App\Console\Commands\MakeOfflineRelease;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -14,7 +15,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        MakeOfflineRelease::class
+        MakeOfflineRelease::class,
+        ConvertDataToV04Format::class,
     ];
 
     /**
