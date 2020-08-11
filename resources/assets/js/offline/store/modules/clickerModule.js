@@ -5,8 +5,8 @@ const state = {
 
     newLinkSource: null,
     newLinkTarget: null,
-    newLinkGraphId: 1,
     newLinkType: "reply",
+    newLinkSubgraphIds: [],
 
     linkToEdit: null,
     wantsToChangeSource: false,
@@ -22,8 +22,8 @@ const mutations = {
         if (!shouldShowClickButtonMenu) {
             state.newLinkSource = null;
             state.newLinkTarget = null;
-            state.newLinkGraphId = 1;
             state.newLinkType = "reply";
+            state.newLinkSubgraphIds = [];
 
             state.linkToEdit = null;
             state.wantsToChangeSource = false;
@@ -40,11 +40,11 @@ const mutations = {
     setNewLinkTarget(state, newLinkTarget) {
         state.newLinkTarget = newLinkTarget;
     },
-    setNewLinkGraphId(state, newLinkGraphId) {
-        state.newLinkGraphId = newLinkGraphId;
-    },
     setNewLinkType(state, newLinkType) {
         state.newLinkType = newLinkType;
+    },
+    setNewLinkSubgraphIds(state, newLinkSubgraphIds) {
+        state.newLinkSubgraphIds = newLinkSubgraphIds;
     },
 
     setLinkToEdit(state, linkToEdit) {
@@ -98,16 +98,19 @@ const actions = {
                         {
                             source: context.state.newLinkSource,
                             target: context.state.newLinkTarget,
-                            graph: context.state.newLinkGraphId,
-                            type: context.state.newLinkType
+                            graph: context.rootState.dataModule.selectedGraphId,
+                            type: context.state.newLinkType,
+                            subgraphIds: context.state.newLinkSubgraphIds
                         },
                         {
                             root: true
                         }
                     );
+
                     context.commit("setClickMode", "openPosts");
                     context.commit("setNewLinkSource", null);
                     context.commit("setNewLinkTarget", null);
+                    context.commit("setNewLinkSubgraphIds", []);
 
                     break;
                 }

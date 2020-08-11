@@ -169,12 +169,6 @@ export default {
             }
         }
     },
-    created() {
-        const initialGraphId = this.selectedSubgraphIds.length > 0
-            ? this.selectedSubgraphIds[0]
-            : 1;
-        this.newLinkGraphId = initialGraphId;
-    },
     methods: {
         ...mapMutations("clickerModule", [
             "setShouldShowClickButtonMenu",

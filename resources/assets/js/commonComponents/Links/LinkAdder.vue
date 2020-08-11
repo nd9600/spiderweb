@@ -16,18 +16,20 @@
                     link
                 </option>
             </select>
-            in the graph
+            in the subgraph
             <select
-                v-model.number="newLinkGraphId"
+                v-model.number="newLinkSubgraphIds"
                 class="select select--secondary max-w-full"
+                :size="Math.min(Object.keys(subgraphs).length, 3)"
+                multiple
             >
                 <option
-                    v-for="(graph, id) in graphs"
+                    v-for="(subgraph, id) in subgraphs"
                     :key="id"
                     :value="id"
                     class="truncate"
                 >
-                    {{ graph.name }}
+                    {{ subgraph.name }}
                 </option>
             </select>
         </label>
@@ -64,6 +66,12 @@
                 </button>
             </div>
         </label>
+        <p
+            v-else
+            class="mt-4 text-xs text-gray-500"
+        >
+            click on a post to pick the link's source
+        </p>
     </div>
 </template>
 
@@ -79,19 +87,20 @@ export default {
         PostSearch
     },
     computed: {
-        ...mapState("dataModule", ["graphs"]),
+        ...mapState("dataModule", ["subgraphs"]),
         ...mapGetters("dataModule", ["titleOrBody"]),
 
         ...mapState("clickerModule", ["newLinkSource"]),
 
-        newLinkGraphId: {
+        newLinkSubgraphIds: {
             get() {
-                return this.$store.state.clickerModule.newLinkGraphId;
+                return this.$store.state.clickerModule.newLinkSubgraphIds;
             },
-            set(newLinkGraphId) {
-                this.setNewLinkGraphId(newLinkGraphId);
+            set(newLinkSubgraphIds) {
+                this.setNewLinkSubgraphIds(newLinkSubgraphIds);
             }
         },
+
         newLinkType: {
             get() {
                 return this.$store.state.clickerModule.newLinkType;
@@ -104,8 +113,8 @@ export default {
     methods: {
         ...mapMutations("clickerModule", [
             "setNewLinkSource",
-            "setNewLinkGraphId",
             "setNewLinkType",
+            "setNewLinkSubgraphIds"
         ]),
         ...mapActions("clickerModule", ["handlePostClick"]),
     }
