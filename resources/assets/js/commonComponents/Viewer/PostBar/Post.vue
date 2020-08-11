@@ -93,7 +93,7 @@
                     title="move this post left"
                     @click="movePostLeft(post.id)"
                 >
-                    <span class="text-3xl">⇐</span>
+                    <span class="text-2xl">⇐</span>
                 </button>
                 <button
                     v-if="isPartOfASubgraph"
@@ -133,7 +133,7 @@
                     title="move this post right"
                     @click="movePostRight(post.id)"
                 >
-                    <span class="text-3xl">⇒</span>
+                    <span class="text-2xl">⇒</span>
                 </button>
             </span>
         </div>
@@ -265,6 +265,7 @@ export default {
          color: #2d3748;
     }
     .bottomLink:not(:last-of-type):after {
-        content: "⋅"
+        margin: 0 0.25rem;
+        content: "⋅";
     }
 </style>
