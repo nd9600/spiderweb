@@ -22,7 +22,7 @@ When you delete a post, also remove any links that have it as a source or target
 When you add a post (to a graph), do nothing else
 When you remove a post (from a graph), also remove any links that have it as a source or target, remove it from any of the graph's subgraphs
 
-When you create a link (to a graph), if its target or source post isn't in the graph, add them to the graph
+When you create a link (to a graph), if its target or source post isn't in the graph, add them to the graph, and if its target or source post isn't in the subgraph, add them to the subgraph
 When you delete a link (from a graph), remove it from any subgraphs
 
 When you add a post (to a subgraph), do nothing else

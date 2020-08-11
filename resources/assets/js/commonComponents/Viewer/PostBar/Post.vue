@@ -93,7 +93,7 @@
                     title="move this post left"
                     @click="movePostLeft(post.id)"
                 >
-                    <span class="text-xl">⇐</span>
+                    <span class="text-3xl">⇐</span>
                 </button>
                 <button
                     v-if="isPartOfASubgraph"
@@ -124,7 +124,7 @@
                     type="button"
                     @click="toggleBottomTab('add-linked-post')"
                 >
-                    <span class="text-xl">+</span>
+                    <span class="text-3xl">+</span>
                 </button>
                 <button
                     v-if="selectedPostIds.length > 1"
@@ -133,7 +133,7 @@
                     title="move this post right"
                     @click="movePostRight(post.id)"
                 >
-                    <span class="text-xl">⇒</span>
+                    <span class="text-3xl">⇒</span>
                 </button>
             </span>
         </div>

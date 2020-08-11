@@ -65,6 +65,15 @@ const mutations = {
 
         if (subgraphIds.length > 0) {
             for (const subgraphId of subgraphIds) {
+                // add source and/or target posts to the subgraph, if they're not there already
+                let postIdsAlreadyInSubgraph = state.subgraphs[subgraphId].nodes;
+                if (!postIdsAlreadyInSubgraph.includes(source)) {
+                    state.subgraphs[subgraphId].nodes.push(source);
+                }
+                if (!postIdsAlreadyInSubgraph.includes(target)) {
+                    state.subgraphs[subgraphId].nodes.push(target);
+                }
+
                 state.subgraphs[subgraphId].links.push(newLinkId);
             }
         }
