@@ -103,7 +103,7 @@
                     type="button"
                     @click="toggleBottomTab('linked-subgraphs')"
                 >
-                    <span class="text-xs">linked graphs</span>
+                    <span class="text-xs">{{ linkedSubgraphs(this.post.id).length }} subgraphs</span>
                 </button>
                 <button
                     v-if="hasLinkedPosts"
@@ -113,7 +113,7 @@
                     title="posts that link to or from this one"
                     @click="toggleBottomTab('linked-posts')"
                 >
-                    <span class="text-xs">linked posts</span>
+                    <span class="text-xs">{{ Object.keys(linkedPosts.to).length }}-{{ Object.keys(linkedPosts.from).length }} linked posts</span>
                 </button>
             </span>
             <span>
@@ -193,10 +193,14 @@ export default {
         ...mapState("dataModule", ["selectedPostIds"]),
 
         ...mapGetters("dataModule", ["postIdsInSelectedSubgraphs", "postIdsThatLinkToPost", "linkedSubgraphs"]),
+
+        linkedPosts() {
+            return this.postIdsThatLinkToPost(this.post.id);
+        },
+
         hasLinkedPosts() {
-            const linkedPosts = this.postIdsThatLinkToPost(this.post.id);
-            return Object.keys(linkedPosts.to).length > 0
-                || Object.keys(linkedPosts.from).length > 0;
+            return Object.keys(this.linkedPosts.to).length > 0
+                || Object.keys(this.linkedPosts.from).length > 0;
         },
         isPartOfASubgraph() {
             return this.linkedSubgraphs(this.post.id).length > 0;
