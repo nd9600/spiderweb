@@ -26,35 +26,39 @@ class ConvertDataToV04Format extends Command
     
         $path = __DIR__ . "/" . "data.json";
         if (!file_exists($path)) {
-            $this->error("`data.json` doesn't exist in this folder");
+            $this->error("$path` doesn't exist");
             return;
         }
         
         $fileContents = file_get_contents($path);
         if (empty($fileContents)) {
-            $this->error("`data.json` is empty");
+            $this->error("$path is empty");
             return;
         }
         
         $json = json_decode($fileContents, true);
         if (
             empty($json)
+            || empty($json["postsModule"])
+            || empty($json["settingsModule"])
+            || empty($json["firebaseModule"])
         ) {
-            $this->error("`data.json` is invalid");
+            $this->error("$path is invalid, please check it");
             return;
         }
         
         $this->info("Converting data to v0.4 format");
         $convertedData = $this->convertData($json);
     
-        $this->info("Saving data to `data-converted.json`");
-        file_put_contents("data-converted.json", json_encode($convertedData));
+        $savingPath = __DIR__ . "/" . "data-converted.json";
+        $this->info("Saving data to $savingPath");
+        file_put_contents($savingPath, json_encode($convertedData));
     }
     
     public function convertData(array $json): array
     {
         return [
-            "postsModule" => [
+            "dataModule" => [
                 "posts" => $json["postsModule"]["posts"],
                 "links" => collect($json["postsModule"]["links"])
                     ->mapWithKeys(function (array $link) {
