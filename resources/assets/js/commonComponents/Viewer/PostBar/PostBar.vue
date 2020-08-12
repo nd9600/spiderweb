@@ -2,21 +2,26 @@
     <section>
         <div class="postBar">
             <div class="flex justify-between items-center">
-                <button
-                    v-if="!visiblePosts.includes(0)"
-                    class="btn btn--secondary"
-                    type="button"
-                >
-                    <span class="text-2xl">⇐</span>
-                </button>
-                <span>{{visiblePosts}}</span>
-                <button
-                    v-if="!visiblePosts.includes(selectedPostIds.length - 1)"
-                    class="btn btn--secondary"
-                    type="button"
-                >
-                    <span class="text-2xl">⇒</span>
-                </button>
+                <span>
+                    <button
+                        v-if="!visiblePosts.includes(0)"
+                        class="btn btn--secondary"
+                        type="button"
+                        @click="scrollLeft"
+                    >
+                        <span class="text-2xl">⇐</span>
+                    </button>
+                </span>
+                <span>
+                    <button
+                        v-if="!visiblePosts.includes(selectedPostIds.length - 1)"
+                        class="btn btn--secondary"
+                        type="button"
+                        @click="scrollRight"
+                    >
+                        <span class="text-2xl">⇒</span>
+                    </button>
+                </span>
             </div>
             <div
                 id="postBar"
@@ -81,6 +86,26 @@ export default {
                 }
             }
             this.visiblePosts = visiblePosts;
+        },
+        scrollLeft() {
+            const postIdToScrollTo = this.visiblePosts[0] - 1;
+            const postToScrollTo = document.getElementById(`post-${postIdToScrollTo}`);
+
+            const bounding = postToScrollTo.getBoundingClientRect();
+            let postBar = document.getElementById("postBar");
+            let container = postBar.getBoundingClientRect();
+
+            postBar.scrollLeft = postBar.scrollLeft - (Math.abs(bounding.left) + container.left + 10);
+        },
+        scrollRight() {
+            const postIdToScrollTo = this.visiblePosts[this.visiblePosts.length - 1] + 1;
+            const postToScrollTo = document.getElementById(`post-${postIdToScrollTo}`);
+
+            const bounding = postToScrollTo.getBoundingClientRect();
+            let postBar = document.getElementById("postBar");
+            let container = postBar.getBoundingClientRect();
+
+            postBar.scrollLeft = postBar.scrollLeft + (bounding.right - container.right + 10);
         }
     },
 };
