@@ -9,7 +9,7 @@ Spiderweb lets you
 * _link_ the posts together
 * view the graphs of posts you've made - you can look at more than one graph at a time
 
-It's completely offline, and doesn't many any HTTP requests at all - though you can optionally choose to sync your data with a [Firebase Realtime Database](https://firebase.google.com/docs/database) if you want, with [your own API keys](https://firebase.google.com/docs/web/setup?authuser=0#config-object)
+It's completely offline, and doesn't many any HTTP requests at all - though you can optionally choose to backup your data to a [Firebase Realtime Database](https://firebase.google.com/docs/database) if you want, with [your own API keys](https://firebase.google.com/docs/web/setup?authuser=0#config-object)
 
 ![Spiderweb's UI](https://user-images.githubusercontent.com/9141675/80801405-33e89780-8ba4-11ea-9bf6-19d115c6a402.png)
 
@@ -33,7 +33,7 @@ The `Load/save` tab lets you import and export your data and settings.
 
 Inside the `Settings` tab you can choose 
 * whether you want your data to be saved automatically
-* if your data should be synced to a [Firebase Realtime Database](https://firebase.google.com/docs/database) (with [your own API keys](https://firebase.google.com/docs/web/setup?authuser=0#config-object))
+* if your data should be backed up to a [Firebase Realtime Database](https://firebase.google.com/docs/database) (with [your own API keys](https://firebase.google.com/docs/web/setup?authuser=0#config-object))
 
 etc.
 
