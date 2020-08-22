@@ -57,7 +57,27 @@ const mutations = {
         state.selectedGraphIds = newSelectedGraphIds.length === 0
             ? [1]
             : newSelectedGraphIds;
-        Vue.delete(state.graphs, graphId);
+
+        const newSelectedSubgraphIds = state.selectedSubgraphIds
+            .filter(selectedSubgraphId => !state.graphs[graphId].subgraphs
+                .includes(parseInt(selectedSubgraphId, 10))
+            );
+
+        state.selectedSubgraphIds = newSelectedSubgraphIds.length === 0
+            ? []
+            : newSelectedSubgraphIds;
+
+        // when we remove a graph, we need to remove any of its subgraphs, and any links in it
+        for (const subgraphId of state.graphs[graphId].subgraphs) {
+            Vue.delete(state.subgraphs, subgraphId);
+        }
+
+        for (const link of Object.values(state.links)) {
+            const isRemovingThisLinksGraph = link.graph === parseInt(graphId, 10); // this is a string, like `"2"`, _not_ `2`
+            if (isRemovingThisLinksGraph) {
+                Vue.delete(state.links, link.id);
+            }
+        }
     },
 
     addPostToGraph(state, {graphId, postId}) {
