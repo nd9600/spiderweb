@@ -52,11 +52,9 @@ const mutations = {
         state.graphs[graphId].name = newGraphName;
     },
     removeGraph(state, graphId) {
-        const newSelectedGraphIds = state.selectedGraphIds
-            .filter(selectedGraphId => selectedGraphId !== parseInt(graphId, 10));
-        state.selectedGraphIds = newSelectedGraphIds.length === 0
-            ? [1]
-            : newSelectedGraphIds;
+        if (state.selectedGraphId === graphId) {
+            state.selectedGraphId = null;
+        }
 
         const newSelectedSubgraphIds = state.selectedSubgraphIds
             .filter(selectedSubgraphId => !state.graphs[graphId].subgraphs

@@ -1,4 +1,4 @@
-{
+export default {
     "dataModule": {
         "posts": {
             "1": {

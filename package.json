@@ -7,7 +7,8 @@
     "watch-poll": "npm run watch -- --watch-poll",
     "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --mode=development",
     "prod": "npm run production",
-    "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --progress --hide-modules --mode=production"
+    "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --progress --hide-modules --mode=production",
+    "test": "jest resources/assets/js/__tests__"
   },
   "devDependencies": {
     "@babel/core": "^7.7.5",
@@ -26,6 +27,7 @@
     "gulp-cssimport": "^7.0.0",
     "gulp-rev": "^9.0.0",
     "gulp-sass": "^4.0.2",
+    "jest": "^26.4.2",
     "node-sass": "^4.13.1",
     "vinyl-named-with-path": "^1.0.0",
     "vue-loader": "^15.7.2",
@@ -46,5 +48,23 @@
     "marked": "^1.1.0",
     "vue": "^2.6.11",
     "vuex": "^3.1.2"
+  },
+  "jest": {
+    "bail": false,
+    "verbose": false,
+    "globals": {
+      "NODE_ENV": "test"
+    },
+    "testRegex": "(/__tests__/.*test)\\.js$",
+    "moduleFileExtensions": [
+      "js"
+    ],
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/resources/assets/$1"
+    },
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "-ignore"
+    ]
   }
 }
