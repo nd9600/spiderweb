@@ -63,7 +63,7 @@
     </section>
 </template>
 <script>
-import PostMaker from "@/js/commonComponents/Posts/PostMaker";
+import PostMaker from "@/src/commonComponents/Posts/PostMaker";
 import {mapState, mapGetters, mapMutations} from "vuex";
 
 export default {

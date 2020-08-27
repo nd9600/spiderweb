@@ -42,7 +42,7 @@
 
 <script>
 import { mapState, mapMutations } from "vuex";
-import elementIsVisible from "@/js/helpers/elementIsVisible.js";
+import elementIsVisible from "@/src/helpers/elementIsVisible.js";
 
 import Post from "./Post";
 

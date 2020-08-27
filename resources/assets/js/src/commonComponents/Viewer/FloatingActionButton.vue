@@ -114,11 +114,11 @@
 <script>
 import {mapState, mapGetters, mapMutations} from "vuex";
 
-import LinkEditor from "@/js/commonComponents/Links/LinkEditor";
-import LinkAdder from "@/js/commonComponents/Links/LinkAdder";
-import PostMaker from "@/js/commonComponents/Posts/PostMaker";
-import PostsAttacher from "@/js/commonComponents/Posts/PostsAttacher";
-import PostSearch from "@/js/commonComponents/Posts/PostSearch";
+import LinkEditor from "@/src/commonComponents/Links/LinkEditor";
+import LinkAdder from "@/src/commonComponents/Links/LinkAdder";
+import PostMaker from "@/src/commonComponents/Posts/PostMaker";
+import PostsAttacher from "@/src/commonComponents/Posts/PostsAttacher";
+import PostSearch from "@/src/commonComponents/Posts/PostSearch";
 
 export default {
     name: "FloatingActionButton",

@@ -150,7 +150,7 @@
 import {mapState, mapMutations, mapGetters} from "vuex";
 import marked from "marked";
 
-import PostEditor from "@/js/commonComponents/Posts/PostEditor";
+import PostEditor from "@/src/commonComponents/Posts/PostEditor";
 import LinkedPosts from "./LinkedPosts";
 import LinkedSubgraphs from "./LinkedSubgraphs";
 import AddLinkedPost from "./AddLinkedPost";

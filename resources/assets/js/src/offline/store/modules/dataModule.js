@@ -1,4 +1,4 @@
-import {WIDTH, HEIGHT, INITIAL_ZOOM} from "@/js/commonComponents/constants";
+import {WIDTH, HEIGHT, INITIAL_ZOOM} from "@/src/commonComponents/constants";
 
 import graphs from "./dataModules/graphs";
 import posts from "./dataModules/posts";

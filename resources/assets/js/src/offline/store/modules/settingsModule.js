@@ -1,5 +1,5 @@
-import {isInteger} from "@/js/helpers/numberHelpers";
-import {setProperty} from "@/js/helpers/vuexHelpers";
+import {isInteger} from "@/src/helpers/numberHelpers";
+import {setProperty} from "@/src/helpers/vuexHelpers";
 
 const state = {
     shouldAutosave: true,

@@ -2,7 +2,7 @@ import overallState from "./state";
 
 const state = overallState.dataModule;
 
-import graphsModule from "@/js/offline/store/modules/dataModules/graphs";
+import graphsModule from "@/src/offline/store/modules/dataModules/graphs";
 
 test("deleting graphs deletes subgraphs and links", () => {
     graphsModule.mutations.removeGraph(state, 1);

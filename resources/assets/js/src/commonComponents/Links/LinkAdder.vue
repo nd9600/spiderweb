@@ -79,7 +79,7 @@
 import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
 
 
-import PostSearch from "@/js/commonComponents/Posts/PostSearch";
+import PostSearch from "@/src/commonComponents/Posts/PostSearch";
 
 export default {
     name: "LinkAdder",

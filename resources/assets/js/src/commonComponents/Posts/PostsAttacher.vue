@@ -42,7 +42,7 @@
 import {mapGetters, mapState} from "vuex";
 
 import PostAttacher from "./PostAttacher";
-import PostSearch from "@/js/commonComponents/Posts/PostSearch";
+import PostSearch from "@/src/commonComponents/Posts/PostSearch";
 
 export default {
     name: "PostsAttacher",

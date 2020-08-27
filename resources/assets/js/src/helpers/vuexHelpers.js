@@ -8,7 +8,7 @@ import Vue from "vue";
  * ```
  * This deletes `state["enteredUnitRates"][resultCode][date]`
  *
- * Can be imported like `import deleteProperty from "@/js/helpers/deleteProperty";`
+ * Can be imported like `import deleteProperty from "@/src/helpers/deleteProperty";`
  * @param obj {object}
  * @param props {array}
  */
@@ -32,7 +32,7 @@ function deleteProperty(obj, props) {
  * ```
  * This sets `state["enteredUnitRates"][resultCode][date]` to be `newUnitRates`
  *
- * Can be imported like `import setProperty from "@/js/helpers/setProperty";`
+ * Can be imported like `import setProperty from "@/src/helpers/setProperty";`
  * @param obj {object}
  * @param props {array}
  * @param value {object}

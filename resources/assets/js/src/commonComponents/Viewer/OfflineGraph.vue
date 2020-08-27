@@ -49,7 +49,7 @@ import debounce from "lodash.debounce";
 
 import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
 import FloatingActionButton from "./FloatingActionButton";
-import {WIDTH, HEIGHT, INITIAL_ZOOM} from "@/js/commonComponents/constants";
+import {WIDTH, HEIGHT, INITIAL_ZOOM} from "@/src/commonComponents/constants";
 
 export default {
     name: "OfflineGraph",

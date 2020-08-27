@@ -63,10 +63,10 @@
 <script>
 import {mapActions, mapState} from "vuex";
 
-import Viewer from "@/js/commonComponents/Viewer/Viewer";
-import Graphs from "@/js/commonComponents/Graphs/Graphs";
-import LoadSave from "@/js/commonComponents/LoadSave";
-import Settings from "@/js/commonComponents/Settings/Settings";
+import Viewer from "@/src/commonComponents/Viewer/Viewer";
+import Graphs from "@/src/commonComponents/Graphs/Graphs";
+import LoadSave from "@/src/commonComponents/LoadSave";
+import Settings from "@/src/commonComponents/Settings/Settings";
 
 export default {
     name: "OfflineApp",

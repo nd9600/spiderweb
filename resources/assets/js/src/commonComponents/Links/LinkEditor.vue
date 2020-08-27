@@ -112,7 +112,7 @@
 <script>
 import {mapState, mapGetters, mapMutations} from "vuex";
 
-import PostSearch from "@/js/commonComponents/Posts/PostSearch";
+import PostSearch from "@/src/commonComponents/Posts/PostSearch";
 
 export default {
     name: "LinkEditor",

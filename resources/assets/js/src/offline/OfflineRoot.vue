@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import OfflineApp from "@/js/commonComponents/OfflineApp";
+import OfflineApp from "@/src/commonComponents/OfflineApp";
 import { mapActions } from "vuex";
 
 export default {

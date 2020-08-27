@@ -1,9 +1,11 @@
 import Vue from "vue";
 import Post from "@/src/offline/store/classes/Post";
-import {DataModuleState, LinkId, LinksMap, PostId} from "@/src/@types/StoreTypes";
+import {DataModuleState, LinkId, LinksMap, PostId, PostsMap} from "@/src/@types/StoreTypes";
 import Link from "@/src/offline/store/classes/Link";
 
-const state = {
+const state: {
+    posts: PostsMap
+} = {
     posts: {},
 };
 
