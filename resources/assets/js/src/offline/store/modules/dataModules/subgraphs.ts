@@ -1,6 +1,7 @@
 import Vue from "vue";
+import {DataModuleState, GraphId, PostId, SubgraphId} from "@/src/@types/StoreTypes";
 
-function stringToColour(str) {
+function stringToColour(str: string) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
         hash = str.charCodeAt(i) + ((hash << 5) - hash);
@@ -28,7 +29,7 @@ const state = {
 };
 
 const getters = {
-    subgraphColour: (state) => (subgraphId) => {
+    subgraphColour: (state: DataModuleState) => (subgraphId: SubgraphId) => {
         if (typeof subgraphId === "undefined") {
             return "#000000";
         }
@@ -37,7 +38,7 @@ const getters = {
 };
 
 const mutations = {
-    makeNewSubgraph(state, {graphId, newSubgraphName}) {
+    makeNewSubgraph(state: DataModuleState, {graphId, newSubgraphName}: {graphId: GraphId, newSubgraphName: string}) {
         if (newSubgraphName.trim().length === 0) {
             return;
         }
@@ -72,38 +73,38 @@ const mutations = {
         );
         state.graphs[graphId].subgraphs.push(newSubgraphId);
     },
-    changeSubgraphName(state, {subgraphId, newSubgraphName}) {
+    changeSubgraphName(state: DataModuleState, {subgraphId, newSubgraphName}: {subgraphId: SubgraphId, newSubgraphName: string}) {
         state.subgraphs[subgraphId].name = newSubgraphName;
     },
-    changeSubgraphColour(state, {subgraphId, colour}) {
+    changeSubgraphColour(state: DataModuleState, {subgraphId, colour}: {subgraphId: SubgraphId, colour: string}) {
         state.subgraphs[subgraphId].colour = colour;
     },
-    removeSubgraph(state, subgraphId) {
+    removeSubgraph(state: DataModuleState, subgraphId: SubgraphId) {
         const newSelectedSubgraphIds = state.selectedSubgraphIds
-            .filter(selectedSubgraphId => selectedSubgraphId !== parseInt(subgraphId, 10));
+            .filter(selectedSubgraphId => selectedSubgraphId !== subgraphId);
         state.selectedSubgraphIds = newSelectedSubgraphIds.length === 0
             ? []
             : newSelectedSubgraphIds;
-        state.graphs[state.selectedGraphId].subgraphs.splice(
-            state.graphs[state.selectedGraphId].subgraphs.indexOf(subgraphId),
+        state.graphs[state.selectedGraphId!].subgraphs.splice(
+            state.graphs[state.selectedGraphId!].subgraphs.indexOf(subgraphId),
             1
         );
         Vue.delete(state.subgraphs, subgraphId);
     },
-    addPostToSubgraph(state, {subgraphId, postId}) {
+    addPostToSubgraph(state: DataModuleState, {subgraphId, postId}: {subgraphId: SubgraphId, postId: PostId}) {
         // we also need to add it to the graph that contains the subgraph, if it's not there already
-        if (!state.graphs[state.selectedGraphId].nodes.includes(postId)) {
-            state.graphs[state.selectedGraphId].nodes.push(postId);
+        if (!state.graphs[state.selectedGraphId!].nodes.includes(postId)) {
+            state.graphs[state.selectedGraphId!].nodes.push(postId);
         }
 
         if (!state.subgraphs[subgraphId].nodes.includes(postId)) {
             state.subgraphs[subgraphId].nodes.push(postId);
         }
     },
-    removePostFromSubgraph(state, {subgraphId, postId}) {
+    removePostFromSubgraph(state: DataModuleState, {subgraphId, postId}: {subgraphId: SubgraphId, postId: PostId}) {
         // when we remove a post, we need to remove any links that include it
         for (const link of Object.values(state.links)) {
-            const isRemovingPostFromThisGraph = link.graph === parseInt(subgraphId, 10); // this is a string, like `"2"`, _not_ `2`
+            const isRemovingPostFromThisGraph = link.graph === subgraphId;
             const postIsSourceOrTarget =
                 link.source === postId
                 || link.target === postId;
@@ -117,9 +118,6 @@ const mutations = {
 
         state.subgraphs[subgraphId].nodes.splice(state.subgraphs[subgraphId].nodes.indexOf(postId), 1);
     },
-    setZoom(state, zoom) {
-        state.zoom = zoom;
-    }
 };
 
 const actions = {};

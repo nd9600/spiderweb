@@ -1,4 +1,5 @@
 import Vue from "vue";
+import {DataModuleState, GraphId, LinksMap, PostId} from "@/src/@types/StoreTypes";
 
 const state = {
     graphs: {
@@ -14,7 +15,7 @@ const state = {
 const getters = {};
 
 const mutations = {
-    makeNewGraph(state, newGraphName) {
+    makeNewGraph(state: DataModuleState, newGraphName: string) {
         if (newGraphName.trim().length === 0) {
             return;
         }
@@ -48,17 +49,17 @@ const mutations = {
             }
         );
     },
-    changeGraphName(state, {graphId, newGraphName}) {
+    changeGraphName(state: DataModuleState, {graphId, newGraphName}: {graphId: GraphId, newGraphName: string}) {
         state.graphs[graphId].name = newGraphName;
     },
-    removeGraph(state, graphId) {
+    removeGraph(state: DataModuleState, graphId: GraphId) {
         if (state.selectedGraphId === graphId) {
             state.selectedGraphId = null;
         }
 
         const newSelectedSubgraphIds = state.selectedSubgraphIds
             .filter(selectedSubgraphId => !state.graphs[graphId].subgraphs
-                .includes(parseInt(selectedSubgraphId, 10))
+                .includes(selectedSubgraphId)
             );
 
         state.selectedSubgraphIds = newSelectedSubgraphIds.length === 0
@@ -71,23 +72,23 @@ const mutations = {
         }
 
         for (const link of Object.values(state.links)) {
-            const isRemovingThisLinksGraph = link.graph === parseInt(graphId, 10); // this is a string, like `"2"`, _not_ `2`
+            const isRemovingThisLinksGraph = link.graph === graphId;
             if (isRemovingThisLinksGraph) {
                 Vue.delete(state.links, link.id);
             }
         }
     },
 
-    addPostToGraph(state, {graphId, postId}) {
+    addPostToGraph(state: DataModuleState, {graphId, postId}: {graphId: GraphId, postId: PostId}) {
         if (!state.graphs[graphId].nodes.includes(postId)) {
             state.graphs[graphId].nodes.push(postId);
         }
     },
-    removePostFromGraph(state, {graphId, postId}) {
+    removePostFromGraph(state: DataModuleState, {graphId, postId}: {graphId: GraphId, postId: PostId}) {
         // when we remove a post from a graph, we need to remove any links that include it
-        let linksAfterPostRemoval = {};
+        let linksAfterPostRemoval: LinksMap = {};
         for (const link of Object.values(state.links)) {
-            const isRemovingPostFromThisGraph = link.graph === parseInt(graphId, 10); // this is a string, like `"2"`, _not_ `2`
+            const isRemovingPostFromThisGraph = link.graph === graphId;
             const postIsSourceOrTarget =
                 link.source === postId
                 || link.target === postId;

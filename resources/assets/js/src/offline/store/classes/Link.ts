@@ -1,6 +1,8 @@
-import { LinkId, GraphId, PostId } from "@/src/@types/StoreTypes";
+import {LinkId, GraphId, PostId, SubgraphId} from "@/src/@types/StoreTypes";
 
 export default class Link {
+  public subgraphId?: SubgraphId;
+
   constructor(
         public id: LinkId,
         public graph: GraphId,

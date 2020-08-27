@@ -8,10 +8,16 @@ export type PostId = number;
 export type LinkId = number;
 export type SubgraphId = number;
 
-export type GraphsMap = Record<GraphId, Graph>;
-export type PostsMap = Record<PostId, Post>;
-export type LinksMap = Record<LinkId, Link>;
-export type SubgraphsMap = Record<SubgraphId, Subgraph>;
+export type GraphsMap = Record<string, Graph>;
+export type PostsMap = Record<string, Post>;
+export type LinksMap = Record<string, Link>;
+export type SubgraphsMap = Record<string, Subgraph>;
+
+export type Zoom = {
+    x: number,
+    y: number,
+    scale: number,
+};
 
 export interface DataModuleState {
     graphs: GraphsMap,
@@ -20,11 +26,7 @@ export interface DataModuleState {
     subgraphs: SubgraphsMap,
 
     selectedPostIds: PostId[],
-    selectedGraphId: GraphId,
+    selectedGraphId: Nullable<GraphId>,
     selectedSubgraphIds: SubgraphId[],
-    zoom: {
-        x: number,
-        y: number,
-        scale: number,
-    }
+    zoom: Zoom
 }

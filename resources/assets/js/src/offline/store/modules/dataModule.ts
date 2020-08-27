@@ -4,6 +4,10 @@ import graphs from "./dataModules/graphs";
 import posts from "./dataModules/posts";
 import links from "./dataModules/links";
 import subgraphs from "./dataModules/subgraphs";
+import {DataModuleState, GraphId, LinkId, PostId, SubgraphId, Zoom} from "@/src/@types/StoreTypes";
+import Post from "@/src/offline/store/classes/Post";
+import Subgraph from "@/src/offline/store/classes/Subgraph";
+import Link from "@/src/offline/store/classes/Link";
 
 
 /*
@@ -34,7 +38,8 @@ When you remove a link (from a subgraph), do nothing else
 When you create a subgraph, it has no posts or links
 When you delete a subgraph, remove it from its graph
  */
-function arrayMove(array, fromIndex, toIndex) {
+
+function arrayMove<T>(array: Array<T>, fromIndex: number, toIndex: number) {
     let arrayCopy = array.slice(0);
     const element = array[fromIndex];
     arrayCopy.splice(fromIndex, 1);
@@ -64,31 +69,31 @@ const getters = {
     ...links.getters,
     ...subgraphs.getters,
 
-    subgraphsInSelectedGraph(state) {
-        const graph = state.graphs[state.selectedGraphId];
+    subgraphsInSelectedGraph(state: DataModuleState): Subgraph[] {
+        const graph = state.graphs[state.selectedGraphId!];
         return graph.subgraphs.map(id => state.subgraphs[id]);
     },
 
-    postIdsInSelectedSubgraphs(state) {
-        let postIDs = [];
+    postIdsInSelectedSubgraphs(state: DataModuleState): PostId[] {
+        let postIDs: PostId[] = [];
 
         if (state.selectedSubgraphIds.length > 0) {
             for (let selectedSubgraphId of state.selectedSubgraphIds) {
                 postIDs = postIDs.concat(state.subgraphs[selectedSubgraphId].nodes);
             }
         } else {
-            postIDs = state.graphs[state.selectedGraphId].nodes;
+            postIDs = state.graphs[state.selectedGraphId!].nodes;
         }
         const uniquePostIDs = [...new Set(postIDs.filter(id => id != null))];
         return uniquePostIDs;
     },
-    postsInSelectedSubgraphs(state, getters) {
-        return getters.postIdsInSelectedSubgraphs.map(id => state.posts[id]);
+    postsInSelectedSubgraphs(state: DataModuleState, getters: any): Post[] {
+        return getters.postIdsInSelectedSubgraphs.map((id: PostId) => state.posts[id]);
     },
-    linksInSelectedSubgraphs(state) {
+    linksInSelectedSubgraphs(state: DataModuleState): Link[] {
         // if we have subgraphs, add the `subgraphId` to each link object
         if (state.selectedSubgraphIds.length > 0) {
-            let linkIDs = [];
+            let linkIDs: Array<{linkId: LinkId, subgraphId: SubgraphId}> = [];
             for (let selectedSubgraphId of state.selectedSubgraphIds) {
                 linkIDs = linkIDs.concat(
                     state.subgraphs[selectedSubgraphId].links
@@ -106,7 +111,7 @@ const getters = {
                     return link;
                 });
         } else {
-            let linkToSubgraphMap = {};
+            let linkToSubgraphMap: Record<LinkId, SubgraphId> = {};
             for (let subgraph of Object.values(state.subgraphs)) {
                 for (let linkId of subgraph.links) {
                     linkToSubgraphMap[linkId] = subgraph.id;
@@ -134,7 +139,7 @@ const mutations = {
     ...links.mutations,
     ...subgraphs.mutations,
 
-    setState(state, newState) {
+    setState(state: any, newState: DataModuleState) {
         if (
             Object.keys(newState).length === 0
             || Object.keys(newState.posts).length === 0
@@ -156,10 +161,10 @@ const mutations = {
         };
     },
 
-    setSelectedPostIds(state, selectedPostIds) {
+    setSelectedPostIds(state: DataModuleState, selectedPostIds: PostId[]) {
         state.selectedPostIds = selectedPostIds;
     },
-    selectPostId(state, {id, canOpenMultiplePosts}) {
+    selectPostId(state: DataModuleState, {id, canOpenMultiplePosts}: {id: PostId, canOpenMultiplePosts: boolean}) {
         if (state.selectedPostIds.includes(id)) { // we want to move it to the front of the list
             state.selectedPostIds.splice(state.selectedPostIds.indexOf(id), 1);
         }
@@ -170,10 +175,10 @@ const mutations = {
             state.selectedPostIds = [id];
         }
     },
-    unselectPostId(state, id) {
+    unselectPostId(state: DataModuleState, id: PostId) {
         state.selectedPostIds.splice(state.selectedPostIds.indexOf(id), 1);
     },
-    togglePostId(state, {id, canOpenMultiplePosts}) {
+    togglePostId(state: DataModuleState, {id, canOpenMultiplePosts}: {id: PostId, canOpenMultiplePosts: boolean}) {
         if (state.selectedPostIds.includes(id)) {
             state.selectedPostIds.splice(state.selectedPostIds.indexOf(id), 1);
         } else {
@@ -184,14 +189,14 @@ const mutations = {
             }
         }
     },
-    movePostLeft(state, id) {
+    movePostLeft(state: DataModuleState, id: PostId) {
         const currentIndex = state.selectedPostIds.indexOf(id);
         const newIndex = currentIndex === 0
             ? state.selectedPostIds.length - 1
             : currentIndex - 1;
         state.selectedPostIds = arrayMove(state.selectedPostIds, currentIndex, newIndex);
     },
-    movePostRight(state, id) {
+    movePostRight(state: DataModuleState, id: PostId) {
         const currentIndex = state.selectedPostIds.indexOf(id);
         const newIndex = currentIndex === (state.selectedPostIds.length - 1)
             ? 0
@@ -199,18 +204,18 @@ const mutations = {
         state.selectedPostIds = arrayMove(state.selectedPostIds, currentIndex, newIndex);
     },
 
-    setSelectedGraphId(state, selectedGraphId) {
+    setSelectedGraphId(state: DataModuleState, selectedGraphId: GraphId) {
         state.selectedSubgraphIds = [];
         state.selectedGraphId = selectedGraphId;
     },
 
-    setSelectedSubgraphIds(state, selectedSubgraphIds) {
+    setSelectedSubgraphIds(state: DataModuleState, selectedSubgraphIds: SubgraphId[]) {
         state.selectedSubgraphIds = selectedSubgraphIds;
     },
-    selectAllSubgraphs(state) {
-        state.selectedSubgraphIds = state.graphs[state.selectedGraphId].subgraphs;
+    selectAllSubgraphs(state: DataModuleState) {
+        state.selectedSubgraphIds = state.graphs[state.selectedGraphId!].subgraphs;
     },
-    toggleSubgraphId(state, subgraphId) {
+    toggleSubgraphId(state: DataModuleState, subgraphId: SubgraphId) {
         if (state.selectedSubgraphIds.includes(subgraphId)) {
             state.selectedSubgraphIds.splice(state.selectedSubgraphIds.indexOf(subgraphId), 1);
         } else {
@@ -218,7 +223,7 @@ const mutations = {
         }
     },
 
-    setZoom(state, zoom) {
+    setZoom(state: DataModuleState, zoom: Zoom) {
         state.zoom = zoom;
     }
 };

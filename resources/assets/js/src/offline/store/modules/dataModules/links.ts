@@ -1,11 +1,13 @@
 import Vue from "vue";
+import {DataModuleState, GraphId, LinkId, PostId, SubgraphId} from "@/src/@types/StoreTypes";
+import Link from "@/src/offline/store/classes/Link";
 
 const state = {
     links: {},
 };
 
 const getters = {
-    subgraphsLinkIsIn: (state) => (linkId) => {
+    subgraphsLinkIsIn: (state: DataModuleState) => (linkId: LinkId) => {
         let subgraphsLinkIsIn = [];
 
         for (let subgraph of Object.values(state.subgraphs)) {
@@ -18,7 +20,7 @@ const getters = {
 };
 
 const mutations = {
-    addLink(state, {source, target, graph, type = "reply", subgraphIds = []}) {
+    addLink(state: DataModuleState, {source, target, graph, type = "reply", subgraphIds = []}: {source: PostId, target: PostId, graph: GraphId, type: string, subgraphIds?: SubgraphId[]}) {
         const existingLinkIds = Object.keys(state.links);
         const highestLinkId = existingLinkIds.length === 0
             ? 0
@@ -78,7 +80,7 @@ const mutations = {
             }
         }
     },
-    updateLink(state, link) {
+    updateLink(state: DataModuleState, link: Link) {
         // add source and/or target posts to the graph, if they're not there already
         const postIdsAlreadyInGraph = state.graphs[link.graph].nodes;
         if (!postIdsAlreadyInGraph.includes(link.source)) {
@@ -90,7 +92,7 @@ const mutations = {
 
         Vue.set(state.links, link.id, link);
     },
-    changeLinkSource(state, {id, source}) {
+    changeLinkSource(state: DataModuleState, {id, source}: {id: LinkId, source: PostId}) {
         let link = JSON.parse(JSON.stringify(state.links[id]));
         if (
             link.source === source
@@ -107,7 +109,7 @@ const mutations = {
 
         Vue.set(state.links, id, link);
     },
-    changeLinkTarget(state, {id, target}) {
+    changeLinkTarget(state: DataModuleState, {id, target}: {id: LinkId, target: PostId}) {
         let link = JSON.parse(JSON.stringify(state.links[id]));
         if (
             link.source === target
@@ -124,11 +126,11 @@ const mutations = {
 
         Vue.set(state.links, id, link);
     },
-    setSubgraphsLinkIsIn(state, {linkId, subgraphsLinkIsIn}) {
+    setSubgraphsLinkIsIn(state: DataModuleState, {linkId, subgraphsLinkIsIn}: {linkId: LinkId, subgraphsLinkIsIn: SubgraphId[]}) {
         for (const subgraphId of Object.keys(state.subgraphs)) {
             const indexOfLink = state.subgraphs[subgraphId].links.indexOf(linkId);
             const alreadyInSubgraph = indexOfLink >= 0;
-            const shouldBeInSubgraph = subgraphsLinkIsIn.includes(Number(subgraphId));
+            const shouldBeInSubgraph = subgraphsLinkIsIn.includes(parseInt(subgraphId, 10));
 
             if (alreadyInSubgraph && !shouldBeInSubgraph) {
                 state.subgraphs[subgraphId].links.splice(indexOfLink, 1);
@@ -148,7 +150,7 @@ const mutations = {
         }
     },
 
-    removeLink(state, {id}) {
+    removeLink(state: DataModuleState, {id}: {id: LinkId}) {
         // we also need to remove it from any subgraphs
         for (const subgraphId of Object.keys(state.subgraphs)) {
             const indexOfLink = state.subgraphs[subgraphId].links.indexOf(id);
