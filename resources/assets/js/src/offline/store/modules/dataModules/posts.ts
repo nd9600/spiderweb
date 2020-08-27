@@ -1,16 +1,19 @@
 import Vue from "vue";
+import Post from "@/src/offline/store/classes/Post";
+import {DataModuleState, LinkId, LinksMap, PostId} from "@/src/@types/StoreTypes";
+import Link from "@/src/offline/store/classes/Link";
 
 const state = {
     posts: {},
 };
 
 const getters = {
-    postIds(state) {
+    postIds(state: DataModuleState) {
         return Object.keys(state.posts).map(n => parseInt(n, 10));
     },
 
-    unattachedPosts(state) {
-        let attachedPostIDs = [];
+    unattachedPosts(state: DataModuleState) {
+        let attachedPostIDs: PostId[] = [];
         for (let graphObj of Object.values(state.graphs)) {
             attachedPostIDs = attachedPostIDs.concat(graphObj.nodes);
         }
@@ -23,7 +26,7 @@ const getters = {
             .map(id => state.posts[id]);
     },
 
-    titleOrBody: (state) => (postId) => {
+    titleOrBody: (state: DataModuleState) => (postId: number) => {
         const MAX_BODY_LENGTH = 30;
 
         const post = state.posts[postId];
@@ -38,9 +41,9 @@ const getters = {
             : strToReturn;
     },
 
-    neighbourIndex(state, getters) {
-        let neighbourIndex = {};
-        getters.linksInSelectedSubgraphs.forEach(function (link) {
+    neighbourIndex(state: DataModuleState, getters: any): {[key: string]: number} {
+        let neighbourIndex: {[key: string]: number} = {};
+        getters.linksInSelectedSubgraphs.forEach(function (link: Link) {
             const lowerId = Math.min(link.source, link.target);
             const higherId = Math.max(link.source, link.target);
             neighbourIndex[lowerId + "," + higherId] = 1;
@@ -48,15 +51,15 @@ const getters = {
         return neighbourIndex;
     },
 
-    isNeighbour: (state, getters) => (postA, postB) => {
+    isNeighbour: (state: DataModuleState, getters: any) => (postA: Post, postB: Post) => {
         const lowerId = Math.min(postA.id, postB.id);
         const higherId = Math.max(postA.id, postB.id);
         return typeof getters.neighbourIndex[lowerId + "," + higherId] !== "undefined";
     },
 
-    postIdsThatLinkToPost: (state) => (postId) => {
-        let fromPostIds = {};
-        let toPostIds = {};
+    postIdsThatLinkToPost: (state: DataModuleState) => (postId: number) => {
+        let fromPostIds: Record<LinkId, PostId> = {};
+        let toPostIds: Record<LinkId, PostId> = {};
 
         Object.values(state.links).forEach(function (link) {
             if (link.source === postId) {
@@ -72,7 +75,7 @@ const getters = {
         };
     },
 
-    linkedSubgraphs: (state) => (postId) => {
+    linkedSubgraphs: (state: DataModuleState) => (postId: number) => {
         let linkedSubgraphs = [];
 
         for (let subgraph of Object.values(state.subgraphs)) {
@@ -85,20 +88,20 @@ const getters = {
 };
 
 const mutations = {
-    createPost(state, newPost) {
+    createPost(state: DataModuleState, newPost: Post) {
         Vue.set(state.posts, newPost.id, newPost);
         return newPost;
     },
-    updatePost(state, post) {
+    updatePost(state: DataModuleState, post: Post) {
         Vue.set(state.posts, post.id, post);
     },
-    deletePost(state, {id}) {
+    deletePost(state: DataModuleState, {id}: {id: PostId}) {
         if (state.selectedPostIds.includes(id)) {
             state.selectedPostIds.splice(state.selectedPostIds.indexOf(id), 1);
         }
 
         // we need to remove any links that would include the deleted post
-        let linksAfterPostRemoval = {};
+        let linksAfterPostRemoval: LinksMap = {};
         for (const link of Object.values(state.links)) {
             if (
                 link.source === id
@@ -113,14 +116,14 @@ const mutations = {
         for (let [graphId, graph] of Object.entries(state.graphs)) {
             const newGraph = {
                 ...graph,
-                nodes: graph.nodes.filter(postId => postId !== id)
+                nodes: graph.nodes.filter((postId: PostId) => postId !== id)
             };
             Vue.set(state.graphs, graphId, newGraph);
         }
         for (let [subgraphId, subgraph] of Object.entries(state.subgraphs)) {
             const newSubgraph = {
                 ...subgraph,
-                nodes: subgraph.nodes.filter(postId => postId !== id)
+                nodes: subgraph.nodes.filter((postId: PostId) => postId !== id)
             };
             Vue.set(state.subgraphs, subgraphId, newSubgraph);
         }
@@ -131,7 +134,7 @@ const mutations = {
 };
 
 const actions = {
-    async makeNewPost(context, newPost) {
+    async makeNewPost(context: any, newPost: Post) {
         const existingPostIds = Object.keys(context.state.posts).map(id => parseInt(id, 10));
 
         const highestPostId = existingPostIds.length === 0
