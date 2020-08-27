@@ -4,7 +4,7 @@ import graphs from "./dataModules/graphs";
 import posts from "./dataModules/posts";
 import links from "./dataModules/links";
 import subgraphs from "./dataModules/subgraphs";
-import {DataModuleState, GraphId, LinkId, PostId, SubgraphId, Zoom} from "@/src/@types/StoreTypes";
+import {DataModuleState, GraphId, LinkId, PostId, PostsMap, SubgraphId, Zoom} from "@/src/@types/StoreTypes";
 import Post from "@/src/offline/store/classes/Post";
 import Subgraph from "@/src/offline/store/classes/Subgraph";
 import Link from "@/src/offline/store/classes/Link";
@@ -139,7 +139,7 @@ const mutations = {
     ...links.mutations,
     ...subgraphs.mutations,
 
-    setState(state: any, newState: DataModuleState) {
+    setState(state: DataModuleState, newState: any) {
         if (
             Object.keys(newState).length === 0
             || Object.keys(newState.posts).length === 0
@@ -147,13 +147,27 @@ const mutations = {
             return;
         }
 
-        state.posts = newState.posts;
+        let posts: PostsMap = {};
+        for (const post of Object.values(newState.posts)) {
+            const postObj: any = post;
+            posts[postObj.id] = new Post(
+                postObj.id,
+                postObj.title,
+                postObj.body,
+                postObj.created_at,
+                postObj.updated_at
+            );
+        }
+        state.posts = posts;
+
         state.links = newState.links;
         state.graphs = newState.graphs;
         state.subgraphs = newState.subgraphs || {};
+
         state.selectedPostIds = newState.selectedPostIds || [];
         state.selectedGraphId = newState.selectedGraphId || 1;
         state.selectedSubgraphIds = newState.selectedSubgraphIds || [];
+        
         state.zoom = newState.zoom || {
             x: WIDTH / 2,
             y: HEIGHT / 2,
