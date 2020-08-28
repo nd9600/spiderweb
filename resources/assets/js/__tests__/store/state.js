@@ -4,36 +4,36 @@ export default {
             "1": {
                 "title": "post1t",
                 "body": "post1",
-                "created_at": "2020-06-03T12:31:23.935Z",
-                "updated_at": "2020-06-03T12:33:21.431Z",
+                "createdAt": "2020-06-03T12:31:23.935Z",
+                "updatedAt": "2020-06-03T12:33:21.431Z",
                 "id": 1
             },
             "2": {
                 "title": "post2t",
                 "body": "post2",
-                "created_at": "2020-06-03T12:33:53.859Z",
-                "updated_at": "2020-06-03T12:33:53.859Z",
+                "createdAt": "2020-06-03T12:33:53.859Z",
+                "updatedAt": "2020-06-03T12:33:53.859Z",
                 "id": 2
             },
             "3": {
                 "title": "post3t",
                 "body": "post3",
-                "created_at": "2020-06-19T10:11:22.585Z",
-                "updated_at": "2020-06-19T10:11:22.585Z",
+                "createdAt": "2020-06-19T10:11:22.585Z",
+                "updatedAt": "2020-06-19T10:11:22.585Z",
                 "id": 3
             },
             "4": {
                 "title": "post4t",
                 "body": "post4",
-                "created_at": "2020-06-19T10:11:47.459Z",
-                "updated_at": "2020-06-19T12:42:33.465Z",
+                "createdAt": "2020-06-19T10:11:47.459Z",
+                "updatedAt": "2020-06-19T12:42:33.465Z",
                 "id": 4
             },
             "7": {
                 "title": "post7t",
                 "body": "post7",
-                "created_at": "2020-06-19T12:13:54.581Z",
-                "updated_at": "2020-06-19T12:13:54.581Z",
+                "createdAt": "2020-06-19T12:13:54.581Z",
+                "updatedAt": "2020-06-19T12:13:54.581Z",
                 "id": 7
             }
         },

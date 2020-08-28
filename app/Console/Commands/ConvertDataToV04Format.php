@@ -59,7 +59,14 @@ class ConvertDataToV04Format extends Command
     {
         return [
             "dataModule" => [
-                "posts" => $json["postsModule"]["posts"],
+                "posts" => collect($json["postsModule"]["posts"])
+                    ->mapWithKeys(function (array $post) {
+                        $post["createdAt"] = $post["created_at"];
+                        $post["updatedAt"] = $post["updated_at"];
+                        unset($post["created_at"]);
+                        unset($post["updated_at"]);
+                        return [$post["id"] => $post];
+                    })->toArray(),
                 "links" => collect($json["postsModule"]["links"])
                     ->mapWithKeys(function (array $link) {
                         $link["graph"] = 1;

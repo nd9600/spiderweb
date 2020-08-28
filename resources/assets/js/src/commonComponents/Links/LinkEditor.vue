@@ -196,7 +196,7 @@ export default {
                 source: this.source,
                 target: this.target,
                 type: this.type,
-                updated_at: new Date().toISOString()
+                updatedAt: new Date().toISOString()
             });
             this.$emit("updatedLink", this.link.id);
         },

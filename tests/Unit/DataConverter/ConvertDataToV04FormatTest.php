@@ -20,6 +20,6 @@ class ConvertDataToV04FormatTest extends TestCase
         $convertedData = $converter->convertData($json);
         
         $expectedJson = json_decode(file_get_contents(__DIR__ . "/" . "data-converted.json"), true);
-        $this->assertSame($expectedJson, $convertedData);
+        $this->assertEquals($expectedJson, $convertedData);
     }
 }

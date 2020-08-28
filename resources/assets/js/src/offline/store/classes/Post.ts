@@ -4,8 +4,8 @@ export interface PostSerialised {
     id: PostId;
     title: string;
     body: string;
-    created_at: string;
-    updated_at: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export default class Post {
@@ -23,12 +23,12 @@ export default class Post {
             id: this.id,
             title: this.title,
             body: this.body,
-            created_at: this.createdAt,
-            updated_at: this.updatedAt
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt
         }
     }
 
     static unserialise(post: PostSerialised): Post {
-        return new Post(post.id, post.title, post.body, post.created_at, post.updated_at);
+        return new Post(post.id, post.title, post.body, post.createdAt, post.updatedAt);
     }
 }

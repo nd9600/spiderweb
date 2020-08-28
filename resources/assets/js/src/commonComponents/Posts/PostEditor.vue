@@ -72,7 +72,7 @@ export default {
                 this.updatePost({
                     ...this.post,
                     title,
-                    updated_at: new Date().toISOString()
+                    updatedAt: new Date().toISOString()
                 });
             }
         },
@@ -84,7 +84,7 @@ export default {
                 this.updatePost({
                     ...this.post,
                     body,
-                    updated_at: new Date().toISOString()
+                    updatedAt: new Date().toISOString()
                 });
             }
         },
