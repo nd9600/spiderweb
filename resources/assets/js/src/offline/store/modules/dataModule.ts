@@ -4,10 +4,20 @@ import graphs from "./dataModules/graphs";
 import posts from "./dataModules/posts";
 import links from "./dataModules/links";
 import subgraphs from "./dataModules/subgraphs";
-import {DataModuleState, GraphId, LinkId, PostId, PostsMap, SubgraphId, Zoom} from "@/src/@types/StoreTypes";
-import Post from "@/src/offline/store/classes/Post";
+import {
+    DataModuleState,
+    DataModuleStateSerialised,
+    GraphId,
+    LinkId,
+    PostId,
+    PostsMap,
+    SubgraphId,
+    Zoom
+} from "@/src/@types/StoreTypes";
+import Post, {PostSerialised} from "@/src/offline/store/classes/Post";
 import Subgraph from "@/src/offline/store/classes/Subgraph";
 import Link from "@/src/offline/store/classes/Link";
+import Graph from "@/src/offline/store/classes/Graph";
 
 
 /*
@@ -133,13 +143,17 @@ const getters = {
     },
 };
 
+function objectMap<T, S>(f: (o: T) => S, o: Record<string, T>): Record<string, S> {
+    return Object.assign({}, ...Object.keys(o).map(k => ({ [k]: f(o[k]) })))
+}
+
 const mutations = {
     ...graphs.mutations,
     ...posts.mutations,
     ...links.mutations,
     ...subgraphs.mutations,
 
-    setState(state: DataModuleState, newState: any) {
+    setState(state: DataModuleState, newState: DataModuleStateSerialised) {
         if (
             Object.keys(newState).length === 0
             || Object.keys(newState.posts).length === 0
@@ -147,27 +161,30 @@ const mutations = {
             return;
         }
 
-        let posts: PostsMap = {};
-        for (const post of Object.values(newState.posts)) {
-            const postObj: any = post;
-            posts[postObj.id] = new Post(
-                postObj.id,
-                postObj.title,
-                postObj.body,
-                postObj.created_at,
-                postObj.updated_at
-            );
-        }
-        state.posts = posts;
+        state.posts = objectMap(
+            (post) => new Post(post.id, post.title, post.body, post.created_at, post.updated_at),
+            newState.posts
+        );
 
-        state.links = newState.links;
-        state.graphs = newState.graphs;
-        state.subgraphs = newState.subgraphs || {};
+        state.links = objectMap(
+            (link) => new Link(link.id, link.graph, link.source, link.target, link.type),
+            newState.links
+        );
+        state.graphs = objectMap(
+            (graph) => new Graph(graph.id, graph.name, graph.nodes, graph.subgraphs),
+            newState.graphs
+        );
+        state.subgraphs = newState.subgraphs == null
+            ? {}
+            :  objectMap(
+                (subgraph) => new Subgraph(subgraph.id, subgraph.name, subgraph.nodes, subgraph.links, subgraph.colour),
+                newState.subgraphs
+            );
 
         state.selectedPostIds = newState.selectedPostIds || [];
         state.selectedGraphId = newState.selectedGraphId || 1;
         state.selectedSubgraphIds = newState.selectedSubgraphIds || [];
-        
+
         state.zoom = newState.zoom || {
             x: WIDTH / 2,
             y: HEIGHT / 2,

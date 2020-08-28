@@ -1,7 +1,7 @@
-import Graph from "@/src/offline/store/classes/Graph";
-import Post from "@/src/offline/store/classes/Post";
-import Link from "@/src/offline/store/classes/Link";
-import Subgraph from "@/src/offline/store/classes/Subgraph";
+import Graph, {GraphSerialised} from "@/src/offline/store/classes/Graph";
+import Post, {PostSerialised} from "@/src/offline/store/classes/Post";
+import Link, {LinkSerialised} from "@/src/offline/store/classes/Link";
+import Subgraph, {SubgraphSerialised} from "@/src/offline/store/classes/Subgraph";
 
 export type GraphId = number;
 export type PostId = number;
@@ -24,6 +24,18 @@ export interface DataModuleState {
     posts: PostsMap,
     links: LinksMap,
     subgraphs: SubgraphsMap,
+
+    selectedPostIds: PostId[],
+    selectedGraphId: Nullable<GraphId>,
+    selectedSubgraphIds: SubgraphId[],
+    zoom: Zoom
+}
+
+export interface DataModuleStateSerialised {
+    graphs: Record<string, GraphSerialised>,
+    posts: Record<string, PostSerialised>,
+    links: Record<string, LinkSerialised>,
+    subgraphs: Record<string, SubgraphSerialised>,
 
     selectedPostIds: PostId[],
     selectedGraphId: Nullable<GraphId>,
