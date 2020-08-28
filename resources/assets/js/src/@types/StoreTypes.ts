@@ -19,13 +19,6 @@ export type Zoom = {
     scale: number,
 };
 
-export interface StoreState {
-    dataModule: DataModuleState;
-    settingsModule: any;
-    firebaseModule: any;
-    clickerModule: any;
-}
-
 export interface DataModuleState {
     graphs: GraphsMap,
     posts: PostsMap,
@@ -36,13 +29,6 @@ export interface DataModuleState {
     selectedGraphId: Nullable<GraphId>,
     selectedSubgraphIds: SubgraphId[],
     zoom: Zoom
-}
-
-export interface StoreStateSerialised {
-    dataModule: DataModuleStateSerialised;
-    settingsModule: any;
-    firebaseModule: any;
-    clickerModule: any;
 }
 
 export interface DataModuleStateSerialised {
