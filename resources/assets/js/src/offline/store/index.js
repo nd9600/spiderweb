@@ -7,6 +7,7 @@ import dataModule from "./modules/dataModule";
 import clickerModule from "./modules/clickerModule";
 
 import firebaseDbFactory from "./firebaseDbFactory";
+import {serialiseState} from "./StateSerialiser";
 
 Vue.use(Vuex);
 
@@ -26,11 +27,7 @@ const store = new Vuex.Store({
     },
     getters: {
         storageObject(state) {
-            return {
-                dataModule: state.dataModule,
-                settingsModule: state.settingsModule,
-                firebaseModule: state.firebaseModule
-            };
+            return serialiseState(state);
         }
     },
     mutations: {

@@ -38,6 +38,13 @@ export interface DataModuleState {
     zoom: Zoom
 }
 
+export interface StoreStateSerialised {
+    dataModule: DataModuleStateSerialised;
+    settingsModule: any;
+    firebaseModule: any;
+    clickerModule: any;
+}
+
 export interface DataModuleStateSerialised {
     graphs: Record<string, GraphSerialised>,
     posts: Record<string, PostSerialised>,
