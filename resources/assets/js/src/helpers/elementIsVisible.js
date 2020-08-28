@@ -26,16 +26,4 @@ export default function(element, scrolledThing = null) {
         && bounding.y <= container.bottom
         && bounding.x <= container.right
     );
-    // return [
-    //     (
-    //         bounding.top >= 0
-    //         && bounding.left >= 0
-    //         && bounding.y <= container.bottom
-    //         && bounding.x <= container.right
-    //     ),
-    //     bounding.top,
-    //     bounding.left,
-    //     [bounding.y, container.bottom],
-    //     [bounding.x, container.right],
-    // ];
 }

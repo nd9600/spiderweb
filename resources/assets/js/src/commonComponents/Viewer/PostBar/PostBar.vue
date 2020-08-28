@@ -4,7 +4,7 @@
             <div class="flex justify-between items-center">
                 <span>
                     <button
-                        v-if="!visiblePosts.includes(0)"
+                        v-if="selectedPostIds.length > 1 && !visiblePosts.includes(0)"
                         class="btn btn--secondary"
                         type="button"
                         @click="scrollLeft"
@@ -14,7 +14,7 @@
                 </span>
                 <span>
                     <button
-                        v-if="!visiblePosts.includes(selectedPostIds.length - 1)"
+                        v-if="selectedPostIds.length > 1 && !visiblePosts.includes(selectedPostIds.length - 1)"
                         class="btn btn--secondary"
                         type="button"
                         @click="scrollRight"
@@ -67,6 +67,9 @@ export default {
             }
         }
     },
+    watch: {
+        selectedPostIds: "setVisiblePosts"
+    },
     mounted() {
         this.setVisiblePosts();
         document.getElementById("postBar").onscroll = this.setVisiblePosts;
@@ -74,6 +77,7 @@ export default {
     methods: {
         ...mapMutations("dataModule", ["setSelectedPostIds"]),
 
+        // todo: misses newly selected posts
         setVisiblePosts() {
             let visiblePosts = [];
             for (let i = 0; i < this.selectedPostIds.length; i++) {
@@ -107,7 +111,7 @@ export default {
 
             postBar.scrollLeft = postBar.scrollLeft + (bounding.right - container.right + 10);
         }
-    },
+    }
 };
 </script>
 
