@@ -65,11 +65,12 @@ const store = new Vuex.Store({
             }
         },
         async loadStateFromStorage(context) {
-            const localStorageObject = JSON.parse(localStorage.getItem(STORAGE_KEY));
-            if (localStorageObject === null) {
+            const localStorageItem = localStorage.getItem(STORAGE_KEY);
+            if (localStorageItem === null) {
                 context.commit("setLoadingApp", false);
                 return;
             }
+            const localStorageObject = JSON.parse(localStorageItem);
 
             const remoteStorageMethod = localStorageObject.settingsModule.remoteStorageMethod;
             switch (remoteStorageMethod) {
@@ -122,10 +123,11 @@ const store = new Vuex.Store({
         async loadDataFrom(context, shouldTakeDataFrom) {
             switch (shouldTakeDataFrom) {
                 case "local": {
-                    const localStorageObject = JSON.parse(localStorage.getItem(STORAGE_KEY));
-                    if (localStorageObject == null) {
+                    const localStorageItem = localStorage.getItem(STORAGE_KEY);
+                    if (localStorageItem === null) {
                         return;
                     }
+                    const localStorageObject = JSON.parse(localStorageItem);
                     context.dispatch("importData", localStorageObject);
                     break;
                 }

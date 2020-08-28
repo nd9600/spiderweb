@@ -1,4 +1,4 @@
-import {LinkId, GraphId, PostId, SubgraphId} from "@/src/@types/StoreTypes";
+import {GraphId, LinkId, PostId, SubgraphId} from "@/src/@types/StoreTypes";
 
 export interface LinkSerialised {
     id: LinkId;
@@ -9,14 +9,28 @@ export interface LinkSerialised {
 }
 
 export default class Link {
-  public subgraphId?: SubgraphId;
+    public subgraphId?: SubgraphId;
 
-  constructor(
+    constructor(
         public id: LinkId,
         public graph: GraphId,
         public source: PostId,
         public target: PostId,
         public type: string = "reply"
     ) {
+    }
+
+    serialise(): LinkSerialised {
+        return {
+            id: this.id,
+            graph: this.graph,
+            source: this.source,
+            target: this.target,
+            type: this.type
+        }
+    }
+
+    static unserialise(link: LinkSerialised): Link {
+        return new Link(link.id, link.graph, link.source, link.target, link.type)
     }
 }

@@ -8,11 +8,24 @@ export interface GraphSerialised {
 }
 
 export default class Graph {
-  constructor(
+    constructor(
         public id: GraphId,
         public name: string,
         public nodes: PostId[],
         public subgraphs: SubgraphId[],
     ) {
+    }
+
+    serialise(): GraphSerialised {
+        return {
+            id: this.id,
+            name: this.name,
+            nodes: this.nodes,
+            subgraphs: this.subgraphs
+        }
+    }
+
+    static unserialise(graph: GraphSerialised): Graph {
+        return new Graph(graph.id, graph.name, graph.nodes, graph.subgraphs);
     }
 }

@@ -1,4 +1,4 @@
-import {WIDTH, HEIGHT, INITIAL_ZOOM} from "@/src/commonComponents/constants";
+import {HEIGHT, INITIAL_ZOOM, WIDTH} from "@/src/commonComponents/constants";
 
 import graphs from "./dataModules/graphs";
 import posts from "./dataModules/posts";
@@ -10,11 +10,10 @@ import {
     GraphId,
     LinkId,
     PostId,
-    PostsMap,
     SubgraphId,
     Zoom
 } from "@/src/@types/StoreTypes";
-import Post, {PostSerialised} from "@/src/offline/store/classes/Post";
+import Post from "@/src/offline/store/classes/Post";
 import Subgraph from "@/src/offline/store/classes/Subgraph";
 import Link from "@/src/offline/store/classes/Link";
 import Graph from "@/src/offline/store/classes/Graph";
@@ -55,6 +54,10 @@ function arrayMove<T>(array: Array<T>, fromIndex: number, toIndex: number) {
     arrayCopy.splice(fromIndex, 1);
     arrayCopy.splice(toIndex, 0, element);
     return arrayCopy;
+}
+
+function objectMap<T, S>(f: (o: T) => S, o: Record<string, T>): Record<string, S> {
+    return Object.assign({}, ...Object.keys(o).map(k => ({ [k]: f(o[k]) })))
 }
 
 const state = {
@@ -143,10 +146,6 @@ const getters = {
     },
 };
 
-function objectMap<T, S>(f: (o: T) => S, o: Record<string, T>): Record<string, S> {
-    return Object.assign({}, ...Object.keys(o).map(k => ({ [k]: f(o[k]) })))
-}
-
 const mutations = {
     ...graphs.mutations,
     ...posts.mutations,
@@ -161,25 +160,14 @@ const mutations = {
             return;
         }
 
-        state.posts = objectMap(
-            (post) => new Post(post.id, post.title, post.body, post.created_at, post.updated_at),
-            newState.posts
-        );
+        state.graphs = objectMap(Graph.unserialise, newState.graphs);
+        state.posts = objectMap(Post.unserialise, newState.posts);
+        state.links = objectMap(Link.unserialise, newState.links);
+        state.subgraphs = objectMap(Subgraph.unserialise, newState.subgraphs);
 
-        state.links = objectMap(
-            (link) => new Link(link.id, link.graph, link.source, link.target, link.type),
-            newState.links
-        );
-        state.graphs = objectMap(
-            (graph) => new Graph(graph.id, graph.name, graph.nodes, graph.subgraphs),
-            newState.graphs
-        );
         state.subgraphs = newState.subgraphs == null
             ? {}
-            :  objectMap(
-                (subgraph) => new Subgraph(subgraph.id, subgraph.name, subgraph.nodes, subgraph.links, subgraph.colour),
-                newState.subgraphs
-            );
+            :  objectMap(Subgraph.unserialise, newState.subgraphs);
 
         state.selectedPostIds = newState.selectedPostIds || [];
         state.selectedGraphId = newState.selectedGraphId || 1;

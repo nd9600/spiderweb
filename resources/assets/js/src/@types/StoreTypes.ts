@@ -19,6 +19,13 @@ export type Zoom = {
     scale: number,
 };
 
+export interface StoreState {
+    dataModule: DataModuleState;
+    settingsModule: any;
+    firebaseModule: any;
+    clickerModule: any;
+}
+
 export interface DataModuleState {
     graphs: GraphsMap,
     posts: PostsMap,
