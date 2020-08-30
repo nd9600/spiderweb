@@ -1,5 +1,6 @@
 import Vue from "vue";
 import {DataModuleState, GraphId, LinksMap, PostId} from "@/src/@types/StoreTypes";
+import Graph from "@/src/offline/store/classes/Graph";
 
 const state = {
     graphs: {
@@ -37,16 +38,12 @@ const mutations = {
                 )
             );
         const newGraphId = highestGraphId + 1;
+        const newGraph = new Graph(newGraphId, newGraphName, [], [], []);
 
         Vue.set(
             state.graphs,
             newGraphId,
-            {
-                id: newGraphId,
-                name: newGraphName,
-                nodes: [],
-                subgraphs: []
-            }
+            newGraph.serialise()
         );
     },
     changeGraphName(state: DataModuleState, {graphId, newGraphName}: {graphId: GraphId, newGraphName: string}) {

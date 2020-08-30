@@ -82,6 +82,7 @@ class ConvertDataToV04Format extends Command
                             })
                             ->unique()
                             ->toArray(),
+                        "nodePositions" => [],
                         "subgraphs" => array_keys($json["postsModule"]["graphs"])
                     ]
                 ],

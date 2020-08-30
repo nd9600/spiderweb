@@ -91,11 +91,11 @@ const getters = {
 
 const mutations = {
     createPost(state: DataModuleState, newPost: Post) {
-        Vue.set(state.posts, newPost.id, newPost);
+        Vue.set(state.posts, newPost.id, newPost.serialise());
         return newPost;
     },
     updatePost(state: DataModuleState, post: Post) {
-        Vue.set(state.posts, post.id, post);
+        Vue.set(state.posts, post.id, post.serialise());
     },
     deletePost(state: DataModuleState, {id}: {id: PostId}) {
         if (state.selectedPostIds.includes(id)) {
@@ -136,7 +136,7 @@ const mutations = {
 };
 
 const actions = {
-    async makeNewPost(context: any, newPost: Post) {
+    async makeNewPost(context: any, {title, body, updatedAt, createdAt}: {title: string, body: string, updatedAt: string, createdAt: string}) {
         const existingPostIds = Object.keys(context.state.posts).map(id => parseInt(id, 10));
 
         const highestPostId = existingPostIds.length === 0
@@ -144,7 +144,7 @@ const actions = {
             : Math.max(...existingPostIds);
         const newPostId = highestPostId + 1;
 
-        newPost.id = newPostId;
+        const newPost = new Post(newPostId, title, body, createdAt, updatedAt);
         context.commit("createPost", newPost);
         return newPost;
     },

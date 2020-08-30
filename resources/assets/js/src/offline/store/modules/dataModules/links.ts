@@ -57,13 +57,8 @@ const mutations = {
             state.graphs[graph].nodes.push(target);
         }
 
-        Vue.set(state.links, newLinkId, {
-            id: newLinkId,
-            graph,
-            source,
-            target,
-            type
-        });
+        const link = new Link(newLinkId, graph, source, target, type);
+        Vue.set(state.links, newLinkId, link.serialise());
 
         if (subgraphIds.length > 0) {
             for (const subgraphId of subgraphIds) {

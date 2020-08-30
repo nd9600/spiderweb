@@ -13,11 +13,16 @@ export type PostsMap = Record<string, Post>;
 export type LinksMap = Record<string, Link>;
 export type SubgraphsMap = Record<string, Subgraph>;
 
-export type Zoom = {
-    x: number,
-    y: number,
-    scale: number,
-};
+export interface Zoom {
+    x: number;
+    y: number;
+    scale: number;
+}
+
+export interface NodePosition {
+    x: number;
+    y: number;
+}
 
 export interface DataModuleState {
     graphs: GraphsMap,
