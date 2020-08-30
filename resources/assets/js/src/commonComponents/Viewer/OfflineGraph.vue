@@ -182,6 +182,35 @@ export default {
 
             const vm = this;
 
+            const drag = (simulation) => {
+                function dragStarted(node) {
+                    if (!d3.event.active) {
+                        simulation.alphaTarget(0.3).restart();
+                    }
+                    node.fx = node.x;
+                    node.fy = node.y;
+                }
+
+                function dragged(node) {
+                    node.fx = d3.event.x;
+                    node.fy = d3.event.y;
+                }
+
+                function dragEnded(node) {
+                    if (!d3.event.active) {
+                        simulation.alphaTarget(0.3);
+                    }
+                    node.fx = d3.event.x;
+                    node.fy = d3.event.y;
+                    console.log("final positions are: ", [d3.event.x, d3.event.y]);
+                }
+
+                return d3.drag()
+                    .on("start", dragStarted)
+                    .on("drag", dragged)
+                    .on("end", dragEnded);
+            };
+
             // setup force simulation
             const simulation = d3.forceSimulation(nodes)
                 .force("link", d3.forceLink(links)
@@ -239,12 +268,10 @@ export default {
                 .attr("dataset-id", post => post.id);
 
             // if the nodes aren't being made, that might be because the .node circles don't exist in the DOM when this function is called
-
             const node = d3.selectAll(".node").select("circle")
                 .classed("node__circle", true)
                 .attr("r", 15)
                 .attr("title", post => post.title);
-                //.call(drag(simulation));
                 
             const text = d3.selectAll(".node").select("text")
                 .classed("node__text", true)
@@ -290,7 +317,8 @@ export default {
                 
             d3.selectAll(".node *")
                 .on("click", this.handlePostClick)
-                .call(d3.drag().clickDistance(4)); // if the mouse moves less than 4 units while clicking, it's counted as a click
+                .call(d3.drag().clickDistance(4)) // if the mouse moves less than 4 units while clicking, it's counted as a click
+                .call(drag(simulation));
 
             // set x and y co-ordinates of the links, and nodes
             simulation.on("tick", () => {
