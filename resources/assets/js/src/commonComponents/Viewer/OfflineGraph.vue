@@ -177,7 +177,15 @@ export default {
         ),
         makeGraphSvg() {
             //todo: almost definitely in-efficient
-            const nodes = JSON.parse(JSON.stringify(this.postsInSelectedSubgraphs));
+            let nodes = JSON.parse(JSON.stringify(this.postsInSelectedSubgraphs));
+            nodes = nodes.map((node) => {
+                const nodePosition = this.nodePositions[node.id];
+                if (nodePosition != null) {
+                    node.fx = nodePosition.x;
+                    node.fy = nodePosition.y;
+                }
+                return node;
+            });
             const links = JSON.parse(JSON.stringify(this.linksInSelectedSubgraphs));
 
             const vm = this;
@@ -202,7 +210,6 @@ export default {
                     }
                     node.fx = d3.event.x;
                     node.fy = d3.event.y;
-                    console.log("final positions are: ", [d3.event.x, d3.event.y]);
                     vm.setPostPosition({
                         postId: node.id,
                         position: {
