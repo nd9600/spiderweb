@@ -61,9 +61,11 @@ class ConvertDataToV04Format extends Command
         $posts = collect($json["postsModule"]["posts"])
             ->mapWithKeys(function (array $post) {
                 $post["createdAt"] = $post["created_at"];
-                $post["updatedAt"] = $post["updated_at"];
                 unset($post["created_at"]);
-                unset($post["updated_at"]);
+                if (isset($post["updated_at"])) {
+                    $post["updatedAt"] = $post["updated_at"];
+                    unset($post["updated_at"]);
+                }
                 return [$post["id"] => $post];
             })->toArray();
         $posts = empty($posts) // PHP decodes an empty JSON object to an array, but we want this to be an object
