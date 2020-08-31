@@ -206,7 +206,8 @@ export default {
 
                 function dragEnded(node) {
                     if (!d3.event.active) {
-                        simulation.alphaTarget(0.3);
+                        simulation.alpha(0);
+                        simulation.alphaTarget(0);
                     }
                     node.fx = d3.event.x;
                     node.fy = d3.event.y;
