@@ -47,9 +47,9 @@
 import * as d3 from "d3";
 import debounce from "lodash.debounce";
 
-import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
+import {mapActions, mapGetters, mapMutations, mapState} from "vuex";
 import FloatingActionButton from "./FloatingActionButton";
-import {WIDTH, HEIGHT, INITIAL_ZOOM} from "@/src/commonComponents/constants";
+import {HEIGHT, INITIAL_ZOOM, WIDTH} from "@/src/commonComponents/constants";
 
 export default {
     name: "OfflineGraph",
@@ -190,13 +190,24 @@ export default {
 
             const vm = this;
 
-            const drag = (simulation) => {
+            const drag = (simulation, nodes) => {
                 function dragStarted(node) {
                     if (!d3.event.active) {
                         simulation.alphaTarget(0.3).restart();
                     }
+
+                    // Preventing other nodes from moving while dragging one node
+                    function fixNodes(thisNode) {
+                        nodes.each(function (d) {
+                            if (thisNode !== d) {
+                                d.fx = d.x;
+                                d.fy = d.y;
+                            }
+                        });
+                    }
                     node.fx = node.x;
                     node.fy = node.y;
+                    fixNodes(node);
                 }
 
                 function dragged(node) {
@@ -333,7 +344,7 @@ export default {
             d3.selectAll(".node *")
                 .on("click", this.handlePostClick)
                 .call(d3.drag().clickDistance(4)) // if the mouse moves less than 4 units while clicking, it's counted as a click
-                .call(drag(simulation));
+                .call(drag(simulation, node));
 
             // set x and y co-ordinates of the links, and nodes
             simulation.on("tick", () => {
