@@ -106,18 +106,18 @@ const getters = {
     linksInSelectedSubgraphs(state: DataModuleState): Link[] {
         // if we have subgraphs, add the `subgraphId` to each link object
         if (state.selectedSubgraphIds.length > 0) {
-            let linkIDs: Array<{linkId: LinkId, subgraphId: SubgraphId}> = [];
+            let linksWithSubgraphIDs: Array<{linkId: LinkId, subgraphId: SubgraphId}> = [];
             for (let selectedSubgraphId of state.selectedSubgraphIds) {
-                linkIDs = linkIDs.concat(
+                linksWithSubgraphIDs = linksWithSubgraphIDs.concat(
                     state.subgraphs[selectedSubgraphId].links
+                        .filter(id => id != null && state.links[id] != null)
                         .map(linkId => ({
                             linkId,
                             subgraphId: selectedSubgraphId
                         }))
                 );
             }
-            return linkIDs
-                .filter(id => id != null)
+            return linksWithSubgraphIDs
                 .map(({linkId, subgraphId}) => {
                     let link = JSON.parse(JSON.stringify(state.links[linkId]));
                     link.subgraphId = subgraphId;
