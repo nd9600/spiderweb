@@ -79,8 +79,8 @@ export default {
         ...mapGetters("dataModule", ["postsInSelectedSubgraphs", "linksInSelectedSubgraphs", "subgraphColour", "titleOrBody", "isNeighbour"]),
 
         ...mapState("clickerModule", ["shouldShowClickButtonMenu", "clickMode"]),
-        selectedPostIds() {
-            return this.$store.state.dataModule.selectedPostIds;
+        nodePositions() {
+            return this.$store.state.dataModule.graphs[this.selectedGraphId].nodePositions;
         }
     },
     watch: {
@@ -146,7 +146,7 @@ export default {
         this.$root.$on("focusOnPost", this.focusOnPost);
     },
     methods: {
-        ...mapMutations("dataModule", ["setZoom"]),
+        ...mapMutations("dataModule", ["setZoom", "setPostPosition"]),
         ...mapMutations("clickerModule", ["setShouldShowClickButtonMenu", "setClickMode"]),
 
         ...mapActions("clickerModule", ["handlePostClick", "handleLinkClick"]),
@@ -203,6 +203,13 @@ export default {
                     node.fx = d3.event.x;
                     node.fy = d3.event.y;
                     console.log("final positions are: ", [d3.event.x, d3.event.y]);
+                    vm.setPostPosition({
+                        postId: node.id,
+                        position: {
+                            x: d3.event.x,
+                            y: d3.event.y
+                        }
+                    });
                 }
 
                 return d3.drag()

@@ -1,5 +1,5 @@
 import Vue from "vue";
-import {DataModuleState, GraphId, LinksMap, PostId} from "@/src/@types/StoreTypes";
+import {DataModuleState, GraphId, LinksMap, NodePosition, PostId} from "@/src/@types/StoreTypes";
 import Graph from "@/src/offline/store/classes/Graph";
 
 const state = {
@@ -8,6 +8,7 @@ const state = {
             id: 1,
             name: "default",
             nodes: [],
+            nodePositions: {},
             subgraphs: [],
         }
     }
@@ -114,6 +115,9 @@ const mutations = {
             "nodes",
             state.graphs[graphId].nodes.filter(id => id !== postId)
         );
+    },
+    setPostPosition(state: DataModuleState, {postId, position}: {postId: PostId, position: NodePosition}) {
+        Vue.set(state.graphs[state.selectedGraphId!].nodePositions, postId, position);
     }
 };
 

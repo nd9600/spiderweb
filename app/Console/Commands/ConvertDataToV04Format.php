@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use stdClass;
 
 class ConvertDataToV04Format extends Command
 {
@@ -57,21 +58,50 @@ class ConvertDataToV04Format extends Command
     
     public function convertData(array $json): array
     {
+        $posts = collect($json["postsModule"]["posts"])
+            ->mapWithKeys(function (array $post) {
+                $post["createdAt"] = $post["created_at"];
+                $post["updatedAt"] = $post["updated_at"];
+                unset($post["created_at"]);
+                unset($post["updated_at"]);
+                return [$post["id"] => $post];
+            })->toArray();
+        $posts = empty($posts) // PHP decodes an empty JSON object to an array, but we want this to be an object
+            ? new stdClass()
+            : $posts;
+        
+        $links = collect($json["postsModule"]["links"])
+            ->mapWithKeys(function (array $link) {
+                $link["graph"] = 1;
+                return [$link["id"] => $link];
+            })->toArray();
+        $links = empty($links)
+            ? new stdClass()
+            : $links;
+        
+        $subgraphs = collect($json["postsModule"]["graphs"])
+            ->map(function (array $graph) use ($json) {
+                $graph["links"] = collect($json["postsModule"]["links"])
+                    ->filter(function (array $link) use ($graph) {
+                        return $link["graph"] === $graph["id"];
+                    })
+                    ->values()
+                    ->map(function (array $link) {
+                        return $link["id"];
+                    })
+                    ->toArray();
+                return $graph;
+            })
+            ->unique()
+            ->toArray();
+        $subgraphs = empty($subgraphs)
+            ? new stdClass()
+            : $subgraphs;
+        
         return [
             "dataModule" => [
-                "posts" => collect($json["postsModule"]["posts"])
-                    ->mapWithKeys(function (array $post) {
-                        $post["createdAt"] = $post["created_at"];
-                        $post["updatedAt"] = $post["updated_at"];
-                        unset($post["created_at"]);
-                        unset($post["updated_at"]);
-                        return [$post["id"] => $post];
-                    })->toArray(),
-                "links" => collect($json["postsModule"]["links"])
-                    ->mapWithKeys(function (array $link) {
-                        $link["graph"] = 1;
-                        return [$link["id"] => $link];
-                    })->toArray(),
+                "posts" => $posts,
+                "links" => $links,
                 "graphs" => [
                     "1" => [
                         "id" => 1,
@@ -82,25 +112,11 @@ class ConvertDataToV04Format extends Command
                             })
                             ->unique()
                             ->toArray(),
-                        "nodePositions" => [],
+                        "nodePositions" => new stdClass(),
                         "subgraphs" => array_keys($json["postsModule"]["graphs"])
                     ]
                 ],
-                "subgraphs" => collect($json["postsModule"]["graphs"])
-                    ->map(function (array $graph) use ($json) {
-                        $graph["links"] = collect($json["postsModule"]["links"])
-                            ->filter(function (array $link) use ($graph) {
-                                return $link["graph"] === $graph["id"];
-                            })
-                            ->values()
-                            ->map(function (array $link) {
-                                return $link["id"];
-                            })
-                            ->toArray();
-                        return $graph;
-                    })
-                    ->unique()
-                    ->toArray(),
+                "subgraphs" => $subgraphs,
                 
                 "selectedPostIds" => $json["postsModule"]["selectedPostIds"],
                 "selectedGraphId" => empty($json["postsModule"]["selectedGraphIds"])
