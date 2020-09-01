@@ -1,10 +1,10 @@
-import {GraphId, NodePosition, PostId, SubgraphId} from "@/src/@types/StoreTypes";
+import {GraphId, NodePosition, NodePositionsMap, PostId, SubgraphId} from "@/src/@types/StoreTypes";
 
 export interface GraphSerialised {
     id: GraphId;
     name: string,
     nodes: PostId[];
-    nodePositions: Record<PostId, NodePosition>;
+    nodePositions: NodePositionsMap;
     subgraphs: SubgraphId[];
 }
 
@@ -13,7 +13,7 @@ export default class Graph {
         public id: GraphId,
         public name: string,
         public nodes: PostId[],
-        public nodePositions: Record<PostId, NodePosition>,
+        public nodePositions: NodePositionsMap,
         public subgraphs: SubgraphId[],
     ) {
     }

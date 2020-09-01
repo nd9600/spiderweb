@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Post from "@/src/offline/store/classes/Post";
-import {DataModuleState, LinkId, LinksMap, PostId, PostsMap} from "@/src/@types/StoreTypes";
+import {DataModuleState, LinkId, LinksMap, NodePositionsMap, PostId, PostsMap} from "@/src/@types/StoreTypes";
 import Link from "@/src/offline/store/classes/Link";
 
 const state: {
@@ -116,9 +116,16 @@ const mutations = {
 
         // we also need to remove the post from any graphs or subgraphs
         for (let [graphId, graph] of Object.entries(state.graphs)) {
+            let nodePositions: NodePositionsMap = {};
+            for (const [postId, position] of Object.entries(graph.nodePositions)) {
+                if (postId !== String(id)) {
+                    nodePositions[parseInt(postId, 10)] = position;
+                }
+            }
             const newGraph = {
                 ...graph,
-                nodes: graph.nodes.filter((postId: PostId) => postId !== id)
+                nodes: graph.nodes.filter((postId: PostId) => postId !== id),
+                nodePositions
             };
             Vue.set(state.graphs, graphId, newGraph);
         }
@@ -129,6 +136,8 @@ const mutations = {
             };
             Vue.set(state.subgraphs, subgraphId, newSubgraph);
         }
+
+        // and the post's positions from any graphs
 
         Vue.set(state, "links", linksAfterPostRemoval);
         Vue.delete(state.posts, id);

@@ -12,6 +12,7 @@ export type GraphsMap = Record<string, Graph>;
 export type PostsMap = Record<string, Post>;
 export type LinksMap = Record<string, Link>;
 export type SubgraphsMap = Record<string, Subgraph>;
+export type NodePositionsMap = Record<PostId, NodePosition>;
 
 export interface Zoom {
     x: number;

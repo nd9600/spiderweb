@@ -30,10 +30,10 @@ When you create a graph, it has no posts, links or subgraphs
 When you delete a graph, also remove any links or subgraphs it has
 
 When you create a post, do nothing else
-When you delete a post, also remove any links that have it as a source or target, remove it from any subgraphs, and remove it from any graphs
+When you delete a post, also remove any links that have it as a source or target, remove it from any subgraphs, remove it from any graphs, and remove its positions
 
 When you add a post (to a graph), do nothing else
-When you remove a post (from a graph), also remove any links that have it as a source or target, remove it from any of the graph's subgraphs
+When you remove a post (from a graph), also remove any links that have it as a source or target, remove it from any of the graph's subgraphs, and remove its positions
 
 When you create a link (to a graph), if its target or source post isn't in the graph, add them to the graph, and if its target or source post isn't in the subgraph, add them to the subgraph
 When you delete a link (from a graph), remove it from any subgraphs
@@ -110,7 +110,7 @@ const getters = {
             for (let selectedSubgraphId of state.selectedSubgraphIds) {
                 linksWithSubgraphIDs = linksWithSubgraphIDs.concat(
                     state.subgraphs[selectedSubgraphId].links
-                        .filter(id => id != null && state.links[id] != null)
+                        // .filter(id => id != null && state.links[id] != null)
                         .map(linkId => ({
                             linkId,
                             subgraphId: selectedSubgraphId
@@ -119,6 +119,8 @@ const getters = {
             }
             return linksWithSubgraphIDs
                 .map(({linkId, subgraphId}) => {
+                    console.log(linkId);
+                    console.log(state.links[linkId]);
                     let link = JSON.parse(JSON.stringify(state.links[linkId]));
                     link.subgraphId = subgraphId;
                     return link;

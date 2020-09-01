@@ -71,6 +71,16 @@ export default {
                     7,
                     3
                 ],
+                "nodePositions": {
+                    "2": {
+                        x: 1,
+                        y: 2
+                    },
+                    "3": {
+                        x: 2,
+                        y: 3
+                    }
+                },
                 "subgraphs": [1, 2]
             }
         },
