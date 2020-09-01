@@ -1,6 +1,7 @@
 import Vue from "vue";
-import {DataModuleState, GraphId, LinksMap, NodePosition, PostId} from "@/src/@types/StoreTypes";
+import {DataModuleState, GraphId, LinksMap, NodePosition, NodePositionsMap, PostId} from "@/src/@types/StoreTypes";
 import Graph from "@/src/offline/store/classes/Graph";
+import {SubgraphSerialised} from "@/src/offline/store/classes/Subgraph";
 
 const state = {
     graphs: {
@@ -103,12 +104,26 @@ const mutations = {
         // and remove it from any subgraphs it's in
         for (let subgraphId of state.graphs[graphId].subgraphs) {
             const subgraph = state.subgraphs[subgraphId];
-            const newSubgraph = {
+            const newSubgraph: SubgraphSerialised = {
                 ...subgraph,
                 nodes: subgraph.nodes.filter(postId => postId !== postId)
             };
             Vue.set(state.subgraphs, subgraphId, newSubgraph);
         }
+
+        // and its positions
+        let nodePositions: NodePositionsMap = {};
+        for (const [postIdCursor, position] of Object.entries(state.graphs[graphId].nodePositions)) {
+            if (postIdCursor !== String(postId)) {
+                nodePositions[parseInt(postIdCursor, 10)] = position;
+            }
+        }
+
+        Vue.set(
+            state.graphs[graphId],
+            "nodePositions",
+            nodePositions
+        );
 
         Vue.set(
             state.graphs[graphId],

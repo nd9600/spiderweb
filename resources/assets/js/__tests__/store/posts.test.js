@@ -1,8 +1,10 @@
-import overallState from "./state";
-
-const state = overallState.dataModule;
-
 import postsModule from "@/src/offline/store/modules/dataModules/posts";
+
+import overallState from "./state";
+let state;
+beforeEach(() => {
+    state = JSON.parse(JSON.stringify(overallState.dataModule));
+});
 
 test("deleting posts removes their positions too", () => {
     expect(Object.keys(state.graphs[1].nodePositions).length === 2).toBeTruthy();
