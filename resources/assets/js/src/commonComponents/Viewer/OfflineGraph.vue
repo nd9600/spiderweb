@@ -114,6 +114,20 @@ export default {
 
             document.querySelector(":root")
                 .style.setProperty("--node-text-size", newTextSize + "px");
+
+            const originalLinkStroke = 20;
+            const maxLinkStroke = 110;
+            const newLinkStroke = Math.max(
+                originalLinkStroke,
+                Math.min(
+                    maxLinkStroke,
+                    Math.ceil(originalLinkStroke * textScaleFactor)
+                )
+            );
+            console.log(newLinkStroke);
+            document.querySelector(":root")
+                .style.setProperty("--link-stroke-width", newLinkStroke + "px");
+
             this.debouncedSaveZoomState();
         }
     },
