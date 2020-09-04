@@ -111,6 +111,13 @@ const mutations = {
                 link.source === id
                 || link.target === id
             ) {
+                for (const subgraphId of Object.keys(state.subgraphs)) {
+                    const indexOfLink = state.subgraphs[subgraphId].links.indexOf(link.id);
+                    const alreadyInSubgraph = indexOfLink >= 0;
+                    if (alreadyInSubgraph) {
+                        state.subgraphs[subgraphId].links.splice(indexOfLink, 1);
+                    }
+                }
                 continue;
             }
             linksAfterPostRemoval[link.id] = link;

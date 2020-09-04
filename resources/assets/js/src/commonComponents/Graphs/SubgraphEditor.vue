@@ -45,7 +45,6 @@
                 >
                     Change subgraph colour
                 </button>
-<!--                <sub class="my-2 text-xs text-gray-500">you'll need to refresh for the colour to change on the graph</sub>-->
             </label>
         </div>
     </div>
@@ -58,7 +57,7 @@ export default {
     name: "SubgraphEditor",
     props: {
         subgraphId: {
-            type: String,
+            // type: String,
             required: true
         },
     },

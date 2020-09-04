@@ -119,6 +119,7 @@ const getters = {
             }
             return linksWithSubgraphIDs
                 .map(({linkId, subgraphId}) => {
+                    // console.log(linkId, state.links[linkId]);
                     let link = JSON.parse(JSON.stringify(state.links[linkId]));
                     link.subgraphId = subgraphId;
                     return link;
