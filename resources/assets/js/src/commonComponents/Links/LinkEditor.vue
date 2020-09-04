@@ -20,7 +20,7 @@
         <label v-if="Object.keys(subgraphs).length > 0">
             in the subgraph
             <select
-                v-model.number="subgraphsLinkIsIn"
+                v-model="subgraphsLinkIsIn"
                 class="select select--secondary mb-2"
                 multiple
                 :size="Math.min(Object.keys(subgraphs).length, 3)"

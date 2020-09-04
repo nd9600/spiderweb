@@ -169,7 +169,7 @@ const mutations = {
             :  objectMap(Subgraph.unserialise, newState.subgraphs);
 
         state.selectedPostIds = newState.selectedPostIds.map(String) || [];
-        state.selectedGraphId = newState.selectedGraphId || "1";
+        state.selectedGraphId = String(newState.selectedGraphId) || "1";
         state.selectedSubgraphIds = newState.selectedSubgraphIds.map(String) || [];
 
         state.zoom = newState.zoom || {

@@ -42,7 +42,7 @@
                 <template v-if="subgraphsNotAlreadyAttachedTo.length > 0">
                     <select
                         v-if="subgraphsInSelectedGraph.length > 1"
-                        v-model.number="subgraphIdsToAttachPostTo"
+                        v-model="subgraphIdsToAttachPostTo"
                         class="select select--secondary"
                         multiple
                         :size="Math.min(subgraphsInSelectedGraph.length, 3)"

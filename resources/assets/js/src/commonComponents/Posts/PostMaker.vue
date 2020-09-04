@@ -58,7 +58,7 @@
         >
             <span>I want to attach the post to these subgraphs:</span>
             <select
-                v-model.number="subgraphIdsToAttachPostTo"
+                v-model="subgraphIdsToAttachPostTo"
                 class="select select--secondary"
                 multiple
                 :size="Math.min(subgraphsInSelectedGraph.length, 3)"

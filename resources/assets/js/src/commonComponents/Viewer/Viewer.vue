@@ -17,7 +17,7 @@
                     Graphs
                 </span>
                 <select
-                    v-model.number="selectedGraphId"
+                    v-model="selectedGraphId"
                     class="select select--secondary w-full"
                     :size="Math.min(Object.keys(graphs).length, 3)"
                 >
@@ -62,7 +62,7 @@
                     </div>
                     <label>
                         <select
-                            v-model.number="selectedSubgraphIds"
+                            v-model="selectedSubgraphIds"
                             class="select select--secondary w-full"
                             multiple
                             :size="Math.min(subgraphsInSelectedGraph.length, 7)"

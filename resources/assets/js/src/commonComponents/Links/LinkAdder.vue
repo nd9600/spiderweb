@@ -18,7 +18,7 @@
             </select>
             in the subgraph
             <select
-                v-model.number="newLinkSubgraphIds"
+                v-model="newLinkSubgraphIds"
                 class="select select--secondary max-w-full"
                 :size="Math.min(Object.keys(subgraphs).length, 3)"
                 multiple
