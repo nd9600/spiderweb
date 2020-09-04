@@ -29,6 +29,6 @@ export default class Post {
     }
 
     static unserialise(post: PostSerialised): Post {
-        return new Post(post.id, post.title, post.body, post.createdAt, post.updatedAt);
+        return new Post(String(post.id), post.title, post.body, post.createdAt, post.updatedAt);
     }
 }

@@ -31,6 +31,6 @@ export default class Link {
     }
 
     static unserialise(link: LinkSerialised): Link {
-        return new Link(link.id, link.graph, link.source, link.target, link.type)
+        return new Link(String(link.id), String(link.graph), String(link.source), String(link.target), link.type)
     }
 }

@@ -29,6 +29,6 @@ export default class Subgraph {
     }
 
     static unserialise(subgraph: SubgraphSerialised): Subgraph {
-        return new Subgraph(subgraph.id, subgraph.name, subgraph.nodes, subgraph.links, subgraph.colour);
+        return new Subgraph(String(subgraph.id), subgraph.name, subgraph.nodes.map(String), subgraph.links.map(String), subgraph.colour);
     }
 }

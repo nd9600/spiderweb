@@ -29,6 +29,6 @@ export default class Graph {
     }
 
     static unserialise(graph: GraphSerialised): Graph {
-        return new Graph(graph.id, graph.name, graph.nodes, graph.nodePositions, graph.subgraphs);
+        return new Graph(String(graph.id), graph.name, graph.nodes.map(String), graph.nodePositions, graph.subgraphs.map(String));
     }
 }
