@@ -85,14 +85,18 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["graphs", "selectedGraphId", "selectedSubgraphIds"]),
+        ...mapState("dataModule", ["graphs", "selectedGraphId", "selectedSubgraphIds", "zoom"]),
         ...mapGetters("dataModule", ["titleOrBody", "subgraphsInSelectedGraph"]),
+
+        nodePositions() {
+            return this.$store.state.dataModule.graphs[this.selectedGraphId].nodePositions;
+        }
     },
     created() {
         this.subgraphIdsToAttachPostTo = this.selectedSubgraphIds;
     },
     methods: {
-        ...mapMutations("dataModule", ["addLink", "addPostToSubgraph"]),
+        ...mapMutations("dataModule", ["addLink", "setPostPosition", "addPostToSubgraph"]),
 
         toggleFromOrToTheNewPost() {
             const newValue = this.fromOrToNewPost === "from"
@@ -114,6 +118,25 @@ export default {
                 graph: this.selectedGraphId,
                 type: this.linkType,
                 subgraphIds: this.subgraphIdsToAttachPostTo
+            });
+
+            // we need to set the new post's position too, so it doesn't get added in the middle of the graph
+            let positionOfNewPost = {};
+            const originalPostPosition = this.nodePositions[this.post.id];
+            if (originalPostPosition != null) {
+                positionOfNewPost = {
+                    x: originalPostPosition.x + 100,
+                    y: originalPostPosition.y + 150,
+                };
+            } else {
+                positionOfNewPost = {
+                    x: (Math.abs(this.zoom.x) * (1 / this.zoom.scale)) + 100,
+                    y: (Math.abs(this.zoom.y) * (1 / this.zoom.scale)) + 150
+                };
+            }
+            this.setPostPosition({
+                postId: newPost.id,
+                position: positionOfNewPost
             });
 
             if (this.subgraphIdsToAttachPostTo.length > 0) {
