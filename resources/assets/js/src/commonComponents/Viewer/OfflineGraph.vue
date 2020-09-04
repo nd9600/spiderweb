@@ -124,7 +124,6 @@ export default {
                     Math.ceil(originalLinkStroke * textScaleFactor)
                 )
             );
-            console.log(newLinkStroke);
             document.querySelector(":root")
                 .style.setProperty("--link-stroke-width", newLinkStroke + "px");
 
