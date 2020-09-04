@@ -30,7 +30,7 @@ const mutations = {
                         .map(id => parseInt(id, 10))
                 )
             );
-        const newLinkId = highestLinkId + 1;
+        const newLinkId = String(highestLinkId + 1);
 
         const linkAlreadyExists = Object.values(state.links)
             .filter(
@@ -125,7 +125,7 @@ const mutations = {
         for (const subgraphId of Object.keys(state.subgraphs)) {
             const indexOfLink = state.subgraphs[subgraphId].links.indexOf(linkId);
             const alreadyInSubgraph = indexOfLink >= 0;
-            const shouldBeInSubgraph = subgraphsLinkIsIn.includes(parseInt(subgraphId, 10));
+            const shouldBeInSubgraph = subgraphsLinkIsIn.includes(subgraphId);
 
             if (alreadyInSubgraph && !shouldBeInSubgraph) {
                 state.subgraphs[subgraphId].links.splice(indexOfLink, 1);

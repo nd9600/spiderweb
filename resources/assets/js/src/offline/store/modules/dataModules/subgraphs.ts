@@ -59,7 +59,7 @@ const mutations = {
                         .map(id => parseInt(id, 10))
                 )
             );
-        const newSubgraphId = highestSubgraphId + 1;
+        const newSubgraphId = String(highestSubgraphId + 1);
 
         Vue.set(
             state.subgraphs,

@@ -40,7 +40,7 @@ const mutations = {
                 )
             );
         const newGraphId = highestGraphId + 1;
-        const newGraph = new Graph(newGraphId, newGraphName, [], [], []);
+        const newGraph = new Graph(String(newGraphId), newGraphName, [], {}, []);
 
         Vue.set(
             state.graphs,
@@ -95,6 +95,14 @@ const mutations = {
                 isRemovingPostFromThisGraph
                 && postIsSourceOrTarget
             ) {
+                // and remove the link from any subgraphs
+                for (const subgraphId of Object.keys(state.subgraphs)) {
+                    const indexOfLink = state.subgraphs[subgraphId].links.indexOf(link.id);
+                    const alreadyInSubgraph = indexOfLink >= 0;
+                    if (alreadyInSubgraph) {
+                        state.subgraphs[subgraphId].links.splice(indexOfLink, 1);
+                    }
+                }
                 continue;
             }
             linksAfterPostRemoval[link.id] = link;

@@ -22,7 +22,7 @@
                     class="btn btn--secondary"
                     @click="clickMode = 'openPosts'"
                 >
-                    Reset
+                    Back
                 </button>
 
                 <hr class="my-2">

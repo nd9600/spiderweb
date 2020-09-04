@@ -20,9 +20,7 @@ const getters = {
             attachedPostIDs = attachedPostIDs.concat(graphObj.nodes);
         }
         const uniqueAttachedPostIDs = [...new Set(attachedPostIDs)];
-        const postIDs = Object.keys(state.posts)
-            .map(n => parseInt(n, 10));
-
+        const postIDs = Object.keys(state.posts);
         return postIDs
             .filter(id => !uniqueAttachedPostIDs.includes(id))
             .map(id => state.posts[id]);
@@ -46,20 +44,24 @@ const getters = {
     neighbourIndex(state: DataModuleState, getters: any): {[key: string]: number} {
         let neighbourIndex: {[key: string]: number} = {};
         getters.linksInSelectedSubgraphs.forEach(function (link: Link) {
-            const lowerId = Math.min(link.source, link.target);
-            const higherId = Math.max(link.source, link.target);
+            const source = parseInt(link.source, 10);
+            const target = parseInt(link.target, 10);
+            const lowerId = Math.min(source, target);
+            const higherId = Math.max(source, target);
             neighbourIndex[lowerId + "," + higherId] = 1;
         });
         return neighbourIndex;
     },
 
     isNeighbour: (state: DataModuleState, getters: any) => (postA: Post, postB: Post) => {
-        const lowerId = Math.min(postA.id, postB.id);
-        const higherId = Math.max(postA.id, postB.id);
+        const a = parseInt(postA.id, 10);
+        const b = parseInt(postB.id, 10);
+        const lowerId = Math.min(a, b);
+        const higherId = Math.max(a, b);
         return typeof getters.neighbourIndex[lowerId + "," + higherId] !== "undefined";
     },
 
-    postIdsThatLinkToPost: (state: DataModuleState) => (postId: number) => {
+    postIdsThatLinkToPost: (state: DataModuleState) => (postId: PostId) => {
         let fromPostIds: Record<LinkId, PostId> = {};
         let toPostIds: Record<LinkId, PostId> = {};
 
@@ -77,7 +79,7 @@ const getters = {
         };
     },
 
-    linkedSubgraphs: (state: DataModuleState) => (postId: number) => {
+    linkedSubgraphs: (state: DataModuleState) => (postId: PostId) => {
         let linkedSubgraphs = [];
 
         for (let subgraph of Object.values(state.subgraphs)) {
@@ -151,7 +153,7 @@ const actions = {
         const highestPostId = existingPostIds.length === 0
             ? 0
             : Math.max(...existingPostIds);
-        const newPostId = highestPostId + 1;
+        const newPostId = String(highestPostId + 1);
 
         const newPost = new Post(newPostId, title, body, createdAt, updatedAt);
         context.commit("createPost", newPost);
