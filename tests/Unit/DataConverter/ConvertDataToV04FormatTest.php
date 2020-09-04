@@ -34,7 +34,6 @@ class ConvertDataToV04FormatTest extends TestCase
         $json["postsModule"]["posts"] = [];
         $converter = new ConvertDataToV04Format();
         $convertedData = $converter->convertData($json);
-        dd($convertedData);
         
         $this->assertEquals(new stdClass(), $convertedData["dataModule"]["posts"]);
     }

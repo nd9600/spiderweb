@@ -60,6 +60,7 @@ class ConvertDataToV04Format extends Command
     {
         $posts = collect($json["postsModule"]["posts"])
             ->mapWithKeys(function (array $post) {
+                $post["id"] = (string) $post["id"];
                 $post["createdAt"] = $post["created_at"];
                 unset($post["created_at"]);
                 if (isset($post["updated_at"])) {
@@ -74,7 +75,10 @@ class ConvertDataToV04Format extends Command
         
         $links = collect($json["postsModule"]["links"])
             ->mapWithKeys(function (array $link) {
-                $link["graph"] = 1;
+                $link["id"] = (string) $link["id"];
+                $link["source"] = (string) $link["source"];
+                $link["target"] = (string) $link["target"];
+                $link["graph"] = "1";
                 return [$link["id"] => $link];
             })->toArray();
         $links = empty($links)
@@ -83,18 +87,23 @@ class ConvertDataToV04Format extends Command
         
         $subgraphs = collect($json["postsModule"]["graphs"])
             ->map(function (array $graph) use ($json) {
+                $graph["id"] = (string) $graph["id"];
+                $graph["nodes"] = collect($graph["nodes"])
+                    ->map(function (int $postId) {
+                        return (string) $postId;
+                    })
+                    ->toArray();
                 $graph["links"] = collect($json["postsModule"]["links"])
                     ->filter(function (array $link) use ($graph) {
-                        return $link["graph"] === $graph["id"];
+                        return (string) $link["graph"] === $graph["id"];
                     })
                     ->values()
                     ->map(function (array $link) {
-                        return $link["id"];
+                        return (string) $link["id"];
                     })
                     ->toArray();
                 return $graph;
             })
-            ->unique()
             ->toArray();
         $subgraphs = empty($subgraphs)
             ? new stdClass()
@@ -106,25 +115,41 @@ class ConvertDataToV04Format extends Command
                 "links" => $links,
                 "graphs" => [
                     "1" => [
-                        "id" => 1,
+                        "id" => "1",
                         "name" => "default",
                         "nodes" => collect($json["postsModule"]["graphs"])
                             ->flatMap(function (array $graph) {
-                                return $graph["nodes"];
+                                return collect($graph["nodes"])
+                                    ->map(function (int $postId) {
+                                        return (string) $postId;
+                                    })
+                                    ->toArray();
                             })
                             ->unique()
                             ->toArray(),
                         "nodePositions" => new stdClass(),
-                        "subgraphs" => array_keys($json["postsModule"]["graphs"])
+                        "subgraphs" => collect(array_keys($json["postsModule"]["graphs"]))
+                            ->map(function (int $graphId) {
+                                return (string) $graphId;
+                            })
+                            ->toArray()
                     ]
                 ],
                 "subgraphs" => $subgraphs,
                 
-                "selectedPostIds" => $json["postsModule"]["selectedPostIds"],
+                "selectedPostIds" => collect($json["postsModule"]["selectedPostIds"])
+                    ->map(function (int $id) {
+                        return (string) $id;
+                    })
+                    ->toArray(),
                 "selectedGraphId" => empty($json["postsModule"]["selectedGraphIds"])
                     ? null
-                    : 1,
-                "selectedSubgraphIds" => $json["postsModule"]["selectedGraphIds"]
+                    : "1",
+                "selectedSubgraphIds" => collect($json["postsModule"]["selectedGraphIds"])
+                    ->map(function (int $id) {
+                        return (string) $id;
+                    })
+                    ->toArray(),
             ],
             "settingsModule" => $json["settingsModule"],
             "firebaseModule" => $json["firebaseModule"],
