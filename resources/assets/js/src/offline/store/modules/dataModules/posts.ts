@@ -11,7 +11,7 @@ const state: {
 
 const getters = {
     postIds(state: DataModuleState) {
-        return Object.keys(state.posts).map(n => parseInt(n, 10));
+        return Object.keys(state.posts);
     },
 
     unattachedPosts(state: DataModuleState) {
@@ -127,8 +127,8 @@ const mutations = {
         for (let [graphId, graph] of Object.entries(state.graphs)) {
             let nodePositions: NodePositionsMap = {};
             for (const [postId, position] of Object.entries(graph.nodePositions)) {
-                if (postId !== String(id)) {
-                    nodePositions[parseInt(postId, 10)] = position;
+                if (postId !== id) {
+                    nodePositions[postId] = position;
                 }
             }
             const newGraph = {

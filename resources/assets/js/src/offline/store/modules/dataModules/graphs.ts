@@ -122,8 +122,8 @@ const mutations = {
         // and its positions
         let nodePositions: NodePositionsMap = {};
         for (const [postIdCursor, position] of Object.entries(state.graphs[graphId].nodePositions)) {
-            if (postIdCursor !== String(postId)) {
-                nodePositions[parseInt(postIdCursor, 10)] = position;
+            if (postIdCursor !== postId) {
+                nodePositions[postIdCursor] = position;
             }
         }
 
