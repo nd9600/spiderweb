@@ -394,7 +394,7 @@ export default {
                 d3.zoomIdentity.translate(x, y).scale(k) makes a new transform
              */
             this.zoomBehaviour = d3.zoom()
-                .scaleExtent([0.05, 2]) // limits zooming so you can only zoom between 0.2x and 2x
+                .scaleExtent([0.025, 2]) // limits zooming so you can only zoom between 0.2x and 2x
                 .on("zoom", () => {
                     const x = d3.event.transform.x;
                     const y = d3.event.transform.y;
