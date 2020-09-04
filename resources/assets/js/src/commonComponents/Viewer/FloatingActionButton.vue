@@ -160,12 +160,14 @@ export default {
     },
     watch: {
         clickMode(newClickMode, previousClickMode) {
+            const currentStrokeWidth = document.querySelector(":root").style.getPropertyValue("--link-stroke-width");
+            const currentStrokeWidthPixels = parseInt(currentStrokeWidth.match(/^(\d*)px$/)[1], 10);
             if (newClickMode === "changeLink") {
                 document.querySelector(":root")
-                    .style.setProperty("--link-stroke-width", "40px");
+                    .style.setProperty("--link-stroke-width", `${currentStrokeWidthPixels * 2}px`);
             } else if (previousClickMode === "changeLink") {
                 document.querySelector(":root")
-                    .style.setProperty("--link-stroke-width", "20px");
+                    .style.setProperty("--link-stroke-width", `${currentStrokeWidthPixels / 2}px`);
             }
         }
     },
