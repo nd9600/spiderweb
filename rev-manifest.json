@@ -2,7 +2,5 @@
   "assets/css/app.css": "assets/css/app-118b459cc3.css",
   "assets/css/tailwind.min.css": "assets/css/tailwind-f2d43b4b82.min.css",
   "assets/js/offline/graph.js": "assets/js/offline/graph.js",
-  "assets/js/offline/graph.js.map": "assets/js/offline/graph-bedd757484628d743b95.js.map",
-  "assets/js/vendors.js": "assets/js/vendors.js",
-  "assets/js/vendors.js.map": "assets/js/vendors-bedd757484628d743b95.js.map"
+  "assets/js/vendors.js": "assets/js/vendors.js"
 }

@@ -1,0 +1,20 @@
+{
+  "extends": [
+      "tslint:recommended"
+  ],
+  "rules": {
+    "object-literal-sort-keys": false,
+    "no-console": false,
+    "no-consecutive-blank-lines": false,
+    "no-trailing-whitespace": false,
+    "ordered-imports": false,
+    "quotemark": [true, "double", "avoid-escape", "avoid-template"],
+    "trailing-comma": false,
+    "interface-name": false,
+    "prefer-template": true,
+    "max-line-length": false,
+    "member-ordering": [
+      false
+    ]
+  }
+}

@@ -5,7 +5,7 @@ const WebpackAssetsManifest = require("webpack-assets-manifest");
 // const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 const entrypoints = {
-    "assets/js/offline/graph": "./resources/assets/js/offline/graph.js"
+    "assets/js/offline/graph": "./resources/assets/js/src/offline/graph.js"
 };
 
 module.exports = (env, argv) => {
@@ -32,12 +32,27 @@ module.exports = (env, argv) => {
                     }
                 },
                 {
+                    test: /\.tsx?$/,
+                    use: [
+                        {
+                            loader: "babel-loader"
+                        },
+                        {
+                            loader: "ts-loader",
+                            options: {
+                                appendTsSuffixTo: [/\.vue$/],
+
+                                // disable type checker - we will use it in fork plugin
+                                //transpileOnly: true
+                            }
+                        }
+                    ],
+                    exclude: /node_modules/,
+                },
+                {
                     test: /\.js$/,
                     loader: "babel-loader",
                     exclude: /node_modules/,
-                    options: {
-                        presets: ["@babel/preset-env"],
-                    }
                 },
                 {
                     test: /\.(png|jpg|gif|svg)$/,
@@ -52,9 +67,9 @@ module.exports = (env, argv) => {
         resolve: {
             alias: {
                 "vue$": "vue/dist/vue.esm.js",
-                "@": path.resolve(__dirname, "resources/assets"),
+                "@": path.resolve(__dirname, "resources/assets/js"),
             },
-            extensions: ["*", ".js", ".vue", ".json"]
+            extensions: ["*", ".ts", ".js", ".vue", ".json"]
         },
         performance: {
             hints: false
