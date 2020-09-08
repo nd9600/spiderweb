@@ -18,7 +18,7 @@
             </select>
         </label>
         <label v-if="Object.keys(subgraphs).length > 0">
-            in the subgraph
+            in the subgraphs ({{ subgraphsLinkIsIn.length }})
             <select
                 v-model="subgraphsLinkIsIn"
                 class="select select--secondary mb-2"

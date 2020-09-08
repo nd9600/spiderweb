@@ -16,7 +16,7 @@
                     link
                 </option>
             </select>
-            in the subgraph
+            in the subgraphs ({{ newLinkSubgraphIds.length }})
             <select
                 v-model="newLinkSubgraphIds"
                 class="select select--secondary max-w-full"
@@ -87,7 +87,7 @@ export default {
         PostSearch
     },
     computed: {
-        ...mapState("dataModule", ["subgraphs"]),
+        ...mapState("dataModule", ["subgraphs", "selectedSubgraphIds"]),
         ...mapGetters("dataModule", ["titleOrBody"]),
 
         ...mapState("clickerModule", ["newLinkSource"]),
@@ -109,6 +109,9 @@ export default {
                 this.setNewLinkType(newLinkType);
             }
         },
+    },
+    created() {
+        this.newLinkSubgraphIds = this.selectedSubgraphIds;
     },
     methods: {
         ...mapMutations("clickerModule", [
