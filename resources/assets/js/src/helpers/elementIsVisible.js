@@ -4,7 +4,7 @@
  * @param scrolledThing
  * @returns {boolean}
  */
-export default function(element, scrolledThing = null) {
+export default function(element, scrolledThing = null, topMustBeVisble = true) {
     if (!element || scrolledThing.scrollLeft == null) {
         return false;
     }
@@ -20,10 +20,17 @@ export default function(element, scrolledThing = null) {
     }
 
     let container = scrolledThing.getBoundingClientRect();
-    return (
-        bounding.top >= 0
-        && bounding.left >= 0
-        && bounding.y <= container.bottom
-        && bounding.x <= container.right
-    );
+    if (topMustBeVisble) {
+        return (
+            bounding.top >= 0
+            && bounding.left >= 0
+            && bounding.y <= container.bottom
+            && bounding.x <= container.right
+        );
+    } else {
+        return (bounding.left >= 0
+            && bounding.y <= container.bottom
+            && bounding.x <= container.right
+        );
+    }
 }

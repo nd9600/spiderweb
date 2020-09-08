@@ -83,7 +83,8 @@ export default {
             for (let i = 0; i < this.selectedPostIds.length; i++) {
                 const postIsVisible = elementIsVisible(
                     document.getElementById(`post-${i}`),
-                    document.getElementById("postBar")
+                    document.getElementById("postBar"),
+                    false
                 );
                 if (postIsVisible) {
                     visiblePosts.push(i);
