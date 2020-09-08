@@ -32,9 +32,9 @@
 
         <label
             v-if="subgraphsInSelectedGraph.length > 0"
-            class="mb-2 flex items-start text-xs"
+            class="mb-2 flex flex-col items-start text-xs"
         >
-            <span>I want to attach the post to these subgraphs:</span>
+            <span>I want to attach the post to these subgraphs ({{ subgraphIdsToAttachPostTo.length }}):</span>
             <select
                 v-model="subgraphIdsToAttachPostTo"
                 class="select select--secondary"
