@@ -89,7 +89,6 @@ export default {
             this.debouncedMakeGraphSvg();
         },
         selectedSubgraphIds() {
-            this.shouldResetZooming = true;
             this.debouncedMakeGraphSvg();
         },
         postsInSelectedSubgraphs() {
