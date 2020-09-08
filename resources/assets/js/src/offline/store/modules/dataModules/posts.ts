@@ -1,5 +1,5 @@
 import Vue from "vue";
-import Post from "@/src/offline/store/classes/Post";
+import Post, {PostSerialised} from "@/src/offline/store/classes/Post";
 import {DataModuleState, LinkId, LinksMap, NodePositionsMap, PostId, PostsMap} from "@/src/@types/StoreTypes";
 import Link from "@/src/offline/store/classes/Link";
 
@@ -53,7 +53,7 @@ const getters = {
         return neighbourIndex;
     },
 
-    isNeighbour: (state: DataModuleState, getters: any) => (postA: Post, postB: Post) => {
+    isNeighbour: (state: DataModuleState, getters: any) => (postA: PostSerialised, postB: PostSerialised) => {
         const a = parseInt(postA.id, 10);
         const b = parseInt(postB.id, 10);
         const lowerId = Math.min(a, b);
@@ -96,8 +96,8 @@ const mutations = {
         Vue.set(state.posts, newPost.id, newPost.serialise());
         return newPost;
     },
-    updatePost(state: DataModuleState, post: Post) {
-        Vue.set(state.posts, post.id, post.serialise());
+    updatePost(state: DataModuleState, post: PostSerialised) {
+        Vue.set(state.posts, post.id, post);
     },
     deletePost(state: DataModuleState, {id}: {id: PostId}) {
         if (state.selectedPostIds.includes(id)) {

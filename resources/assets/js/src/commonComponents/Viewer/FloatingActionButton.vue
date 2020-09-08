@@ -132,7 +132,7 @@ export default {
     computed: {
         ...mapState("settingsModule", ["graphHeight", "canOpenMultiplePosts"]),
 
-        ...mapState("dataModule", ["graphs", "selectedSubgraphIds", "links"]),
+        ...mapState("dataModule", ["graphs", "selectedSubgraphIds", "links", "zoom"]),
         ...mapGetters("dataModule", ["titleOrBody"]),
 
         ...mapState("clickerModule", ["newLinkSource", "linkToEdit"]),
@@ -172,13 +172,15 @@ export default {
         }
     },
     methods: {
+        ...mapMutations("dataModule", [
+            "selectPostId",
+            "setPostPosition"
+        ]),
+
         ...mapMutations("clickerModule", [
             "setShouldShowClickButtonMenu",
             "setClickMode",
             "setLinkToEdit"
-        ]),
-        ...mapMutations("dataModule", [
-            "selectPostId",
         ]),
 
         toggleClickButtonMenu() {
@@ -197,7 +199,16 @@ export default {
                 : clickMode;
         },
 
-        madePost() {
+        madePost(newPost) {
+            const positionOfNewPost = {
+                x: (Math.abs(this.zoom.x) * (1 / this.zoom.scale)) + 100,
+                y: (Math.abs(this.zoom.y) * (1 / this.zoom.scale)) + 150
+            };
+            this.setPostPosition({
+                postId: newPost.id,
+                position: positionOfNewPost
+            });
+
             this.toggleClickMode("openPosts");
             this.shouldShowClickButtonMenu = false;
         },
