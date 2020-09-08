@@ -5,6 +5,8 @@
             class="px-4 md:px-8"
         >
             loading..
+            <br>
+            (this will timeout in 10 seconds)
 
             <div
                 v-if="failedToLoadData"

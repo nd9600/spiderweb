@@ -101,7 +101,7 @@ const store = new Vuex.Store({
                                     context.commit("setFailedToLoadData", true);
                                 }
                             },
-                            5000
+                            10000
                         );
                     } catch (error) {
                         context.commit("settingsModule/setRemoteStorageMethod", "none", {root: true});
