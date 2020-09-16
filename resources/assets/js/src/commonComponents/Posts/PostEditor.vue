@@ -26,7 +26,7 @@
             <span class="font-bold">Body</span>
             <textarea
                 v-model="body"
-                class="p-2 h-48 rounded border text-gray-800 placeholder-gray-600 resize"
+                class="p-2 h-48 rounded border text-gray-800 placeholder-gray-600 resize-y"
                 required="required"
                 placeholder="you can type Markdown here"
                 minlength="1"
