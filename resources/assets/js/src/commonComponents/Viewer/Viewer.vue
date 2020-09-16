@@ -1,14 +1,22 @@
 <template>
     <div class="flex flex-col">
         <div class="flex items-start">
-            <button
-                class="btn btn--secondary"
-                type="button"
-                title="scroll to the posts"
-                @click.stop="scrollToPostBar"
-            >
-                ↧
-            </button>
+            <div>
+                <button
+                    class="btn btn--secondary"
+                    type="button"
+                    title="scroll to the posts"
+                    @click.stop="scrollToPostBar"
+                >
+                    ↧
+                </button>
+                <div
+                    v-if="isRenderingGraph"
+                    class="mt-1 flex justify-center items-center"
+                >
+                    <div class="spinner spinner--sm"></div>
+                </div>
+            </div>
             <label
                 v-if="Object.keys(graphs).length > 1"
                 class="ml-4"
@@ -117,6 +125,7 @@ export default {
         PostBar,
     },
     computed: {
+        ...mapState(["isRenderingGraph"]),
         ...mapState("settingsModule", ["graphHeight", "postBarHeight"]),
         ...mapState("dataModule", ["graphs"]),
         ...mapGetters("dataModule", ["subgraphsInSelectedGraph"]),

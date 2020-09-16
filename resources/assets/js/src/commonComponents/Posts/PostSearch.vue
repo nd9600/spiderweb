@@ -12,7 +12,13 @@
                 title="search for a post"
             />
         </label>
-        <div v-if="searchResults.length > 0">
+        <div
+            v-if="isLoadingSearchResults"
+            class="mt-1 flex justify-center items-center"
+        >
+            <div class="spinner spinner--sm"></div>
+        </div>
+        <div v-else-if="searchResults.length > 0">
             <div
                 v-for="post in searchResults"
                 :key="post.id"
@@ -42,20 +48,26 @@ export default {
     name: "PostSearch",
     data() {
         return {
-            searchTerm: ""
+            searchTerm: "",
+            isLoadingSearchResults: false,
+            searchResults: []
         };
     },
     computed: {
         ...mapState("dataModule", ["posts"]),
         ...mapGetters("dataModule", ["titleOrBody", "postIdsThatLinkToPost"]),
-
-        searchResults() {
-            const searchTerm = this.searchTerm.trim().toLowerCase();
+    },
+    watch: {
+        async searchTerm(newSearchTerm) {
+            const searchTerm = newSearchTerm.trim().toLowerCase();
             if (searchTerm.length === 0) {
-                return [];
+                this.searchResults = [];
+                this.isLoadingSearchResults = false;
+                return;
             }
+            this.isLoadingSearchResults = true;
 
-            return Object.values(this.posts)
+            this.searchResults = Object.values(this.posts)
                 .filter(post =>
                     post.title.toLowerCase().includes(searchTerm)
                     || post.body.toLowerCase().includes(searchTerm)
@@ -75,6 +87,7 @@ export default {
                         return 0;
                     }
                 }).slice(0, 25);
+            this.isLoadingSearchResults = false;
         }
     },
     mounted() {

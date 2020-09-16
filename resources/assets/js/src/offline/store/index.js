@@ -22,7 +22,8 @@ const store = new Vuex.Store({
     },
     state: {
         loadingApp: true,
-        failedToLoadData: false
+        failedToLoadData: false,
+        isRenderingGraph: false
     },
     getters: {
         storageObject(state) {
@@ -39,7 +40,10 @@ const store = new Vuex.Store({
         },
         setFailedToLoadData(state, failedToLoadData) {
             state.failedToLoadData = failedToLoadData;
-        }
+        },
+        setIsRenderingGraph(state, isRenderingGraph) {
+            state.isRenderingGraph = isRenderingGraph;
+        },
     },
     actions: {
         async saveStateToLocalStorage(context) {
@@ -190,6 +194,7 @@ store.subscribe(
         const mutationsToIgnore = [
             "setLoadingApp",
             "setFailedToLoadData",
+            "setIsRenderingGraph",
             "settingsModule/setRemoteStorageMethod" // see the comment in settingsModule.actions.setRemoteStorageMethod
         ];
         const shouldSaveState = state.settingsModule.shouldAutosave

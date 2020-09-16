@@ -69,7 +69,7 @@ export default {
             linksG: null,
             nodesG: null,
 
-            nodesWithCoordinates: {} // after D3 has added `x` and `y` coordinates to each object
+            nodesWithCoordinates: {}, // after D3 has added `x` and `y` coordinates to each object
         };
     },
     computed: {
@@ -158,6 +158,7 @@ export default {
         this.$root.$on("focusOnPost", this.focusOnPost);
     },
     methods: {
+        ...mapMutations(["setIsRenderingGraph"]),
         ...mapMutations("dataModule", ["setZoom", "setPostPosition"]),
         ...mapMutations("clickerModule", ["setShouldShowClickButtonMenu", "setClickMode"]),
 
@@ -183,11 +184,13 @@ export default {
             },
             500,
             {
-                "leading": false,
+                "leading": true,
                 "trailing": true,
             }
         ),
-        makeGraphSvg() {
+        async makeGraphSvg() {
+            this.setIsRenderingGraph(true);
+
             //todo: almost definitely in-efficient
             let nodes = JSON.parse(JSON.stringify(this.postsInSelectedSubgraphs));
             nodes = nodes.map((node) => {
@@ -393,6 +396,7 @@ export default {
                 postsKeyedById[post.id] = post;
             }
             this.nodesWithCoordinates = postsKeyedById;
+            this.setIsRenderingGraph(false);
         },
 
         setupZooming() {
