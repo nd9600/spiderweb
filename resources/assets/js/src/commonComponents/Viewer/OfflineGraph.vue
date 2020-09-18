@@ -44,8 +44,12 @@
 </template>
 
 <script>
-import * as d3 from "d3";
-import debounce from "lodash.debounce";
+import {select as d3select, selectAll as d3selectAll, event as d3event, mouse as d3mouse} from "d3-selection";
+import {forceSimulation as d3forceSimulation, forceLink as d3forceLink, forceManyBody as d3forceManyBody, forceCenter as d3forceCenter} from "d3-force";
+import {zoom as d3zoom, zoomIdentity as d3zoomIdentity} from "d3-zoom";
+import {drag as d3drag} from "d3-drag";
+
+import debounce from "lodash/debounce";
 
 import {mapActions, mapGetters, mapMutations, mapState} from "vuex";
 import FloatingActionButton from "./FloatingActionButton";
@@ -130,14 +134,14 @@ export default {
         }
     },
     mounted() {
-        this.svg = d3.select("#graphSvg");
-        this.rootG = d3.select("#graphSvg g");
+        this.svg = d3select("#graphSvg");
+        this.rootG = d3select("#graphSvg g");
 
-        this.linksG = d3.select(".graph__links")
+        this.linksG = d3select(".graph__links")
             .attr("stroke", "#999")
             .attr("stroke-opacity", 0.6);
 
-        this.nodesG = d3.select(".graph__nodes")
+        this.nodesG = d3select(".graph__nodes")
             .attr("stroke", "#fff")
             .attr("stroke-width", 1.5);
 
@@ -145,7 +149,7 @@ export default {
         this.svg.call(this.zoomBehaviour)
             .call(
                 this.zoomBehaviour.transform,
-                d3.zoomIdentity
+                d3zoomIdentity
                     .translate(
                         this.$store.state.dataModule.zoom.x, // sets initial x/y and zoom amount
                         this.$store.state.dataModule.zoom.y
@@ -207,7 +211,7 @@ export default {
 
             const drag = (simulation, nodes) => {
                 function dragStarted(node) {
-                    if (!d3.event.active) {
+                    if (!d3event.active) {
                         simulation.alphaTarget(0.3).restart();
                     }
 
@@ -226,42 +230,42 @@ export default {
                 }
 
                 function dragged(node) {
-                    node.fx = d3.event.x;
-                    node.fy = d3.event.y;
+                    node.fx = d3event.x;
+                    node.fy = d3event.y;
                 }
 
                 function dragEnded(node) {
-                    if (!d3.event.active) {
+                    if (!d3event.active) {
                         simulation.alpha(0);
                         simulation.alphaTarget(0);
                     }
-                    node.fx = d3.event.x;
-                    node.fy = d3.event.y;
+                    node.fx = d3event.x;
+                    node.fy = d3event.y;
                     vm.setPostPosition({
                         postId: node.id,
                         position: {
-                            x: d3.event.x,
-                            y: d3.event.y
+                            x: d3event.x,
+                            y: d3event.y
                         }
                     });
                 }
 
-                return d3.drag()
+                return d3drag()
                     .on("start", dragStarted)
                     .on("drag", dragged)
                     .on("end", dragEnded);
             };
 
             // setup force simulation
-            const simulation = d3.forceSimulation(nodes)
-                .force("link", d3.forceLink(links)
+            const simulation = d3forceSimulation(nodes)
+                .force("link", d3forceLink(links)
                     .id(d => d.id)
                     .distance(200)
                 )
-                .force("charge", d3.forceManyBody()
+                .force("charge", d3forceManyBody()
                     .strength(-7500)
                 )
-                .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2));
+                .force("center", d3forceCenter(WIDTH / 2, HEIGHT / 2));
             simulation.tick(300);
 
             // add links
@@ -278,7 +282,7 @@ export default {
                     const returnedValue = await vm.handleLinkClick(
                         {
                             link,
-                            coordinates: d3.mouse(this)
+                            coordinates: d3mouse(this)
                         }
                     );
                     if (returnedValue != null) {
@@ -286,7 +290,7 @@ export default {
                         vm.focusOnPost(postIdToFocusOn, 1.5);
                     }
                 })
-                .call(d3.drag().clickDistance(4));
+                .call(d3drag().clickDistance(4));
 
             let nodeGroups = this.nodesG
                 .selectAll("g")
@@ -309,21 +313,21 @@ export default {
                 .attr("dataset-id", post => post.id);
 
             // if the nodes aren't being made, that might be because the .node circles don't exist in the DOM when this function is called
-            const node = d3.selectAll(".node").select("circle")
+            const node = d3selectAll(".node").select("circle")
                 .classed("node__circle", true)
                 .attr("r", 15)
                 .attr("title", post => post.title);
                 
-            const text = d3.selectAll(".node").select("text")
+            const text = d3selectAll(".node").select("text")
                 .classed("node__text", true)
                 .attr("text-anchor", "end")
                 .text(post => this.titleOrBody(post.id))
                 .on("mouseover", function (post) {
-                    d3.select(this)
+                    d3select(this)
                         .style("filter", "url(#postHoverFilter)");
 
                     // SVG doesn't have a z-index, the z-direction is by element order, this re-inserts the parent <node> in the DOM at the bottom of its parent so this text is on top of any others
-                    d3.select(d3.select(this).node().parentNode).raise();
+                    d3select(d3select(this).node().parentNode).raise();
 
                     const nonNeighbourNodes = node.filter(otherPost => {
                         if (post.id === otherPost.id) {
@@ -349,16 +353,16 @@ export default {
                     nonNeighbourLinks.style("opacity", 0.2);
                 })
                 .on("mouseout", function (post) {
-                    d3.select(this)
+                    d3select(this)
                         .style("filter", "");
                     node.style("opacity", 1);
                     text.style("opacity", 1);
                     link.style("opacity", 1);
                 });
                 
-            d3.selectAll(".node *")
+            d3selectAll(".node *")
                 .on("click", this.handlePostClick)
-                .call(d3.drag().clickDistance(4)) // if the mouse moves less than 4 units while clicking, it's counted as a click
+                .call(d3drag().clickDistance(4)) // if the mouse moves less than 4 units while clicking, it's counted as a click
                 .call(drag(simulation, node));
 
             // set x and y co-ordinates of the links, and nodes
@@ -407,26 +411,26 @@ export default {
                 the behaviour doesn't store the state of the zoom, a zoom _transform_ does
                 doing `zoom.transform(selection, transform)` sets the zoom transform on that selection to be the transform argument, which is what you do to programmatically zoom - it seems to trigger the behaviour's "zoom" event listener
 
-                d3.zoomIdentity.translate(x, y).scale(k) makes a new transform
+                d3zoomIdentity.translate(x, y).scale(k) makes a new transform
              */
-            this.zoomBehaviour = d3.zoom()
+            this.zoomBehaviour = d3zoom()
                 .scaleExtent([0.025, 2]) // limits zooming so you can only zoom between 0.2x and 2x
                 .on("zoom", () => {
-                    const x = d3.event.transform.x;
-                    const y = d3.event.transform.y;
-                    const scale = d3.event.transform.k;
+                    const x = d3event.transform.x;
+                    const y = d3event.transform.y;
+                    const scale = d3event.transform.k;
                     this.zoom = {x, y, scale};
                 });
             this.svg.call(this.zoomBehaviour)
                 .on("wheel", () => {
-                    d3.event.preventDefault();
+                    d3event.preventDefault();
                 });
         },
         resetZoomToCenter() {
             this.svg.call(this.zoomBehaviour)
                 .call(
                     this.zoomBehaviour.transform,
-                    d3.zoomIdentity
+                    d3zoomIdentity
                         .translate(WIDTH / 2, HEIGHT / 2)
                         .scale(INITIAL_ZOOM)
                 ); // sets initial x/y and zoom amount
@@ -450,7 +454,7 @@ export default {
                 .duration(1500 / speed)
                 .call(
                     this.zoomBehaviour.transform,
-                    d3.zoomIdentity
+                    d3zoomIdentity
                         .scale(INITIAL_ZOOM)
                         .translate(-post.x + 550, -post.y + 500) // magic numbers that work on desktop and my phone
                 );

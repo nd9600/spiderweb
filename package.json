@@ -5,7 +5,6 @@
     "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --mode=development",
     "watch": "npm run development -- --watch",
     "watch-poll": "npm run watch -- --watch-poll",
-    "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --mode=development",
     "prod": "npm run production",
     "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --progress --hide-modules --mode=production",
     "test": "jest resources/assets/js/__tests__"
@@ -46,7 +45,6 @@
     "webpack-assets-manifest": "^3.1.1",
     "webpack-bundle-analyzer": "^3.8.0",
     "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0",
     "webpack-stream": "^5.2.1"
   },
   "dependencies": {
@@ -54,7 +52,7 @@
     "@babel/runtime": "^7.11.2",
     "d3": "^5.16.0",
     "firebase": "^7.19.0",
-    "lodash.debounce": "^4.0.8",
+    "lodash": "^4.17.20",
     "marked": "^1.1.1",
     "vue": "^2.6.12",
     "vuex": "^3.5.1"
@@ -66,7 +64,11 @@
       "NODE_ENV": "test"
     },
     "testRegex": "(/__tests__/.*test)\\.js$",
-    "moduleFileExtensions": ["js", "json", "ts"],
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/resources/assets/js/$1"
     },
