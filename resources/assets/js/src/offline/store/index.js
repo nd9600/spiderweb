@@ -6,11 +6,11 @@ import firebaseModule from "./modules/firebaseModule";
 import dataModule from "./modules/dataModule";
 import clickerModule from "./modules/clickerModule";
 
+import {STORAGE_KEY} from "@/src/commonComponents/constants";
+
 import firebaseDbFactory from "./firebaseDbFactory";
 
 Vue.use(Vuex);
-
-const STORAGE_KEY = "offlineState";
 
 const store = new Vuex.Store({
     strict: process.env.NODE_ENV !== "production",

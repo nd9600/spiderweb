@@ -86,6 +86,17 @@
                     </label>
                 </div>
             </div>
+            <p
+                v-if="localStorageSize > 2"
+                class="text-xs"
+            >
+                Your stored data is {{ localStorageSize }}mb, the maximum that can be stored is <a
+                    class="link"
+                    href="https://stackoverflow.com/questions/2989284/what-is-the-max-size-of-localstorage-values/33085019#33085019"
+                    target="_blank"
+                    rel="noopener"
+                >around 5mb</a>.
+            </p>
         </div>
         <div class="flex flex-col">
             <OfflineGraph
@@ -118,11 +129,18 @@ import {mapGetters, mapMutations, mapState} from "vuex";
 import OfflineGraph from "./OfflineGraph";
 import PostBar from "./PostBar/PostBar";
 
+import {STORAGE_KEY} from "@/src/commonComponents/constants";
+
 export default {
     name: "Viewer",
     components: {
         OfflineGraph,
         PostBar,
+    },
+    data() {
+        return {
+            localStorageSize: (localStorage.getItem(STORAGE_KEY).length / (1000 ** 2)).toFixed(2)
+        };
     },
     computed: {
         ...mapState(["isRenderingGraph"]),
