@@ -42,7 +42,6 @@
 
 <script>
 import { mapState, mapMutations } from "vuex";
-import elementIsVisible from "@/src/helpers/elementIsVisible.js";
 
 import Post from "./Post";
 
@@ -77,14 +76,27 @@ export default {
     methods: {
         ...mapMutations("dataModule", ["setSelectedPostIds"]),
 
+        isPostVisible(element, scrolledThing) {
+            // a post is visible if its top left corner and mid point is visible
+            if (!element || scrolledThing.scrollLeft == null) {
+                return false;
+            }
+
+            const bounding = element.getBoundingClientRect();
+            const container = scrolledThing.getBoundingClientRect();
+            const topLeftIsVisible = bounding.left >= 0
+                && bounding.top <= container.bottom
+                && bounding.left <= container.right;
+            const midpointIsVisible = ((bounding.left + bounding.right) / 2) <= container.right;
+            return topLeftIsVisible && midpointIsVisible;
+        },
         // todo: misses newly selected posts
         setVisiblePosts() {
             let visiblePosts = [];
             for (let i = 0; i < this.selectedPostIds.length; i++) {
-                const postIsVisible = elementIsVisible(
+                const postIsVisible = this.isPostVisible(
                     document.getElementById(`post-${i}`),
-                    document.getElementById("postBar"),
-                    false
+                    document.getElementById("postBar")
                 );
                 if (postIsVisible) {
                     visiblePosts.push(i);
