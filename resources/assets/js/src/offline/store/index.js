@@ -190,7 +190,7 @@ const store = new Vuex.Store({
 });
 
 store.subscribe(
-    (mutation, state) => {
+    async (mutation, state) => {
         const mutationsToIgnore = [
             "setLoadingApp",
             "setFailedToLoadData",
