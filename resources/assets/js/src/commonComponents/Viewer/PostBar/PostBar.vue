@@ -87,6 +87,9 @@ export default {
         this.setVisiblePosts();
         document.getElementById("postBar").onscroll = this.setVisiblePosts;
     },
+    activated() {
+        this.setVisiblePosts();
+    },
     methods: {
         ...mapMutations("dataModule", ["setSelectedPostIds"]),
 
