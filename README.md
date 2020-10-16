@@ -87,6 +87,8 @@ If you change the graphs (e.g. add or remove a subgraph) when you're not on the 
 
 This is because the actual data gets changed, and D3 immediately tries to re-render the graph, but it can't, because it's not visible and not in the DOM yet, so it can't re-render, but it doesn't try to re-render when you _do_ go back to the tab. I tried putting in a little refresh button to let you force it to re-render, but it's almost never an issue, and it takes up quite a lot of needed screen space.
 
+This is also an issue when you change the post-width and go to the Viewer tab again, the "number of posts that are visible" indicators won't update until you scroll again
+
 ## QTWPBFAIIHU
 Questions that would probably be frequently asked if I had users
 

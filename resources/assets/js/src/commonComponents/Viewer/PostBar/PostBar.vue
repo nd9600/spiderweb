@@ -4,28 +4,28 @@
             <div class="flex justify-between items-center">
                 <span>
                     <button
-                        v-if="selectedPostIds.length > 1 && !visiblePosts.includes(0)"
+                        v-if="selectedPostIds.length > 1 && visiblePosts.length !== selectedPostIds.length && !visiblePosts.includes(0)"
                         class="btn btn--secondary"
                         type="button"
                         @click="scrollLeft"
                     >
-                        <span class="text-2xl">⇐</span>
+                        <span class="text-lg">⇐ {{ numberOfPostsHiddenToTheLeft }}</span>
                     </button>
                 </span>
                 <span>
                     <button
-                        v-if="selectedPostIds.length > 1 && !visiblePosts.includes(selectedPostIds.length - 1)"
+                        v-if="selectedPostIds.length > 1 && visiblePosts.length !== selectedPostIds.length && !visiblePosts.includes(selectedPostIds.length - 1)"
                         class="btn btn--secondary"
                         type="button"
                         @click="scrollRight"
                     >
-                        <span class="text-2xl">⇒</span>
+                        <span class="text-lg">{{ numberOfPostsHiddenToTheRight }} ⇒</span>
                     </button>
                 </span>
             </div>
             <div
                 id="postBar"
-                class="w-full flex items-start overflow-x-auto"
+                class="w-full flex items-start overflow-x-hidden"
             >
                 <post
                     v-for="(selectedPostId, i) in selectedPostIds"
@@ -64,10 +64,24 @@ export default {
             set(selectedPostIds) {
                 this.setSelectedPostIds(selectedPostIds);
             }
+        },
+
+        numberOfPostsHiddenToTheLeft() {
+            if (this.visiblePosts.length === 0) {
+                return 0;
+            }
+            return this.visiblePosts[0];
+        },
+        numberOfPostsHiddenToTheRight() {
+            if (this.visiblePosts.length === 0) {
+                return 0;
+            }
+            const lastVisiblePostIndex = this.visiblePosts[this.visiblePosts.length - 1];
+            return this.selectedPostIds.length - (lastVisiblePostIndex + 1);
         }
     },
     watch: {
-        selectedPostIds: "setVisiblePosts"
+        selectedPostIds: "setVisiblePosts",
     },
     mounted() {
         this.setVisiblePosts();
@@ -98,10 +112,12 @@ export default {
                     document.getElementById(`post-${i}`),
                     document.getElementById("postBar")
                 );
+                console.log(i, postIsVisible);
                 if (postIsVisible) {
                     visiblePosts.push(i);
                 }
             }
+            console.log(visiblePosts);
             this.visiblePosts = visiblePosts;
         },
         scrollLeft() {
