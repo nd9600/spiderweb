@@ -96,8 +96,13 @@ const mutations = {
         Vue.set(state.posts, newPost.id, newPost.serialise());
         return newPost;
     },
-    updatePost(state: DataModuleState, post: PostSerialised) {
-        Vue.set(state.posts, post.id, post);
+    updatePostTitle(state: DataModuleState, {id, title, updatedAt}: {id: PostId, title: string, updatedAt: string}) {
+        Vue.set(state.posts[id], "title", title);
+        Vue.set(state.posts[id], "updatedAt", updatedAt);
+    },
+    updatePostBody(state: DataModuleState, {id, body, updatedAt}: {id: PostId, body: string, updatedAt: string}) {
+        Vue.set(state.posts[id], "body", body);
+        Vue.set(state.posts[id], "updatedAt", updatedAt);
     },
     deletePost(state: DataModuleState, {id}: {id: PostId}) {
         if (state.selectedPostIds.includes(id)) {
@@ -165,6 +170,13 @@ const actions = {
         const newPost = new Post(newPostId, title, body, createdAt, updatedAt);
         context.commit("createPost", newPost);
         return newPost;
+    },
+
+    async updatePostTitle(context: any, payload: {id: PostId, title: string, updatedAt: string}) {
+        context.commit("updatePostTitle", payload);
+    },
+    async updatePostBody(context: any, payload: {id: PostId, body: string, updatedAt: string}) {
+        context.commit("updatePostBody", payload);
     },
 };
 

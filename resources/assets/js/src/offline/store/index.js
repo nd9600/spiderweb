@@ -12,8 +12,10 @@ import firebaseDbFactory from "./firebaseDbFactory";
 
 Vue.use(Vuex);
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const store = new Vuex.Store({
-    strict: process.env.NODE_ENV !== "production",
+    strict: !isProduction,
     modules: {
         settingsModule,
         firebaseModule,
@@ -202,7 +204,10 @@ store.subscribe(
             && !mutation.type.endsWith("/setState")
             && !mutation.type.startsWith("clickerModule/");
 
-        console.log(mutation.type);
+
+        if (!isProduction) {
+            console.log(mutation.type);
+        }
         if (!shouldSaveState) {
             return;
         }
@@ -214,7 +219,9 @@ store.subscribe(
         };
         const stringifiedStorage = JSON.stringify(storageObject);
 
-        console.log("autosaving, mutation is", mutation.type);
+        if (!isProduction) {
+            console.log("autosaving, mutation is", mutation.type);
+        }
 
         localStorage.setItem(STORAGE_KEY, stringifiedStorage);
         const shouldSaveToFirebase = state.settingsModule.remoteStorageMethod === "firebase";

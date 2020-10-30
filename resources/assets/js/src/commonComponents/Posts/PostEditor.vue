@@ -46,7 +46,7 @@
 </template>
 
 <script>
-import {mapGetters, mapMutations} from "vuex";
+import {mapActions, mapMutations} from "vuex";
 
 export default {
     name: "PostEditor",
@@ -58,39 +58,31 @@ export default {
     },
     data() {
         return {
+            title: this.post.title,
+            body: this.post.body,
+
             showTitleInput: this.post.title.length > 0,
         };
     },
-    computed: {
-        ...mapGetters("dataModule", ["titleOrBody"]),
-
-        title: {
-            get() {
-                return this.post.title;
-            },
-            set(title) {
-                this.updatePost({
-                    ...this.post,
-                    title,
-                    updatedAt: new Date().toISOString()
-                });
-            }
+    watch: {
+        title(title) {
+            this.updatePostTitle({
+                id: this.post.id,
+                title,
+                updatedAt: new Date().toISOString()
+            });
         },
-        body: {
-            get() {
-                return this.post.body;
-            },
-            set(body) {
-                this.updatePost({
-                    ...this.post,
-                    body,
-                    updatedAt: new Date().toISOString()
-                });
-            }
-        },
+        body(body) {
+            this.updatePostBody({
+                id: this.post.id,
+                body,
+                updatedAt: new Date().toISOString()
+            });
+        }
     },
     methods: {
-        ...mapMutations("dataModule", ["updatePost", "deletePost"]),
+        ...mapMutations("dataModule", ["deletePost"]),
+        ...mapActions("dataModule", ["updatePostTitle", "updatePostBody"]),
 
         toggleTitleInput() {
             const dontLetUserHideTitleInput = this.showTitleInput
