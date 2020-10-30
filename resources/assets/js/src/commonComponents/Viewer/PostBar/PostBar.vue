@@ -4,7 +4,7 @@
             <PostBarScrollButtons v-if="selectedPostIds.length > 1"/>
             <div
                 id="postBar"
-                class="w-full flex items-start overflow-x-hidden"
+                class="w-full flex items-start overflow-x-auto"
             >
                 <post
                     v-for="(selectedPostId, i) in selectedPostIds"

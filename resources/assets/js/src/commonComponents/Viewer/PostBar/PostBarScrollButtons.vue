@@ -2,7 +2,7 @@
     <div class="flex justify-between items-center">
         <span>
             <button
-                v-if="visiblePosts.length !== selectedPostIds.length && !visiblePosts.includes(0)"
+                v-if="numberOfPostsHiddenToTheLeft > 0 && visiblePosts.length !== selectedPostIds.length && !visiblePosts.includes(0)"
                 class="btn btn--secondary"
                 type="button"
                 @click="scrollLeft"
@@ -12,7 +12,7 @@
         </span>
         <span>
             <button
-                v-if="visiblePosts.length !== selectedPostIds.length && !visiblePosts.includes(selectedPostIds.length - 1)"
+                v-if="numberOfPostsHiddenToTheRight > 0 && visiblePosts.length !== selectedPostIds.length && !visiblePosts.includes(selectedPostIds.length - 1)"
                 class="btn btn--secondary"
                 type="button"
                 @click="scrollRight"
@@ -30,7 +30,8 @@ export default {
     name: "PostBarScrollButtons",
     data() {
         return {
-            visiblePosts: []
+            visiblePosts: [],
+            postsWithVisibleSecondHalves: []
         };
     },
     computed: {
@@ -38,13 +39,23 @@ export default {
 
         numberOfPostsHiddenToTheLeft() {
             if (this.visiblePosts.length === 0) {
-                return 0;
+                if (this.postsWithVisibleSecondHalves.length === 0) {
+                    return 0;
+                }
+
+                const firstKindaVisiblePostIndex = this.postsWithVisibleSecondHalves[0];
+                return firstKindaVisiblePostIndex + 1;
             }
             return this.visiblePosts[0];
         },
         numberOfPostsHiddenToTheRight() {
             if (this.visiblePosts.length === 0) {
-                return 0;
+                if (this.postsWithVisibleSecondHalves.length === 0) {
+                    return 0;
+                }
+
+                const firstKindaVisiblePostIndex = this.postsWithVisibleSecondHalves[0];
+                return this.selectedPostIds.length - (firstKindaVisiblePostIndex + 1);
             }
             const lastVisiblePostIndex = this.visiblePosts[this.visiblePosts.length - 1];
             return this.selectedPostIds.length - (lastVisiblePostIndex + 1);
@@ -67,49 +78,90 @@ export default {
                 return false;
             }
 
-            const bounding = element.getBoundingClientRect();
+            const postDimensions = element.getBoundingClientRect();
             const container = scrolledThing.getBoundingClientRect();
-            const topLeftIsVisible = bounding.left >= 0
-                && bounding.top <= container.bottom
-                && bounding.left <= container.right;
-            const midpointIsVisible = ((bounding.left + bounding.right) / 2) <= container.right;
+            const topLeftIsVisible = postDimensions.left >= 0
+                && postDimensions.top <= container.bottom
+                && postDimensions.left <= container.right;
+            const midpointIsVisible = ((postDimensions.left + postDimensions.right) / 2) <= container.right;
             return topLeftIsVisible && midpointIsVisible;
         },
-        // todo: misses newly selected posts
+        isPostSecondHalfVisible(element, scrolledThing) {
+            // a post's second half is visible if its top right corner and mid point is visible
+            if (!element || scrolledThing.scrollLeft == null) {
+                return false;
+            }
+
+            const postDimensions = element.getBoundingClientRect();
+            const container = scrolledThing.getBoundingClientRect();
+            const topRightIsVisible = postDimensions.right >= 0
+                && postDimensions.top <= container.bottom
+                && postDimensions.right <= container.right;
+            const midpointIsVisible = ((postDimensions.left + postDimensions.right) / 2) <= container.right;
+            return topRightIsVisible && midpointIsVisible;
+        },
         setVisiblePosts() {
             let visiblePosts = [];
+            let postsWithVisibleSecondHalves = [];
+
+            const postBarElement = document.getElementById("postBar");
+
             for (let i = 0; i < this.selectedPostIds.length; i++) {
+                const postElement = document.getElementById(`post-${i}`);
                 const postIsVisible = this.isPostVisible(
-                    document.getElementById(`post-${i}`),
-                    document.getElementById("postBar")
+                    postElement,
+                    postBarElement
                 );
-                console.log(i, postIsVisible);
                 if (postIsVisible) {
                     visiblePosts.push(i);
+                } else {
+                    // if we just use visiblePosts, sometimes no posts will be visible, depending on what the minPostWidth is
+                    const postSecondHalfIsVisible = this.isPostSecondHalfVisible(
+                        postElement,
+                        postBarElement
+                    );
+                    if (postSecondHalfIsVisible) {
+                        postsWithVisibleSecondHalves.push(i);
+                    }
                 }
             }
-            console.log(visiblePosts);
+
             this.visiblePosts = visiblePosts;
+            this.postsWithVisibleSecondHalves = postsWithVisibleSecondHalves;
         },
         scrollLeft() {
-            const postIdToScrollTo = this.visiblePosts[0] - 1;
+            let postIdToScrollTo;
+            if (this.visiblePosts.length === 0) {
+                const firstKindaVisiblePostIndex = this.postsWithVisibleSecondHalves[0];
+                postIdToScrollTo = firstKindaVisiblePostIndex;
+            } else {
+                postIdToScrollTo = this.visiblePosts[0] - 1;
+            }
+
             const postToScrollTo = document.getElementById(`post-${postIdToScrollTo}`);
 
-            const bounding = postToScrollTo.getBoundingClientRect();
+            const postDimensions = postToScrollTo.getBoundingClientRect();
             let postBar = document.getElementById("postBar");
             let container = postBar.getBoundingClientRect();
 
-            postBar.scrollLeft = postBar.scrollLeft - (Math.abs(bounding.left) + container.left + 10);
+            postBar.scrollLeft = postBar.scrollLeft - (Math.abs(postDimensions.left) + container.left + 10);
         },
         scrollRight() {
-            const postIdToScrollTo = this.visiblePosts[this.visiblePosts.length - 1] + 1;
+            let postIdToScrollTo;
+            if (this.visiblePosts.length === 0) {
+                const firstKindaVisiblePostIndex = this.postsWithVisibleSecondHalves[0];
+                postIdToScrollTo = firstKindaVisiblePostIndex + 1;
+            } else {
+                postIdToScrollTo = this.visiblePosts[this.visiblePosts.length - 1] + 1;
+            }
+
             const postToScrollTo = document.getElementById(`post-${postIdToScrollTo}`);
 
-            const bounding = postToScrollTo.getBoundingClientRect();
+            const postDimensions = postToScrollTo.getBoundingClientRect();
             let postBar = document.getElementById("postBar");
             let container = postBar.getBoundingClientRect();
 
-            postBar.scrollLeft = postBar.scrollLeft + (bounding.right - container.right + 10);
+            postBar.scrollLeft = postBar.scrollLeft + (postDimensions.right - container.right + 10);
         }
     }
 };

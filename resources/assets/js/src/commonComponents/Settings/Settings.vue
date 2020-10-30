@@ -183,7 +183,7 @@
                     minlength="1"
                     maxlength="3"
                     min="1"
-                    max="100"
+                    max="94"
                     step="1"
                 />
                 % of the browser window's width
