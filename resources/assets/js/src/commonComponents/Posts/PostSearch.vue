@@ -58,7 +58,7 @@ export default {
         ...mapGetters("dataModule", ["titleOrBody", "postIdsThatLinkToPost"]),
     },
     watch: {
-        async searchTerm(newSearchTerm) {
+        searchTerm(newSearchTerm) {
             const searchTerm = newSearchTerm.trim().toLowerCase();
             if (searchTerm.length === 0) {
                 this.searchResults = [];
@@ -67,27 +67,29 @@ export default {
             }
             this.isLoadingSearchResults = true;
 
-            this.searchResults = Object.values(this.posts)
-                .filter(post =>
-                    post.title.toLowerCase().includes(searchTerm)
-                    || post.body.toLowerCase().includes(searchTerm)
-                ).sort((postA, postB) => {
-                    const postAStringToCompare = postA.title.length > 0
-                        ? postA.title
-                        : postA.body;
-                    const postBStringToCompare = postB.title.length > 0
-                        ? postB.title
-                        : postB.body;
+            this.$nextTick(() => {
+                this.searchResults = Object.values(this.posts)
+                    .filter(post =>
+                        post.title.toLowerCase().includes(searchTerm)
+                        || post.body.toLowerCase().includes(searchTerm)
+                    ).sort((postA, postB) => {
+                        const postAStringToCompare = postA.title.length > 0
+                            ? postA.title
+                            : postA.body;
+                        const postBStringToCompare = postB.title.length > 0
+                            ? postB.title
+                            : postB.body;
 
-                    if (postAStringToCompare < postBStringToCompare) {
-                        return -1;
-                    } else if (postBStringToCompare < postAStringToCompare) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                }).slice(0, 25);
-            this.isLoadingSearchResults = false;
+                        if (postAStringToCompare < postBStringToCompare) {
+                            return -1;
+                        } else if (postBStringToCompare < postAStringToCompare) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    }).slice(0, 25);
+                this.isLoadingSearchResults = false;
+            });
         }
     },
     mounted() {
