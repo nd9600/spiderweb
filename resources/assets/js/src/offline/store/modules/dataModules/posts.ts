@@ -53,9 +53,9 @@ const getters = {
         return neighbourIndex;
     },
 
-    isNeighbour: (state: DataModuleState, getters: any) => (postA: PostSerialised, postB: PostSerialised) => {
-        const a = parseInt(postA.id, 10);
-        const b = parseInt(postB.id, 10);
+    isNeighbour: (state: DataModuleState, getters: any) => (postAId: PostId, postBId: PostId) => {
+        const a = parseInt(postAId, 10);
+        const b = parseInt(postBId, 10);
         const lowerId = Math.min(a, b);
         const higherId = Math.max(a, b);
         return typeof getters.neighbourIndex[lowerId + "," + higherId] !== "undefined";

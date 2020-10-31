@@ -17,6 +17,8 @@
                         type="button"
                         title="focus on this post in the viewer above"
                         @click="$root.$emit('focusOnPost', post.id)"
+                        @mouseover="$root.$emit('highlightPost', post.id)"
+                        @mouseout="$root.$emit('unhighlightPost', post.id)"
                     >
                         <span class="text-base">&#128269;</span>
                     </button>{{ post.title }}</h3>
@@ -71,6 +73,8 @@
                     type="button"
                     title="focus on this post in the viewer above"
                     @click="$root.$emit('focusOnPost', post.id)"
+                    @mouseover="$root.$emit('highlightPost', post.id)"
+                    @mouseout="$root.$emit('unhighlightPost', post.id)"
                 >
                     <span class="text-base">&#128269;</span>
                 </button>

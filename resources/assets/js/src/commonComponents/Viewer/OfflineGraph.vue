@@ -163,6 +163,8 @@ export default {
         });
 
         this.$root.$on("focusOnPost", this.focusOnPost);
+        this.$root.$on("highlightPost", this.highlightPost);
+        this.$root.$on("unhighlightPost", this.unhighlightPost);
     },
     methods: {
         ...mapMutations(["setIsRenderingGraph"]),
@@ -324,43 +326,13 @@ export default {
             this.textSelection = d3selectAll(".node").select("text")
                 .classed("node__text", true)
                 .attr("text-anchor", "end")
+                .attr("id", post => `text-${post.id}`)
                 .text(post => this.titleOrBody(post.id))
-                .on("mouseover", function (post) {
-                    d3select(this)
-                        .style("filter", "url(#postHoverFilter)");
-
-                    // SVG doesn't have a z-index, the z-direction is by element order, this re-inserts the parent <node> in the DOM at the bottom of its parent so this text is on top of any others
-                    d3select(d3select(this).node().parentNode).raise();
-
-                    const nonNeighbourNodes = vm.nodeSelection.filter(otherPost => {
-                        if (post.id === otherPost.id) {
-                            return false;
-                        }
-                        return !vm.isNeighbour(post, otherPost);
-                    });
-                    nonNeighbourNodes.style("opacity", 0.2);
-
-                    const nonNeighbourTexts = vm.textSelection.filter(otherPost => {
-                        if (post.id === otherPost.id) {
-                            return false;
-                        }
-                        return !vm.isNeighbour(post, otherPost);
-                    });
-                    nonNeighbourTexts.style("opacity", 0.2);
-
-                    const nonNeighbourLinks = vm.linkSelection.filter(link => {
-                        const linkDoesntIncludeThisPost = post.id !== link.source.id
-                            && post.id !== link.target.id;
-                        return linkDoesntIncludeThisPost;
-                    });
-                    nonNeighbourLinks.style("opacity", 0.2);
+                .on("mouseover", (post) => {
+                    this.highlightPost(post.id);
                 })
-                .on("mouseout", function (post) {
-                    d3select(this)
-                        .style("filter", "");
-                    vm.nodeSelection.style("opacity", 1);
-                    vm.textSelection.style("opacity", 1);
-                    vm.linkSelection.style("opacity", 1);
+                .on("mouseout", (post) => {
+                    this.unhighlightPost(post.id);
                 });
                 
             d3selectAll(".node *")
@@ -451,6 +423,45 @@ export default {
             }
         ),
 
+        highlightPost(postId) {
+            const textElement = document.getElementById(`text-${postId}`);
+            d3select(textElement)
+                .style("filter", "url(#postHoverFilter)");
+
+            // SVG doesn't have a z-index, the z-direction is by element order, this re-inserts the parent <node> in the DOM at the bottom of its parent so this text is on top of any others
+            d3select(d3select(textElement).node().parentNode).raise();
+
+            const nonNeighbourNodes = this.nodeSelection.filter(otherPost => {
+                if (postId === otherPost.id) {
+                    return false;
+                }
+                return !this.isNeighbour(postId, otherPost.id);
+            });
+            nonNeighbourNodes.style("opacity", 0.2);
+
+            const nonNeighbourTexts = this.textSelection.filter(otherPost => {
+                if (postId === otherPost.id) {
+                    return false;
+                }
+                return !this.isNeighbour(postId, otherPost.id);
+            });
+            nonNeighbourTexts.style("opacity", 0.2);
+
+            const nonNeighbourLinks = this.linkSelection.filter(link => {
+                const linkDoesntIncludeThisPost = postId !== link.source.id
+                    && postId !== link.target.id;
+                return linkDoesntIncludeThisPost;
+            });
+            nonNeighbourLinks.style("opacity", 0.2);
+        },
+        unhighlightPost(postId) {
+            const textElement = document.getElementById(`text-${postId}`);
+            d3select(textElement)
+                .style("filter", "");
+            this.nodeSelection.style("opacity", 1);
+            this.textSelection.style("opacity", 1);
+            this.linkSelection.style("opacity", 1);
+        },
         focusOnPost(id, speed = 1) {
             const post = this.nodesWithCoordinates[id];
             this.svg.transition()
