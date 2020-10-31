@@ -72,6 +72,9 @@ export default {
 
             linksG: null,
             nodesG: null,
+            link: null,
+            node: null,
+            text: null,
 
             nodesWithCoordinates: {}, // after D3 has added `x` and `y` coordinates to each object
         };
@@ -269,7 +272,7 @@ export default {
             simulation.tick(300);
 
             // add links
-            const link = this.linksG
+            this.linkSelection = this.linksG
                 .selectAll("line")
                 .data(links, link => link.id)
                 .join("line")
@@ -313,12 +316,12 @@ export default {
                 .attr("dataset-id", post => post.id);
 
             // if the nodes aren't being made, that might be because the .node circles don't exist in the DOM when this function is called
-            const node = d3selectAll(".node").select("circle")
+            this.nodeSelection = d3selectAll(".node").select("circle")
                 .classed("node__circle", true)
                 .attr("r", 15)
                 .attr("title", post => post.title);
                 
-            const text = d3selectAll(".node").select("text")
+            this.textSelection = d3selectAll(".node").select("text")
                 .classed("node__text", true)
                 .attr("text-anchor", "end")
                 .text(post => this.titleOrBody(post.id))
@@ -329,7 +332,7 @@ export default {
                     // SVG doesn't have a z-index, the z-direction is by element order, this re-inserts the parent <node> in the DOM at the bottom of its parent so this text is on top of any others
                     d3select(d3select(this).node().parentNode).raise();
 
-                    const nonNeighbourNodes = node.filter(otherPost => {
+                    const nonNeighbourNodes = vm.nodeSelection.filter(otherPost => {
                         if (post.id === otherPost.id) {
                             return false;
                         }
@@ -337,7 +340,7 @@ export default {
                     });
                     nonNeighbourNodes.style("opacity", 0.2);
 
-                    const nonNeighbourTexts = text.filter(otherPost => {
+                    const nonNeighbourTexts = vm.textSelection.filter(otherPost => {
                         if (post.id === otherPost.id) {
                             return false;
                         }
@@ -345,7 +348,7 @@ export default {
                     });
                     nonNeighbourTexts.style("opacity", 0.2);
 
-                    const nonNeighbourLinks = link.filter(link => {
+                    const nonNeighbourLinks = vm.linkSelection.filter(link => {
                         const linkDoesntIncludeThisPost = post.id !== link.source.id
                             && post.id !== link.target.id;
                         return linkDoesntIncludeThisPost;
@@ -355,29 +358,29 @@ export default {
                 .on("mouseout", function (post) {
                     d3select(this)
                         .style("filter", "");
-                    node.style("opacity", 1);
-                    text.style("opacity", 1);
-                    link.style("opacity", 1);
+                    vm.nodeSelection.style("opacity", 1);
+                    vm.textSelection.style("opacity", 1);
+                    vm.linkSelection.style("opacity", 1);
                 });
                 
             d3selectAll(".node *")
                 .on("click", this.handlePostClick)
                 .call(d3drag().clickDistance(4)) // if the mouse moves less than 4 units while clicking, it's counted as a click
-                .call(drag(simulation, node));
+                .call(drag(simulation, this.nodeSelection));
 
             // set x and y co-ordinates of the links, and nodes
             simulation.on("tick", () => {
-                link
+                this.linkSelection
                     .attr("x1", d => d.source.x)
                     .attr("y1", d => d.source.y)
                     .attr("x2", d => d.target.x)
                     .attr("y2", d => d.target.y);
 
-                node
+                this.nodeSelection
                     .attr("cx", d => d.x)
                     .attr("cy", d => d.y);
 
-                text
+                this.textSelection
                     .attr("x", d => d.x - 6)
                     .attr("y", d => d.y - 4);
             });

@@ -16,22 +16,24 @@
                     link
                 </option>
             </select>
-            in the subgraphs ({{ newLinkSubgraphIds.length }})
-            <select
-                v-model="newLinkSubgraphIds"
-                class="select select--secondary max-w-full"
-                :size="Math.min(Object.keys(subgraphs).length, 3)"
-                multiple
-            >
-                <option
-                    v-for="(subgraph, id) in subgraphs"
-                    :key="id"
-                    :value="id"
-                    class="truncate"
+            <template v-if="Object.keys(subgraphs).length > 0">
+                in the subgraphs ({{ newLinkSubgraphIds.length }})
+                <select
+                    v-model="newLinkSubgraphIds"
+                    class="select select--secondary max-w-full"
+                    :size="Math.min(Object.keys(subgraphs).length, 3)"
+                    multiple
                 >
-                    {{ subgraph.name }}
-                </option>
-            </select>
+                    <option
+                        v-for="(subgraph, id) in subgraphs"
+                        :key="id"
+                        :value="id"
+                        class="truncate"
+                    >
+                        {{ subgraph.name }}
+                    </option>
+                </select>
+            </template>
         </label>
 
         <label

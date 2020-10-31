@@ -138,8 +138,12 @@ export default {
         PostBar,
     },
     data() {
+        const storedData = localStorage.getItem(STORAGE_KEY);
+
         return {
-            localStorageSize: (localStorage.getItem(STORAGE_KEY).length / (1000 ** 2)).toFixed(2)
+            localStorageSize: storedData != null
+                ? (storedData.length / (1000 ** 2)).toFixed(2)
+                : 0
         };
     },
     computed: {
