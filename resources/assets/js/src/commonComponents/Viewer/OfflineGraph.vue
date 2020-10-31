@@ -121,10 +121,11 @@ export default {
             document.querySelector(":root")
                 .style.setProperty("--node-text-size", newTextSize + "px");
 
+            const minLinkStroke = 8;
             const originalLinkStroke = 20;
             const maxLinkStroke = 110;
             const newLinkStroke = Math.max(
-                originalLinkStroke,
+                minLinkStroke,
                 Math.min(
                     maxLinkStroke,
                     Math.ceil(originalLinkStroke * textScaleFactor)
