@@ -16,7 +16,7 @@
             v-if="isLoadingSearchResults"
             class="mt-1 flex justify-center items-center"
         >
-            <div class="spinner spinner--sm"></div>
+            <div class="spinner"></div>
         </div>
         <div v-else-if="searchResults.length > 0">
             <div
@@ -49,7 +49,7 @@ export default {
     data() {
         return {
             searchTerm: "",
-            isLoadingSearchResults: true,
+            isLoadingSearchResults: false,
             searchResults: []
         };
     },

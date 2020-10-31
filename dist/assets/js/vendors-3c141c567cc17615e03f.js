@@ -568,4 +568,4 @@ function(t){return l(void 0,t)},e.deepExtend=l,e.errorPrefix=E,e.getUA=p,e.isAdm
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */,e.validateIndexedDBOpenable=function(){return new Promise((function(t,e){try{var n=!0,r="validate-browser-context-for-indexeddb-analytics-module",i=window.indexedDB.open(r);i.onsuccess=function(){i.result.close(),n||window.indexedDB.deleteDatabase(r),t(!0)},i.onupgradeneeded=function(){n=!1},i.onerror=function(){var t;e((null===(t=i.error)||void 0===t?void 0:t.message)||"")}}catch(t){e(t)}}))},e.validateNamespace=function(t,e,n,r){if((!r||n)&&"string"!=typeof n)throw new Error(E(t,e,r)+"must be a valid firebase namespace.")}}).call(this,n("yLpj"))}}]);
-//# sourceMappingURL=vendors-62cfc1da71ecf0f39686.js.map
+//# sourceMappingURL=vendors-3c141c567cc17615e03f.js.map
