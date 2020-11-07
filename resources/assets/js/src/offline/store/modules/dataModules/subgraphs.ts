@@ -104,12 +104,12 @@ const mutations = {
     removePostFromSubgraph(state: DataModuleState, {subgraphId, postId}: {subgraphId: SubgraphId, postId: PostId}) {
         // when we remove a post, we need to remove any links that include it
         for (const link of Object.values(state.links)) {
-            const isRemovingPostFromThisGraph = link.graph === subgraphId;
+            const isRemovingPostFromThisSubgraph = state.subgraphs[subgraphId].links.includes(link.id);
             const postIsSourceOrTarget =
                 link.source === postId
                 || link.target === postId;
             if (
-                isRemovingPostFromThisGraph
+                isRemovingPostFromThisSubgraph
                 && postIsSourceOrTarget
             ) {
                 state.subgraphs[subgraphId].links.splice(state.subgraphs[subgraphId].links.indexOf(link.id), 1);
