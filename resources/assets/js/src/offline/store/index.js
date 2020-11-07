@@ -9,6 +9,7 @@ import clickerModule from "./modules/clickerModule";
 import {STORAGE_KEY} from "@/src/commonComponents/constants";
 
 import firebaseDbFactory from "./firebaseDbFactory";
+import debounce from "lodash/debounce";
 
 Vue.use(Vuex);
 
@@ -191,45 +192,54 @@ const store = new Vuex.Store({
     }
 });
 
-store.subscribe(
-    async (mutation, state) => {
-        const mutationsToIgnore = [
-            "setLoadingApp",
-            "setFailedToLoadData",
-            "setIsRenderingGraph",
-            "settingsModule/setRemoteStorageMethod" // see the comment in settingsModule.actions.setRemoteStorageMethod
-        ];
-        const shouldSaveState = state.settingsModule.shouldAutosave
-            && !mutationsToIgnore.includes(mutation.type)
-            && !mutation.type.endsWith("/setState")
-            && !mutation.type.startsWith("clickerModule/");
-
-
-        if (!isProduction) {
-            console.log(mutation.type);
-        }
-        if (!shouldSaveState) {
-            return;
-        }
-
-        const storageObject = {
-            dataModule: state.dataModule,
-            settingsModule: state.settingsModule,
-            firebaseModule: state.firebaseModule,
-        };
-        const stringifiedStorage = JSON.stringify(storageObject);
-
-        if (!isProduction) {
-            console.log("autosaving, mutation is", mutation.type);
-        }
-
-        localStorage.setItem(STORAGE_KEY, stringifiedStorage);
+const saveToFirebase = debounce(
+    (state, stringifiedStorage) => {
         const shouldSaveToFirebase = state.settingsModule.remoteStorageMethod === "firebase";
         if (shouldSaveToFirebase) {
             const firebaseDB = firebaseDbFactory(state.firebaseModule.firebaseConfig);
             firebaseDB.ref(STORAGE_KEY).set(stringifiedStorage);
         }
+    },
+    250,
+    {
+        "leading": false,
+        "trailing": true,
     }
 );
+const subscriber = async (mutation, state) => {
+    const mutationsToIgnore = [
+        "setLoadingApp",
+        "setFailedToLoadData",
+        "setIsRenderingGraph",
+        "settingsModule/setRemoteStorageMethod" // see the comment in settingsModule.actions.setRemoteStorageMethod
+    ];
+    const shouldSaveState = state.settingsModule.shouldAutosave
+        && !mutationsToIgnore.includes(mutation.type)
+        && !mutation.type.endsWith("/setState")
+        && !mutation.type.startsWith("clickerModule/");
+
+
+    if (!isProduction) {
+        console.log(mutation.type);
+    }
+    if (!shouldSaveState) {
+        return;
+    }
+
+    const storageObject = {
+        dataModule: state.dataModule,
+        settingsModule: state.settingsModule,
+        firebaseModule: state.firebaseModule,
+    };
+    const stringifiedStorage = JSON.stringify(storageObject);
+
+    if (!isProduction) {
+        console.log("autosaving, mutation is", mutation.type);
+    }
+
+    localStorage.setItem(STORAGE_KEY, stringifiedStorage);
+    saveToFirebase(state, stringifiedStorage);
+};
+store.subscribe(subscriber);
 
 export default store;

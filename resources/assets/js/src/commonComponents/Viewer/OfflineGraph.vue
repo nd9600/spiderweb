@@ -464,6 +464,14 @@ export default {
             this.linkSelection.style("opacity", 1);
         },
         focusOnPost(id, speed = 1) {
+            const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+            const xOffset = viewportWidth <= 576
+                ? 550
+                : 2000;
+            const yOffset = viewportWidth <= 576
+                ? 300
+                : 500;
+
             const post = this.nodesWithCoordinates[id];
             this.svg.transition()
                 .duration(1500 / speed)
@@ -471,7 +479,7 @@ export default {
                     this.zoomBehaviour.transform,
                     d3zoomIdentity
                         .scale(INITIAL_ZOOM)
-                        .translate(-post.x + 550, -post.y + 500) // magic numbers that work on desktop and my phone
+                        .translate(-post.x + xOffset, -post.y + yOffset) // magic numbers that work on desktop and my phone
                 );
         }
     }
