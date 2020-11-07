@@ -72,9 +72,9 @@ export default {
 
             linksG: null,
             nodesG: null,
-            link: null,
-            node: null,
-            text: null,
+            linkSelection: null,
+            nodeSelection: null,
+            textSelection: null,
 
             nodesWithCoordinates: {}, // after D3 has added `x` and `y` coordinates to each object
         };
