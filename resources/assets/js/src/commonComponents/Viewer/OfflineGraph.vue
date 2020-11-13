@@ -134,6 +134,11 @@ export default {
             document.querySelector(":root")
                 .style.setProperty("--link-stroke-width", newLinkStroke + "px");
 
+            if (this.nodeSelection != null) {
+                this.nodeSelection
+                    .attr("r", newLinkStroke);
+            }
+
             this.debouncedSaveZoomState();
         }
     },
@@ -321,7 +326,7 @@ export default {
             // if the nodes aren't being made, that might be because the .node circles don't exist in the DOM when this function is called
             this.nodeSelection = d3selectAll(".node").select("circle")
                 .classed("node__circle", true)
-                .attr("r", 15)
+                .attr("r", 20)
                 .attr("title", post => post.title);
                 
             this.textSelection = d3selectAll(".node").select("text")
