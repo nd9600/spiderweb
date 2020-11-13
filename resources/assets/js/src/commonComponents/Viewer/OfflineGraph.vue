@@ -65,7 +65,7 @@ export default {
             svg: null,
             rootG: null,
 
-            shouldSaveZoomChanges: false,
+            hasMounted: false,
             zoom: null,
             zoomBehaviour: null,
             shouldResetZooming: false,
@@ -365,12 +365,6 @@ export default {
                 });
             }
 
-            if (!this.shouldSaveZoomChanges) {
-                this.$nextTick(() => {
-                    this.shouldSaveZoomChanges = true;
-                });
-            }
-
             let postsKeyedById = {};
             for (const post of nodes) {
                 postsKeyedById[post.id] = post;
@@ -413,8 +407,11 @@ export default {
         },
         debouncedSaveZoomState: debounce(
             function() {
-                if (this.shouldSaveZoomChanges) {
+                // we have to do it like this because this.zoom is set in mounted(), and that triggers this watcher, which sets the zoom in the store, which will autosave - you don't want to immediately autosave data you've just loaded. The zoom in the store is only used to backup the state, so it doesn't matter if it's not set there immediately
+                if (this.hasMounted) {
                     this.setZoom(this.zoom);
+                } else {
+                    this.hasMounted = true;
                 }
             },
             250,
