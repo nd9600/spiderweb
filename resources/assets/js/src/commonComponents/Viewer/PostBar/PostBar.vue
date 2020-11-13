@@ -1,7 +1,7 @@
 <template>
     <section>
         <div class="postBar">
-            <PostBarScrollButtons v-if="selectedPostIds.length > 1"/>
+            <PostBarScrollButtons/>
             <div
                 id="postBar"
                 class="w-full flex items-start overflow-x-auto"

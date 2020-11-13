@@ -2,9 +2,9 @@
     <div class="flex justify-between items-center">
         <span>
             <button
-                v-if="numberOfPostsHiddenToTheLeft > 0 && visiblePosts.length !== selectedPostIds.length && !visiblePosts.includes(0)"
                 class="btn btn--secondary"
                 type="button"
+                :disabled="numberOfPostsHiddenToTheLeft === 0 || visiblePosts.length === selectedPostIds.length || visiblePosts.includes(0)"
                 @click="scrollLeft"
             >
                 <span class="text-lg">⇐ {{ numberOfPostsHiddenToTheLeft }}</span>
@@ -12,9 +12,9 @@
         </span>
         <span>
             <button
-                v-if="numberOfPostsHiddenToTheRight > 0 && visiblePosts.length !== selectedPostIds.length && !visiblePosts.includes(selectedPostIds.length - 1)"
                 class="btn btn--secondary"
                 type="button"
+                :disabled="numberOfPostsHiddenToTheRight === 0 || visiblePosts.length === selectedPostIds.length && visiblePosts.includes(selectedPostIds.length - 1)"
                 @click="scrollRight"
             >
                 <span class="text-lg">{{ numberOfPostsHiddenToTheRight }} ⇒</span>
