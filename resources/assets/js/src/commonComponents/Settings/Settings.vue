@@ -209,7 +209,7 @@
                     <div
                         class="mt-1 mr-1 mb-1 p-1 border border-solid border-gray-600 text-xs"
                         :style="{
-                            'min-width': postWidth + '%'
+                            'min-width': (postWidth + 6) + '%'
                         }"
                     >
                         Post
@@ -217,7 +217,7 @@
                     <div
                         class="m-1 p-1 border border-solid border-gray-600 text-xs"
                         :style="{
-                            'min-width': postWidth + '%'
+                            'min-width': (postWidth + 6) + '%'
                         }"
                     >
                         Post
@@ -295,7 +295,7 @@ export default {
                 return this.$store.state.settingsModule.postWidth;
             },
             set(postWidth) {
-                this.setPostWidth(postWidth);
+                this.setPostWidth(Math.min(94, postWidth)); // 94% allows for margin & padding
             }
         },
 
