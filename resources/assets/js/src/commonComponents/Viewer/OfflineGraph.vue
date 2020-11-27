@@ -61,6 +61,7 @@ export default {
         FloatingActionButton
     },
     data() {
+        const originalLinkStroke = 20;
         return {
             svg: null,
             rootG: null,
@@ -75,6 +76,9 @@ export default {
             linkSelection: null,
             nodeSelection: null,
             textSelection: null,
+
+            originalLinkStroke: originalLinkStroke,
+            linkStroke: originalLinkStroke,
 
             nodesWithCoordinates: {}, // after D3 has added `x` and `y` coordinates to each object
         };
@@ -122,21 +126,20 @@ export default {
                 .style.setProperty("--node-text-size", newTextSize + "px");
 
             const minLinkStroke = 8;
-            const originalLinkStroke = 20;
             const maxLinkStroke = 110;
-            const newLinkStroke = Math.max(
+            this.linkStroke = Math.max(
                 minLinkStroke,
                 Math.min(
                     maxLinkStroke,
-                    Math.ceil(originalLinkStroke * textScaleFactor)
+                    Math.ceil(this.originalLinkStroke * textScaleFactor)
                 )
             );
             document.querySelector(":root")
-                .style.setProperty("--link-stroke-width", newLinkStroke + "px");
+                .style.setProperty("--link-stroke-width", this.linkStroke + "px");
 
             if (this.nodeSelection != null) {
                 this.nodeSelection
-                    .attr("r", newLinkStroke);
+                    .attr("r", this.linkStroke);
             }
 
             this.debouncedSaveZoomState();
@@ -282,7 +285,7 @@ export default {
             // if the nodes aren't being made, that might be because the .node circles don't exist in the DOM when this function is called
             this.nodeSelection = d3selectAll(".node").select("circle")
                 .classed("node__circle", true)
-                .attr("r", 20)
+                .attr("r", this.linkStroke)
                 .attr("title", post => post.title);
                 
             this.textSelection = d3selectAll(".node").select("text")
