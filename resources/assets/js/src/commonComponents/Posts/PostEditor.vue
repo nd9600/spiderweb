@@ -66,6 +66,7 @@ export default {
     },
     watch: {
         title(title) {
+            console.log("title watcher", title);
             this.updatePostTitle({
                 id: this.post.id,
                 title,
