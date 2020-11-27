@@ -9,6 +9,15 @@
             >
                 <span class="text-lg">⇐ {{ numberOfPostsHiddenToTheLeft }}</span>
             </button>
+
+            <button
+                class="btn btn--secondary mt-4 ml-2"
+                type="button"
+                title="scroll to the top of the page"
+                @click="scrollToTop"
+            >
+                ↥
+            </button>
         </span>
         <span>
             <button
@@ -162,6 +171,10 @@ export default {
             let container = postBar.getBoundingClientRect();
 
             postBar.scrollLeft = postBar.scrollLeft + (postDimensions.right - container.right + 10);
+        },
+
+        scrollToTop() {
+            window.scrollTo(0, 0);
         }
     }
 };

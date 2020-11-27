@@ -1,20 +1,50 @@
 <template>
     <div class="flex flex-col">
         <div class="flex items-start">
-            <div>
-                <button
-                    class="btn btn--secondary"
-                    type="button"
-                    title="scroll to the posts"
-                    @click.stop="scrollToPostBar"
-                >
-                    ↧
-                </button>
-                <div
-                    v-if="isRenderingGraph"
-                    class="mt-1 flex justify-center items-center"
-                >
-                    <div class="spinner spinner--sm"></div>
+            <div class="mb-2 flex">
+                <div class="flex flex-col">
+                    <button
+                        class="btn btn--secondary"
+                        type="button"
+                        title="scroll to the posts"
+                        @click.stop="scrollToPostBar"
+                    >
+                        ↧
+                    </button>
+                    <button
+                        class="btn btn--secondary mt-2"
+                        type="button"
+                        title="zoom out"
+                        @click.stop="$root.$emit('zoomOut')"
+                    >
+                        -
+                    </button>
+                </div>
+                <div class="flex flex-col ml-2">
+                    <div>
+                        <button
+                            class="btn btn--secondary"
+                            type="button"
+                            title="refresh the graph"
+                            @click.stop="$root.$emit('refreshGraph')"
+                        >
+                            ⟳
+                        </button>
+                        <div
+                            v-if="isRenderingGraph"
+                            class="mt-1 flex justify-center items-center"
+                        >
+                            <div class="spinner spinner--sm"></div>
+                        </div>
+                    </div>
+                    <button
+                        class="btn btn--secondary mt-2"
+                        type="button"
+                        title="zoom in"
+                        @click.stop="$root.$emit('zoomIn')"
+                    >
+                        +
+                    </button>
                 </div>
             </div>
             <label
@@ -111,15 +141,6 @@
                 }"
             />
         </div>
-
-        <button
-            class="btn btn--secondary mt-4"
-            type="button"
-            title="scroll to the graph"
-            @click="scrollToGraph"
-        >
-            ↥
-        </button>
     </div>
 </template>
 
@@ -174,9 +195,6 @@ export default {
 
         scrollToPostBar() {
             window.scrollBy(0, document.getElementById("postBar").getBoundingClientRect().top - 5);
-        },
-        scrollToGraph() {
-            window.scrollTo(0, document.getElementById("graphsList").offsetTop - 5);
         }
     }
 };

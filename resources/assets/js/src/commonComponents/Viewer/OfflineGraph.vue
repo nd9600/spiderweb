@@ -171,6 +171,9 @@ export default {
         this.$root.$on("focusOnPost", this.focusOnPost);
         this.$root.$on("highlightPost", this.highlightPost);
         this.$root.$on("unhighlightPost", this.unhighlightPost);
+        this.$root.$on("refreshGraph", this.debouncedMakeGraphSvg);
+        this.$root.$on("zoomIn", this.zoomIn);
+        this.$root.$on("zoomOut", this.zoomOut);
     },
     methods: {
         ...mapMutations(["setIsRenderingGraph"]),
@@ -378,6 +381,33 @@ export default {
                 "trailing": true, // we always need to call it the final time, so that D3 picks up any new nodes or links,
             }
         ),
+        focusOnPost(id, speed = 1) {
+            const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+            const xOffset = viewportWidth <= 576
+                ? 550
+                : 2000;
+            const yOffset = viewportWidth <= 576
+                ? 300
+                : 500;
+
+            const post = this.nodesWithCoordinates[id];
+            this.svg.transition()
+                .duration(1500 / speed)
+                .call(
+                    this.zoomBehaviour.transform,
+                    d3zoomIdentity
+                        .scale(INITIAL_ZOOM)
+                        .translate(-post.x + xOffset, -post.y + yOffset) // magic numbers that work on desktop and my phone
+                );
+        },
+        zoomIn() {
+            this.svg.transition()
+                .call(this.zoomBehaviour.scaleBy, 2);
+        },
+        zoomOut() {
+            this.svg.transition()
+                .call(this.zoomBehaviour.scaleBy, 0.5);
+        },
 
         createDragBehaviour(simulation) {
             const vm = this;
@@ -465,25 +495,6 @@ export default {
             this.nodeSelection.style("opacity", 1);
             this.textSelection.style("opacity", 1);
             this.linkSelection.style("opacity", 1);
-        },
-        focusOnPost(id, speed = 1) {
-            const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-            const xOffset = viewportWidth <= 576
-                ? 550
-                : 2000;
-            const yOffset = viewportWidth <= 576
-                ? 300
-                : 500;
-
-            const post = this.nodesWithCoordinates[id];
-            this.svg.transition()
-                .duration(1500 / speed)
-                .call(
-                    this.zoomBehaviour.transform,
-                    d3zoomIdentity
-                        .scale(INITIAL_ZOOM)
-                        .translate(-post.x + xOffset, -post.y + yOffset) // magic numbers that work on desktop and my phone
-                );
         }
     }
 };
