@@ -220,53 +220,6 @@ export default {
 
             const vm = this;
 
-            const drag = (simulation, nodes) => {
-                function dragStarted(node) {
-                    if (!d3event.active) {
-                        simulation.alphaTarget(0.3).restart();
-                    }
-
-                    // Preventing other nodes from moving while dragging one node
-                    function fixNodes(thisNode) {
-                        nodes.each(function (d) {
-                            if (thisNode !== d) {
-                                d.fx = d.x;
-                                d.fy = d.y;
-                            }
-                        });
-                    }
-                    node.fx = node.x;
-                    node.fy = node.y;
-                    fixNodes(node);
-                }
-
-                function dragged(node) {
-                    node.fx = d3event.x;
-                    node.fy = d3event.y;
-                }
-
-                function dragEnded(node) {
-                    if (!d3event.active) {
-                        simulation.alpha(0);
-                        simulation.alphaTarget(0);
-                    }
-                    node.fx = d3event.x;
-                    node.fy = d3event.y;
-                    vm.setPostPosition({
-                        postId: node.id,
-                        position: {
-                            x: d3event.x,
-                            y: d3event.y
-                        }
-                    });
-                }
-
-                return d3drag()
-                    .on("start", dragStarted)
-                    .on("drag", dragged)
-                    .on("end", dragEnded);
-            };
-
             // setup force simulation
             const simulation = d3forceSimulation(nodes)
                 .force("link", d3forceLink(links)
@@ -344,7 +297,7 @@ export default {
             d3selectAll(".node *")
                 .on("click", this.handlePostClick)
                 .call(d3drag().clickDistance(4)) // if the mouse moves less than 4 units while clicking, it's counted as a click
-                .call(drag(simulation, this.nodeSelection));
+                .call(this.createDragBehaviour(simulation));
 
             // set x and y co-ordinates of the links, and nodes
             simulation.on("tick", () => {
@@ -425,6 +378,54 @@ export default {
                 "trailing": true, // we always need to call it the final time, so that D3 picks up any new nodes or links,
             }
         ),
+
+        createDragBehaviour(simulation) {
+            const vm = this;
+            function dragStarted(node) {
+                if (!d3event.active) {
+                    simulation.alphaTarget(0.3).restart();
+                }
+
+                // Preventing other nodes from moving while dragging one node
+                function fixNodes(thisNode) {
+                    vm.nodeSelection.each(function (d) {
+                        if (thisNode !== d) {
+                            d.fx = d.x;
+                            d.fy = d.y;
+                        }
+                    });
+                }
+                node.fx = node.x;
+                node.fy = node.y;
+                fixNodes(node);
+            }
+
+            function dragged(node) {
+                node.fx = d3event.x;
+                node.fy = d3event.y;
+            }
+
+            function dragEnded(node) {
+                if (!d3event.active) {
+                    simulation.alpha(0);
+                    simulation.alphaTarget(0);
+                }
+                node.fx = d3event.x;
+                node.fy = d3event.y;
+                vm.setPostPosition({
+                    postId: node.id,
+                    position: {
+                        x: d3event.x,
+                        y: d3event.y
+                    }
+                });
+            }
+
+            return d3drag()
+                .on("start", dragStarted)
+                .on("drag", dragged)
+                .on("end", dragEnded);
+        },
 
         highlightPost(postId) {
             const textElement = document.getElementById(`text-${postId}`);
