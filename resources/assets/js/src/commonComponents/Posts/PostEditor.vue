@@ -66,12 +66,12 @@ export default {
     },
     watch: {
         title(title) {
-            console.log("title watcher", title);
             this.updatePostTitle({
                 id: this.post.id,
                 title,
                 updatedAt: new Date().toISOString()
             });
+            this.$root.$emit("refreshGraph");
         },
         body(body) {
             this.updatePostBody({
@@ -79,6 +79,7 @@ export default {
                 body,
                 updatedAt: new Date().toISOString()
             });
+            this.$root.$emit("refreshGraph");
         }
     },
     methods: {

@@ -85,9 +85,12 @@ I've made the focusing center the graph so that it looks good on a desktop and o
 ### Changing the data outside of the "Viewer" tab
 If you change the graphs (e.g. add or remove a subgraph) when you're not on the "Viewer" tab, sometimes it won't update the graph - you just need to refresh the page, or change the data while you're on the tab (by panning around the graph or something like that), then it'll be updated. 
 
-This is because the actual data gets changed, and D3 immediately tries to re-render the graph, but it can't, because it's not visible and not in the DOM yet, so it can't re-render, but it doesn't try to re-render when you _do_ go back to the tab. I tried putting in a little refresh button to let you force it to re-render, but it's almost never an issue, and it takes up quite a lot of needed screen space.
+This is because the actual data gets changed, and D3 immediately tries to re-render the graph, but it can't, because it's not visible and not in the DOM yet, so it can't re-render, but it doesn't try to re-render when you _do_ go back to the tab.
 
-This is also an issue when you change the post-width and go to the Viewer tab again, the "number of posts that are visible" indicators won't update until you scroll again
+This is also an issue when you change the post-width and go to the Viewer tab again, the "number of posts that are visible" indicators won't update until you scroll again.
+
+#### To fix
+You can force the graph to re-render manually, by pressing the little "⟳" button in the top-left of the screen
 
 ## QTWPBFAIIHU
 Questions that would probably be frequently asked if I had users

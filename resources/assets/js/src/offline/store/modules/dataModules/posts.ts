@@ -97,10 +97,8 @@ const mutations = {
         return newPost;
     },
     updatePostTitle(state: DataModuleState, {id, title, updatedAt}: {id: PostId, title: string, updatedAt: string}) {
-        const post = JSON.parse(JSON.stringify(state.posts[id])); // Vue won't realize we've changed the post otherwise, so the graph won't get re-rendered
-        post.title = title;
-        post.updatedAt = updatedAt;
-        Vue.set(state.posts, id, post);
+        Vue.set(state.posts[id], "title", title);
+        Vue.set(state.posts[id], "updatedAt", updatedAt);
     },
     updatePostBody(state: DataModuleState, {id, body, updatedAt}: {id: PostId, body: string, updatedAt: string}) {
         Vue.set(state.posts[id], "body", body);
