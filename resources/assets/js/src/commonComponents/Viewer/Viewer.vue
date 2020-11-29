@@ -4,6 +4,7 @@
             <div class="mb-2 flex">
                 <div class="flex flex-col">
                     <button
+                        id="scrollToPostBarButton"
                         class="btn btn--secondary"
                         type="button"
                         title="scroll to the posts"

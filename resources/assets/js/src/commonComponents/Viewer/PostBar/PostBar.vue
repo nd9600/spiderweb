@@ -1,9 +1,12 @@
 <template>
     <section>
-        <div class="postBar">
+        <div
+            id="postBar"
+            class="postBar"
+        >
             <PostBarScrollButtons/>
             <div
-                id="postBar"
+                id="postsContainer"
                 class="w-full flex items-start overflow-x-auto"
             >
                 <post

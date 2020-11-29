@@ -75,7 +75,7 @@ export default {
     },
     mounted() {
         this.setVisiblePosts();
-        document.getElementById("postBar").onscroll = this.setVisiblePosts;
+        document.getElementById("postsContainer").onscroll = this.setVisiblePosts;
     },
     activated() {
         this.setVisiblePosts();
@@ -113,13 +113,13 @@ export default {
             let visiblePosts = [];
             let postsWithVisibleSecondHalves = [];
 
-            const postBarElement = document.getElementById("postBar");
+            const postsContainerElement = document.getElementById("postsContainer");
 
             for (let i = 0; i < this.selectedPostIds.length; i++) {
                 const postElement = document.getElementById(`post-${i}`);
                 const postIsVisible = this.isPostVisible(
                     postElement,
-                    postBarElement
+                    postsContainerElement
                 );
                 if (postIsVisible) {
                     visiblePosts.push(i);
@@ -127,7 +127,7 @@ export default {
                     // if we just use visiblePosts, sometimes no posts will be visible, depending on what the minPostWidth is
                     const postSecondHalfIsVisible = this.isPostSecondHalfVisible(
                         postElement,
-                        postBarElement
+                        postsContainerElement
                     );
                     if (postSecondHalfIsVisible) {
                         postsWithVisibleSecondHalves.push(i);
@@ -150,10 +150,10 @@ export default {
             const postToScrollTo = document.getElementById(`post-${postIdToScrollTo}`);
 
             const postDimensions = postToScrollTo.getBoundingClientRect();
-            let postBar = document.getElementById("postBar");
-            let container = postBar.getBoundingClientRect();
+            let postsContainer = document.getElementById("postsContainer");
+            let container = postsContainer.getBoundingClientRect();
 
-            postBar.scrollLeft = postBar.scrollLeft - (Math.abs(postDimensions.left) + container.left + 10);
+            postsContainer.scrollLeft = postsContainer.scrollLeft - (Math.abs(postDimensions.left) + container.left + 10);
         },
         scrollRight() {
             let postIdToScrollTo;
@@ -167,14 +167,14 @@ export default {
             const postToScrollTo = document.getElementById(`post-${postIdToScrollTo}`);
 
             const postDimensions = postToScrollTo.getBoundingClientRect();
-            let postBar = document.getElementById("postBar");
-            let container = postBar.getBoundingClientRect();
+            let postsContainer = document.getElementById("postsContainer");
+            let container = postsContainer.getBoundingClientRect();
 
-            postBar.scrollLeft = postBar.scrollLeft + (postDimensions.right - container.right + 10);
+            postsContainer.scrollLeft = postsContainer.scrollLeft + (postDimensions.right - container.right + 10);
         },
 
         scrollToTop() {
-            window.scrollTo(0, 0);
+            window.scrollBy(0, document.getElementById("scrollToPostBarButton").getBoundingClientRect().top - 5);
         }
     }
 };

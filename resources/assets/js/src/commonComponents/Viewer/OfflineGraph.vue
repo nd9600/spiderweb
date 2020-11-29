@@ -123,7 +123,7 @@ export default {
             );
 
             document.querySelector(":root")
-                .style.setProperty("--node-text-size", newTextSize + "px");
+                .style.setProperty("--node-text-size", (this.isPhone() ? (newTextSize / 2) : newTextSize) + "px");
 
             const minLinkStroke = 8;
             const maxLinkStroke = 110;
@@ -184,6 +184,11 @@ export default {
         ...mapMutations("clickerModule", ["setShouldShowClickButtonMenu", "setClickMode"]),
 
         ...mapActions("clickerModule", ["handlePostClick", "handleLinkClick"]),
+
+        isPhone() {
+            const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+            return viewportWidth <= 576;
+        },
 
         onSvgClick(event) {
             if (event.target.id !== "graphSvg") {
@@ -385,11 +390,10 @@ export default {
             }
         ),
         focusOnPost(id, speed = 1) {
-            const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-            const xOffset = viewportWidth <= 576
+            const xOffset = this.isPhone()
                 ? 550
                 : 2000;
-            const yOffset = viewportWidth <= 576
+            const yOffset = this.isPhone()
                 ? 300
                 : 500;
 
