@@ -13,7 +13,7 @@ self.addEventListener("message", function (event) {
     if (event.data.type === "saveState") {
         if (event.data.shouldSaveToFirebase) {
             firebase.initializeApp(event.data.firebaseConfig);
-            const firebaseDB = firebase.database;
+            const firebaseDB = firebase.database();
             firebaseDB.ref("offlineState").set(event.data.stringifiedStorage);
         }
 
