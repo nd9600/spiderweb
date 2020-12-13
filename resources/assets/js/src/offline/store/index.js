@@ -223,6 +223,7 @@ const subscriber = async (mutation, state) => {
     if (!isProduction) {
         console.log(mutation.type);
     }
+    
     if (!shouldSaveState) {
         return;
     }
