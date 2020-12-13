@@ -207,6 +207,7 @@ const saveToFirebase = debounce(
     }
 );
 const subscriber = async (mutation, state) => {
+
     const mutationsToIgnore = [
         "setLoadingApp",
         "setFailedToLoadData",
@@ -240,6 +241,6 @@ const subscriber = async (mutation, state) => {
     localStorage.setItem(STORAGE_KEY, stringifiedStorage);
     saveToFirebase(state, stringifiedStorage);
 };
-// store.subscribe(subscriber);
+store.subscribe(subscriber);
 
 export default store;
