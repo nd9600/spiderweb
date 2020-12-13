@@ -14,6 +14,7 @@
                 v-if="showTitleInput"
                 ref="inputTitle"
                 :value="title"
+                @input="onTitleUpdate($event.target.value)"
                 class="p-2 rounded border text-gray-800 placeholder-gray-600"
                 type="text"
                 placeholder="On the Origin of Species"
