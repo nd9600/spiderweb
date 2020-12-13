@@ -14,7 +14,7 @@ self.addEventListener("message", function (event) {
         if (event.data.shouldSaveToFirebase) {
             firebase.initializeApp(event.data.firebaseConfig);
             const firebaseDB = firebase.database;
-            firebaseDB.ref(STORAGE_KEY).set(event.data.stringifiedStorage);
+            firebaseDB.ref("offlineState").set(event.data.stringifiedStorage);
         }
 
         self.postMessage("saved state");
