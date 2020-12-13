@@ -206,8 +206,15 @@ const saveToFirebase = debounce(
         "trailing": true,
     }
 );
-const subscriber = async (mutation, state) => {
+const worker = new Worker("assets/js/offline/worker.js");
+worker.addEventListener("message", function(event) {
+    console.log("message received from worker => ", event.data);
+});// listen to error event of worker
+worker.addEventListener("error", function(event) {
+    console.error("error received from worker => ", event);
+});
 
+const subscriber = async (mutation, state) => {
     const mutationsToIgnore = [
         "setLoadingApp",
         "setFailedToLoadData",
@@ -232,14 +239,11 @@ const subscriber = async (mutation, state) => {
         settingsModule: state.settingsModule,
         firebaseModule: state.firebaseModule,
     };
-    const stringifiedStorage = JSON.stringify(storageObject);
+    console.log("posting message");
 
-    if (!isProduction) {
-        console.log("autosaving, mutation is", mutation.type);
-    }
+    const shouldSaveToFirebase = state.settingsModule.remoteStorageMethod === "firebase";
 
-    localStorage.setItem(STORAGE_KEY, stringifiedStorage);
-    saveToFirebase(state, stringifiedStorage);
+    worker.postMessage( {type: "saveState", storageObject, isProduction, mutationType: mutation.type, shouldSaveToFirebase, firebaseConfig: state.firebaseModule.firebaseConfig});
 };
 store.subscribe(subscriber);
 

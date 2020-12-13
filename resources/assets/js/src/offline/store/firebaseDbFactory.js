@@ -1,3 +1,7 @@
+var window = microdom('<html></html>');
+var document = window;
+console.log(window);
+
 import * as firebase from "firebase/app";
 import "firebase/database";
 
