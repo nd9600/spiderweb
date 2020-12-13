@@ -111,7 +111,7 @@ module.exports = (env, argv) => {
 
         output: {
             filename: mode === "production"
-                ? "[name]-[hash].js" // "false"
+                ? "[name].js" // "false"
                 : "[name].js",
             path: path.resolve(__dirname, "public/"),
             publicPath: "/",
