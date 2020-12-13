@@ -13,7 +13,7 @@
             <input
                 v-if="showTitleInput"
                 ref="inputTitle"
-                v-model="title"
+                :value="title"
                 class="p-2 rounded border text-gray-800 placeholder-gray-600"
                 type="text"
                 placeholder="On the Origin of Species"
@@ -25,7 +25,8 @@
         <label class="mb-5 flex flex-col">
             <span class="font-bold">Body</span>
             <textarea
-                v-model="body"
+                :value="body"
+                @input="onBodyUpdate($event.target.value)"
                 class="p-2 h-48 rounded border text-gray-800 placeholder-gray-600 resize-y"
                 required="required"
                 placeholder="you can type Markdown here"
@@ -64,24 +65,6 @@ export default {
             showTitleInput: this.post.title.length > 0,
         };
     },
-    watch: {
-        title(title) {
-            this.updatePostTitle({
-                id: this.post.id,
-                title,
-                updatedAt: new Date().toISOString()
-            });
-            this.$root.$emit("refreshGraph");
-        },
-        body(body) {
-            this.updatePostBody({
-                id: this.post.id,
-                body,
-                updatedAt: new Date().toISOString()
-            });
-            this.$root.$emit("refreshGraph");
-        }
-    },
     methods: {
         ...mapMutations("dataModule", ["deletePost"]),
         ...mapActions("dataModule", ["updatePostTitle", "updatePostBody"]),
@@ -103,6 +86,23 @@ export default {
             this.deletePost({
                 id: this.post.id
             });
+        },
+
+        onTitleUpdate(title) {
+            this.updatePostTitle({
+                id: this.post.id,
+                title,
+                updatedAt: new Date().toISOString()
+            });
+            this.$root.$emit("refreshGraph");
+        },
+        onBodyUpdate(body) {
+            this.updatePostBody({
+                id: this.post.id,
+                body,
+                updatedAt: new Date().toISOString()
+            });
+            // this.$root.$emit("refreshGraph");
         }
     }
 };
