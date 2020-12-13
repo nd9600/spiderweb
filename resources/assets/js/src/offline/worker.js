@@ -1,27 +1,21 @@
-import {STORAGE_KEY} from "@/src/commonComponents/constants";
-import firebaseDbFactory from "@/src/offline/store/firebaseDbFactory";
+importScripts("https://www.gstatic.com/firebasejs/8.1.2/firebase-app.js");
+importScripts("https://www.gstatic.com/firebasejs/8.1.2/firebase-database.js");
 
 self.addEventListener("message", function (event) {
     // var start = Date.now(); // milliseconds
     // var x = 0;
-    // for (var i = 0; i < 25000000; i++) {
+    // for (var i = 0; i < 1000000000; i++) {
     //     x = x + i;
     // }
     // console.log('ended in : ', -(start - Date.now())/1000, ' seconds');
-    console.log("in worker", event.data);
+    // console.log("in worker", event.data.type);
+
     if (event.data.type === "saveState") {
-        const stringifiedStorage = JSON.stringify(event.data.storageObject);
-
-        if (!event.data.isProduction) {
-            console.log("autosaving, mutation is", event.data.mutationType);
+        if (event.data.shouldSaveToFirebase) {
+            firebase.initializeApp(event.data.firebaseConfig);
+            const firebaseDB = firebase.database;
+            firebaseDB.ref(STORAGE_KEY).set(event.data.stringifiedStorage);
         }
-
-        localStorage.setItem(STORAGE_KEY, stringifiedStorage);
-        // if (event.data.shouldSaveToFirebase) {
-        //     console.log(window);
-        //     const firebaseDB = firebaseDbFactory(event.data.firebaseConfig);
-        //     firebaseDB.ref(STORAGE_KEY).set(stringifiedStorage);
-        // }
 
         self.postMessage("saved state");
     } else {

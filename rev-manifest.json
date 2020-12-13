@@ -1,10 +1,10 @@
 {
   "assets/css/app.css": "assets/css/app-a83ed21327.css",
   "assets/css/tailwind.min.css": "assets/css/tailwind-f2d43b4b82.min.css",
-  "assets/js/microdom.js": "assets/js/microdom.js",
-  "assets/js/offline/graph.js": "assets/js/offline/graph.js",
-  "assets/js/offline/graph.js.map": "assets/js/offline/graph-15870b6a827f8af23c71.js.map",
-  "assets/js/offline/worker.js": "assets/js/offline/worker.js",
-  "assets/js/vendors.js": "assets/js/vendors.js",
-  "assets/js/vendors.js.map": "assets/js/vendors-15870b6a827f8af23c71.js.map"
+  "assets/js/offline/graph.js": "assets/js/offline/graph-fbc416d8489f13b3f0bc.js",
+  "assets/js/offline/graph.js.map": "assets/js/offline/graph-fbc416d8489f13b3f0bc.js.map",
+  "assets/js/offline/worker.js": "assets/js/offline/worker-fbc416d8489f13b3f0bc.js",
+  "assets/js/offline/worker.js.map": "assets/js/offline/worker-fbc416d8489f13b3f0bc.js.map",
+  "assets/js/vendors.js": "assets/js/vendors-fbc416d8489f13b3f0bc.js",
+  "assets/js/vendors.js.map": "assets/js/vendors-fbc416d8489f13b3f0bc.js.map"
 }

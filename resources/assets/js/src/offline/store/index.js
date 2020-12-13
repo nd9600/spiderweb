@@ -243,7 +243,15 @@ const subscriber = async (mutation, state) => {
 
     const shouldSaveToFirebase = state.settingsModule.remoteStorageMethod === "firebase";
 
-    worker.postMessage( {type: "saveState", storageObject, isProduction, mutationType: mutation.type, shouldSaveToFirebase, firebaseConfig: state.firebaseModule.firebaseConfig});
+    const stringifiedStorage = JSON.stringify(storageObject);
+
+    if (!isProduction) {
+        console.log("autosaving, mutation is", mutation.type);
+    }
+
+    localStorage.setItem(STORAGE_KEY, stringifiedStorage);
+
+    worker.postMessage( {type: "saveState", stringifiedStorage, isProduction, shouldSaveToFirebase, firebaseConfig: state.firebaseModule.firebaseConfig});
 };
 store.subscribe(subscriber);
 

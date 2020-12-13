@@ -7,7 +7,6 @@ const WebpackAssetsManifest = require("webpack-assets-manifest");
 const entrypoints = {
     "assets/js/offline/graph": "./resources/assets/js/src/offline/graph.js",
     "assets/js/offline/worker": "./resources/assets/js/src/offline/worker.js",
-    "assets/js/microdom": "./resources/assets/js/src/microdom.min.js",
 };
 
 module.exports = (env, argv) => {
