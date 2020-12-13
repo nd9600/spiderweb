@@ -95,7 +95,6 @@ export default {
                 title,
                 updatedAt: new Date().toISOString()
             });
-            this.$root.$emit("refreshGraph");
         },
         onBodyUpdate(body) {
             this.updatePostBody({
@@ -103,7 +102,6 @@ export default {
                 body,
                 updatedAt: new Date().toISOString()
             });
-            // this.$root.$emit("refreshGraph");
         }
     }
 };
