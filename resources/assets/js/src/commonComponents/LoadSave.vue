@@ -165,14 +165,20 @@
                 </button>
             </div>
         </div>
+
+        <hr class="mt-10 mb-4">
+
+        <BlogpostExporter />
     </section>
 </template>
 
 <script>
 import {mapState, mapGetters, mapActions} from "vuex";
+import BlogpostExporter from "@/src/commonComponents/BlogpostExporter";
 
 export default {
     name: "LoadSave",
+    components: {BlogpostExporter},
     data() {
         return {
             fileToImport: null,

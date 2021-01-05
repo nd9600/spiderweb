@@ -152,25 +152,12 @@
 
 <script>
 import {mapState, mapMutations, mapGetters} from "vuex";
-import marked from "marked";
+import marked from "@/src/helpers/markedCustomised";
 
 import PostEditor from "@/src/commonComponents/Posts/PostEditor";
 import LinkedPosts from "./LinkedPosts";
 import LinkedSubgraphs from "./LinkedSubgraphs";
 import AddLinkedPost from "./AddLinkedPost";
-
-const renderer = new marked.Renderer();
-const linkRenderer = renderer.link;
-renderer.link = (href, title, text) => {
-    const html = linkRenderer.call(renderer, href, title, text);
-    return html.replace(/^<a /, '<a target="_blank" rel="nofollow" ');
-};
-marked.setOptions({
-    breaks: true,
-    gfm: true,
-    headerIds: false
-});
-marked.use({ renderer });
 
 export default {
     name: "Post",

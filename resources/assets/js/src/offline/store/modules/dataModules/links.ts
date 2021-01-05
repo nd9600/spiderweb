@@ -7,6 +7,10 @@ const state = {
 };
 
 const getters = {
+    linkIds(state: DataModuleState) {
+        return Object.keys(state.links);
+    },
+
     subgraphsLinkIsIn: (state: DataModuleState) => (linkId: LinkId) => {
         let subgraphsLinkIsIn = [];
 
