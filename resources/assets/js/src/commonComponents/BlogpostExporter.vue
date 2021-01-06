@@ -44,7 +44,7 @@
 
         <div>
             Export:
-            <p v-html="exportingData"></p>
+            <p id="export" v-html="exportingData"></p>
         </div>
     </div>
 </template>
@@ -58,13 +58,13 @@ export default {
     name: "BlogpostExporter",
     data() {
         return {
-            postIdsString: "",
-            linkIdsString: "",
+            postIdsString: `"255", "251", "257", "61", "258", "259", "260", "262", "263", "264", "265", "266", "267", "268", "269", "271", "272", "273", "274", "275", "276", "277", "278", "279", "280", "281", "282", "283", "284", "285", "286", "287", "288", "289", "290", "291", "292", "294", "295", "296", "297", "299", "300", "301", "302", "303", "79", "304", "305", "306", "307", "308", "309", "310", "311", "312", "313", "314", "315", "316", "317", "318", "320", "321", "322", "323", "324", "39", "325", "326", "327", "328", "329", "330", "331", "332", "333", "334", "335", "336", "337"`,
+            linkIdsString: `"336", "338", "339", "340", "341", "342", "343", "345", "346", "347", "348", "349", "350", "351", "352", "354", "355", "356", "357", "358", "359", "360", "361", "362", "363", "364", "365", "366", "367", "368", "369", "370", "371", "372", "373", "374", "375", "376", "377", "378", "380", "381", "382", "383", "384", "385", "387", "388", "389", "390", "391", "392", "393", "394", "395", "396", "397", "398", "399", "400", "401", "402", "403", "404", "405", "406", "407", "408", "409", "410", "411", "412", "413", "414", "415", "416", "417", "418", "419", "420", "422", "423", "424", "425", "426", "427", "428", "429", "430", "431", "432", "433", "434", "435", "436", "437", "438", "439", "440", "441", "442", "443", "444", "445", "446", "447", "448", "449", "450", "451", "452", "453", "454", "455"`,
         };
     },
     computed: {
         ...mapState("dataModule", ["posts", "links"]),
-        ...mapGetters("dataModule", ["postIds", "linkIds"]),
+        ...mapGetters("dataModule", ["postIds", "linkIds", "titleOrBody", "postIdsThatLinkToPost"]),
 
         postIdsToExport() {
             return this.postIdsString
@@ -98,13 +98,55 @@ export default {
                 .map(postId => {
                     const post = this.posts[postId];
                     const postTitle = post.title.length > 0
-                        ? `<h3 class="h h--3 mr-2 whitespace-pre-wrap">${post.title}</h3>`
+                        ? `<h2 class="h h--2">${this.titleOrBody(post.id)}</h2>`
                         : "";
-                    const postBodyRendered = `<div class="font-sans markdownContent">${marked(post.body)}</div>`;
-
-                    return `<section class="post">
+                    const postAnchor = `<div id="section-${post.id}">
 ${postTitle}
+</div>`;
+
+                    const linkedPosts = this.postIdsThatLinkToPost(post.id);
+
+                    const linksToPost = Object.entries(linkedPosts.to)
+                        .filter(([linkId, linkToPostId]) => this.linkIds.includes(linkId));
+                    let linksToPostHtml;
+                    if (linksToPost.length > 0) {
+                        const linksToPostList = linksToPost
+                            .map(([linkId, linkToPostId]) => `<li><a class="link" href="#section-${linkToPostId}">${this.titleOrBody(linkToPostId)}</a></li>`)
+                            .join("\n");
+                        linksToPostHtml = `<div>
+<h3 class="h h--3">Links to this section:</h3>
+<ul>
+${linksToPostList}
+</ul>
+</div>`;
+                    } else {
+                        linksToPostHtml = "";
+                    }
+
+                    const linksFromPost = Object.entries(linkedPosts.from)
+                        .filter(([linkId, linkFromPostId]) => this.linkIds.includes(linkId));
+                    let linksFromPostHtml;
+                    if (linksFromPost.length > 0) {
+                        const linksFromPostList = linksFromPost
+                            .map(([linkId, linkFromPostId]) => `<li><a class="link" href="#section-${linkFromPostId}">${this.titleOrBody(linkFromPostId)}</a></li>`)
+                            .join("\n");
+                        linksFromPostHtml = `<div>
+<h3 class="h h--3">Links from this section:</h3>
+<ul>
+${linksFromPostList}
+</ul>
+</div>`;
+                    } else {
+                        linksFromPostHtml = "";
+                    }
+
+                    const postBodyRendered = `<div>${marked(post.body)}</div>`;
+
+                    return `<section class="section font-sans markdownContent">
+${postAnchor}
+${linksToPostHtml}
 ${postBodyRendered}
+${linksFromPostHtml}
 </section>`;
                 })
                 .join("\n");
@@ -113,7 +155,7 @@ ${postBodyRendered}
     methods: {
         exportBlogPost() {
             const blob = new Blob(
-                [this.exportingData],
+                [document.getElementById("export").innerHTML],
                 {type: "text/html"}
             );
             const now = new Date().toISOString()

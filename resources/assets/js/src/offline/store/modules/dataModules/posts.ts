@@ -28,7 +28,6 @@ const getters = {
 
     titleOrBody: (state: DataModuleState) => (postId: number) => {
         const MAX_BODY_LENGTH = 30;
-
         const post = state.posts[postId];
         const possibleTitle = post.title.split("\n")[0].trim(); // we don't want to show text after a newline
         if (possibleTitle.length > 0) {
