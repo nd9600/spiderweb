@@ -174,7 +174,7 @@
 
 <script>
 import {mapState, mapGetters, mapActions} from "vuex";
-import BlogpostExporter from "@/src/commonComponents/BlogpostExporter";
+import BlogpostExporter from "@/src/commonComponents/BlogpostExporter/BlogpostExporter";
 
 export default {
     name: "LoadSave",
