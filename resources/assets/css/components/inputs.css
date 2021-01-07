@@ -18,6 +18,11 @@
 
 }
 
+.input--error {
+    border: 1px solid var(--red-dark);
+    background-color: #ffdbdb;
+}
+
 .select {
     border-radius: 3px;
     padding: 0.5rem 0.75rem 0.5rem 0.5rem;

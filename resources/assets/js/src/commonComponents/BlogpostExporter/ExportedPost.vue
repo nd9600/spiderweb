@@ -9,10 +9,13 @@
             </h2>
         </div>
 
-        <div v-if="linksToPost.length > 0">
-            <h3 class="h h--3">
+        <div
+            v-if="linksToPost.length > 0"
+            class="section__links section__links--to"
+        >
+            <h4 class="h h--4">
                 Links to this section:
-            </h3>
+            </h4>
             <ul>
                 <li
                     v-for="[linkId, sourcePostId] in linksToPost"
@@ -30,10 +33,13 @@
 
         <div v-html="marked(post.body)"></div>
 
-        <div v-if="linksFromPost.length > 0">
-            <h3 class="h h--3">
+        <div
+            v-if="linksFromPost.length > 0"
+            class="section__links section__links--from"
+        >
+            <h4 class="h h--4">
                 Links from this section:
-            </h3>
+            </h4>
             <ul>
                 <li
                     v-for="[linkId, targetPostId] in linksFromPost"
@@ -69,18 +75,20 @@ export default {
     },
     computed: {
         ...mapState("dataModule", ["posts", "links"]),
-        ...mapGetters("dataModule", ["postIds", "linkIds", "titleOrBody", "postIdsThatLinkToPost"]),
+        ...mapGetters("dataModule", ["postIds", "titleOrBody", "postIdsThatLinkToPost"]),
 
         linkedPosts() {
             return this.postIdsThatLinkToPost(this.post.id);
         },
         linksToPost() {
             return Object.entries(this.linkedPosts.to)
-                .filter(([linkId, linkToPostId]) => this.linkIds.includes(linkId));
+                .filter(([linkId, linkToPostId]) => {
+                    return this.linkIdsToExport.includes(linkId);
+                });
         },
         linksFromPost() {
             return Object.entries(this.linkedPosts.from)
-                .filter(([linkId, linkFromPostId]) => this.linkIds.includes(linkId));
+                .filter(([linkId, linkFromPostId]) => this.linkIdsToExport.includes(linkId));
         }
     },
     methods: {
@@ -88,7 +96,3 @@ export default {
     }
 };
 </script>
-
-<style scoped>
-
-</style>
