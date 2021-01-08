@@ -41,7 +41,7 @@
             <h4 class="h h--4 section__links__header">
                 Links from this section:
             </h4>
-            <ul>
+            <ul class="section__links__list">
                 <li
                     v-for="[linkId, targetPostId] in linksFromPost"
                     :key="linkId"
