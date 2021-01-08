@@ -1,22 +1,23 @@
 <template>
-    <section class="section font-sans markdownContent">
-        <div :id="`section-${post.id}`">
-            <h2
-                v-if="post.title.length > 0"
-                class="h h--2"
-            >
-                {{ titleOrBody(post.id) }}
-            </h2>
-        </div>
+    <section
+        :id="`section-${post.id}`"
+        class="section font-sans markdownContent"
+    >
+        <h2
+            v-if="post.title.length > 0"
+            class="h h--2 section__header"
+        >
+            {{ titleOrBody(post.id) }}
+        </h2>
 
         <div
             v-if="linksToPost.length > 0"
             class="section__links section__links--to"
         >
-            <h4 class="h h--4">
+            <h4 class="h h--4 section__links__header">
                 Links to this section:
             </h4>
-            <ul>
+            <ul class="section__links__list">
                 <li
                     v-for="[linkId, sourcePostId] in linksToPost"
                     :key="linkId"
@@ -37,7 +38,7 @@
             v-if="linksFromPost.length > 0"
             class="section__links section__links--from"
         >
-            <h4 class="h h--4">
+            <h4 class="h h--4 section__links__header">
                 Links from this section:
             </h4>
             <ul>
