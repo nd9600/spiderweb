@@ -11,6 +11,7 @@
                         <div
                             class="p-1 cursor-pointer bg-red-200 hover:bg-red-300 rounded-lg text-xs md:text-sm"
                             title="view this post"
+                            :data-link-id="linkId"
                             @click="togglePostIdLocal(postId)"
                         >
                             <span
@@ -63,6 +64,7 @@
                         <div
                             class="p-1 cursor-pointer bg-red-200 hover:bg-red-300 rounded-lg text-xs md:text-sm"
                             title="view this post"
+                            :data-link-id="linkId"
                             @click="togglePostIdLocal(postId)"
                         >
                             <span

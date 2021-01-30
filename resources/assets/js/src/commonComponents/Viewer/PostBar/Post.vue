@@ -11,6 +11,7 @@
                     <h3
                         v-if="post.title.length > 0"
                         class="h h--3 mr-2 whitespace-pre-wrap"
+                        :data-post-id="post.id"
                     ><button
                         v-if="isVisibleInGraph"
                         class="focusButton mr-2"
