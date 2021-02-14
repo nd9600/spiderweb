@@ -28,11 +28,8 @@
             <textarea
                 :value="body"
                 @input="onBodyUpdate($event.target.value)"
-                class="p-2 h-48 rounded border text-gray-800 placeholder-gray-600 resize-y"
-                required="required"
+                class="p-2 h-64 rounded border text-gray-800 placeholder-gray-600 resize-y"
                 placeholder="you can type Markdown here"
-                minlength="1"
-                maxlength="10000"
             />
         </label>
 
