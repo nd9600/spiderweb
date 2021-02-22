@@ -10,7 +10,7 @@
                 v-model="postIdsString"
                 class="ml-4 p-2 rounded border text-gray-800 placeholder-gray-600"
                 :class="{
-                    'input--error': !postIdsStringIsValid
+                    'input--error': postIdsError.isError
                 }"
                 type="text"
                 placeholder="1, 2, 3"
@@ -25,7 +25,7 @@
                 v-model="linkIdsString"
                 class="ml-4 p-2 rounded border text-gray-800 placeholder-gray-600"
                 :class="{
-                    'input--error': !linkIdsStringIsValid
+                    'input--error': linkIdsError.isError
                 }"
                 type="text"
                 placeholder="1, 2, 3"
@@ -36,7 +36,7 @@
 
         <button
             class="btn btn--secondary my-4 py-1 px-2"
-            :disabled="!postIdsStringIsValid || !linkIdsStringIsValid"
+            :disabled="postIdsError.isError || linkIdsError.isError"
             @click="exportBlogPost"
         >
             Export blog post
@@ -45,9 +45,16 @@
         <div>
             Export:
             <div ref="export">
-                <article v-if="!postIdsStringIsValid || !linkIdsStringIsValid">
-                    invalid
-                </article>
+                <div v-if="postIdsError.isError || linkIdsError.isError">
+                    <p class="whitespace-pre-wrap">
+Post IDs error: {{ postIdsError.isError }}
+{{ postIdsError.message }}
+
+</p>
+                    <p class="whitespace-pre-wrap">
+Link IDs error: {{ linkIdsError.isError }}
+{{ linkIdsError.message }}</p>
+                </div>
                 <article v-else>
                     <ExportedPost
                         v-for="postId in postIdsToExport"
@@ -93,16 +100,24 @@ export default {
                 .filter((s) => s.length !== 0);
         },
 
-        postIdsStringIsValid() {
-            return this.postIdsToExport.length > 0
+        postIdsError() {
+            const isValid = this.postIdsToExport.length > 0
                 && this.postIdsToExport
                     .every((postId) => isInteger(postId) && this.postIds.includes(postId));
+            return {
+                isError: !isValid,
+                message: `Has post IDs: ${this.postIdsToExport.length > 0}
+Invalid post IDs: ${this.postIdsToExport.filter((postId) => !isInteger(postId) || !this.postIds.includes(postId))}`
+            };
         },
-        linkIdsStringIsValid() {
-            return this.linkIdsToExport.length === 0
-                || this.linkIdsToExport
-                    .every((linkId) => isInteger(linkId) && this.linkIds.includes(linkId));
-        },
+        linkIdsError() {
+            const isValid = this.linkIdsToExport
+                .every((linkId) => isInteger(linkId) && this.linkIds.includes(linkId));
+            return {
+                isError: !isValid,
+                message: `Invalid link IDs: ${this.linkIdsToExport.filter((linkId) => !isInteger(linkId) || !this.linkIds.includes(linkId))}`
+            };
+        }
     },
     methods: {
         exportBlogPost() {
