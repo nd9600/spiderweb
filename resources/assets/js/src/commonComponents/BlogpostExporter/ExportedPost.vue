@@ -24,8 +24,10 @@
                 >
                     <a
                         class="link section__link section__link--to"
-                        :data-link-id="linkId"
-                        :data-link-text="titleOrBody(sourcePostId)"
+                        :data-source-id="post.id"
+                        :data-source-text="titleOrBody(post.id)"
+                        :data-target-id="sourcePostId"
+                        :data-target-text="titleOrBody(sourcePostId)"
                         :href="`#section-${sourcePostId}`"
                     >
                         {{ titleOrBody(sourcePostId) }}
@@ -50,8 +52,10 @@
                 >
                     <a
                         class="link section__link section__link--from"
-                        :data-link-id="linkId"
-                        :data-link-text="titleOrBody(targetPostId)"
+                        :data-source-id="post.id"
+                        :data-source-text="titleOrBody(post.id)"
+                        :data-target-id="targetPostId"
+                        :data-target-text="titleOrBody(targetPostId)"
                         :href="`#section-${targetPostId}`"
                     >
                         {{ titleOrBody(targetPostId) }}
