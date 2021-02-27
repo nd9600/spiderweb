@@ -23,7 +23,9 @@
                     :key="linkId"
                 >
                     <a
-                        class="link"
+                        class="link section__link section__link--to"
+                        :data-link-id="linkId"
+                        :data-link-text="titleOrBody(sourcePostId)"
                         :href="`#section-${sourcePostId}`"
                     >
                         {{ titleOrBody(sourcePostId) }}
@@ -47,7 +49,9 @@
                     :key="linkId"
                 >
                     <a
-                        class="link"
+                        class="link section__link section__link--from"
+                        :data-link-id="linkId"
+                        :data-link-text="titleOrBody(targetPostId)"
                         :href="`#section-${targetPostId}`"
                     >
                         {{ titleOrBody(targetPostId) }}
