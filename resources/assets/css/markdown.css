@@ -54,7 +54,7 @@
 
 .markdownContent a:focus {
     color: var(--red-dark);
-    font-weight: bold;
+    outline: 2px dotted;
 }
 
 .markdownContent ul {
@@ -97,6 +97,9 @@
     color: #6a737d;
     border-left: .25em solid var(--red);
 }
+.markdownContent blockquote blockquote {
+    margin-left: 0.25rem;
+}
 
 .markdownContent hr {
     height: 2px;
@@ -104,4 +107,8 @@
     margin: 1.5rem 3rem;
     background-color: #24242424;
     border: 0;
+}
+
+.markdownContent img {
+    max-width: 100%;
 }
