@@ -112,3 +112,26 @@
 .markdownContent img {
     max-width: 100%;
 }
+
+details {
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    padding: 0.5rem 0.5rem 0;
+    margin: 0.5rem;
+}
+
+summary {
+    font-weight: bold;
+    margin: -0.5rem -0.5rem 0;
+    padding: 0.5rem;
+  	cursor: pointer;
+}
+
+details[open] {
+    padding: 0.5rem;
+}
+
+details[open] summary {
+    border-bottom: 1px solid #aaa;
+    margin-bottom: 0.5rem;
+}
