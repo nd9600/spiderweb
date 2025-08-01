@@ -41,8 +41,8 @@
 </template>
 
 <script>
-import {mapGetters, mapMutations, mapState} from "vuex";
-import GraphEditor from "./GraphEditor";
+import { useAppStore, useSettingsStore, useGraphsStore, usePostsStore, useLinksStore, useSubgraphsStore } from "@/src/stores";
+import GraphEditor from "./GraphEditor.vue";
 
 export default {
     name: "Graphs",
@@ -53,14 +53,26 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["graphs"]),
-        ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
+        appStore() {
+            return useAppStore();
+        },
+        graphsStore() {
+            return useGraphsStore();
+        },
+        graphs() {
+            return this.graphsStore.graphs;
+        },
+        postIds() {
+            return this.appStore.postIds;
+        },
+        titleOrBody() {
+            return this.appStore.titleOrBody;
+        }
     },
     methods: {
-        ...mapMutations("dataModule", ["makeNewGraph"]),
 
         makeNewGraphLocal() {
-            this.makeNewGraph(this.newGraphName);
+            this.graphsStore.makeNewGraph(this.newGraphName);
             this.newGraphName = "";
         }
     }

@@ -33,10 +33,17 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { usePostsStore } from "@/src/stores";
 
 export default {
     name: "PostBarScrollButtons",
+    setup() {
+        const postsStore = usePostsStore();
+
+        return {
+            postsStore
+        };
+    },
     data() {
         return {
             visiblePosts: [],
@@ -44,7 +51,9 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["selectedPostIds"]),
+        selectedPostIds() {
+            return this.postsStore.selectedPostIds;
+        },
 
         numberOfPostsHiddenToTheLeft() {
             if (this.visiblePosts.length === 0) {

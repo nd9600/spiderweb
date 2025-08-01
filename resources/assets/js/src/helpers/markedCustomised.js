@@ -1,6 +1,6 @@
-import marked from "marked";
+import { marked, Renderer } from "marked";
 
-const renderer = new marked.Renderer();
+const renderer = new Renderer();
 const linkRenderer = renderer.link;
 renderer.link = (href, title, text) => {
     const html = linkRenderer.call(renderer, href, title, text);

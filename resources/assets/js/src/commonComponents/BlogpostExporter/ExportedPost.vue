@@ -67,8 +67,8 @@
 </template>
 
 <script>
-import {mapGetters, mapState} from "vuex";
-import marked from "@/src/helpers/markedCustomised";
+import { usePostsStore } from "@/src/stores";
+import marked from "@/src/helpers/markedCustomised.js";
 
 export default {
     name: "ExportedPost",
@@ -82,9 +82,29 @@ export default {
             required: true
         }
     },
+    setup() {
+        const postsStore = usePostsStore();
+
+        return {
+            postsStore
+        };
+    },
     computed: {
-        ...mapState("dataModule", ["posts", "links"]),
-        ...mapGetters("dataModule", ["postIds", "titleOrBody", "postIdsThatLinkToPost"]),
+        posts() {
+            return this.postsStore.posts;
+        },
+        links() {
+            return this.postsStore.links;
+        },
+        postIds() {
+            return this.postsStore.postIds;
+        },
+        titleOrBody() {
+            return this.postsStore.titleOrBody;
+        },
+        postIdsThatLinkToPost() {
+            return this.postsStore.postIdsThatLinkToPost;
+        },
 
         linkedPosts() {
             return this.postIdsThatLinkToPost(this.post.id);

@@ -5,19 +5,23 @@
 </template>
 
 <script>
-import OfflineApp from "@/src/commonComponents/OfflineApp";
-import { mapActions } from "vuex";
+import OfflineApp from "@/src/commonComponents/OfflineApp.vue";
+import { useAppStore } from "@/src/stores";
 
 export default {
     name: "OfflineRoot",
     components: {
         OfflineApp,
     },
-    async mounted() {
-        await this.loadStateFromStorage();
+    computed: {
+        appStore() {
+            return useAppStore();
+        }
     },
     methods: {
-        ...mapActions(["loadStateFromStorage"]),
+    },
+    async mounted() {
+        await this.appStore.loadStateFromStorage();
     }
 };
 </script>

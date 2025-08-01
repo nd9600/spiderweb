@@ -95,7 +95,8 @@
 </template>
 
 <script>
-import {mapState, mapGetters, mapMutations} from "vuex";
+import { usePostsStore } from "@/src/stores";
+import { useSettingsStore } from "@/src/stores";
 
 export default {
     name: "LinkedPosts",
@@ -105,17 +106,39 @@ export default {
             required: true
         }
     },
-    computed: {
-        ...mapState("settingsModule", ["canOpenMultiplePosts"]),
-        ...mapState("dataModule", ["posts"]),
-        ...mapGetters("dataModule", ["titleOrBody", "postIdsThatLinkToPost"]),
+    setup() {
+        const postsStore = usePostsStore();
+        const settingsStore = useSettingsStore();
 
+        return {
+            postsStore,
+            settingsStore
+        };
+    },
+    computed: {
+        canOpenMultiplePosts() {
+            return this.settingsStore.canOpenMultiplePosts;
+        },
+        posts() {
+            return this.postsStore.posts;
+        },
+        titleOrBody() {
+            return this.postsStore.titleOrBody;
+        },
+        postIdsThatLinkToPost() {
+            return this.postsStore.postIdsThatLinkToPost;
+        },
         linkedPosts() {
             return this.postIdsThatLinkToPost(this.post.id);
         }
     },
     methods: {
-        ...mapMutations("dataModule", ["togglePostId", "removeLink"]),
+        togglePostId(payload) {
+            this.postsStore.togglePostId(payload);
+        },
+        removeLink(payload) {
+            this.postsStore.removeLink(payload);
+        },
         togglePostIdLocal(postId) {
             this.togglePostId({
                 id: postId,

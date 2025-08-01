@@ -17,9 +17,9 @@
                         class="focusButton mr-2"
                         type="button"
                         title="focus on this post in the viewer above"
-                        @click="$root.$emit('focusOnPost', post.id)"
-                        @mouseover="$root.$emit('highlightPost', post.id)"
-                        @mouseout="$root.$emit('unhighlightPost', post.id)"
+                        @click="eventBus.emit('focusOnPost', post.id)"
+                        @mouseover="eventBus.emit('highlightPost', post.id)"
+                        @mouseout="eventBus.emit('unhighlightPost', post.id)"
                     >
                         <span class="text-base">&#128269;</span>
                     </button>{{ post.title }}</h3>
@@ -73,9 +73,9 @@
                     class="focusButton mr-2 float-left"
                     type="button"
                     title="focus on this post in the viewer above"
-                    @click="$root.$emit('focusOnPost', post.id)"
-                    @mouseover="$root.$emit('highlightPost', post.id)"
-                    @mouseout="$root.$emit('unhighlightPost', post.id)"
+                    @click="eventBus.emit('focusOnPost', post.id)"
+                    @mouseover="eventBus.emit('highlightPost', post.id)"
+                    @mouseout="eventBus.emit('unhighlightPost', post.id)"
                 >
                     <span class="text-base">&#128269;</span>
                 </button>
@@ -152,13 +152,14 @@
 </template>
 
 <script>
-import {mapState, mapMutations, mapGetters} from "vuex";
-import marked from "@/src/helpers/markedCustomised";
+import { useAppStore, useSettingsStore, usePostsStore } from '@/src/stores';
+import { eventBus } from "@/src/eventBus.js";
+import marked from "@/src/helpers/markedCustomised.js";
 
-import PostEditor from "@/src/commonComponents/Posts/PostEditor";
-import LinkedPosts from "./LinkedPosts";
-import LinkedSubgraphs from "./LinkedSubgraphs";
-import AddLinkedPost from "./AddLinkedPost";
+import PostEditor from "@/src/commonComponents/Posts/PostEditor.vue";
+import LinkedPosts from "./LinkedPosts.vue";
+import LinkedSubgraphs from "./LinkedSubgraphs.vue";
+import AddLinkedPost from "./AddLinkedPost.vue";
 
 export default {
     name: "Post",
@@ -176,20 +177,39 @@ export default {
     },
     data() {
         return {
+            eventBus,
             showPostEditor: false,
             bottomTab: "" // linked-posts | linked-subgraphs | add-linked-post
         };
     },
     computed: {
-        ...mapState("settingsModule", ["postWidth"]),
-        ...mapState("dataModule", ["selectedPostIds"]),
-
-        ...mapGetters("dataModule", ["postIdsInSelectedSubgraphs", "postIdsThatLinkToPost", "linkedSubgraphs"]),
-
+        appStore() {
+            return useAppStore();
+        },
+        settingsStore() {
+            return useSettingsStore();
+        },
+        postsStore() {
+            return usePostsStore();
+        },
+        postWidth() {
+            return this.settingsStore.postWidth;
+        },
+        selectedPostIds() {
+            return this.appStore.selectedPostIds;
+        },
+        postIdsInSelectedSubgraphs() {
+            return this.postsStore.postIdsInSelectedSubgraphs;
+        },
+        postIdsThatLinkToPost() {
+            return this.postsStore.postIdsThatLinkToPost;
+        },
+        linkedSubgraphs() {
+            return this.postsStore.linkedSubgraphs;
+        },
         linkedPosts() {
             return this.postIdsThatLinkToPost(this.post.id);
         },
-
         hasLinkedPosts() {
             return Object.keys(this.linkedPosts.to).length > 0
                 || Object.keys(this.linkedPosts.from).length > 0;
@@ -200,7 +220,6 @@ export default {
         isVisibleInGraph() {
             return this.postIdsInSelectedSubgraphs.includes(this.post.id);
         },
-
         minPostWidth() {
             // this means if only 2 posts are open, each will be at least 46% wide
             //                    3 posts are open, each will be at least 30% wide, ...
@@ -211,8 +230,15 @@ export default {
     },
     methods: {
         marked,
-        ...mapMutations("dataModule", ["unselectPostId", "movePostLeft", "movePostRight"]),
-
+        unselectPostId(postId) {
+            this.appStore.unselectPostId(postId);
+        },
+        movePostLeft(postId) {
+            this.appStore.movePostLeft(postId);
+        },
+        movePostRight(postId) {
+            this.appStore.movePostRight(postId);
+        },
         toggleBottomTab(tab) {
             this.bottomTab = this.bottomTab === tab
                 ? ""

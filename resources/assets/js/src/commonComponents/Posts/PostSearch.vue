@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import {mapState, mapGetters} from "vuex";
+import { useAppStore, useSettingsStore, useGraphsStore, usePostsStore, useLinksStore, useSubgraphsStore } from "@/src/stores";
 export default {
     name: "PostSearch",
     data() {
@@ -54,8 +54,21 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["posts"]),
-        ...mapGetters("dataModule", ["titleOrBody", "postIdsThatLinkToPost"]),
+        appStore() {
+            return useAppStore();
+        },
+        postsStore() {
+            return usePostsStore();
+        },
+        posts() {
+            return this.postsStore.posts;
+        },
+        titleOrBody() {
+            return this.appStore.titleOrBody;
+        },
+        postIdsThatLinkToPost() {
+            return this.appStore.postIdsThatLinkToPost;
+        }
     },
     watch: {
         searchTerm(newSearchTerm) {

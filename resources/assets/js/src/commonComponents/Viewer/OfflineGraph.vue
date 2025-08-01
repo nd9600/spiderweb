@@ -44,15 +44,16 @@
 </template>
 
 <script>
-import {select as d3select, selectAll as d3selectAll, event as d3event, mouse as d3mouse} from "d3-selection";
+import {select as d3select, selectAll as d3selectAll, pointer as d3pointer} from "d3-selection";
 import {forceSimulation as d3forceSimulation, forceLink as d3forceLink, forceManyBody as d3forceManyBody, forceCenter as d3forceCenter} from "d3-force";
 import {zoom as d3zoom, zoomIdentity as d3zoomIdentity} from "d3-zoom";
 import {drag as d3drag} from "d3-drag";
 
 import debounce from "lodash/debounce";
 
-import {mapActions, mapGetters, mapMutations, mapState} from "vuex";
-import FloatingActionButton from "./FloatingActionButton";
+import { useAppStore, useSettingsStore, useGraphsStore, usePostsStore, useLinksStore, useSubgraphsStore } from "@/src/stores";
+import { eventBus } from "@/src/eventBus.js";
+import FloatingActionButton from "./FloatingActionButton.vue";
 import {HEIGHT, INITIAL_ZOOM, WIDTH} from "@/src/commonComponents/constants";
 
 export default {
@@ -84,14 +85,47 @@ export default {
         };
     },
     computed: {
-        ...mapState("settingsModule", ["canOpenMultiplePosts"]),
-
-        ...mapState("dataModule", ["selectedGraphId", "selectedSubgraphIds"]),
-        ...mapGetters("dataModule", ["postsInSelectedSubgraphs", "linksInSelectedSubgraphs", "subgraphColour", "titleOrBody", "isNeighbour"]),
-
-        ...mapState("clickerModule", ["shouldShowClickButtonMenu", "clickMode"]),
+        settingsStore() {
+            return useSettingsStore();
+        },
+        appStore() {
+            return useAppStore();
+        },
+        graphsStore() {
+            return useGraphsStore();
+        },
+        canOpenMultiplePosts() {
+            return this.settingsStore.canOpenMultiplePosts;
+        },
+        selectedGraphId() {
+            return this.appStore.selectedGraphId;
+        },
+        selectedSubgraphIds() {
+            return this.appStore.selectedSubgraphIds;
+        },
+        postsInSelectedSubgraphs() {
+            return this.appStore.postsInSelectedSubgraphs;
+        },
+        linksInSelectedSubgraphs() {
+            return this.appStore.linksInSelectedSubgraphs;
+        },
+        subgraphColour() {
+            return this.appStore.subgraphColour;
+        },
+        titleOrBody() {
+            return this.appStore.titleOrBody;
+        },
+        isNeighbour() {
+            return this.appStore.isNeighbour;
+        },
+        shouldShowClickButtonMenu() {
+            return this.appStore.shouldShowClickButtonMenu;
+        },
+        clickMode() {
+            return this.appStore.clickMode;
+        },
         nodePositions() {
-            return this.$store.state.dataModule.graphs[this.selectedGraphId].nodePositions;
+            return this.graphsStore.graphs[this.selectedGraphId].nodePositions;
         }
     },
     watch: {
@@ -163,27 +197,30 @@ export default {
                 this.zoomBehaviour.transform,
                 d3zoomIdentity
                     .translate(
-                        this.$store.state.dataModule.zoom.x, // sets initial x/y and zoom amount
-                        this.$store.state.dataModule.zoom.y
-                    ).scale(this.$store.state.dataModule.zoom.scale)
+                        useAppStore().zoom.x, // sets initial x/y and zoom amount
+                        useAppStore().zoom.y
+                    ).scale(useAppStore().zoom.scale)
             );
         this.$nextTick(() => {
             this.debouncedMakeGraphSvg();
         });
 
-        this.$root.$on("focusOnPost", this.focusOnPost);
-        this.$root.$on("highlightPost", this.highlightPost);
-        this.$root.$on("unhighlightPost", this.unhighlightPost);
-        this.$root.$on("refreshGraph", this.debouncedMakeGraphSvg);
-        this.$root.$on("zoomIn", this.zoomIn);
-        this.$root.$on("zoomOut", this.zoomOut);
+        eventBus.on("focusOnPost", this.focusOnPost);
+        eventBus.on("highlightPost", this.highlightPost);
+        eventBus.on("unhighlightPost", this.unhighlightPost);
+        eventBus.on("refreshGraph", this.debouncedMakeGraphSvg);
+        eventBus.on("zoomIn", this.zoomIn);
+        eventBus.on("zoomOut", this.zoomOut);
+    },
+    unmounted() {
+        eventBus.off("focusOnPost", this.focusOnPost);
+        eventBus.off("highlightPost", this.highlightPost);
+        eventBus.off("unhighlightPost", this.unhighlightPost);
+        eventBus.off("refreshGraph", this.debouncedMakeGraphSvg);
+        eventBus.off("zoomIn", this.zoomIn);
+        eventBus.off("zoomOut", this.zoomOut);
     },
     methods: {
-        ...mapMutations(["setIsRenderingGraph"]),
-        ...mapMutations("dataModule", ["setZoom", "setPostPosition"]),
-        ...mapMutations("clickerModule", ["setShouldShowClickButtonMenu", "setClickMode"]),
-
-        ...mapActions("clickerModule", ["handlePostClick", "handleLinkClick"]),
 
         isPhone() {
             const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
@@ -196,11 +233,11 @@ export default {
             }
 
             if (this.shouldShowClickButtonMenu) {
-                this.setShouldShowClickButtonMenu(false);
+                this.appStore.setShouldShowClickButtonMenu(false);
             }
 
             if (this.clickMode !== "openPosts") {
-                this.setClickMode("openPosts");
+                this.appStore.setClickMode("openPosts");
             }
         },
 
@@ -215,7 +252,7 @@ export default {
             }
         ),
         async makeGraphSvg() {
-            this.setIsRenderingGraph(true);
+            this.appStore.setIsRenderingGraph(true);
 
             //todo: almost definitely in-efficient
             let nodes = JSON.parse(JSON.stringify(this.postsInSelectedSubgraphs));
@@ -253,11 +290,11 @@ export default {
                 .classed("graph__link--link", (link) => link.type === "link")
                 .attr("stroke", (link) => this.subgraphColour(link.subgraphId))
                 .attr("marker-end", "url(#arrowhead)")
-                .on("click", async function (link) {
-                    const returnedValue = await vm.handleLinkClick(
+                .on("click", async function (event, link) {
+                    const returnedValue = await vm.appStore.handleLinkClick(
                         {
                             link,
-                            coordinates: d3mouse(this)
+                            coordinates: d3pointer(event, this)
                         }
                     );
                     if (returnedValue != null) {
@@ -306,7 +343,7 @@ export default {
                 });
                 
             d3selectAll(".node *")
-                .on("click", this.handlePostClick)
+                .on("click", this.appStore.handlePostClick)
                 .call(d3drag().clickDistance(4)) // if the mouse moves less than 4 units while clicking, it's counted as a click
                 .call(this.createDragBehaviour(simulation));
 
@@ -339,7 +376,7 @@ export default {
                 postsKeyedById[post.id] = post;
             }
             this.nodesWithCoordinates = postsKeyedById;
-            this.setIsRenderingGraph(false);
+            this.appStore.setIsRenderingGraph(false);
         },
 
         setupZooming() {
@@ -354,15 +391,15 @@ export default {
              */
             this.zoomBehaviour = d3zoom()
                 .scaleExtent([0.025, 2]) // limits zooming so you can only zoom between 0.2x and 2x
-                .on("zoom", () => {
-                    const x = d3event.transform.x;
-                    const y = d3event.transform.y;
-                    const scale = d3event.transform.k;
+                .on("zoom", (event) => {
+                    const x = event.transform.x;
+                    const y = event.transform.y;
+                    const scale = event.transform.k;
                     this.zoom = {x, y, scale};
                 });
             this.svg.call(this.zoomBehaviour)
-                .on("wheel", () => {
-                    d3event.preventDefault();
+                .on("wheel", (event) => {
+                    event.preventDefault();
                 });
         },
         resetZoomToCenter() {
@@ -378,7 +415,7 @@ export default {
             function() {
                 // we have to do it like this because this.zoom is set in mounted(), and that triggers this watcher, which sets the zoom in the store, which will autosave - you don't want to immediately autosave data you've just loaded. The zoom in the store is only used to backup the state, so it doesn't matter if it's not set there immediately
                 if (this.hasMounted) {
-                    this.setZoom(this.zoom);
+                    this.appStore.setZoom(this.zoom);
                 } else {
                     this.hasMounted = true;
                 }
@@ -418,8 +455,8 @@ export default {
 
         createDragBehaviour(simulation) {
             const vm = this;
-            function dragStarted(node) {
-                if (!d3event.active) {
+            function dragStarted(event, node) {
+                if (!event.active) {
                     simulation.alphaTarget(0.3).restart();
                 }
 
@@ -437,23 +474,23 @@ export default {
                 fixNodes(node);
             }
 
-            function dragged(node) {
-                node.fx = d3event.x;
-                node.fy = d3event.y;
+            function dragged(event, node) {
+                node.fx = event.x;
+                node.fy = event.y;
             }
 
-            function dragEnded(node) {
-                if (!d3event.active) {
+            function dragEnded(event, node) {
+                if (!event.active) {
                     simulation.alpha(0);
                     simulation.alphaTarget(0);
                 }
-                node.fx = d3event.x;
-                node.fy = d3event.y;
-                vm.setPostPosition({
+                node.fx = event.x;
+                node.fy = event.y;
+                vm.appStore.setPostPosition({
                     postId: node.id,
                     position: {
-                        x: d3event.x,
-                        y: d3event.y
+                        x: event.x,
+                        y: event.y
                     }
                 });
             }

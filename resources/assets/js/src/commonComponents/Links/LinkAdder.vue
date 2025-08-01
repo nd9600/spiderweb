@@ -62,7 +62,7 @@
                     type="button"
                     :disabled="newLinkSource == null"
                     title="remove this source"
-                    @click="setNewLinkSource(null)"
+                    @click="appStore.setNewLinkSource(null)"
                 >
                     x
                 </button>
@@ -78,10 +78,10 @@
 </template>
 
 <script>
-import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
+import { useAppStore, useSettingsStore, useGraphsStore, usePostsStore, useLinksStore, useSubgraphsStore } from "@/src/stores";
 
 
-import PostSearch from "@/src/commonComponents/Posts/PostSearch";
+import PostSearch from "@/src/commonComponents/Posts/PostSearch.vue";
 
 export default {
     name: "LinkAdder",
@@ -89,26 +89,40 @@ export default {
         PostSearch
     },
     computed: {
-        ...mapState("dataModule", ["subgraphs", "selectedSubgraphIds"]),
-        ...mapGetters("dataModule", ["titleOrBody"]),
-
-        ...mapState("clickerModule", ["newLinkSource"]),
+        appStore() {
+            return useAppStore();
+        },
+        subgraphsStore() {
+            return useSubgraphsStore();
+        },
+        subgraphs() {
+            return this.subgraphsStore.subgraphs;
+        },
+        selectedSubgraphIds() {
+            return this.appStore.selectedSubgraphIds;
+        },
+        titleOrBody() {
+            return this.appStore.titleOrBody;
+        },
+        newLinkSource() {
+            return this.appStore.newLinkSource;
+        },
 
         newLinkSubgraphIds: {
             get() {
-                return this.$store.state.clickerModule.newLinkSubgraphIds;
+                return this.appStore.newLinkSubgraphIds;
             },
             set(newLinkSubgraphIds) {
-                this.setNewLinkSubgraphIds(newLinkSubgraphIds);
+                this.appStore.setNewLinkSubgraphIds(newLinkSubgraphIds);
             }
         },
 
         newLinkType: {
             get() {
-                return this.$store.state.clickerModule.newLinkType;
+                return this.appStore.newLinkType;
             },
             set(newLinkType) {
-                this.setNewLinkType(newLinkType);
+                this.appStore.setNewLinkType(newLinkType);
             }
         },
     },
@@ -116,12 +130,9 @@ export default {
         this.newLinkSubgraphIds = this.selectedSubgraphIds;
     },
     methods: {
-        ...mapMutations("clickerModule", [
-            "setNewLinkSource",
-            "setNewLinkType",
-            "setNewLinkSubgraphIds"
-        ]),
-        ...mapActions("clickerModule", ["handlePostClick"]),
+        handlePostClick(event) {
+            this.appStore.handlePostClick(event);
+        }
     }
 };
 </script>

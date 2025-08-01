@@ -70,12 +70,19 @@ Link IDs error: {{ linkIdsError.isError }}
 
 <script>
 import {isInteger} from "@/src/helpers/numberHelpers";
-import {mapGetters, mapState} from "vuex";
-import ExportedPost from "./ExportedPost";
+import { usePostsStore } from "@/src/stores";
+import ExportedPost from "./ExportedPost.vue";
 
 export default {
     name: "BlogpostExporter",
     components: {ExportedPost},
+    setup() {
+        const postsStore = usePostsStore();
+
+        return {
+            postsStore
+        };
+    },
     data() {
         return {
             postIdsString: ``,
@@ -83,8 +90,18 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["posts", "links"]),
-        ...mapGetters("dataModule", ["postIds", "linkIds"]),
+        posts() {
+            return this.postsStore.posts;
+        },
+        links() {
+            return this.postsStore.links;
+        },
+        postIds() {
+            return this.postsStore.postIds;
+        },
+        linkIds() {
+            return this.postsStore.linkIds;
+        },
 
         postIdsToExport() {
             return this.postIdsString

@@ -39,10 +39,10 @@
 </template>
 
 <script>
-import {mapGetters, mapState} from "vuex";
+import { usePostsStore } from '@/src/stores';
 
-import PostAttacher from "./PostAttacher";
-import PostSearch from "@/src/commonComponents/Posts/PostSearch";
+import PostAttacher from "./PostAttacher.vue";
+import PostSearch from "@/src/commonComponents/Posts/PostSearch.vue";
 
 export default {
     name: "PostsAttacher",
@@ -56,8 +56,18 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["posts", "links"]),
-        ...mapGetters("dataModule", ["unattachedPosts"])
+        postsStore() {
+            return usePostsStore();
+        },
+        posts() {
+            return this.postsStore.posts;
+        },
+        links() {
+            return this.postsStore.links;
+        },
+        unattachedPosts() {
+            return this.postsStore.unattachedPosts;
+        }
     },
     methods: {
         onPostClick(post) {

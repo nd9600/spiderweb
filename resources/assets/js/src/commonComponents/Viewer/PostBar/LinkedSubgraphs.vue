@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import {mapState, mapGetters, mapMutations} from "vuex";
+import { useSubgraphsStore } from "@/src/stores";
 
 export default {
     name: "LinkedSubgraphs",
@@ -35,13 +35,28 @@ export default {
             required: true
         }
     },
+    setup() {
+        const subgraphsStore = useSubgraphsStore();
+
+        return {
+            subgraphsStore
+        };
+    },
     computed: {
-        ...mapState("dataModule", ["subgraphs"]),
-        ...mapGetters("dataModule", ["linkedSubgraphs"]),
+        subgraphs() {
+            return this.subgraphsStore.subgraphs;
+        },
+        linkedSubgraphs() {
+            return this.subgraphsStore.linkedSubgraphs;
+        }
     },
     methods: {
-        ...mapMutations("dataModule", ["toggleSubgraphId", "removePostFromSubgraph"]),
-
+        toggleSubgraphId(subgraphId) {
+            this.subgraphsStore.toggleSubgraphId(subgraphId);
+        },
+        removePostFromSubgraph(payload) {
+            this.subgraphsStore.removePostFromSubgraph(payload);
+        }
     }
 };
 </script>

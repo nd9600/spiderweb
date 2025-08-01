@@ -1,4 +1,4 @@
-import {PostId} from "@/src/@types/StoreTypes";
+import type {PostId} from "@/src/@types/StoreTypes";
 
 export interface PostSerialised {
     id: PostId;

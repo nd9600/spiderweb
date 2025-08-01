@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
+import { useAppStore, usePostsStore, useGraphsStore, useSubgraphsStore } from "@/src/stores";
 
 export default {
     name: "PostMaker",
@@ -106,15 +106,32 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["selectedGraphId", "selectedSubgraphIds"]),
-        ...mapGetters("dataModule", ["subgraphsInSelectedGraph"]),
+        appStore() {
+            return useAppStore();
+        },
+        postsStore() {
+            return usePostsStore();
+        },
+        graphsStore() {
+            return useGraphsStore();
+        },
+        subgraphsStore() {
+            return useSubgraphsStore();
+        },
+        selectedGraphId() {
+            return this.appStore.selectedGraphId;
+        },
+        selectedSubgraphIds() {
+            return this.appStore.selectedSubgraphIds;
+        },
+        subgraphsInSelectedGraph() {
+            return this.appStore.subgraphsInSelectedGraph;
+        }
     },
     created() {
         this.subgraphIdsToAttachPostTo = this.selectedSubgraphIds;
     },
     methods: {
-        ...mapMutations("dataModule", ["addPostToGraph", "addPostToSubgraph"]),
-        ...mapActions("dataModule", ["makeNewPost"]),
 
         toggleTitleInput() {
             const dontLetUserHideTitleInput = this.showTitleInput
@@ -133,10 +150,10 @@ export default {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
             };
-            const newPostWithId = await this.makeNewPost(newPost);
+            const newPostWithId = await this.postsStore.makeNewPost(newPost);
 
             if (this.shouldAttachPostToGraph) {
-                this.addPostToGraph({
+                this.graphsStore.addPostToGraph({
                     graphId: this.selectedGraphId,
                     postId: newPostWithId.id
                 });
@@ -144,7 +161,7 @@ export default {
 
             if (this.subgraphIdsToAttachPostTo.length > 0) {
                 for (const subgraphId of this.subgraphIdsToAttachPostTo) {
-                    this.addPostToSubgraph({
+                    this.subgraphsStore.addPostToSubgraph({
                         subgraphId,
                         postId: newPostWithId.id
                     });

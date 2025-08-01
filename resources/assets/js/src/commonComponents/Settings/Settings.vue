@@ -229,7 +229,7 @@
 </template>
 
 <script>
-import {mapMutations, mapActions} from "vuex";
+import { useSettingsStore, useFirebaseStore } from "@/src/stores";
 
 export default {
     name: "Settings",
@@ -241,24 +241,30 @@ export default {
         };
     },
     computed: {
+        settingsStore() {
+            return useSettingsStore();
+        },
+        firebaseStore() {
+            return useFirebaseStore();
+        },
         shouldAutosave: {
             get() {
-                return this.$store.state.settingsModule.shouldAutosave;
+                return this.settingsStore.shouldAutosave;
             },
             set(shouldAutosave) {
-                this.setShouldAutosave(shouldAutosave);
+                this.settingsStore.setShouldAutosave(shouldAutosave);
             }
         },
         remoteStorageMethod() {
-            return this.$store.state.settingsModule.remoteStorageMethod;
+            return this.settingsStore.remoteStorageMethod;
         },
         firebaseConfig: {
             get() {
-                return JSON.stringify(this.$store.state.firebaseModule.firebaseConfig);
+                return JSON.stringify(this.firebaseStore.firebaseConfig);
             },
             set(firebaseConfig) {
                 try {
-                    this.setFirebaseConfig(JSON.parse(firebaseConfig));
+                    this.firebaseStore.setFirebaseConfig(JSON.parse(firebaseConfig));
                 } catch (error) {
                     alert("Firebase config isn't formatted correctly, it should be like this: {\"apiKey\":\"xx\",\"authDomain\":\"x.firebaseapp.com\",\"databaseURL\":\"https://x.firebaseio.com\",\"projectId\":\"spiderweb-e49bd\",\"storageBucket\":\"x.appspot.com\",\"messagingSenderId\":\"123\",\"appId\":\"xyz\"}");
                 }
@@ -267,35 +273,35 @@ export default {
 
         canOpenMultiplePosts: {
             get() {
-                return this.$store.state.settingsModule.canOpenMultiplePosts;
+                return this.settingsStore.canOpenMultiplePosts;
             },
             set(canOpenMultiplePosts) {
-                this.setCanOpenMultiplePosts(canOpenMultiplePosts);
+                this.settingsStore.setCanOpenMultiplePosts(canOpenMultiplePosts);
             }
         },
 
         graphHeight: {
             get() {
-                return this.$store.state.settingsModule.graphHeight;
+                return this.settingsStore.graphHeight;
             },
             set(graphHeight) {
-                this.setGraphHeight(graphHeight);
+                this.settingsStore.setGraphHeight(graphHeight);
             }
         },
         postBarHeight: {
             get() {
-                return this.$store.state.settingsModule.postBarHeight;
+                return this.settingsStore.postBarHeight;
             },
             set(postBarHeight) {
-                this.setPostBarHeight(postBarHeight);
+                this.settingsStore.setPostBarHeight(postBarHeight);
             }
         },
         postWidth: {
             get() {
-                return this.$store.state.settingsModule.postWidth;
+                return this.settingsStore.postWidth;
             },
             set(postWidth) {
-                this.setPostWidth(Math.min(94, postWidth)); // 94% allows for margin & padding
+                this.settingsStore.setPostWidth(Math.min(94, postWidth)); // 94% allows for margin & padding
             }
         },
 
@@ -325,25 +331,12 @@ export default {
         this.firebaseConfigInComponent = this.firebaseConfig;
     },
     methods: {
-        ...mapMutations("settingsModule", [
-            "setShouldAutosave",
-            "setCanOpenMultiplePosts",
-            "setGraphHeight",
-            "setPostBarHeight",
-            "setPostWidth"
-        ]),
-        ...mapActions("settingsModule", [
-            "setRemoteStorageMethod",
-        ]),
-        ...mapActions("firebaseModule", [
-            "setFirebaseConfig"
-        ]),
 
         async changeStorageMethod() {
             if (this.firebaseConfig !== this.firebaseConfigInComponent) {
                 this.firebaseConfig = this.firebaseConfigInComponent;
             }
-            await this.setRemoteStorageMethod({
+            await this.settingsStore.setRemoteStorageMethod({
                 remoteStorageMethod: this.remoteStorageMethodInComponent,
                 shouldTakeDataFrom: this.shouldTakeDataFrom
             });

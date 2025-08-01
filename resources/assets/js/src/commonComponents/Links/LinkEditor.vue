@@ -110,9 +110,9 @@
 </template>
 
 <script>
-import {mapState, mapGetters, mapMutations} from "vuex";
+import { useAppStore, useSettingsStore, useGraphsStore, usePostsStore, useLinksStore, useSubgraphsStore } from "@/src/stores";
 
-import PostSearch from "@/src/commonComponents/Posts/PostSearch";
+import PostSearch from "@/src/commonComponents/Posts/PostSearch.vue";
 
 export default {
     name: "LinkEditor",
@@ -133,32 +133,54 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["subgraphs", "posts"]),
-        ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
+        appStore() {
+            return useAppStore();
+        },
+        subgraphsStore() {
+            return useSubgraphsStore();
+        },
+        postsStore() {
+            return usePostsStore();
+        },
+        linksStore() {
+            return useLinksStore();
+        },
+        subgraphs() {
+            return this.subgraphsStore.subgraphs;
+        },
+        posts() {
+            return this.postsStore.posts;
+        },
+        postIds() {
+            return this.appStore.postIds;
+        },
+        titleOrBody() {
+            return this.appStore.titleOrBody;
+        },
 
         subgraphsLinkIsIn: {
             get() {
-                return this.$store.getters["dataModule/subgraphsLinkIsIn"](this.link.id);
+                return this.linksStore.subgraphsLinkIsIn(this.link.id);
             },
             set(subgraphsLinkIsIn) {
-                this.setSubgraphsLinkIsIn({linkId: this.link.id, subgraphsLinkIsIn});
+                this.linksStore.setSubgraphsLinkIsIn({linkId: this.link.id, subgraphsLinkIsIn});
             }
         },
 
         wantsToChangeSource: {
             get() {
-                return this.$store.state.clickerModule.wantsToChangeSource;
+                return this.appStore.wantsToChangeSource;
             },
             set(wantsToChangeSource) {
-                this.setWantsToChangeSource(wantsToChangeSource);
+                this.appStore.setWantsToChangeSource(wantsToChangeSource);
             }
         },
         wantsToChangeTarget: {
             get() {
-                return this.$store.state.clickerModule.wantsToChangeTarget;
+                return this.appStore.wantsToChangeTarget;
             },
             set(wantsToChangeTarget) {
-                this.setWantsToChangeTarget(wantsToChangeTarget);
+                this.appStore.setWantsToChangeTarget(wantsToChangeTarget);
             }
         }
     },
@@ -176,8 +198,6 @@ export default {
         "type": "updateLinkLocal",
     },
     methods: {
-        ...mapMutations("dataModule", ["setSubgraphsLinkIsIn", "updateLink", "removeLink"]),
-        ...mapMutations("clickerModule", ["setWantsToChangeSource", "setWantsToChangeTarget"]),
 
         onPostClick(sourceOrTarget, post) {
             if (sourceOrTarget === "source") {
@@ -190,7 +210,7 @@ export default {
         },
 
         updateLinkLocal() {
-            this.updateLink({
+            this.linksStore.updateLink({
                 id: this.link.id,
                 graph: this.link.graph,
                 source: this.source,
@@ -201,7 +221,7 @@ export default {
             this.$emit("updatedLink", this.link.id);
         },
         removeLinkLocal() {
-            this.removeLink({
+            this.linksStore.removeLink({
                 id: this.link.id,
             });
             this.$emit("removedLink", this.link.id);

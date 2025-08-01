@@ -16,7 +16,7 @@
                         class="btn btn--secondary mt-2"
                         type="button"
                         title="zoom out"
-                        @click.stop="$root.$emit('zoomOut')"
+                        @click.stop="eventBus.emit('zoomOut')"
                     >
                         -
                     </button>
@@ -27,7 +27,7 @@
                             class="btn btn--secondary"
                             type="button"
                             title="refresh the graph"
-                            @click.stop="$root.$emit('refreshGraph')"
+                            @click.stop="eventBus.emit('refreshGraph')"
                         >
                             ⟳
                         </button>
@@ -42,7 +42,7 @@
                         class="btn btn--secondary mt-2"
                         type="button"
                         title="zoom in"
-                        @click.stop="$root.$emit('zoomIn')"
+                        @click.stop="eventBus.emit('zoomIn')"
                     >
                         +
                     </button>
@@ -86,7 +86,7 @@
                             class="btn btn--secondary"
                             type="button"
                             :disabled="selectedSubgraphIds.length === subgraphsInSelectedGraph.length"
-                            @click.stop="selectAllSubgraphs"
+                            @click.stop="appStore.selectAllSubgraphs"
                         >
                             View all subgraphs
                         </button>
@@ -146,10 +146,11 @@
 </template>
 
 <script>
-import {mapGetters, mapMutations, mapState} from "vuex";
+import { useAppStore, useSettingsStore, useGraphsStore } from "@/src/stores";
+import { eventBus } from "@/src/eventBus.js";
 
-import OfflineGraph from "./OfflineGraph";
-import PostBar from "./PostBar/PostBar";
+import OfflineGraph from "./OfflineGraph.vue";
+import PostBar from "./PostBar/PostBar.vue";
 
 import {STORAGE_KEY} from "@/src/commonComponents/constants";
 
@@ -163,36 +164,56 @@ export default {
         const storedData = localStorage.getItem(STORAGE_KEY);
 
         return {
+            eventBus,
             localStorageSize: storedData != null
                 ? (storedData.length / (1000 ** 2)).toFixed(2)
                 : 0
         };
     },
     computed: {
-        ...mapState(["isRenderingGraph"]),
-        ...mapState("settingsModule", ["graphHeight", "postBarHeight"]),
-        ...mapState("dataModule", ["graphs"]),
-        ...mapGetters("dataModule", ["subgraphsInSelectedGraph"]),
+        appStore() {
+            return useAppStore();
+        },
+        settingsStore() {
+            return useSettingsStore();
+        },
+        graphsStore() {
+            return useGraphsStore();
+        },
+        isRenderingGraph() {
+            return this.appStore.isRenderingGraph;
+        },
+        subgraphsInSelectedGraph() {
+            return this.appStore.subgraphsInSelectedGraph;
+        },
+        graphHeight() {
+            return this.settingsStore.graphHeight;
+        },
+        postBarHeight() {
+            return this.settingsStore.postBarHeight;
+        },
+        graphs() {
+            return this.graphsStore.graphs;
+        },
 
         selectedGraphId: {
             get() {
-                return this.$store.state.dataModule.selectedGraphId;
+                return this.appStore.selectedGraphId;
             },
             set(selectedGraphId) {
-                this.$store.commit("dataModule/setSelectedGraphId", selectedGraphId);
+                this.appStore.setSelectedGraphId(selectedGraphId);
             }
         },
         selectedSubgraphIds: {
             get() {
-                return this.$store.state.dataModule.selectedSubgraphIds;
+                return this.appStore.selectedSubgraphIds;
             },
             set(selectedSubgraphIds) {
-                this.$store.commit("dataModule/setSelectedSubgraphIds", selectedSubgraphIds);
+                this.appStore.setSelectedSubgraphIds(selectedSubgraphIds);
             }
         }
     },
     methods: {
-        ...mapMutations("dataModule", ["selectAllSubgraphs"]),
 
         scrollToPostBar() {
             window.scrollBy(0, document.getElementById("postBar").getBoundingClientRect().top - 5);

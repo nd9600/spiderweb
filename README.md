@@ -52,23 +52,62 @@ Posts, links and graphs are all kinda independent:
 I haven't made it yet, but you can host a release wherever you want yourself.
 
 ## Development
-### Offline
+
+Spiderweb is built with **Vue 3 + Pinia + Vite + TypeScript** for a modern development experience.
+
+### Prerequisites
+- [Node.js](https://nodejs.org/en/) (recommend using [NVM](https://github.com/nvm-sh/nvm))
+- For online version: [PHP](https://www.php.net/), [Composer](https://getcomposer.org/doc/00-intro.md), and MySQL
+
+### Offline Development
 To work on the offline version:
 
-1. You need [Node](https://nodejs.org/en/) ([NVM](https://github.com/nvm-sh/nvm) is good for this) and [Gulp](https://gulpjs.com/docs/en/getting-started/quick-start), then
-2. `git clone git@github.com:nd9600/spiderweb.git && cd spiderweb`
-3. `npm install && gulp && npm run dev`
-4. Copy the `assets` folder from `public/` into `dist`/
-5. Then you can open `dist/index.html` and it should load - you might need to change the URLs to the stylesheets & the JS files in the `<script>`s at the bottom to get it to work
+```bash
+git clone git@github.com:nd9600/spiderweb.git && cd spiderweb
+npm install
+npm run dev
+```
 
-### Online
-To work on the online version:
+Open `http://localhost:3000` in your browser. The development server includes hot module replacement for fast development.
 
-1. Install [PHP](https://www.php.net/), [Node](https://nodejs.org/en/) ([NVM](https://github.com/nvm-sh/nvm) is good for this)  and [Gulp](https://gulpjs.com/docs/en/getting-started/quick-start), [Composer](https://getcomposer.org/doc/00-intro.md), for PHP package management, and MySQL for your system (be sure to include any PHP extensions Composer needs, like `php-mysql` or `php-mbstring`)
-2. `git clone git@github.com:nd9600/spiderweb.git && cd spiderweb`
-3. `composer install`
-4. `npm install && gulp && npm run dev`
-5. `php artisan serve`, then it'll be available on `localhost:8000`
+### Online Development (Laravel)
+To work on the full-stack online version:
+
+```bash
+git clone git@github.com:nd9600/spiderweb.git && cd spiderweb
+composer install
+npm install
+```
+
+Then run both servers:
+```bash
+# Terminal 1 - Frontend development server
+npm run dev
+
+# Terminal 2 - Laravel backend server  
+php artisan serve
+```
+
+- Frontend: `http://localhost:3000`
+- Backend API: `http://localhost:8000`
+
+### Production Build
+```bash
+npm run build
+```
+
+Builds the app for production to the `public/dist/` directory.
+
+### Testing
+```bash
+npm test        # Run tests in watch mode
+npm run test:ci # Run tests once (CI mode)
+```
+
+### Type Checking
+```bash
+npm run type-check
+```
 
 ## Known bugs/limitations
 If you find any more bugs, I'd appreciate it if you made [an issue](https://github.com/nd9600/spiderweb/issues/new).

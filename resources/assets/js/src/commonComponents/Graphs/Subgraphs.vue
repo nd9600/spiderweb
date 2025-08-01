@@ -41,8 +41,8 @@
 </template>
 
 <script>
-import {mapGetters, mapMutations, mapState} from "vuex";
-import SubgraphEditor from "./SubgraphEditor";
+import {useAppStore} from "@/src/stores";
+import SubgraphEditor from "./SubgraphEditor.vue";
 
 export default {
     name: "Subgraphs",
@@ -59,8 +59,21 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["graphs", "subgraphs"]),
-        ...mapGetters("dataModule", ["subgraphsInGraph", "postIds", "titleOrBody"]),
+        appStore() {
+            return useAppStore();
+        },
+        graphs() {
+            return this.appStore.graphs;
+        },
+        subgraphs() {
+            return this.appStore.subgraphs;
+        },
+        postIds() {
+            return this.appStore.postIds;
+        },
+        titleOrBody() {
+            return this.appStore.titleOrBody;
+        },
 
         subgraphsInGraph() {
             return this.graphs[this.graphId].subgraphs
@@ -68,10 +81,9 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("dataModule", ["makeNewSubgraph"]),
 
         makeNewSubgraphLocal() {
-            this.makeNewSubgraph({
+            this.appStore.makeNewSubgraph({
                 graphId: this.graphId,
                 newSubgraphName: this.newSubgraphName
             });

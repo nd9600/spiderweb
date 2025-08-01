@@ -112,13 +112,13 @@
     </div>
 </template>
 <script>
-import {mapState, mapGetters, mapMutations} from "vuex";
+import {useAppStore, useSettingsStore} from "@/src/stores";
 
-import LinkEditor from "@/src/commonComponents/Links/LinkEditor";
-import LinkAdder from "@/src/commonComponents/Links/LinkAdder";
-import PostMaker from "@/src/commonComponents/Posts/PostMaker";
-import PostsAttacher from "@/src/commonComponents/Posts/PostsAttacher";
-import PostSearch from "@/src/commonComponents/Posts/PostSearch";
+import LinkEditor from "@/src/commonComponents/Links/LinkEditor.vue";
+import LinkAdder from "@/src/commonComponents/Links/LinkAdder.vue";
+import PostMaker from "@/src/commonComponents/Posts/PostMaker.vue";
+import PostsAttacher from "@/src/commonComponents/Posts/PostsAttacher.vue";
+import PostSearch from "@/src/commonComponents/Posts/PostSearch.vue";
 
 export default {
     name: "FloatingActionButton",
@@ -130,27 +130,58 @@ export default {
         PostSearch
     },
     computed: {
-        ...mapState("settingsModule", ["graphHeight", "canOpenMultiplePosts"]),
-
-        ...mapState("dataModule", ["graphs", "selectedSubgraphIds", "links", "zoom"]),
-        ...mapGetters("dataModule", ["titleOrBody"]),
-
-        ...mapState("clickerModule", ["newLinkSource", "linkToEdit"]),
+        appStore() {
+            return useAppStore();
+        },
+        settingsStore() {
+            return useSettingsStore();
+        },
+        
+        // Settings store properties
+        graphHeight() {
+            return this.settingsStore.graphHeight;
+        },
+        canOpenMultiplePosts() {
+            return this.settingsStore.canOpenMultiplePosts;
+        },
+        
+        // App store properties
+        graphs() {
+            return this.appStore.graphs;
+        },
+        selectedSubgraphIds() {
+            return this.appStore.selectedSubgraphIds;
+        },
+        links() {
+            return this.appStore.links;
+        },
+        zoom() {
+            return this.appStore.zoom;
+        },
+        titleOrBody() {
+            return this.appStore.titleOrBody;
+        },
+        newLinkSource() {
+            return this.appStore.newLinkSource;
+        },
+        linkToEdit() {
+            return this.appStore.linkToEdit;
+        },
 
         shouldShowClickButtonMenu: {
             get() {
-                return this.$store.state.clickerModule.shouldShowClickButtonMenu;
+                return this.appStore.shouldShowClickButtonMenu;
             },
             set(shouldShowClickButtonMenu) {
-                this.setShouldShowClickButtonMenu(shouldShowClickButtonMenu);
+                this.appStore.setShouldShowClickButtonMenu(shouldShowClickButtonMenu);
             }
         },
         clickMode: {
             get() {
-                return this.$store.state.clickerModule.clickMode;
+                return this.appStore.clickMode;
             },
             set(clickMode) {
-                this.setClickMode(clickMode);
+                this.appStore.setClickMode(clickMode);
             }
         },
 
@@ -172,16 +203,6 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("dataModule", [
-            "selectPostId",
-            "setPostPosition"
-        ]),
-
-        ...mapMutations("clickerModule", [
-            "setShouldShowClickButtonMenu",
-            "setClickMode",
-            "setLinkToEdit"
-        ]),
 
         toggleClickButtonMenu() {
             const menuWasPreviouslyShown = this.shouldShowClickButtonMenu;
@@ -204,7 +225,7 @@ export default {
                 x: (Math.abs(this.zoom.x) * (1 / this.zoom.scale)) + 100,
                 y: (Math.abs(this.zoom.y) * (1 / this.zoom.scale)) + 150
             };
-            this.setPostPosition({
+            this.appStore.setPostPosition({
                 postId: newPost.id,
                 position: positionOfNewPost
             });
@@ -214,14 +235,14 @@ export default {
         },
 
         selectPost(post) {
-            this.selectPostId({
+            this.appStore.selectPostId({
                 id: post.id,
                 canOpenMultiplePosts: this.canOpenMultiplePosts
             });
         },
 
         onRemovedLink() {
-            this.setLinkToEdit(null);
+            this.appStore.setLinkToEdit(null);
             this.clickMode = "openPosts";
         }
     }

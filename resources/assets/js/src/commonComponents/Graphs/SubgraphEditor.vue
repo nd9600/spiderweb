@@ -9,7 +9,7 @@
             </h3>
             <button
                 class="py-1 px-2 btn btn--secondary"
-                @click="removeSubgraph(subgraphId)"
+                @click="appStore.removeSubgraph(subgraphId)"
             >
                 Remove
             </button>
@@ -41,7 +41,7 @@
                 <button
                     class="py-1 px-2 btn btn--secondary"
                     :disabled="newSubgraphColour === subgraph.colour"
-                    @click="changeSubgraphColour({subgraphId, colour: newSubgraphColour})"
+                    @click="appStore.changeSubgraphColour({subgraphId, colour: newSubgraphColour})"
                 >
                     Change subgraph colour
                 </button>
@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import {mapGetters, mapMutations, mapState} from "vuex";
+import {useAppStore} from "@/src/stores";
 
 export default {
     name: "SubgraphEditor",
@@ -69,8 +69,18 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["subgraphs"]),
-        ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
+        appStore() {
+            return useAppStore();
+        },
+        subgraphs() {
+            return this.appStore.subgraphs;
+        },
+        postIds() {
+            return this.appStore.postIds;
+        },
+        titleOrBody() {
+            return this.appStore.titleOrBody;
+        },
 
         subgraph() {
             return this.subgraphs[this.subgraphId];
@@ -80,13 +90,12 @@ export default {
         this.newSubgraphColour = this.subgraph.colour || "#000000";
     },
     methods: {
-        ...mapMutations("dataModule", ["changeSubgraphName", "changeSubgraphColour", "removeSubgraph"]),
         changeSubgraphNameLocal() {
             if (this.newSubgraphName.trim().length === 0) {
                 return;
             }
 
-            this.changeSubgraphName({
+            this.appStore.changeSubgraphName({
                 subgraphId: this.subgraphId,
                 newSubgraphName: this.newSubgraphName
             });

@@ -6,7 +6,7 @@
         >
             <button
                 class="btn btn--primary"
-                @click="saveStateToStorage"
+                @click="appStore.saveStateToStorage"
             >
                 Save
             </button>
@@ -173,8 +173,9 @@
 </template>
 
 <script>
-import {mapState, mapGetters, mapActions} from "vuex";
-import BlogpostExporter from "@/src/commonComponents/BlogpostExporter/BlogpostExporter";
+import {useSettingsStore} from "@/src/stores";
+import {useAppStore} from "@/src/stores";
+import BlogpostExporter from "@/src/commonComponents/BlogpostExporter/BlogpostExporter.vue";
 
 export default {
     name: "LoadSave",
@@ -189,12 +190,9 @@ export default {
         };
     },
     computed: {
-        ...mapState("settingsModule", ["shouldAutosave"]),
-
-        ...mapGetters(["storageObject"]),
 
         isAlreadySyncingWithFirebase() {
-            return this.$store.state.settingsModule.remoteStorageMethod === "firebase";
+            return this.settingsStore.remoteStorageMethod === "firebase";
         },
         shouldShowTakeDataFromSelect() {
             return this.shouldImportSettings
@@ -218,7 +216,6 @@ export default {
         }
     },
     methods: {
-        ...mapActions(["saveStateToStorage", "loadStateFromStorage", "importData", "importSettings"]),
 
         onFileUpload(event) {
             const files = event.target.files || event.dataTransfer.files;

@@ -1,4 +1,4 @@
-import {GraphId, LinkId, PostId, SubgraphId} from "@/src/@types/StoreTypes";
+import type {GraphId, LinkId, PostId, SubgraphId} from "@/src/@types/StoreTypes";
 
 export interface LinkSerialised {
     id: LinkId;

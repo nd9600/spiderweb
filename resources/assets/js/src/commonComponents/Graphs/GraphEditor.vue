@@ -7,7 +7,7 @@
             <button
                 v-if="graphId !== '1'"
                 class="py-1 px-2 btn btn--secondary"
-                @click="removeGraph(graphId)"
+                @click="appStore.removeGraph(graphId)"
             >
                 Remove
             </button>
@@ -39,8 +39,8 @@
 </template>
 
 <script>
-import {mapGetters, mapMutations, mapState} from "vuex";
-import Subgraphs from "./Subgraphs";
+import {useAppStore} from "@/src/stores";
+import Subgraphs from "./Subgraphs.vue";
 
 export default {
     name: "GraphEditor",
@@ -60,21 +60,30 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["graphs"]),
-        ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
+        appStore() {
+            return useAppStore();
+        },
+        graphs() {
+            return this.appStore.graphs;
+        },
+        postIds() {
+            return this.appStore.postIds;
+        },
+        titleOrBody() {
+            return this.appStore.titleOrBody;
+        },
 
         graph() {
             return this.graphs[this.graphId];
         },
     },
     methods: {
-        ...mapMutations("dataModule", ["changeGraphName", "removeGraph"]),
         changeGraphNameLocal() {
             if (this.newGraphName.trim().length === 0) {
                 return;
             }
 
-            this.changeGraphName({
+            this.appStore.changeGraphName({
                 graphId: this.graphId,
                 newGraphName: this.newGraphName
             });

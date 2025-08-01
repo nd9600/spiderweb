@@ -63,8 +63,8 @@
     </section>
 </template>
 <script>
-import PostMaker from "@/src/commonComponents/Posts/PostMaker";
-import {mapState, mapGetters, mapMutations} from "vuex";
+import PostMaker from "@/src/commonComponents/Posts/PostMaker.vue";
+import { useAppStore, useGraphsStore, useSubgraphsStore, usePostsStore } from '@/src/stores';
 
 export default {
     name: "AddLinkedPost",
@@ -85,19 +85,44 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["graphs", "selectedGraphId", "selectedSubgraphIds", "zoom"]),
-        ...mapGetters("dataModule", ["titleOrBody", "subgraphsInSelectedGraph"]),
-
+        appStore() {
+            return useAppStore();
+        },
+        graphsStore() {
+            return useGraphsStore();
+        },
+        subgraphsStore() {
+            return useSubgraphsStore();
+        },
+        postsStore() {
+            return usePostsStore();
+        },
+        graphs() {
+            return this.graphsStore.graphs;
+        },
+        selectedGraphId() {
+            return this.appStore.selectedGraphId;
+        },
+        selectedSubgraphIds() {
+            return this.appStore.selectedSubgraphIds;
+        },
+        zoom() {
+            return this.appStore.zoom;
+        },
+        titleOrBody() {
+            return this.postsStore.titleOrBody;
+        },
+        subgraphsInSelectedGraph() {
+            return this.subgraphsStore.subgraphsInSelectedGraph;
+        },
         nodePositions() {
-            return this.$store.state.dataModule.graphs[this.selectedGraphId].nodePositions;
+            return this.graphs[this.selectedGraphId].nodePositions;
         }
     },
     created() {
         this.subgraphIdsToAttachPostTo = this.selectedSubgraphIds;
     },
     methods: {
-        ...mapMutations("dataModule", ["addLink", "setPostPosition", "addPostToSubgraph"]),
-
         toggleFromOrToTheNewPost() {
             const newValue = this.fromOrToNewPost === "from"
                 ? "to"
@@ -112,7 +137,7 @@ export default {
             const target = this.fromOrToNewPost === "to"
                 ? newPost.id
                 : this.post.id;
-            this.addLink({
+            this.postsStore.addLink({
                 source: source,
                 target: target,
                 graph: this.selectedGraphId,
@@ -134,14 +159,14 @@ export default {
                     y: (Math.abs(this.zoom.y) * (1 / this.zoom.scale)) + 150
                 };
             }
-            this.setPostPosition({
+            this.graphsStore.setPostPosition({
                 postId: newPost.id,
                 position: positionOfNewPost
             });
 
             if (this.subgraphIdsToAttachPostTo.length > 0) {
                 for (const subgraphId of this.subgraphIdsToAttachPostTo) {
-                    this.addPostToSubgraph({
+                    this.postsStore.addPostToSubgraph({
                         subgraphId,
                         postId: newPost.id
                     });

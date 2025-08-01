@@ -80,7 +80,7 @@
     </div>
 </template>
 <script>
-import {mapMutations, mapGetters, mapState} from "vuex";
+import { useAppStore, useSubgraphsStore, usePostsStore } from '@/src/stores';
 
 export default {
     name: "PostAttacher",
@@ -102,9 +102,24 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["selectedGraphId"]),
-        ...mapGetters("dataModule", ["subgraphsInSelectedGraph", "linkedSubgraphs"]),
-
+        appStore() {
+            return useAppStore();
+        },
+        subgraphsStore() {
+            return useSubgraphsStore();
+        },
+        postsStore() {
+            return usePostsStore();
+        },
+        selectedGraphId() {
+            return this.appStore.selectedGraphId;
+        },
+        subgraphsInSelectedGraph() {
+            return this.subgraphsStore.subgraphsInSelectedGraph;
+        },
+        linkedSubgraphs() {
+            return this.postsStore.linkedSubgraphs;
+        },
         subgraphsNotAlreadyAttachedTo() {
             const subgraphsAlreadyAttachedTo = this.linkedSubgraphs(this.post.id)
                 .map(id => parseInt(id, 10));
@@ -118,11 +133,9 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("dataModule", ["addPostToGraph", "addPostToSubgraph"]),
-
         attachPost() {
             if (this.shouldAttachPostToGraph) {
-                this.addPostToGraph({
+                this.postsStore.addPostToGraph({
                     graphId: this.selectedGraphId,
                     postId: this.post.id
                 });
@@ -130,7 +143,7 @@ export default {
 
             if (this.subgraphIdsToAttachPostTo.length > 0) {
                 for (const subgraphId of this.subgraphIdsToAttachPostTo) {
-                    this.addPostToSubgraph({
+                    this.postsStore.addPostToSubgraph({
                         subgraphId,
                         postId: this.post.id
                     });

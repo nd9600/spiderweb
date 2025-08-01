@@ -63,12 +63,12 @@
 </template>
 
 <script>
-import {mapActions, mapState} from "vuex";
+import { useAppStore, useSettingsStore } from "@/src/stores";
 
-import Viewer from "@/src/commonComponents/Viewer/Viewer";
-import Graphs from "@/src/commonComponents/Graphs/Graphs";
-import LoadSave from "@/src/commonComponents/LoadSave";
-import Settings from "@/src/commonComponents/Settings/Settings";
+import Viewer from "@/src/commonComponents/Viewer/Viewer.vue";
+import Graphs from "@/src/commonComponents/Graphs/Graphs.vue";
+import LoadSave from "@/src/commonComponents/LoadSave.vue";
+import Settings from "@/src/commonComponents/Settings/Settings.vue";
 
 export default {
     name: "OfflineApp",
@@ -102,22 +102,29 @@ export default {
         };
     },
     computed: {
-        ...mapState(["loadingApp", "failedToLoadData"])
+        appStore() {
+            return useAppStore();
+        },
+        settingsStore() {
+            return useSettingsStore();
+        },
+        loadingApp() {
+            return this.appStore.loadingApp;
+        },
+        failedToLoadData() {
+            return this.appStore.failedToLoadData;
+        }
     },
     methods: {
-        ...mapActions(["loadStateFromStorage"]),
-        ...mapActions("settingsModule", ["setRemoteStorageMethod",]),
 
         refreshPage() {
             window.location.reload();
         },
 
         async switchToLoadingDataFromLocalStorage() {
-            await this.setRemoteStorageMethod({
-                remoteStorageMethod: "none",
-                shouldTakeDataFrom: "local"
-            });
-            await this.loadStateFromStorage();
+            this.settingsStore.setRemoteStorageMethod("none");
+            await this.appStore.loadDataFrom("local");
+            await this.appStore.loadStateFromStorage();
         }
     }
 };

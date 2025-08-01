@@ -23,10 +23,10 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { useAppStore, usePostsStore } from '@/src/stores';
 
-import Post from "./Post";
-import PostBarScrollButtons from "./PostBarScrollButtons";
+import Post from "./Post.vue";
+import PostBarScrollButtons from "./PostBarScrollButtons.vue";
 
 export default {
     name: "PostBar",
@@ -35,7 +35,18 @@ export default {
         PostBarScrollButtons
     },
     computed: {
-        ...mapState("dataModule", ["posts", "selectedPostIds"]),
+        appStore() {
+            return useAppStore();
+        },
+        postsStore() {
+            return usePostsStore();
+        },
+        posts() {
+            return this.postsStore.posts;
+        },
+        selectedPostIds() {
+            return this.appStore.selectedPostIds;
+        }
     },
 };
 </script>

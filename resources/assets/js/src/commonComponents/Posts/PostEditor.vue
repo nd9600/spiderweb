@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import {mapActions, mapMutations} from "vuex";
+import { usePostsStore } from "@/src/stores";
 
 export default {
     name: "PostEditor",
@@ -64,8 +64,9 @@ export default {
         };
     },
     methods: {
-        ...mapMutations("dataModule", ["deletePost"]),
-        ...mapActions("dataModule", ["updatePostTitle", "updatePostBody"]),
+        postsStore() {
+            return usePostsStore();
+        },
 
         toggleTitleInput() {
             const dontLetUserHideTitleInput = this.showTitleInput
@@ -81,20 +82,20 @@ export default {
             if (!confirm("Are you sure you want to remove this post? ")) {
                 return;
             }
-            this.deletePost({
+            this.postsStore().deletePost({
                 id: this.post.id
             });
         },
 
         onTitleUpdate(title) {
-            this.updatePostTitle({
+            this.postsStore().updatePostTitle({
                 id: this.post.id,
                 title,
                 updatedAt: new Date().toISOString()
             });
         },
         onBodyUpdate(body) {
-            this.updatePostBody({
+            this.postsStore().updatePostBody({
                 id: this.post.id,
                 body,
                 updatedAt: new Date().toISOString()
