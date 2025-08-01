@@ -60,8 +60,8 @@ class MakeOfflineRelease extends Command
         
         // Find the built JS file (Vite generates hashed filenames)
         $assetsDir = base_path('dist/assets');
-        $jsFiles = glob($assetsDir . '/main-*.js');
-        $cssFiles = glob($assetsDir . '/main-*.css');
+        $jsFiles = glob($assetsDir . '/index-*.js');
+        $cssFiles = glob($assetsDir . '/index-*.css');
         
         if (!empty($jsFiles)) {
             $jsFile = basename($jsFiles[0]);
@@ -72,12 +72,12 @@ class MakeOfflineRelease extends Command
                 $content
             );
         } else {
-            $this->warn("No built JS file found, checking for main.js");
-            // Fallback to main.js if no hashed file found
-            if (file_exists($assetsDir . '/main.js')) {
+            $this->warn("No built JS file found, checking for index.js");
+            // Fallback to index.js if no hashed file found
+            if (file_exists($assetsDir . '/index.js')) {
                 $content = preg_replace(
                     '/src="\/resources\/assets\/js\/src\/main\.ts"/',
-                    'src="./assets/main.js"',
+                    'src="./assets/index.js"',
                     $content
                 );
             }

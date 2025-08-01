@@ -13,11 +13,10 @@
         </h2>
     </noscript>
     <div
-        id="offlineGraphApp"
+        id="app"
         class="min-h-full h-full"
     ></div>
 </div>
 
-<script src="{{ Helper::getAssetPath('js/vendors.js') }}"></script>
-<script src="{{ Helper::getAssetPath('js/offline/graph.js') }}"></script>
+@vite('resources/assets/js/src/main.ts')
 @endsection
