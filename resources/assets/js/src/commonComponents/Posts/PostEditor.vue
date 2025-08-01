@@ -63,10 +63,12 @@ export default {
             showTitleInput: this.post.title.length > 0,
         };
     },
-    methods: {
+    computed: {
         postsStore() {
             return usePostsStore();
-        },
+        }
+    },
+    methods: {
 
         toggleTitleInput() {
             const dontLetUserHideTitleInput = this.showTitleInput

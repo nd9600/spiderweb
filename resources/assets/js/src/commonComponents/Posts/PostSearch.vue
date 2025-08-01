@@ -60,14 +60,17 @@ export default {
         postsStore() {
             return usePostsStore();
         },
+        linksStore() {
+            return useLinksStore();
+        },
         posts() {
             return this.postsStore.posts;
         },
         titleOrBody() {
-            return this.appStore.titleOrBody;
+            return this.postsStore.titleOrBody;
         },
         postIdsThatLinkToPost() {
-            return this.appStore.postIdsThatLinkToPost;
+            return this.linksStore.postIdsThatLinkToPost;
         }
     },
     watch: {

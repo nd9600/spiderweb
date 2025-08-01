@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import {useAppStore} from "@/src/stores";
+import {useAppStore, useGraphsStore, useSubgraphsStore, usePostsStore} from "@/src/stores";
 import SubgraphEditor from "./SubgraphEditor.vue";
 
 export default {
@@ -62,17 +62,26 @@ export default {
         appStore() {
             return useAppStore();
         },
+        graphsStore() {
+            return useGraphsStore();
+        },
+        subgraphsStore() {
+            return useSubgraphsStore();
+        },
+        postsStore() {
+            return usePostsStore();
+        },
         graphs() {
-            return this.appStore.graphs;
+            return this.graphsStore.graphs;
         },
         subgraphs() {
-            return this.appStore.subgraphs;
+            return this.subgraphsStore.subgraphs;
         },
         postIds() {
-            return this.appStore.postIds;
+            return this.postsStore.postIds;
         },
         titleOrBody() {
-            return this.appStore.titleOrBody;
+            return this.postsStore.titleOrBody;
         },
 
         subgraphsInGraph() {
@@ -83,7 +92,7 @@ export default {
     methods: {
 
         makeNewSubgraphLocal() {
-            this.appStore.makeNewSubgraph({
+            this.subgraphsStore.makeNewSubgraph({
                 graphId: this.graphId,
                 newSubgraphName: this.newSubgraphName
             });

@@ -33,15 +33,15 @@
 </template>
 
 <script>
-import { usePostsStore } from "@/src/stores";
+import { useAppStore } from "@/src/stores";
 
 export default {
     name: "PostBarScrollButtons",
     setup() {
-        const postsStore = usePostsStore();
+        const appStore = useAppStore();
 
         return {
-            postsStore
+            appStore
         };
     },
     data() {
@@ -52,7 +52,7 @@ export default {
     },
     computed: {
         selectedPostIds() {
-            return this.postsStore.selectedPostIds;
+            return this.appStore.selectedPostIds;
         },
 
         numberOfPostsHiddenToTheLeft() {

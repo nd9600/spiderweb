@@ -59,14 +59,17 @@ export default {
         graphsStore() {
             return useGraphsStore();
         },
+        postsStore() {
+            return usePostsStore();
+        },
         graphs() {
             return this.graphsStore.graphs;
         },
         postIds() {
-            return this.appStore.postIds;
+            return this.postsStore.postIds;
         },
         titleOrBody() {
-            return this.appStore.titleOrBody;
+            return this.postsStore.titleOrBody;
         }
     },
     methods: {

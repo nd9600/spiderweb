@@ -9,7 +9,7 @@
             </h3>
             <button
                 class="py-1 px-2 btn btn--secondary"
-                @click="appStore.removeSubgraph(subgraphId)"
+                @click="subgraphsStore.removeSubgraph(subgraphId)"
             >
                 Remove
             </button>
@@ -41,7 +41,7 @@
                 <button
                     class="py-1 px-2 btn btn--secondary"
                     :disabled="newSubgraphColour === subgraph.colour"
-                    @click="appStore.changeSubgraphColour({subgraphId, colour: newSubgraphColour})"
+                    @click="subgraphsStore.changeSubgraphColour({subgraphId, colour: newSubgraphColour})"
                 >
                     Change subgraph colour
                 </button>
@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import {useAppStore} from "@/src/stores";
+import {useAppStore, useSubgraphsStore, usePostsStore} from "@/src/stores";
 
 export default {
     name: "SubgraphEditor",
@@ -72,14 +72,20 @@ export default {
         appStore() {
             return useAppStore();
         },
+        subgraphsStore() {
+            return useSubgraphsStore();
+        },
+        postsStore() {
+            return usePostsStore();
+        },
         subgraphs() {
-            return this.appStore.subgraphs;
+            return this.subgraphsStore.subgraphs;
         },
         postIds() {
-            return this.appStore.postIds;
+            return this.postsStore.postIds;
         },
         titleOrBody() {
-            return this.appStore.titleOrBody;
+            return this.postsStore.titleOrBody;
         },
 
         subgraph() {
@@ -95,7 +101,7 @@ export default {
                 return;
             }
 
-            this.appStore.changeSubgraphName({
+            this.subgraphsStore.changeSubgraphName({
                 subgraphId: this.subgraphId,
                 newSubgraphName: this.newSubgraphName
             });

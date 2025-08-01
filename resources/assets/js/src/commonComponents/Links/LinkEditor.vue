@@ -152,10 +152,10 @@ export default {
             return this.postsStore.posts;
         },
         postIds() {
-            return this.appStore.postIds;
+            return this.postsStore.postIds;
         },
         titleOrBody() {
-            return this.appStore.titleOrBody;
+            return this.postsStore.titleOrBody;
         },
 
         subgraphsLinkIsIn: {

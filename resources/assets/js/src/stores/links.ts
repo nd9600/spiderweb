@@ -13,6 +13,24 @@ export const useLinksStore = defineStore('links', () => {
   // Getters
   const linkIds = computed(() => Object.keys(links.value))
 
+  const postIdsThatLinkToPost = computed(() => (postId: PostId) => {
+    let fromPostIds: Record<LinkId, PostId> = {}
+    let toPostIds: Record<LinkId, PostId> = {}
+
+    Object.values(links.value).forEach((link) => {
+      if (link.source === postId) {
+        fromPostIds[link.id] = link.target
+      } else if (link.target === postId) {
+        toPostIds[link.id] = link.source
+      }
+    })
+
+    return {
+      from: fromPostIds,
+      to: toPostIds,
+    }
+  })
+
   // Actions
   function addLink(payload: {
     source: PostId
@@ -131,6 +149,7 @@ export const useLinksStore = defineStore('links', () => {
     
     // Getters
     linkIds,
+    postIdsThatLinkToPost,
     
     // Actions
     addLink,

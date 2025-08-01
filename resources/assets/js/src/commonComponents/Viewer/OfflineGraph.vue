@@ -94,6 +94,12 @@ export default {
         graphsStore() {
             return useGraphsStore();
         },
+        subgraphsStore() {
+            return useSubgraphsStore();
+        },
+        postsStore() {
+            return usePostsStore();
+        },
         canOpenMultiplePosts() {
             return this.settingsStore.canOpenMultiplePosts;
         },
@@ -110,10 +116,10 @@ export default {
             return this.appStore.linksInSelectedSubgraphs;
         },
         subgraphColour() {
-            return this.appStore.subgraphColour;
+            return this.subgraphsStore.subgraphColour;
         },
         titleOrBody() {
-            return this.appStore.titleOrBody;
+            return this.postsStore.titleOrBody;
         },
         isNeighbour() {
             return this.appStore.isNeighbour;

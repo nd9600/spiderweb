@@ -95,6 +95,9 @@ export default {
         subgraphsStore() {
             return useSubgraphsStore();
         },
+        postsStore() {
+            return usePostsStore();
+        },
         subgraphs() {
             return this.subgraphsStore.subgraphs;
         },
@@ -102,7 +105,7 @@ export default {
             return this.appStore.selectedSubgraphIds;
         },
         titleOrBody() {
-            return this.appStore.titleOrBody;
+            return this.postsStore.titleOrBody;
         },
         newLinkSource() {
             return this.appStore.newLinkSource;

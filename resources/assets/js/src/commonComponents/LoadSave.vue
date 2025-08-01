@@ -190,6 +190,16 @@ export default {
         };
     },
     computed: {
+        appStore() {
+            return useAppStore();
+        },
+        settingsStore() {
+            return useSettingsStore();
+        },
+
+        shouldAutosave() {
+            return this.settingsStore.shouldAutosave;
+        },
 
         isAlreadySyncingWithFirebase() {
             return this.settingsStore.remoteStorageMethod === "firebase";

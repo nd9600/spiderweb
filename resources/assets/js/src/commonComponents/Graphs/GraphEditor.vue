@@ -7,7 +7,7 @@
             <button
                 v-if="graphId !== '1'"
                 class="py-1 px-2 btn btn--secondary"
-                @click="appStore.removeGraph(graphId)"
+                @click="graphsStore.removeGraph(graphId)"
             >
                 Remove
             </button>
@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import {useAppStore} from "@/src/stores";
+import {useAppStore, useGraphsStore, usePostsStore} from "@/src/stores";
 import Subgraphs from "./Subgraphs.vue";
 
 export default {
@@ -63,14 +63,20 @@ export default {
         appStore() {
             return useAppStore();
         },
+        graphsStore() {
+            return useGraphsStore();
+        },
+        postsStore() {
+            return usePostsStore();
+        },
         graphs() {
-            return this.appStore.graphs;
+            return this.graphsStore.graphs;
         },
         postIds() {
-            return this.appStore.postIds;
+            return this.postsStore.postIds;
         },
         titleOrBody() {
-            return this.appStore.titleOrBody;
+            return this.postsStore.titleOrBody;
         },
 
         graph() {
@@ -83,7 +89,7 @@ export default {
                 return;
             }
 
-            this.appStore.changeGraphName({
+            this.graphsStore.changeGraphName({
                 graphId: this.graphId,
                 newGraphName: this.newGraphName
             });

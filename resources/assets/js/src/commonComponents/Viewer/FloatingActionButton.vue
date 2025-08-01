@@ -112,7 +112,7 @@
     </div>
 </template>
 <script>
-import {useAppStore, useSettingsStore} from "@/src/stores";
+import {useAppStore, useSettingsStore, useGraphsStore, useLinksStore, usePostsStore} from "@/src/stores";
 
 import LinkEditor from "@/src/commonComponents/Links/LinkEditor.vue";
 import LinkAdder from "@/src/commonComponents/Links/LinkAdder.vue";
@@ -136,6 +136,15 @@ export default {
         settingsStore() {
             return useSettingsStore();
         },
+        graphsStore() {
+            return useGraphsStore();
+        },
+        linksStore() {
+            return useLinksStore();
+        },
+        postsStore() {
+            return usePostsStore();
+        },
         
         // Settings store properties
         graphHeight() {
@@ -147,19 +156,19 @@ export default {
         
         // App store properties
         graphs() {
-            return this.appStore.graphs;
+            return this.graphsStore.graphs;
         },
         selectedSubgraphIds() {
             return this.appStore.selectedSubgraphIds;
         },
         links() {
-            return this.appStore.links;
+            return this.linksStore.links;
         },
         zoom() {
             return this.appStore.zoom;
         },
         titleOrBody() {
-            return this.appStore.titleOrBody;
+            return this.postsStore.titleOrBody;
         },
         newLinkSource() {
             return this.appStore.newLinkSource;
@@ -225,7 +234,7 @@ export default {
                 x: (Math.abs(this.zoom.x) * (1 / this.zoom.scale)) + 100,
                 y: (Math.abs(this.zoom.y) * (1 / this.zoom.scale)) + 150
             };
-            this.appStore.setPostPosition({
+            this.graphsStore.setPostPosition({
                 postId: newPost.id,
                 position: positionOfNewPost
             });
