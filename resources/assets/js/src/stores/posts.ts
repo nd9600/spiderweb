@@ -31,6 +31,21 @@ export const usePostsStore = defineStore('posts', () => {
       : strToReturn
   })
 
+  const unattachedPosts = computed(() => {
+    const graphsStore = useGraphsStore()
+    const allAttachedPostIds = Object.values(graphsStore.graphs)
+      .flatMap(graph => graph.nodes)
+    
+    return Object.values(posts.value).filter(post => 
+      !allAttachedPostIds.includes(post.id)
+    )
+  })
+
+  const linkIds = computed(() => {
+    const linksStore = useLinksStore()
+    return Object.keys(linksStore.links)
+  })
+
   // Actions
   async function makeNewPost(payload: {
     title: string
@@ -113,6 +128,8 @@ export const usePostsStore = defineStore('posts', () => {
     // Getters
     postIds,
     titleOrBody,
+    unattachedPosts,
+    linkIds,
     
     // Actions
     makeNewPost,

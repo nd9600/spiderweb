@@ -31,6 +31,18 @@ export const useSubgraphsStore = defineStore('subgraphs', () => {
     return (subgraph?.colour) || stringToColour(`${String(subgraphId)}salt and pepper are good for hashes`)
   })
 
+  const linkedSubgraphs = computed(() => (postId: PostId) => {
+    const subgraphIds: SubgraphId[] = []
+    
+    for (const [subgraphId, subgraph] of Object.entries(subgraphs.value)) {
+      if (subgraph.nodes.includes(postId)) {
+        subgraphIds.push(subgraphId)
+      }
+    }
+    
+    return subgraphIds
+  })
+
   // Actions
   function makeNewSubgraph(payload: { graphId: GraphId; newSubgraphName: string }) {
     const { graphId, newSubgraphName } = payload
@@ -136,6 +148,7 @@ export const useSubgraphsStore = defineStore('subgraphs', () => {
     
     // Getters
     subgraphColour,
+    linkedSubgraphs,
     
     // Actions
     makeNewSubgraph,

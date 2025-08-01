@@ -80,7 +80,7 @@
     </div>
 </template>
 <script>
-import { useAppStore, useSubgraphsStore, usePostsStore } from '@/src/stores';
+import { useAppStore, useSubgraphsStore, usePostsStore, useGraphsStore } from '@/src/stores';
 
 export default {
     name: "PostAttacher",
@@ -111,14 +111,17 @@ export default {
         postsStore() {
             return usePostsStore();
         },
+        graphsStore() {
+            return useGraphsStore();
+        },
         selectedGraphId() {
             return this.appStore.selectedGraphId;
         },
         subgraphsInSelectedGraph() {
-            return this.subgraphsStore.subgraphsInSelectedGraph;
+            return this.appStore.subgraphsInSelectedGraph;
         },
         linkedSubgraphs() {
-            return this.postsStore.linkedSubgraphs;
+            return this.subgraphsStore.linkedSubgraphs;
         },
         subgraphsNotAlreadyAttachedTo() {
             const subgraphsAlreadyAttachedTo = this.linkedSubgraphs(this.post.id)
@@ -135,7 +138,7 @@ export default {
     methods: {
         attachPost() {
             if (this.shouldAttachPostToGraph) {
-                this.postsStore.addPostToGraph({
+                this.graphsStore.addPostToGraph({
                     graphId: this.selectedGraphId,
                     postId: this.post.id
                 });
@@ -143,7 +146,7 @@ export default {
 
             if (this.subgraphIdsToAttachPostTo.length > 0) {
                 for (const subgraphId of this.subgraphIdsToAttachPostTo) {
-                    this.postsStore.addPostToSubgraph({
+                    this.subgraphsStore.addPostToSubgraph({
                         subgraphId,
                         postId: this.post.id
                     });

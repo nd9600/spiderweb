@@ -492,8 +492,9 @@ export default {
                 }
                 node.fx = event.x;
                 node.fy = event.y;
-                vm.appStore.setPostPosition({
+                vm.graphsStore.setPostPosition({
                     postId: node.id,
+                    graphId: vm.selectedGraphId,
                     position: {
                         x: event.x,
                         y: event.y
@@ -509,11 +510,18 @@ export default {
 
         highlightPost(postId) {
             const textElement = document.getElementById(`text-${postId}`);
+            if (!textElement) {
+                return;
+            }
+            
             d3select(textElement)
                 .style("filter", "url(#postHoverFilter)");
 
             // SVG doesn't have a z-index, the z-direction is by element order, this re-inserts the parent <node> in the DOM at the bottom of its parent so this text is on top of any others
-            d3select(d3select(textElement).node().parentNode).raise();
+            const parentNode = d3select(textElement).node().parentNode;
+            if (parentNode) {
+                d3select(parentNode).raise();
+            }
 
             const nonNeighbourNodes = this.nodeSelection.filter(otherPost => {
                 if (postId === otherPost.id) {

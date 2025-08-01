@@ -50,5 +50,10 @@ export interface DataModuleStateSerialised {
     selectedPostIds: PostId[],
     selectedGraphId: Nullable<GraphId>,
     selectedSubgraphIds: SubgraphId[],
-    zoom: Zoom
+    zoom: Zoom,
+    
+    // Clicker/UI state
+    clickMode?: string,
+    shouldShowClickButtonMenu?: boolean,
+    linkToEdit?: Nullable<string>
 }

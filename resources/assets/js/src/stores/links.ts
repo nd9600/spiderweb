@@ -31,7 +31,29 @@ export const useLinksStore = defineStore('links', () => {
     }
   })
 
+  const subgraphsLinkIsIn = computed(() => (linkId: LinkId) => {
+    const subgraphsStore = useSubgraphsStore()
+    const subgraphIds: SubgraphId[] = []
+    
+    for (const [subgraphId, subgraph] of Object.entries(subgraphsStore.subgraphs)) {
+      if (subgraph.links.includes(linkId)) {
+        subgraphIds.push(subgraphId)
+      }
+    }
+    
+    return subgraphIds
+  })
+
   // Actions
+  function generateLinkId(): string {
+    const existingLinkIds = Object.keys(links.value)
+    const highestLinkId = existingLinkIds.length === 0
+      ? 0
+      : Math.max(...existingLinkIds.map(id => parseInt(id, 10)))
+    
+    return String(highestLinkId + 1)
+  }
+
   function addLink(payload: {
     source: PostId
     target: PostId
@@ -135,6 +157,27 @@ export const useLinksStore = defineStore('links', () => {
     delete links.value[id]
   }
 
+  function setSubgraphsLinkIsIn(payload: { linkId: LinkId; subgraphsLinkIsIn: SubgraphId[] }) {
+    const { linkId, subgraphsLinkIsIn } = payload
+    const subgraphsStore = useSubgraphsStore()
+    
+    // First remove the link from all subgraphs
+    for (const subgraph of Object.values(subgraphsStore.subgraphs)) {
+      const linkIndex = subgraph.links.indexOf(linkId)
+      if (linkIndex >= 0) {
+        subgraph.links.splice(linkIndex, 1)
+      }
+    }
+    
+    // Then add the link to the specified subgraphs
+    for (const subgraphId of subgraphsLinkIsIn) {
+      const subgraph = subgraphsStore.subgraphs[subgraphId]
+      if (subgraph && !subgraph.links.includes(linkId)) {
+        subgraph.links.push(linkId)
+      }
+    }
+  }
+
   function setLinks(newLinks: Record<LinkId, LinkSerialised>) {
     links.value = newLinks
   }
@@ -150,13 +193,16 @@ export const useLinksStore = defineStore('links', () => {
     // Getters
     linkIds,
     postIdsThatLinkToPost,
+    subgraphsLinkIsIn,
     
     // Actions
+    generateLinkId,
     addLink,
     updateLink,
     changeLinkSource,
     changeLinkTarget,
     removeLink,
+    setSubgraphsLinkIsIn,
     setLinks,
     setState
   }

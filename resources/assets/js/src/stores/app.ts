@@ -48,6 +48,18 @@ export const useAppStore = defineStore('app', () => {
     scale: INITIAL_ZOOM,
   })
 
+  // Clicker/UI state
+  const clickMode = ref<string>('openPosts')
+  const shouldShowClickButtonMenu = ref<boolean>(false)
+  const linkToEdit = ref<Nullable<string>>(null)
+  
+  // Link editing state
+  const newLinkSource = ref<Nullable<PostId>>(null)
+  const newLinkType = ref<string>('reply')
+  const newLinkSubgraphIds = ref<SubgraphId[]>([])
+  const wantsToChangeSource = ref<boolean>(false)
+  const wantsToChangeTarget = ref<boolean>(false)
+
   // Getters
   const storageObject = computed(() => {
     const postsStore = usePostsStore()
@@ -66,7 +78,10 @@ export const useAppStore = defineStore('app', () => {
         selectedPostIds: selectedPostIds.value,
         selectedGraphId: selectedGraphId.value,
         selectedSubgraphIds: selectedSubgraphIds.value,
-        zoom: zoom.value
+        zoom: zoom.value,
+        clickMode: clickMode.value,
+        shouldShowClickButtonMenu: shouldShowClickButtonMenu.value,
+        linkToEdit: linkToEdit.value
       },
       settingsModule: settingsStore.$state,
       firebaseModule: firebaseStore.$state,
@@ -161,6 +176,17 @@ export const useAppStore = defineStore('app', () => {
     }
   })
 
+  // Helper function to check if two posts are neighbors (connected by a link)
+  const isNeighbour = computed(() => {
+    const linksStore = useLinksStore()
+    return (postId1: PostId, postId2: PostId): boolean => {
+      return Object.values(linksStore.links).some(link => 
+        (link.source === postId1 && link.target === postId2) ||
+        (link.source === postId2 && link.target === postId1)
+      )
+    }
+  })
+
   // Actions
   function setLoadingApp(loading: boolean) {
     loadingApp.value = loading
@@ -246,6 +272,72 @@ export const useAppStore = defineStore('app', () => {
       selectedSubgraphIds.value.splice(selectedSubgraphIds.value.indexOf(subgraphId), 1)
     } else {
       selectedSubgraphIds.value.push(subgraphId)
+    }
+  }
+
+  // Clicker/UI actions
+  function setClickMode(mode: string) {
+    clickMode.value = mode
+  }
+
+  function setShouldShowClickButtonMenu(show: boolean) {
+    shouldShowClickButtonMenu.value = show
+  }
+
+  function setLinkToEdit(linkId: Nullable<string>) {
+    linkToEdit.value = linkId
+  }
+
+  // Link editing actions
+  function setNewLinkSource(postId: Nullable<PostId>) {
+    newLinkSource.value = postId
+  }
+
+  function setNewLinkType(type: string) {
+    newLinkType.value = type
+  }
+
+  function setNewLinkSubgraphIds(subgraphIds: SubgraphId[]) {
+    newLinkSubgraphIds.value = subgraphIds
+  }
+
+  function setWantsToChangeSource(wants: boolean) {
+    wantsToChangeSource.value = wants
+  }
+
+  function setWantsToChangeTarget(wants: boolean) {
+    wantsToChangeTarget.value = wants
+  }
+
+  function handlePostClick(post: any) {
+    const postsStore = usePostsStore()
+    const linksStore = useLinksStore()
+    const settingsStore = useSettingsStore()
+    
+    if (clickMode.value === 'openPosts') {
+      selectPostId({
+        id: post.id,
+        canOpenMultiplePosts: settingsStore.canOpenMultiplePosts
+      })
+    } else if (clickMode.value === 'addLinks') {
+      if (!newLinkSource.value) {
+        setNewLinkSource(post.id)
+      } else {
+        // Create the new link
+        if (selectedGraphId.value && newLinkSource.value) {
+          linksStore.addLink({
+            graph: selectedGraphId.value,
+            source: newLinkSource.value,
+            target: post.id,
+            type: newLinkType.value,
+            subgraphIds: newLinkSubgraphIds.value
+          })
+        }
+        
+        // Reset link creation state
+        setNewLinkSource(null)
+        setClickMode('openPosts')
+      }
     }
   }
 
@@ -449,6 +541,11 @@ export const useAppStore = defineStore('app', () => {
       y: HEIGHT / 2,
       scale: INITIAL_ZOOM,
     }
+
+    // Restore clicker/UI state
+    clickMode.value = newState.clickMode || 'openPosts'
+    shouldShowClickButtonMenu.value = newState.shouldShowClickButtonMenu || false
+    linkToEdit.value = newState.linkToEdit || null
   }
 
   return {
@@ -460,6 +557,14 @@ export const useAppStore = defineStore('app', () => {
     selectedGraphId,
     selectedSubgraphIds,
     zoom,
+    clickMode,
+    shouldShowClickButtonMenu,
+    linkToEdit,
+    newLinkSource,
+    newLinkType,
+    newLinkSubgraphIds,
+    wantsToChangeSource,
+    wantsToChangeTarget,
 
     // Getters
     storageObject,
@@ -467,6 +572,7 @@ export const useAppStore = defineStore('app', () => {
     postIdsInSelectedSubgraphs,
     postsInSelectedSubgraphs,
     linksInSelectedSubgraphs,
+    isNeighbour,
 
     // Actions
     setLoadingApp,
@@ -483,6 +589,15 @@ export const useAppStore = defineStore('app', () => {
     selectAllSubgraphs,
     toggleSubgraphId,
     setZoom,
+    setClickMode,
+    setShouldShowClickButtonMenu,
+    setLinkToEdit,
+    setNewLinkSource,
+    setNewLinkType,
+    setNewLinkSubgraphIds,
+    setWantsToChangeSource,
+    setWantsToChangeTarget,
+    handlePostClick,
     saveStateToLocalStorage,
     saveStateToStorage,
     loadStateFromStorage,

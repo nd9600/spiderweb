@@ -166,7 +166,7 @@ export default {
 
             if (this.subgraphIdsToAttachPostTo.length > 0) {
                 for (const subgraphId of this.subgraphIdsToAttachPostTo) {
-                    this.postsStore.addPostToSubgraph({
+                    this.subgraphsStore.addPostToSubgraph({
                         subgraphId,
                         postId: newPost.id
                     });

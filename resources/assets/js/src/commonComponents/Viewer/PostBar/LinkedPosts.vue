@@ -95,8 +95,7 @@
 </template>
 
 <script>
-import { usePostsStore } from "@/src/stores";
-import { useSettingsStore } from "@/src/stores";
+import { usePostsStore, useSettingsStore, useAppStore, useLinksStore } from "@/src/stores";
 
 export default {
     name: "LinkedPosts",
@@ -109,10 +108,14 @@ export default {
     setup() {
         const postsStore = usePostsStore();
         const settingsStore = useSettingsStore();
+        const appStore = useAppStore();
+        const linksStore = useLinksStore();
 
         return {
             postsStore,
-            settingsStore
+            settingsStore,
+            appStore,
+            linksStore
         };
     },
     computed: {
@@ -126,7 +129,7 @@ export default {
             return this.postsStore.titleOrBody;
         },
         postIdsThatLinkToPost() {
-            return this.postsStore.postIdsThatLinkToPost;
+            return this.linksStore.postIdsThatLinkToPost;
         },
         linkedPosts() {
             return this.postIdsThatLinkToPost(this.post.id);
@@ -134,10 +137,10 @@ export default {
     },
     methods: {
         togglePostId(payload) {
-            this.postsStore.togglePostId(payload);
+            this.appStore.togglePostId(payload);
         },
         removeLink(payload) {
-            this.postsStore.removeLink(payload);
+            this.linksStore.removeLink(payload);
         },
         togglePostIdLocal(postId) {
             this.togglePostId({
