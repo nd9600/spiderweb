@@ -6,7 +6,7 @@
 
 <script>
 import OfflineApp from "@/src/commonComponents/OfflineApp";
-import { mapActions } from "vuex";
+import { mapActions } from "pinia";
 
 export default {
     name: "OfflineRoot",
