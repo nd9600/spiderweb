@@ -20,8 +20,14 @@ function revManifestPlugin() {
             map["assets/js/offline/graph.js"] = file;
           }
         } else if (out.type === "asset") {
-          if (out.fileName.endsWith(".css") && out.fileName.includes("offline/graph")) {
-            map["assets/css/offline/graph.css"] = file;
+          if (out.fileName.endsWith(".css")) {
+            if (out.fileName.includes("offline/graph")) {
+              map["assets/css/offline/graph.css"] = file;
+            } else if (out.fileName.includes("app-")) {
+              map["assets/css/app.css"] = file;
+            } else if (out.fileName.includes("tailwind.min-")) {
+              map["assets/css/tailwind.min.css"] = file;
+            }
           }
         }
       }
@@ -53,6 +59,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         "offline/graph": path.resolve(__dirname, "resources/assets/js/src/offline/graph.js"),
+        "css/app": path.resolve(__dirname, "resources/assets/js/src/entries/styles-app.js"),
+        "css/tailwind.min": path.resolve(__dirname, "resources/assets/js/src/entries/styles-tailwind.js"),
       },
       output: {
         entryFileNames: "assets/js/[name]-[hash].js",
