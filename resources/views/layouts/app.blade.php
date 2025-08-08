@@ -41,30 +41,7 @@
 
     <!-- Scripts -->
 
-    <!-- Styles via Vite -->
-    @if(app()->environment('local'))
-        <script type="module" src="http://localhost:5173/@vite/client"></script>
-        <script type="module" src="http://localhost:5173/resources/assets/js/src/entries/styles-app.js"></script>
-        <script type="module" src="http://localhost:5173/resources/assets/js/src/entries/styles-tailwind.js"></script>
-    @else
-        @php
-            $viteManifestPath = public_path('manifest.json');
-            $viteManifest = file_exists($viteManifestPath) ? json_decode(file_get_contents($viteManifestPath), true) : [];
-            $viteCssLinks = function(string $entry) use ($viteManifest) {
-                if (!isset($viteManifest[$entry])) { return ''; }
-                $item = $viteManifest[$entry];
-                $tags = [];
-                if (!empty($item['css'])) {
-                    foreach ($item['css'] as $css) {
-                        $tags[] = '<link rel="stylesheet" href="/' . $css . '">';
-                    }
-                }
-                return implode("\n", $tags);
-            };
-            {!! $viteCssLinks('app') !!}
-            {!! $viteCssLinks('tailwind.min') !!}
-        @endphp
-    @endif
+    <!-- No CSS/JS injected here; the frontend is served by Vite (dev server or dist/) -->
 </head>
 <body>
     @yield("appContent")

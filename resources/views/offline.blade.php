@@ -22,16 +22,16 @@
     <script type="module" src="http://localhost:5173/resources/assets/js/src/offline/graph.js"></script>
 @else
     @php
-        $viteManifestPath = public_path('manifest.json');
+        $viteManifestPath = base_path('dist/manifest.json');
         $viteManifest = file_exists($viteManifestPath) ? json_decode(file_get_contents($viteManifestPath), true) : [];
-        $entry = $viteManifest['offline/graph'] ?? null;
+        $entry = $viteManifest['resources/assets/js/src/offline/graph.js'] ?? null;
         if ($entry) {
             if (!empty($entry['css'])) {
                 foreach ($entry['css'] as $css) {
-                    echo '<link rel="stylesheet" href="/' . $css . '">';
+                    echo '<link rel="stylesheet" href="/dist/' . basename($css) . '">';
                 }
             }
-            echo '<script type="module" src="/' . $entry['file'] . '"></script>';
+            echo '<script type="module" src="/dist/' . basename($entry['file']) . '"></script>';
         }
     @endphp
 @endif
