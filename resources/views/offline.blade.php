@@ -18,6 +18,7 @@
     ></div>
 </div>
 
+<link rel="stylesheet" href="{{ Helper::getAssetPath('css/offline/graph.css') }}">
 <script src="{{ Helper::getAssetPath('js/vendors.js') }}"></script>
 <script src="{{ Helper::getAssetPath('js/offline/graph.js') }}"></script>
 @endsection
