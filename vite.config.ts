@@ -22,11 +22,13 @@ function revManifestPlugin() {
           }
         } else if (out.type === "asset") {
           if (out.fileName.endsWith(".css")) {
-            if (out.fileName.includes("offline_graph-")) {
+            const f = out.fileName;
+            // Handle both nested and sanitised forms
+            if (f.includes("offline/graph-") || f.includes("offline_graph-")) {
               map["assets/css/offline/graph.css"] = file;
-            } else if (out.fileName.includes("app-")) {
+            } else if (f.includes("app-")) {
               map["assets/css/app.css"] = file;
-            } else if (out.fileName.includes("tailwind.min-")) {
+            } else if (f.includes("tailwind.min-")) {
               map["assets/css/tailwind.min.css"] = file;
             }
           }
