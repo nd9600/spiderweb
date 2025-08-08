@@ -3,12 +3,6 @@ import vue from "@vitejs/plugin-vue2";
 import path from "path";
 import fs from "fs";
 
-// Keys expected by Helper::getAssetPath in Blade templates
-const expectedKeys = [
-  "assets/js/vendors.js",
-  "assets/js/offline/graph.js",
-];
-
 function revManifestPlugin() {
   return {
     name: "rev-manifest-compatible",
@@ -17,7 +11,7 @@ function revManifestPlugin() {
       const map: Record<string, string> = {};
       // Find vendors and offline/graph JS and CSS outputs
       for (const [, out] of Object.entries(bundle)) {
-        const file = `/${out.fileName}`;
+        const file = `${out.fileName}`;
         if (out.type === "chunk") {
           if (out.name === "vendors") {
             map["assets/js/vendors.js"] = file;
