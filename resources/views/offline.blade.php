@@ -19,7 +19,6 @@
 </div>
 
 @if(app()->environment('local'))
-    <script type="module" src="http://localhost:5173/@vite/client"></script>
     <script type="module" src="http://localhost:5173/resources/assets/js/src/offline/graph.js"></script>
 @else
     @php
