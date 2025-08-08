@@ -4,6 +4,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "prod": "vite build",
+    "production": "vite build",
     "test": "jest resources/assets/js/__tests__"
   },
   "browserslist": [
