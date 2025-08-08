@@ -61,8 +61,8 @@
                 }
                 return implode("\n", $tags);
             };
-            echo $viteCssLinks('app');
-            echo $viteCssLinks('tailwind.min');
+            {!! $viteCssLinks('app') !!}
+            {!! $viteCssLinks('tailwind.min') !!}
         @endphp
     @endif
 </head>
