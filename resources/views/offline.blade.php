@@ -28,10 +28,10 @@
         if ($entry) {
             if (!empty($entry['css'])) {
                 foreach ($entry['css'] as $css) {
-                    echo '<link rel="stylesheet" href="/dist/' . basename($css) . '">';
+                    echo '<link rel="stylesheet" href="/dist/' . $css . '">';
                 }
             }
-            echo '<script type="module" src="/dist/' . basename($entry['file']) . '"></script>';
+            echo '<script type="module" src="/dist/' . $entry['file'] . '"></script>';
         }
     @endphp
 @endif
