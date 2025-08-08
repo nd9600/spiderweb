@@ -18,7 +18,22 @@
     ></div>
 </div>
 
-<link rel="stylesheet" href="{{ Helper::getAssetPath('css/offline/graph.css') }}">
-<script src="{{ Helper::getAssetPath('js/vendors.js') }}"></script>
-<script src="{{ Helper::getAssetPath('js/offline/graph.js') }}"></script>
+@if(app()->environment('local'))
+    <script type="module" src="http://localhost:5173/@vite/client"></script>
+    <script type="module" src="http://localhost:5173/resources/assets/js/src/offline/graph.js"></script>
+@else
+    @php
+        $viteManifestPath = public_path('manifest.json');
+        $viteManifest = file_exists($viteManifestPath) ? json_decode(file_get_contents($viteManifestPath), true) : [];
+        $entry = $viteManifest['offline/graph'] ?? null;
+        if ($entry) {
+            if (!empty($entry['css'])) {
+                foreach ($entry['css'] as $css) {
+                    echo '<link rel="stylesheet" href="/' . $css . '">';
+                }
+            }
+            echo '<script type="module" src="/' . $entry['file'] . '"></script>';
+        }
+    @endphp
+@endif
 @endsection
