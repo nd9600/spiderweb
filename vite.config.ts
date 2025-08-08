@@ -10,17 +10,12 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "public",
+    outDir: "dist",
     assetsDir: "assets",
     emptyOutDir: false,
     sourcemap: true,
     manifest: true,
     rollupOptions: {
-      input: {
-        "offline/graph": path.resolve(__dirname, "resources/assets/js/src/offline/graph.js"),
-        "app": path.resolve(__dirname, "resources/assets/js/src/entries/styles-app.js"),
-        "tailwind.min": path.resolve(__dirname, "resources/assets/js/src/entries/styles-tailwind.js"),
-      },
       output: {
         entryFileNames: "assets/js/[name]-[hash].js",
         chunkFileNames: "assets/js/[name]-[hash].js",
