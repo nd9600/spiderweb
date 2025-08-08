@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
+    <title>Spiderweb (Vite)</title>
+  </head>
+  <body>
+    <div class="min-h-full h-full" style="min-height: 100vh;">
+      <div class="ml-5">
+        <h1 class="h h--1">Spiderweb</h1>
+      </div>
+      <noscript>
+        <h2 class="h h--2">
+          Spiderweb needs Javascript to be enabled for it to work, please turn it on
+        </h2>
+      </noscript>
+      <div id="offlineGraphApp" class="min-h-full h-full"></div>
+    </div>
+
+    <!-- Global styles -->
+    <script type="module" src="/resources/assets/js/src/entries/styles-app.js"></script>
+    <script type="module" src="/resources/assets/js/src/entries/styles-tailwind.js"></script>
+
+    <!-- App entry -->
+    <script type="module" src="/resources/assets/js/src/offline/graph.js"></script>
+  </body>
+</html>
