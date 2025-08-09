@@ -1,0 +1,31 @@
+@charset "utf-8";
+
+.spinner {
+    border: 5px solid #ffcfcf;
+    border-top: 5px solid var(--red);
+    border-radius: 50%;
+    width: 5vw;
+    height: 5vw;
+    animation: spin 1.2s linear infinite;
+}
+
+.spinner--md {
+    border-width: 3px;
+    width: 2vw;
+    height: 2vw;
+}
+
+.spinner--sm {
+    border-width: 1px;
+    width: 1vw;
+    height: 1vw;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
