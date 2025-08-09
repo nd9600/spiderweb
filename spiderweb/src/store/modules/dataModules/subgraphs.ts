@@ -1,5 +1,5 @@
 import Vue from "vue";
-import {DataModuleState, GraphId, PostId, SubgraphId} from "@/@types/StoreTypes.ts";
+import {DataModuleState, GraphId, PostId, SubgraphId} from "@/store/StoreTypes";
 
 function stringToColour(str: string) {
     let hash = 0;

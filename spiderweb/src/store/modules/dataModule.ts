@@ -12,11 +12,11 @@ import {
     PostId,
     SubgraphId,
     Zoom
-} from "@/@types/StoreTypes.ts";
-import Post from "@/store/classes/Post.ts";
-import Subgraph from "@/store/classes/Subgraph.ts";
-import Link from "@/store/classes/Link.ts";
-import Graph from "@/store/classes/Graph.ts";
+} from "@/store/StoreTypes";
+import Post from "@/store/classes/Post";
+import Subgraph from "@/store/classes/Subgraph";
+import Link from "@/store/classes/Link";
+import Graph from "@/store/classes/Graph";
 
 
 /*

@@ -1,7 +1,7 @@
 import Vue from "vue";
-import Post, {PostSerialised} from "@/store/classes/Post.ts";
-import {DataModuleState, LinkId, LinksMap, NodePositionsMap, PostId, PostsMap} from "@/@types/StoreTypes.ts";
-import Link from "@/store/classes/Link.ts";
+import Post, {PostSerialised} from "@/store/classes/Post";
+import {DataModuleState, LinkId, LinksMap, NodePositionsMap, PostId, PostsMap} from "@/store/StoreTypes";
+import Link from "@/store/classes/Link";
 
 const state: {
     posts: PostsMap

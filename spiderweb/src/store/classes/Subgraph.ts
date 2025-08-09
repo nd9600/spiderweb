@@ -1,4 +1,4 @@
-import {LinkId, PostId, SubgraphId} from "@/@types/StoreTypes.ts";
+import type {LinkId, PostId, SubgraphId} from "@/store/StoreTypes";
 
 export interface SubgraphSerialised {
     id: SubgraphId;

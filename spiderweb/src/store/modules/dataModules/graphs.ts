@@ -1,7 +1,7 @@
 import Vue from "vue";
-import {DataModuleState, GraphId, LinksMap, NodePosition, NodePositionsMap, PostId} from "@/@types/StoreTypes.ts";
-import Graph from "@/store/classes/Graph.ts";
-import {SubgraphSerialised} from "@/store/classes/Subgraph.ts";
+import {DataModuleState, GraphId, LinksMap, NodePosition, NodePositionsMap, PostId} from "@/store/StoreTypes";
+import Graph from "@/store/classes/Graph";
+import {SubgraphSerialised} from "@/store/classes/Subgraph";
 
 const state = {
     graphs: {

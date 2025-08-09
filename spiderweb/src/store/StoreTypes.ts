@@ -1,7 +1,7 @@
-import Graph, {GraphSerialised} from "@/store/classes/Graph.ts";
-import Post, {PostSerialised} from "@/store/classes/Post.ts";
-import Link, {LinkSerialised} from "@/store/classes/Link.ts";
-import Subgraph, {SubgraphSerialised} from "@/store/classes/Subgraph.ts";
+import Graph, {GraphSerialised} from "@/store/classes/Graph";
+import Post, {PostSerialised} from "@/store/classes/Post";
+import Link, {LinkSerialised} from "@/store/classes/Link";
+import Subgraph, {SubgraphSerialised} from "@/store/classes/Subgraph";
 
 export type GraphId = string;
 export type PostId = string;

@@ -1,4 +1,4 @@
-import {GraphId, NodePosition, NodePositionsMap, PostId, SubgraphId} from "@/@types/StoreTypes.ts";
+import type {GraphId, NodePosition, NodePositionsMap, PostId, SubgraphId} from "@/store/StoreTypes";
 
 export interface GraphSerialised {
     id: GraphId;

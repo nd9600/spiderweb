@@ -1,6 +1,6 @@
 import Vue from "vue";
-import {DataModuleState, GraphId, LinkId, PostId, SubgraphId} from "@/@types/StoreTypes.ts";
-import Link from "@/store/classes/Link.ts";
+import {DataModuleState, GraphId, LinkId, PostId, SubgraphId} from "@/store/StoreTypes";
+import Link from "@/store/classes/Link";
 
 const state = {
     links: {},
