@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
-import './style.css'
-import App from './App.vue'
+import OfflineRoot from './OfflineRoot.vue'
+import store from "./store";
 
-createApp(App)
+createApp(OfflineRoot)
+    .use(store)
     .mount('#app')
