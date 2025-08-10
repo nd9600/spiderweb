@@ -18,9 +18,9 @@
                             class="focusButton mr-2"
                             type="button"
                             title="focus on this post in the viewer above"
-                            @click="$root.$emit('focusOnPost', post.id)"
-                            @mouseover="$root.$emit('highlightPost', post.id)"
-                            @mouseout="$root.$emit('unhighlightPost', post.id)"
+                            @click="EventBus.emit('focusOnPost', post.id)"
+                            @mouseover="EventBus.emit('highlightPost', post.id)"
+                            @mouseout="EventBus.emit('unhighlightPost', post.id)"
                         >
                             <span class="text-base">&#128269;</span>
                         </button>{{ post.title }}
@@ -75,9 +75,9 @@
                     class="focusButton mr-2 float-left"
                     type="button"
                     title="focus on this post in the viewer above"
-                    @click="$root.$emit('focusOnPost', post.id)"
-                    @mouseover="$root.$emit('highlightPost', post.id)"
-                    @mouseout="$root.$emit('unhighlightPost', post.id)"
+                    @click="EventBus.emit('focusOnPost', post.id)"
+                    @mouseover="EventBus.emit('highlightPost', post.id)"
+                    @mouseout="EventBus.emit('unhighlightPost', post.id)"
                 >
                     <span class="text-base">&#128269;</span>
                 </button>
@@ -163,6 +163,7 @@ import PostEditor from "@/commonComponents/Posts/PostEditor.vue";
 import LinkedPosts from "./LinkedPosts.vue";
 import LinkedSubgraphs from "./LinkedSubgraphs.vue";
 import AddLinkedPost from "./AddLinkedPost.vue";
+import EventBus from "@/helpers/EventBus";
 
 export default defineComponent({
     name: "Post",
@@ -183,6 +184,7 @@ export default defineComponent({
 
     data() {
         return {
+            EventBus,
             showPostEditor: false,
             bottomTab: "" // linked-posts | linked-subgraphs | add-linked-post
         };

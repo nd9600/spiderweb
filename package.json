@@ -7,16 +7,18 @@
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
-    "tailwindcss": "^4.1.11",
-    "vue": "^3.5.17",
     "d3": "^5.16.0",
     "firebase": "^7.19.0",
     "lodash": "^4.17.20",
-    "marked": "^1.1.1"
+    "marked": "^1.1.1",
+    "mitt": "^3.0.1",
+    "tailwindcss": "^4.1.11",
+    "vue": "^3.5.17"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",

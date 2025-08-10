@@ -16,7 +16,7 @@
                         class="btn btn--secondary mt-2"
                         type="button"
                         title="zoom out"
-                        @click.stop="$root.$emit('zoomOut')"
+                        @click.stop="EventBus.emit('zoomOut')"
                     >
                         -
                     </button>
@@ -27,7 +27,7 @@
                             class="btn btn--secondary"
                             type="button"
                             title="refresh the graph"
-                            @click.stop="$root.$emit('refreshGraph')"
+                            @click.stop="EventBus.emit('refreshGraph')"
                         >
                             ⟳
                         </button>
@@ -42,7 +42,7 @@
                         class="btn btn--secondary mt-2"
                         type="button"
                         title="zoom in"
-                        @click.stop="$root.$emit('zoomIn')"
+                        @click.stop="EventBus.emit('zoomIn')"
                     >
                         +
                     </button>
@@ -154,55 +154,57 @@ import OfflineGraph from "./OfflineGraph.vue";
 import PostBar from "./PostBar/PostBar.vue";
 
 import {STORAGE_KEY} from "@/commonComponents/constants";
+import EventBus from "@/helpers/EventBus";
 
 export default defineComponent({
-  name: "Viewer",
+    name: "Viewer",
 
-  components: {
-      OfflineGraph,
-      PostBar,
-  },
+    components: {
+        OfflineGraph,
+        PostBar,
+    },
 
-  data() {
-      const storedData = localStorage.getItem(STORAGE_KEY);
+    data() {
+        const storedData = localStorage.getItem(STORAGE_KEY);
 
-      return {
-          localStorageSize: storedData != null
-              ? (storedData.length / (1000 ** 2)).toFixed(2)
-              : 0
-      };
-  },
+        return {
+            EventBus,
+            localStorageSize: storedData != null
+                ? (storedData.length / (1000 ** 2)).toFixed(2)
+                : 0
+        };
+    },
 
-  computed: {
-      ...mapState(["isRenderingGraph"]),
-      ...mapState("settingsModule", ["graphHeight", "postBarHeight"]),
-      ...mapState("dataModule", ["graphs"]),
-      ...mapGetters("dataModule", ["subgraphsInSelectedGraph"]),
+    computed: {
+        ...mapState(["isRenderingGraph"]),
+        ...mapState("settingsModule", ["graphHeight", "postBarHeight"]),
+        ...mapState("dataModule", ["graphs"]),
+        ...mapGetters("dataModule", ["subgraphsInSelectedGraph"]),
 
-      selectedGraphId: {
-          get() {
-              return this.$store.state.dataModule.selectedGraphId;
-          },
-          set(selectedGraphId) {
-              this.$store.commit("dataModule/setSelectedGraphId", selectedGraphId);
-          }
-      },
-      selectedSubgraphIds: {
-          get() {
-              return this.$store.state.dataModule.selectedSubgraphIds;
-          },
-          set(selectedSubgraphIds) {
-              this.$store.commit("dataModule/setSelectedSubgraphIds", selectedSubgraphIds);
-          }
-      }
-  },
+        selectedGraphId: {
+            get() {
+                return this.$store.state.dataModule.selectedGraphId;
+            },
+            set(selectedGraphId) {
+                this.$store.commit("dataModule/setSelectedGraphId", selectedGraphId);
+            }
+        },
+        selectedSubgraphIds: {
+            get() {
+                return this.$store.state.dataModule.selectedSubgraphIds;
+            },
+            set(selectedSubgraphIds) {
+                this.$store.commit("dataModule/setSelectedSubgraphIds", selectedSubgraphIds);
+            }
+        }
+    },
 
-  methods: {
-      ...mapMutations("dataModule", ["selectAllSubgraphs"]),
+    methods: {
+        ...mapMutations("dataModule", ["selectAllSubgraphs"]),
 
-      scrollToPostBar() {
-          window.scrollBy(0, document.getElementById("postBar").getBoundingClientRect().top - 5);
-      }
-  },
+        scrollToPostBar() {
+            window.scrollBy(0, document.getElementById("postBar").getBoundingClientRect().top - 5);
+        }
+    },
 });
 </script>
