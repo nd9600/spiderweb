@@ -1,4 +1,5 @@
-import subgraphsModule from "@/src/offline/store/modules/dataModules/subgraphs";
+import { expect, test, beforeEach } from "vitest";
+import subgraphsModule from "@/store/modules/dataModules/subgraphs";
 
 import overallState from "./state";
 let state;

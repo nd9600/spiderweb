@@ -1,4 +1,5 @@
-import postsModule from "@/src/offline/store/modules/dataModules/posts";
+import { expect, test, beforeEach } from "vitest";
+import postsModule from "@/store/modules/dataModules/posts";
 
 import overallState from "./state";
 let state;

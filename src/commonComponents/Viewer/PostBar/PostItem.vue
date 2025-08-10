@@ -164,7 +164,7 @@ import LinkedPosts from "./LinkedPosts.vue";
 import LinkedSubgraphs from "./LinkedSubgraphs.vue";
 import AddLinkedPost from "./AddLinkedPost.vue";
 import EventBus from "@/helpers/EventBus";
-import {PropType} from "vue";
+import {type PropType} from "vue";
 
 export default defineComponent({
     name: "PostItem",
@@ -225,7 +225,7 @@ export default defineComponent({
         marked,
         ...mapMutations("dataModule", ["unselectPostId", "movePostLeft", "movePostRight"]),
 
-        toggleBottomTab(tab) {
+        toggleBottomTab(tab: string) {
             this.bottomTab = this.bottomTab === tab
                 ? ""
                 : tab;

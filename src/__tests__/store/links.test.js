@@ -1,4 +1,5 @@
-import linksModule from "@/src/offline/store/modules/dataModules/links";
+import { expect, test, beforeEach } from "vitest";
+import linksModule from "@/store/modules/dataModules/links";
 
 import overallState from "./state";
 let state;

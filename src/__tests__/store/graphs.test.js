@@ -1,4 +1,5 @@
-import graphsModule from "@/src/offline/store/modules/dataModules/graphs";
+import { expect, test, beforeEach } from "vitest";
+import graphsModule from "@/store/modules/dataModules/graphs";
 
 import overallState from "./state";
 let state;
