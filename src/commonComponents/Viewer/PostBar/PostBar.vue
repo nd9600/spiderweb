@@ -4,19 +4,19 @@
             id="postBar"
             class="postBar"
         >
-            <PostBarScrollButtons/>
+            <PostBarScrollButtons />
             <div
                 id="postsContainer"
                 class="w-full flex items-start overflow-x-auto"
             >
-                <post
+                <PostItem
                     v-for="(selectedPostId, i) in selectedPostIds"
                     :id="`post-${i}`"
                     :key="selectedPostId"
                     class="m-2 p-2"
                     :post="posts[selectedPostId]"
                 >
-                </post>
+                </PostItem>
             </div>
         </div>
     </section>
@@ -27,20 +27,20 @@ import { defineComponent } from "vue";
 
 import { mapState } from "vuex";
 
-import Post from "./Post.vue";
+import PostItem from "./PostItem.vue";
 import PostBarScrollButtons from "./PostBarScrollButtons.vue";
 
 export default defineComponent({
-  name: "PostBar",
+    name: "PostBar",
 
-  components: {
-      Post,
-      PostBarScrollButtons
-  },
+    components: {
+        PostItem,
+        PostBarScrollButtons
+    },
 
-  computed: {
-      ...mapState("dataModule", ["posts", "selectedPostIds"]),
-  },
+    computed: {
+        ...mapState("dataModule", ["posts", "selectedPostIds"]),
+    },
 });
 </script>
 

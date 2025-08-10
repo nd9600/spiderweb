@@ -7,7 +7,7 @@
     >
         <div>
             <div class="flex justify-between">
-                <template>
+                <div>
                     <h3
                         v-if="post.title.length > 0"
                         class="h h--3 mr-2 whitespace-pre-wrap"
@@ -26,7 +26,7 @@
                         </button>{{ post.title }}
                     </h3>
                     <span v-else> </span> <!-- exists so that the icons will always be at the end -->
-                </template>
+                </div>
                 <span style="min-width: 48px;">
                     <button
                         type="button"
@@ -153,7 +153,7 @@
     </section>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
 
 import {mapState, mapMutations, mapGetters} from "vuex";
@@ -164,9 +164,10 @@ import LinkedPosts from "./LinkedPosts.vue";
 import LinkedSubgraphs from "./LinkedSubgraphs.vue";
 import AddLinkedPost from "./AddLinkedPost.vue";
 import EventBus from "@/helpers/EventBus";
+import {PropType} from "vue";
 
 export default defineComponent({
-    name: "Post",
+    name: "PostItem",
 
     components: {
         PostEditor,
@@ -177,7 +178,7 @@ export default defineComponent({
 
     props: {
         post: {
-            type: Object,
+            type: Object as PropType<Post>,
             required: true
         }
     },

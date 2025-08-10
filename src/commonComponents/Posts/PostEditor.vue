@@ -14,22 +14,22 @@
                 v-if="showTitleInput"
                 ref="inputTitle"
                 :value="title"
-                @input="onTitleUpdate($event.target.value)"
                 class="p-2 rounded border text-gray-800 placeholder-gray-600"
                 type="text"
                 placeholder="On the Origin of Species"
                 minlength="0"
                 maxlength="1000"
+                @input="onTitleUpdate($event.target.value)"
             >
         </label>
 
         <label class="mb-5 flex flex-col">
             <span class="font-bold">Body</span>
             <textarea
-                :modelValue="body"
-                @update:modelValue="onBodyUpdate($event.target.value)"
+                :value="body"
                 class="p-2 h-64 rounded border text-gray-800 placeholder-gray-600 resize-y"
                 placeholder="you can type Markdown here"
+                @input="onBodyUpdate($event.target.value)"
             />
         </label>
 
@@ -50,61 +50,61 @@ import { defineComponent } from "vue";
 import {mapActions, mapMutations} from "vuex";
 
 export default defineComponent({
-  name: "PostEditor",
+    name: "PostEditor",
 
-  props: {
-      post: {
-          type: Object,
-          required: true
-      }
-  },
+    props: {
+        post: {
+            type: Object,
+            required: true
+        }
+    },
 
-  data() {
-      return {
-          title: this.post.title,
-          body: this.post.body,
+    data() {
+        return {
+            title: this.post.title,
+            body: this.post.body,
 
-          showTitleInput: this.post.title.length > 0,
-      };
-  },
+            showTitleInput: this.post.title.length > 0,
+        };
+    },
 
-  methods: {
-      ...mapMutations("dataModule", ["deletePost"]),
-      ...mapActions("dataModule", ["updatePostTitle", "updatePostBody"]),
+    methods: {
+        ...mapMutations("dataModule", ["deletePost"]),
+        ...mapActions("dataModule", ["updatePostTitle", "updatePostBody"]),
 
-      toggleTitleInput() {
-          const dontLetUserHideTitleInput = this.showTitleInput
+        toggleTitleInput() {
+            const dontLetUserHideTitleInput = this.showTitleInput
               && this.title.trim().length > 0;
-          if (dontLetUserHideTitleInput) {
-              this.$refs.inputTitle.focus();
-              return;
-          }
-          this.showTitleInput = !this.showTitleInput;
-      },
+            if (dontLetUserHideTitleInput) {
+                this.$refs.inputTitle.focus();
+                return;
+            }
+            this.showTitleInput = !this.showTitleInput;
+        },
 
-      removePostLocal() {
-          if (!confirm("Are you sure you want to remove this post? ")) {
-              return;
-          }
-          this.deletePost({
-              id: this.post.id
-          });
-      },
+        removePostLocal() {
+            if (!confirm("Are you sure you want to remove this post? ")) {
+                return;
+            }
+            this.deletePost({
+                id: this.post.id
+            });
+        },
 
-      onTitleUpdate(title) {
-          this.updatePostTitle({
-              id: this.post.id,
-              title,
-              updatedAt: new Date().toISOString()
-          });
-      },
-      onBodyUpdate(body) {
-          this.updatePostBody({
-              id: this.post.id,
-              body,
-              updatedAt: new Date().toISOString()
-          });
-      }
-  },
+        onTitleUpdate(title) {
+            this.updatePostTitle({
+                id: this.post.id,
+                title,
+                updatedAt: new Date().toISOString()
+            });
+        },
+        onBodyUpdate(body) {
+            this.updatePostBody({
+                id: this.post.id,
+                body,
+                updatedAt: new Date().toISOString()
+            });
+        }
+    },
 });
 </script>
