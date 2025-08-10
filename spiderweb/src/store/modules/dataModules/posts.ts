@@ -1,4 +1,3 @@
-import Vue from "vue";
 import Post, {PostSerialised} from "@/store/classes/Post";
 import {DataModuleState, LinkId, LinksMap, NodePositionsMap, PostId, PostsMap} from "@/store/StoreTypes";
 import Link from "@/store/classes/Link";
@@ -92,16 +91,16 @@ const getters = {
 
 const mutations = {
     createPost(state: DataModuleState, newPost: Post) {
-        Vue.set(state.posts, newPost.id, newPost.serialise());
+        state.posts[newPost.id] = newPost.serialise();
         return newPost;
     },
     updatePostTitle(state: DataModuleState, {id, title, updatedAt}: {id: PostId, title: string, updatedAt: string}) {
-        Vue.set(state.posts[id], "title", title);
-        Vue.set(state.posts[id], "updatedAt", updatedAt);
+        state.posts[id].title = title;
+        state.posts[id].updatedAt = updatedAt;
     },
     updatePostBody(state: DataModuleState, {id, body, updatedAt}: {id: PostId, body: string, updatedAt: string}) {
-        Vue.set(state.posts[id], "body", body);
-        Vue.set(state.posts[id], "updatedAt", updatedAt);
+        state.posts[id].body = body;
+        state.posts[id].updatedAt = updatedAt;
     },
     deletePost(state: DataModuleState, {id}: {id: PostId}) {
         if (state.selectedPostIds.includes(id)) {
@@ -140,20 +139,19 @@ const mutations = {
                 nodes: graph.nodes.filter((postId: PostId) => postId !== id),
                 nodePositions
             };
-            Vue.set(state.graphs, graphId, newGraph);
+            state.graphs[graphId] = newGraph;
         }
         for (let [subgraphId, subgraph] of Object.entries(state.subgraphs)) {
             const newSubgraph = {
                 ...subgraph,
                 nodes: subgraph.nodes.filter((postId: PostId) => postId !== id)
             };
-            Vue.set(state.subgraphs, subgraphId, newSubgraph);
+            state.subgraphs[subgraphId] = newSubgraph;
         }
 
         // and the post's positions from any graphs
-
-        Vue.set(state, "links", linksAfterPostRemoval);
-        Vue.delete(state.posts, id);
+        state.links = linksAfterPostRemoval;
+        delete state.posts[id];
     }
 };
 
