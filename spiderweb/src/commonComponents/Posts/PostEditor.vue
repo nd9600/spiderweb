@@ -26,8 +26,8 @@
         <label class="mb-5 flex flex-col">
             <span class="font-bold">Body</span>
             <textarea
-                :value="body"
-                @input="onBodyUpdate($event.target.value)"
+                :modelValue="body"
+                @update:modelValue="onBodyUpdate($event.target.value)"
                 class="p-2 h-64 rounded border text-gray-800 placeholder-gray-600 resize-y"
                 placeholder="you can type Markdown here"
             />
@@ -45,61 +45,66 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import {mapActions, mapMutations} from "vuex";
 
-export default {
-    name: "PostEditor",
-    props: {
-        post: {
-            type: Object,
-            required: true
-        }
-    },
-    data() {
-        return {
-            title: this.post.title,
-            body: this.post.body,
+export default defineComponent({
+  name: "PostEditor",
 
-            showTitleInput: this.post.title.length > 0,
-        };
-    },
-    methods: {
-        ...mapMutations("dataModule", ["deletePost"]),
-        ...mapActions("dataModule", ["updatePostTitle", "updatePostBody"]),
+  props: {
+      post: {
+          type: Object,
+          required: true
+      }
+  },
 
-        toggleTitleInput() {
-            const dontLetUserHideTitleInput = this.showTitleInput
-                && this.title.trim().length > 0;
-            if (dontLetUserHideTitleInput) {
-                this.$refs.inputTitle.focus();
-                return;
-            }
-            this.showTitleInput = !this.showTitleInput;
-        },
+  data() {
+      return {
+          title: this.post.title,
+          body: this.post.body,
 
-        removePostLocal() {
-            if (!confirm("Are you sure you want to remove this post? ")) {
-                return;
-            }
-            this.deletePost({
-                id: this.post.id
-            });
-        },
+          showTitleInput: this.post.title.length > 0,
+      };
+  },
 
-        onTitleUpdate(title) {
-            this.updatePostTitle({
-                id: this.post.id,
-                title,
-                updatedAt: new Date().toISOString()
-            });
-        },
-        onBodyUpdate(body) {
-            this.updatePostBody({
-                id: this.post.id,
-                body,
-                updatedAt: new Date().toISOString()
-            });
-        }
-    }
-};
+  methods: {
+      ...mapMutations("dataModule", ["deletePost"]),
+      ...mapActions("dataModule", ["updatePostTitle", "updatePostBody"]),
+
+      toggleTitleInput() {
+          const dontLetUserHideTitleInput = this.showTitleInput
+              && this.title.trim().length > 0;
+          if (dontLetUserHideTitleInput) {
+              this.$refs.inputTitle.focus();
+              return;
+          }
+          this.showTitleInput = !this.showTitleInput;
+      },
+
+      removePostLocal() {
+          if (!confirm("Are you sure you want to remove this post? ")) {
+              return;
+          }
+          this.deletePost({
+              id: this.post.id
+          });
+      },
+
+      onTitleUpdate(title) {
+          this.updatePostTitle({
+              id: this.post.id,
+              title,
+              updatedAt: new Date().toISOString()
+          });
+      },
+      onBodyUpdate(body) {
+          this.updatePostBody({
+              id: this.post.id,
+              body,
+              updatedAt: new Date().toISOString()
+          });
+      }
+  },
+});
 </script>

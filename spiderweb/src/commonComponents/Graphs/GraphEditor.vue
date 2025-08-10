@@ -39,47 +39,54 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import {mapGetters, mapMutations, mapState} from "vuex";
 import Subgraphs from "./Subgraphs.vue";
 
-export default {
-    name: "GraphEditor",
-    components: {
-        Subgraphs
-    },
-    props: {
-        graphId: {
-            type: String,
-            required: true
-        },
-    },
-    data() {
-        return {
-            postIdToAddToGraph: null,
-            newGraphName: ""
-        };
-    },
-    computed: {
-        ...mapState("dataModule", ["graphs"]),
-        ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
+export default defineComponent({
+  name: "GraphEditor",
 
-        graph() {
-            return this.graphs[this.graphId];
-        },
-    },
-    methods: {
-        ...mapMutations("dataModule", ["changeGraphName", "removeGraph"]),
-        changeGraphNameLocal() {
-            if (this.newGraphName.trim().length === 0) {
-                return;
-            }
+  components: {
+      Subgraphs
+  },
 
-            this.changeGraphName({
-                graphId: this.graphId,
-                newGraphName: this.newGraphName
-            });
-            this.newGraphName = "";
-        }
-    }
-};
+  props: {
+      graphId: {
+          type: String,
+          required: true
+      },
+  },
+
+  data() {
+      return {
+          postIdToAddToGraph: null,
+          newGraphName: ""
+      };
+  },
+
+  computed: {
+      ...mapState("dataModule", ["graphs"]),
+      ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
+
+      graph() {
+          return this.graphs[this.graphId];
+      },
+  },
+
+  methods: {
+      ...mapMutations("dataModule", ["changeGraphName", "removeGraph"]),
+      changeGraphNameLocal() {
+          if (this.newGraphName.trim().length === 0) {
+              return;
+          }
+
+          this.changeGraphName({
+              graphId: this.graphId,
+              newGraphName: this.newGraphName
+          });
+          this.newGraphName = "";
+      }
+  },
+});
 </script>

@@ -23,21 +23,25 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import { mapState } from "vuex";
 
 import Post from "./Post.vue";
 import PostBarScrollButtons from "./PostBarScrollButtons.vue";
 
-export default {
-    name: "PostBar",
-    components: {
-        Post,
-        PostBarScrollButtons
-    },
-    computed: {
-        ...mapState("dataModule", ["posts", "selectedPostIds"]),
-    },
-};
+export default defineComponent({
+  name: "PostBar",
+
+  components: {
+      Post,
+      PostBarScrollButtons
+  },
+
+  computed: {
+      ...mapState("dataModule", ["posts", "selectedPostIds"]),
+  },
+});
 </script>
 
 <style>

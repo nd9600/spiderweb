@@ -67,41 +67,46 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import {mapGetters, mapState} from "vuex";
 import marked from "@/helpers/markedCustomised";
 
-export default {
-    name: "ExportedPost",
-    props: {
-        post: {
-            type: Object,
-            required: true
-        },
-        linkIdsToExport: {
-            type: Array,
-            required: true
-        }
-    },
-    computed: {
-        ...mapState("dataModule", ["posts", "links"]),
-        ...mapGetters("dataModule", ["postIds", "titleOrBody", "postIdsThatLinkToPost"]),
+export default defineComponent({
+  name: "ExportedPost",
 
-        linkedPosts() {
-            return this.postIdsThatLinkToPost(this.post.id);
-        },
-        linksToPost() {
-            return Object.entries(this.linkedPosts.to)
-                .filter(([linkId, linkToPostId]) => {
-                    return this.linkIdsToExport.includes(linkId);
-                });
-        },
-        linksFromPost() {
-            return Object.entries(this.linkedPosts.from)
-                .filter(([linkId, linkFromPostId]) => this.linkIdsToExport.includes(linkId));
-        }
-    },
-    methods: {
-        marked
-    }
-};
+  props: {
+      post: {
+          type: Object,
+          required: true
+      },
+      linkIdsToExport: {
+          type: Array,
+          required: true
+      }
+  },
+
+  computed: {
+      ...mapState("dataModule", ["posts", "links"]),
+      ...mapGetters("dataModule", ["postIds", "titleOrBody", "postIdsThatLinkToPost"]),
+
+      linkedPosts() {
+          return this.postIdsThatLinkToPost(this.post.id);
+      },
+      linksToPost() {
+          return Object.entries(this.linkedPosts.to)
+              .filter(([linkId, linkToPostId]) => {
+                  return this.linkIdsToExport.includes(linkId);
+              });
+      },
+      linksFromPost() {
+          return Object.entries(this.linkedPosts.from)
+              .filter(([linkId, linkFromPostId]) => this.linkIdsToExport.includes(linkId));
+      }
+  },
+
+  methods: {
+      marked
+  },
+});
 </script>

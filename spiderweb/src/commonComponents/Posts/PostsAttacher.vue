@@ -39,37 +39,43 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import {mapGetters, mapState} from "vuex";
 
 import PostAttacher from "./PostAttacher.vue";
 import PostSearch from "@/commonComponents/Posts/PostSearch.vue";
 
-export default {
-    name: "PostsAttacher",
-    components: {
-        PostAttacher,
-        PostSearch
-    },
-    data() {
-        return {
-            postToAttach: null
-        };
-    },
-    computed: {
-        ...mapState("dataModule", ["posts", "links"]),
-        ...mapGetters("dataModule", ["unattachedPosts"])
-    },
-    methods: {
-        onPostClick(post) {
-            if (
-                this.postToAttach === null
-                || this.postToAttach.id !== post.id
-            ) {
-                this.postToAttach = post;
-            } else {
-                this.postToAttach = null;
-            }
-        }
-    }
-};
+export default defineComponent({
+  name: "PostsAttacher",
+
+  components: {
+      PostAttacher,
+      PostSearch
+  },
+
+  data() {
+      return {
+          postToAttach: null
+      };
+  },
+
+  computed: {
+      ...mapState("dataModule", ["posts", "links"]),
+      ...mapGetters("dataModule", ["unattachedPosts"])
+  },
+
+  methods: {
+      onPostClick(post) {
+          if (
+              this.postToAttach === null
+              || this.postToAttach.id !== post.id
+          ) {
+              this.postToAttach = post;
+          } else {
+              this.postToAttach = null;
+          }
+      }
+  },
+});
 </script>

@@ -112,6 +112,8 @@
     </div>
 </template>
 <script>
+import { defineComponent } from 'vue';
+
 import {mapState, mapGetters, mapMutations} from "vuex";
 
 import LinkEditor from "@/commonComponents/Links/LinkEditor.vue";
@@ -120,112 +122,116 @@ import PostMaker from "@/commonComponents/Posts/PostMaker.vue";
 import PostsAttacher from "@/commonComponents/Posts/PostsAttacher.vue";
 import PostSearch from "@/commonComponents/Posts/PostSearch.vue";
 
-export default {
-    name: "FloatingActionButton",
-    components: {
-        LinkEditor,
-        LinkAdder,
-        PostMaker,
-        PostsAttacher,
-        PostSearch
-    },
-    computed: {
-        ...mapState("settingsModule", ["graphHeight", "canOpenMultiplePosts"]),
+export default defineComponent({
+  name: "FloatingActionButton",
 
-        ...mapState("dataModule", ["graphs", "selectedSubgraphIds", "links", "zoom"]),
-        ...mapGetters("dataModule", ["titleOrBody"]),
+  components: {
+      LinkEditor,
+      LinkAdder,
+      PostMaker,
+      PostsAttacher,
+      PostSearch
+  },
 
-        ...mapState("clickerModule", ["newLinkSource", "linkToEdit"]),
+  computed: {
+      ...mapState("settingsModule", ["graphHeight", "canOpenMultiplePosts"]),
 
-        shouldShowClickButtonMenu: {
-            get() {
-                return this.$store.state.clickerModule.shouldShowClickButtonMenu;
-            },
-            set(shouldShowClickButtonMenu) {
-                this.setShouldShowClickButtonMenu(shouldShowClickButtonMenu);
-            }
-        },
-        clickMode: {
-            get() {
-                return this.$store.state.clickerModule.clickMode;
-            },
-            set(clickMode) {
-                this.setClickMode(clickMode);
-            }
-        },
+      ...mapState("dataModule", ["graphs", "selectedSubgraphIds", "links", "zoom"]),
+      ...mapGetters("dataModule", ["titleOrBody"]),
 
-        shouldShowContextMenu() {
-            return this.clickMode !== "openPosts";
-        }
-    },
-    watch: {
-        clickMode(newClickMode, previousClickMode) {
-            const currentStrokeWidth = document.querySelector(":root").style.getPropertyValue("--link-stroke-width");
-            const currentStrokeWidthPixels = parseInt(currentStrokeWidth.match(/^(\d*)px$/)[1], 10);
-            if (newClickMode === "changeLink") {
-                document.querySelector(":root")
-                    .style.setProperty("--link-stroke-width", `${currentStrokeWidthPixels * 2}px`);
-            } else if (previousClickMode === "changeLink") {
-                document.querySelector(":root")
-                    .style.setProperty("--link-stroke-width", `${currentStrokeWidthPixels / 2}px`);
-            }
-        }
-    },
-    methods: {
-        ...mapMutations("dataModule", [
-            "selectPostId",
-            "setPostPosition"
-        ]),
+      ...mapState("clickerModule", ["newLinkSource", "linkToEdit"]),
 
-        ...mapMutations("clickerModule", [
-            "setShouldShowClickButtonMenu",
-            "setClickMode",
-            "setLinkToEdit"
-        ]),
+      shouldShowClickButtonMenu: {
+          get() {
+              return this.$store.state.clickerModule.shouldShowClickButtonMenu;
+          },
+          set(shouldShowClickButtonMenu) {
+              this.setShouldShowClickButtonMenu(shouldShowClickButtonMenu);
+          }
+      },
+      clickMode: {
+          get() {
+              return this.$store.state.clickerModule.clickMode;
+          },
+          set(clickMode) {
+              this.setClickMode(clickMode);
+          }
+      },
 
-        toggleClickButtonMenu() {
-            const menuWasPreviouslyShown = this.shouldShowClickButtonMenu;
-            this.shouldShowClickButtonMenu = !this.shouldShowClickButtonMenu;
+      shouldShowContextMenu() {
+          return this.clickMode !== "openPosts";
+      }
+  },
 
-            if (!menuWasPreviouslyShown) {
-                this.clickMode = "openPosts";
-            }
-        },
+  watch: {
+      clickMode(newClickMode, previousClickMode) {
+          const currentStrokeWidth = document.querySelector(":root").style.getPropertyValue("--link-stroke-width");
+          const currentStrokeWidthPixels = parseInt(currentStrokeWidth.match(/^(\d*)px$/)[1], 10);
+          if (newClickMode === "changeLink") {
+              document.querySelector(":root")
+                  .style.setProperty("--link-stroke-width", `${currentStrokeWidthPixels * 2}px`);
+          } else if (previousClickMode === "changeLink") {
+              document.querySelector(":root")
+                  .style.setProperty("--link-stroke-width", `${currentStrokeWidthPixels / 2}px`);
+          }
+      }
+  },
 
-        toggleClickMode(clickMode) {
-            const previousClickMode = this.clickMode;
-            this.clickMode = (previousClickMode === clickMode) // clicking on the existing button means you want to close the open dialog
-                ? "openPosts"
-                : clickMode;
-        },
+  methods: {
+      ...mapMutations("dataModule", [
+          "selectPostId",
+          "setPostPosition"
+      ]),
 
-        madePost(newPost) {
-            const positionOfNewPost = {
-                x: (Math.abs(this.zoom.x) * (1 / this.zoom.scale)) + 100,
-                y: (Math.abs(this.zoom.y) * (1 / this.zoom.scale)) + 150
-            };
-            this.setPostPosition({
-                postId: newPost.id,
-                position: positionOfNewPost
-            });
+      ...mapMutations("clickerModule", [
+          "setShouldShowClickButtonMenu",
+          "setClickMode",
+          "setLinkToEdit"
+      ]),
 
-            this.toggleClickMode("openPosts");
-            this.shouldShowClickButtonMenu = false;
-        },
+      toggleClickButtonMenu() {
+          const menuWasPreviouslyShown = this.shouldShowClickButtonMenu;
+          this.shouldShowClickButtonMenu = !this.shouldShowClickButtonMenu;
 
-        selectPost(post) {
-            this.selectPostId({
-                id: post.id,
-                canOpenMultiplePosts: this.canOpenMultiplePosts
-            });
-        },
+          if (!menuWasPreviouslyShown) {
+              this.clickMode = "openPosts";
+          }
+      },
 
-        onRemovedLink() {
-            this.setLinkToEdit(null);
-            this.clickMode = "openPosts";
-        }
-    }
-};
+      toggleClickMode(clickMode) {
+          const previousClickMode = this.clickMode;
+          this.clickMode = (previousClickMode === clickMode) // clicking on the existing button means you want to close the open dialog
+              ? "openPosts"
+              : clickMode;
+      },
+
+      madePost(newPost) {
+          const positionOfNewPost = {
+              x: (Math.abs(this.zoom.x) * (1 / this.zoom.scale)) + 100,
+              y: (Math.abs(this.zoom.y) * (1 / this.zoom.scale)) + 150
+          };
+          this.setPostPosition({
+              postId: newPost.id,
+              position: positionOfNewPost
+          });
+
+          this.toggleClickMode("openPosts");
+          this.shouldShowClickButtonMenu = false;
+      },
+
+      selectPost(post) {
+          this.selectPostId({
+              id: post.id,
+              canOpenMultiplePosts: this.canOpenMultiplePosts
+          });
+      },
+
+      onRemovedLink() {
+          this.setLinkToEdit(null);
+          this.clickMode = "openPosts";
+      }
+  },
+});
 </script>
 
 <style scoped>

@@ -229,127 +229,133 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import {mapMutations, mapActions} from "vuex";
 
-export default {
-    name: "Settings",
-    data() {
-        return {
-            remoteStorageMethodInComponent: "none", // "none" | "firebase"
-            shouldTakeDataFrom: null, // "local" | "firebase",
-            firebaseConfigInComponent: "",
-        };
-    },
-    computed: {
-        shouldAutosave: {
-            get() {
-                return this.$store.state.settingsModule.shouldAutosave;
-            },
-            set(shouldAutosave) {
-                this.setShouldAutosave(shouldAutosave);
-            }
-        },
-        remoteStorageMethod() {
-            return this.$store.state.settingsModule.remoteStorageMethod;
-        },
-        firebaseConfig: {
-            get() {
-                return JSON.stringify(this.$store.state.firebaseModule.firebaseConfig);
-            },
-            set(firebaseConfig) {
-                try {
-                    this.setFirebaseConfig(JSON.parse(firebaseConfig));
-                } catch (error) {
-                    alert("Firebase config isn't formatted correctly, it should be like this: {\"apiKey\":\"xx\",\"authDomain\":\"x.firebaseapp.com\",\"databaseURL\":\"https://x.firebaseio.com\",\"projectId\":\"spiderweb-e49bd\",\"storageBucket\":\"x.appspot.com\",\"messagingSenderId\":\"123\",\"appId\":\"xyz\"}");
-                }
-            }
-        },
+export default defineComponent({
+  name: "Settings",
 
-        canOpenMultiplePosts: {
-            get() {
-                return this.$store.state.settingsModule.canOpenMultiplePosts;
-            },
-            set(canOpenMultiplePosts) {
-                this.setCanOpenMultiplePosts(canOpenMultiplePosts);
-            }
-        },
+  data() {
+      return {
+          remoteStorageMethodInComponent: "none", // "none" | "firebase"
+          shouldTakeDataFrom: null, // "local" | "firebase",
+          firebaseConfigInComponent: "",
+      };
+  },
 
-        graphHeight: {
-            get() {
-                return this.$store.state.settingsModule.graphHeight;
-            },
-            set(graphHeight) {
-                this.setGraphHeight(graphHeight);
-            }
-        },
-        postBarHeight: {
-            get() {
-                return this.$store.state.settingsModule.postBarHeight;
-            },
-            set(postBarHeight) {
-                this.setPostBarHeight(postBarHeight);
-            }
-        },
-        postWidth: {
-            get() {
-                return this.$store.state.settingsModule.postWidth;
-            },
-            set(postWidth) {
-                this.setPostWidth(Math.min(94, postWidth)); // 94% allows for margin & padding
-            }
-        },
+  computed: {
+      shouldAutosave: {
+          get() {
+              return this.$store.state.settingsModule.shouldAutosave;
+          },
+          set(shouldAutosave) {
+              this.setShouldAutosave(shouldAutosave);
+          }
+      },
+      remoteStorageMethod() {
+          return this.$store.state.settingsModule.remoteStorageMethod;
+      },
+      firebaseConfig: {
+          get() {
+              return JSON.stringify(this.$store.state.firebaseModule.firebaseConfig);
+          },
+          set(firebaseConfig) {
+              try {
+                  this.setFirebaseConfig(JSON.parse(firebaseConfig));
+              } catch (error) {
+                  alert("Firebase config isn't formatted correctly, it should be like this: {\"apiKey\":\"xx\",\"authDomain\":\"x.firebaseapp.com\",\"databaseURL\":\"https://x.firebaseio.com\",\"projectId\":\"spiderweb-e49bd\",\"storageBucket\":\"x.appspot.com\",\"messagingSenderId\":\"123\",\"appId\":\"xyz\"}");
+              }
+          }
+      },
 
-        firebaseConfigIsValid() {
-            try {
-                const firebaseConfig = JSON.parse(this.firebaseConfigInComponent);
-                return typeof firebaseConfig === "object"
-                    && typeof firebaseConfig.apiKey === "string"
-                    && firebaseConfig.apiKey.trim() !== "";
-            } catch (e) {
-                return false;
-            }
-        },
-        canChangeStorageMethod() {
-            if (this.remoteStorageMethodInComponent !== "firebase") {
-                return true;
-            }
-            if (this.shouldTakeDataFrom === null) {
-                return false;
-            }
+      canOpenMultiplePosts: {
+          get() {
+              return this.$store.state.settingsModule.canOpenMultiplePosts;
+          },
+          set(canOpenMultiplePosts) {
+              this.setCanOpenMultiplePosts(canOpenMultiplePosts);
+          }
+      },
 
-            return this.firebaseConfigIsValid;
-        }
-    },
-    created() {
-        this.remoteStorageMethodInComponent = this.remoteStorageMethod;
-        this.firebaseConfigInComponent = this.firebaseConfig;
-    },
-    methods: {
-        ...mapMutations("settingsModule", [
-            "setShouldAutosave",
-            "setCanOpenMultiplePosts",
-            "setGraphHeight",
-            "setPostBarHeight",
-            "setPostWidth"
-        ]),
-        ...mapActions("settingsModule", [
-            "setRemoteStorageMethod",
-        ]),
-        ...mapActions("firebaseModule", [
-            "setFirebaseConfig"
-        ]),
+      graphHeight: {
+          get() {
+              return this.$store.state.settingsModule.graphHeight;
+          },
+          set(graphHeight) {
+              this.setGraphHeight(graphHeight);
+          }
+      },
+      postBarHeight: {
+          get() {
+              return this.$store.state.settingsModule.postBarHeight;
+          },
+          set(postBarHeight) {
+              this.setPostBarHeight(postBarHeight);
+          }
+      },
+      postWidth: {
+          get() {
+              return this.$store.state.settingsModule.postWidth;
+          },
+          set(postWidth) {
+              this.setPostWidth(Math.min(94, postWidth)); // 94% allows for margin & padding
+          }
+      },
 
-        async changeStorageMethod() {
-            if (this.firebaseConfig !== this.firebaseConfigInComponent) {
-                this.firebaseConfig = this.firebaseConfigInComponent;
-            }
-            await this.setRemoteStorageMethod({
-                remoteStorageMethod: this.remoteStorageMethodInComponent,
-                shouldTakeDataFrom: this.shouldTakeDataFrom
-            });
-        }
-    }
-};
+      firebaseConfigIsValid() {
+          try {
+              const firebaseConfig = JSON.parse(this.firebaseConfigInComponent);
+              return typeof firebaseConfig === "object"
+                  && typeof firebaseConfig.apiKey === "string"
+                  && firebaseConfig.apiKey.trim() !== "";
+          } catch (e) {
+              return false;
+          }
+      },
+      canChangeStorageMethod() {
+          if (this.remoteStorageMethodInComponent !== "firebase") {
+              return true;
+          }
+          if (this.shouldTakeDataFrom === null) {
+              return false;
+          }
+
+          return this.firebaseConfigIsValid;
+      }
+  },
+
+  created() {
+      this.remoteStorageMethodInComponent = this.remoteStorageMethod;
+      this.firebaseConfigInComponent = this.firebaseConfig;
+  },
+
+  methods: {
+      ...mapMutations("settingsModule", [
+          "setShouldAutosave",
+          "setCanOpenMultiplePosts",
+          "setGraphHeight",
+          "setPostBarHeight",
+          "setPostWidth"
+      ]),
+      ...mapActions("settingsModule", [
+          "setRemoteStorageMethod",
+      ]),
+      ...mapActions("firebaseModule", [
+          "setFirebaseConfig"
+      ]),
+
+      async changeStorageMethod() {
+          if (this.firebaseConfig !== this.firebaseConfigInComponent) {
+              this.firebaseConfig = this.firebaseConfigInComponent;
+          }
+          await this.setRemoteStorageMethod({
+              remoteStorageMethod: this.remoteStorageMethodInComponent,
+              shouldTakeDataFrom: this.shouldTakeDataFrom
+          });
+      }
+  },
+});
 </script>
 
 <style scoped>

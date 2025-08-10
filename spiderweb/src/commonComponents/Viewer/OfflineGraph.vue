@@ -44,6 +44,8 @@
 </template>
 
 <script>
+import { defineComponent, nextTick } from 'vue';
+
 import {select as d3select, selectAll as d3selectAll, event as d3event, mouse as d3mouse} from "d3-selection";
 import {forceSimulation as d3forceSimulation, forceLink as d3forceLink, forceManyBody as d3forceManyBody, forceCenter as d3forceCenter} from "d3-force";
 import {zoom as d3zoom, zoomIdentity as d3zoomIdentity} from "d3-zoom";
@@ -55,456 +57,462 @@ import {mapActions, mapGetters, mapMutations, mapState} from "vuex";
 import FloatingActionButton from "./FloatingActionButton.vue";
 import {HEIGHT, INITIAL_ZOOM, WIDTH} from "@/commonComponents/constants";
 
-export default {
-    name: "OfflineGraph",
-    components: {
-        FloatingActionButton
-    },
-    data() {
-        const originalLinkStroke = 20;
-        return {
-            svg: null,
-            rootG: null,
+export default defineComponent({
+  name: "OfflineGraph",
 
-            hasMounted: false,
-            zoom: null,
-            zoomBehaviour: null,
-            shouldResetZooming: false,
+  components: {
+      FloatingActionButton
+  },
 
-            linksG: null,
-            nodesG: null,
-            linkSelection: null,
-            nodeSelection: null,
-            textSelection: null,
+  data() {
+      const originalLinkStroke = 20;
+      return {
+          svg: null,
+          rootG: null,
 
-            originalLinkStroke: originalLinkStroke,
-            linkStroke: originalLinkStroke,
+          hasMounted: false,
+          zoom: null,
+          zoomBehaviour: null,
+          shouldResetZooming: false,
 
-            nodesWithCoordinates: {}, // after D3 has added `x` and `y` coordinates to each object
-        };
-    },
-    computed: {
-        ...mapState("settingsModule", ["canOpenMultiplePosts"]),
+          linksG: null,
+          nodesG: null,
+          linkSelection: null,
+          nodeSelection: null,
+          textSelection: null,
 
-        ...mapState("dataModule", ["selectedGraphId", "selectedSubgraphIds"]),
-        ...mapGetters("dataModule", ["postsInSelectedSubgraphs", "linksInSelectedSubgraphs", "subgraphColour", "titleOrBody", "isNeighbour"]),
+          originalLinkStroke: originalLinkStroke,
+          linkStroke: originalLinkStroke,
 
-        ...mapState("clickerModule", ["shouldShowClickButtonMenu", "clickMode"]),
-        nodePositions() {
-            return this.$store.state.dataModule.graphs[this.selectedGraphId].nodePositions;
-        }
-    },
-    watch: {
-        selectedGraphId() {
-            this.shouldResetZooming = true;
-            this.debouncedMakeGraphSvg();
-        },
-        selectedSubgraphIds() {
-            this.debouncedMakeGraphSvg();
-        },
-        postsInSelectedSubgraphs() {
-            this.debouncedMakeGraphSvg();
-        },
-        linksInSelectedSubgraphs() {
-            this.debouncedMakeGraphSvg();
-        },
-        zoom({x, y, scale}) {
-            this.rootG.attr("transform", `translate(${x} ${y}) scale(${scale})`);
+          nodesWithCoordinates: {}, // after D3 has added `x` and `y` coordinates to each object
+      };
+  },
 
-            const unshiftedTextScaleFactor = INITIAL_ZOOM / scale;
-            const textScaleFactor = unshiftedTextScaleFactor < 1
-                ? unshiftedTextScaleFactor
-                : 1 + ((unshiftedTextScaleFactor - 1) * 0.35); // I don't want the text to get big really quickly
-            const originalTextSize = 48;
-            const maxTextSize = 220;
-            const newTextSize = Math.min(
-                maxTextSize,
-                Math.ceil(originalTextSize * textScaleFactor)
-            );
+  computed: {
+      ...mapState("settingsModule", ["canOpenMultiplePosts"]),
 
-            document.querySelector(":root")
-                .style.setProperty("--node-text-size", (this.isPhone() ? (newTextSize / 2) : newTextSize) + "px");
+      ...mapState("dataModule", ["selectedGraphId", "selectedSubgraphIds"]),
+      ...mapGetters("dataModule", ["postsInSelectedSubgraphs", "linksInSelectedSubgraphs", "subgraphColour", "titleOrBody", "isNeighbour"]),
 
-            const minLinkStroke = 8;
-            const maxLinkStroke = 110;
-            this.linkStroke = Math.max(
-                minLinkStroke,
-                Math.min(
-                    maxLinkStroke,
-                    Math.ceil(this.originalLinkStroke * textScaleFactor)
-                )
-            );
-            document.querySelector(":root")
-                .style.setProperty("--link-stroke-width", this.linkStroke + "px");
+      ...mapState("clickerModule", ["shouldShowClickButtonMenu", "clickMode"]),
+      nodePositions() {
+          return this.$store.state.dataModule.graphs[this.selectedGraphId].nodePositions;
+      }
+  },
 
-            if (this.nodeSelection != null) {
-                this.nodeSelection
-                    .attr("r", this.linkStroke);
-            }
+  watch: {
+      selectedGraphId() {
+          this.shouldResetZooming = true;
+          this.debouncedMakeGraphSvg();
+      },
+      selectedSubgraphIds() {
+          this.debouncedMakeGraphSvg();
+      },
+      postsInSelectedSubgraphs() {
+          this.debouncedMakeGraphSvg();
+      },
+      linksInSelectedSubgraphs() {
+          this.debouncedMakeGraphSvg();
+      },
+      zoom({x, y, scale}) {
+          this.rootG.attr("transform", `translate(${x} ${y}) scale(${scale})`);
 
-            this.debouncedSaveZoomState();
-        }
-    },
-    mounted() {
-        this.svg = d3select("#graphSvg");
-        this.rootG = d3select("#graphSvg g");
+          const unshiftedTextScaleFactor = INITIAL_ZOOM / scale;
+          const textScaleFactor = unshiftedTextScaleFactor < 1
+              ? unshiftedTextScaleFactor
+              : 1 + ((unshiftedTextScaleFactor - 1) * 0.35); // I don't want the text to get big really quickly
+          const originalTextSize = 48;
+          const maxTextSize = 220;
+          const newTextSize = Math.min(
+              maxTextSize,
+              Math.ceil(originalTextSize * textScaleFactor)
+          );
 
-        this.linksG = d3select(".graph__links")
-            .attr("stroke", "#999")
-            .attr("stroke-opacity", 0.6);
+          document.querySelector(":root")
+              .style.setProperty("--node-text-size", (this.isPhone() ? (newTextSize / 2) : newTextSize) + "px");
 
-        this.nodesG = d3select(".graph__nodes")
-            .attr("stroke", "#fff")
-            .attr("stroke-width", 1.5);
+          const minLinkStroke = 8;
+          const maxLinkStroke = 110;
+          this.linkStroke = Math.max(
+              minLinkStroke,
+              Math.min(
+                  maxLinkStroke,
+                  Math.ceil(this.originalLinkStroke * textScaleFactor)
+              )
+          );
+          document.querySelector(":root")
+              .style.setProperty("--link-stroke-width", this.linkStroke + "px");
 
-        this.setupZooming();
-        this.svg.call(this.zoomBehaviour)
-            .call(
-                this.zoomBehaviour.transform,
-                d3zoomIdentity
-                    .translate(
-                        this.$store.state.dataModule.zoom.x, // sets initial x/y and zoom amount
-                        this.$store.state.dataModule.zoom.y
-                    ).scale(this.$store.state.dataModule.zoom.scale)
-            );
-        this.$nextTick(() => {
-            this.debouncedMakeGraphSvg();
-        });
+          if (this.nodeSelection != null) {
+              this.nodeSelection
+                  .attr("r", this.linkStroke);
+          }
 
-        this.$root.$on("focusOnPost", this.focusOnPost);
-        this.$root.$on("highlightPost", this.highlightPost);
-        this.$root.$on("unhighlightPost", this.unhighlightPost);
-        this.$root.$on("refreshGraph", this.debouncedMakeGraphSvg);
-        this.$root.$on("zoomIn", this.zoomIn);
-        this.$root.$on("zoomOut", this.zoomOut);
-    },
-    methods: {
-        ...mapMutations(["setIsRenderingGraph"]),
-        ...mapMutations("dataModule", ["setZoom", "setPostPosition"]),
-        ...mapMutations("clickerModule", ["setShouldShowClickButtonMenu", "setClickMode"]),
+          this.debouncedSaveZoomState();
+      }
+  },
 
-        ...mapActions("clickerModule", ["handlePostClick", "handleLinkClick"]),
+  mounted() {
+      this.svg = d3select("#graphSvg");
+      this.rootG = d3select("#graphSvg g");
 
-        isPhone() {
-            const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-            return viewportWidth <= 576;
-        },
+      this.linksG = d3select(".graph__links")
+          .attr("stroke", "#999")
+          .attr("stroke-opacity", 0.6);
 
-        onSvgClick(event) {
-            if (event.target.id !== "graphSvg") {
-                return;
-            }
+      this.nodesG = d3select(".graph__nodes")
+          .attr("stroke", "#fff")
+          .attr("stroke-width", 1.5);
 
-            if (this.shouldShowClickButtonMenu) {
-                this.setShouldShowClickButtonMenu(false);
-            }
+      this.setupZooming();
+      this.svg.call(this.zoomBehaviour)
+          .call(
+              this.zoomBehaviour.transform,
+              d3zoomIdentity
+                  .translate(
+                      this.$store.state.dataModule.zoom.x, // sets initial x/y and zoom amount
+                      this.$store.state.dataModule.zoom.y
+                  ).scale(this.$store.state.dataModule.zoom.scale)
+          );
+      nextTick(() => {
+          this.debouncedMakeGraphSvg();
+      });
 
-            if (this.clickMode !== "openPosts") {
-                this.setClickMode("openPosts");
-            }
-        },
+      this.$root.$on("focusOnPost", this.focusOnPost);
+      this.$root.$on("highlightPost", this.highlightPost);
+      this.$root.$on("unhighlightPost", this.unhighlightPost);
+      this.$root.$on("refreshGraph", this.debouncedMakeGraphSvg);
+      this.$root.$on("zoomIn", this.zoomIn);
+      this.$root.$on("zoomOut", this.zoomOut);
+  },
 
-        debouncedMakeGraphSvg: debounce(
-            function() {
-                this.makeGraphSvg();
-            },
-            500,
-            {
-                "leading": true,
-                "trailing": true,
-            }
-        ),
-        async makeGraphSvg() {
-            this.setIsRenderingGraph(true);
+  methods: {
+      ...mapMutations(["setIsRenderingGraph"]),
+      ...mapMutations("dataModule", ["setZoom", "setPostPosition"]),
+      ...mapMutations("clickerModule", ["setShouldShowClickButtonMenu", "setClickMode"]),
 
-            //todo: almost definitely in-efficient
-            let nodes = JSON.parse(JSON.stringify(this.postsInSelectedSubgraphs));
-            nodes = nodes.map((node) => {
-                const nodePosition = this.nodePositions[node.id];
-                if (nodePosition != null) {
-                    node.fx = nodePosition.x;
-                    node.fy = nodePosition.y;
-                }
-                return node;
-            });
-            const links = JSON.parse(JSON.stringify(this.linksInSelectedSubgraphs));
+      ...mapActions("clickerModule", ["handlePostClick", "handleLinkClick"]),
 
-            const vm = this;
+      isPhone() {
+          const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+          return viewportWidth <= 576;
+      },
 
-            // setup force simulation
-            const simulation = d3forceSimulation(nodes)
-                .force("link", d3forceLink(links)
-                    .id(d => d.id)
-                    .distance(200)
-                )
-                .force("charge", d3forceManyBody()
-                    .strength(-7500)
-                )
-                .force("center", d3forceCenter(WIDTH / 2, HEIGHT / 2));
-            simulation.tick(300);
+      onSvgClick(event) {
+          if (event.target.id !== "graphSvg") {
+              return;
+          }
 
-            // add links
-            this.linkSelection = this.linksG
-                .selectAll("line")
-                .data(links, link => link.id)
-                .join("line")
-                .classed("graph__link", true)
-                .classed("graph__link--sidenote", (link) => link.type === "sidenote")
-                .classed("graph__link--link", (link) => link.type === "link")
-                .attr("stroke", (link) => this.subgraphColour(link.subgraphId))
-                .attr("marker-end", "url(#arrowhead)")
-                .on("click", async function (link) {
-                    const returnedValue = await vm.handleLinkClick(
-                        {
-                            link,
-                            coordinates: d3mouse(this)
-                        }
-                    );
-                    if (returnedValue != null) {
-                        const postIdToFocusOn = returnedValue;
-                        vm.focusOnPost(postIdToFocusOn, 1.5);
-                    }
-                })
-                .call(d3drag().clickDistance(4));
+          if (this.shouldShowClickButtonMenu) {
+              this.setShouldShowClickButtonMenu(false);
+          }
 
-            let nodeGroups = this.nodesG
-                .selectAll("g")
-                .data(nodes, post => post.id);
+          if (this.clickMode !== "openPosts") {
+              this.setClickMode("openPosts");
+          }
+      },
 
-            // remove nodes for old posts
-            nodeGroups.exit().remove();
+      debouncedMakeGraphSvg: debounce(
+          function() {
+              this.makeGraphSvg();
+          },
+          500,
+          {
+              "leading": true,
+              "trailing": true,
+          }
+      ),
+      async makeGraphSvg() {
+          this.setIsRenderingGraph(true);
 
-            // add nodes for new posts
-            const newNodeGroups = nodeGroups.enter();
-            const newNodeGroup = newNodeGroups.append("g")
-                .classed("node", true);
-            newNodeGroup.append("circle");
-            newNodeGroup.append("text");
-            
-            // merge the previously-existing and newly-made selections together
-            nodeGroups = nodeGroups.merge(newNodeGroups);
-            nodeGroups
-                .selectAll("g")
-                .attr("dataset-id", post => post.id);
+          //todo: almost definitely in-efficient
+          let nodes = JSON.parse(JSON.stringify(this.postsInSelectedSubgraphs));
+          nodes = nodes.map((node) => {
+              const nodePosition = this.nodePositions[node.id];
+              if (nodePosition != null) {
+                  node.fx = nodePosition.x;
+                  node.fy = nodePosition.y;
+              }
+              return node;
+          });
+          const links = JSON.parse(JSON.stringify(this.linksInSelectedSubgraphs));
 
-            // if the nodes aren't being made, that might be because the .node circles don't exist in the DOM when this function is called
-            this.nodeSelection = d3selectAll(".node").select("circle")
-                .classed("node__circle", true)
-                .attr("r", this.linkStroke)
-                .attr("title", post => post.title);
-                
-            this.textSelection = d3selectAll(".node").select("text")
-                .classed("node__text", true)
-                .attr("text-anchor", "end")
-                .attr("id", post => `text-${post.id}`)
-                .text(post => this.titleOrBody(post.id))
-                .on("mouseover", (post) => {
-                    this.highlightPost(post.id);
-                })
-                .on("mouseout", (post) => {
-                    this.unhighlightPost(post.id);
-                });
-                
-            d3selectAll(".node *")
-                .on("click", this.handlePostClick)
-                .call(d3drag().clickDistance(4)) // if the mouse moves less than 4 units while clicking, it's counted as a click
-                .call(this.createDragBehaviour(simulation));
+          const vm = this;
 
-            // set x and y co-ordinates of the links, and nodes
-            simulation.on("tick", () => {
-                this.linkSelection
-                    .attr("x1", d => d.source.x)
-                    .attr("y1", d => d.source.y)
-                    .attr("x2", d => d.target.x)
-                    .attr("y2", d => d.target.y);
+          // setup force simulation
+          const simulation = d3forceSimulation(nodes)
+              .force("link", d3forceLink(links)
+                  .id(d => d.id)
+                  .distance(200)
+              )
+              .force("charge", d3forceManyBody()
+                  .strength(-7500)
+              )
+              .force("center", d3forceCenter(WIDTH / 2, HEIGHT / 2));
+          simulation.tick(300);
 
-                this.nodeSelection
-                    .attr("cx", d => d.x)
-                    .attr("cy", d => d.y);
+          // add links
+          this.linkSelection = this.linksG
+              .selectAll("line")
+              .data(links, link => link.id)
+              .join("line")
+              .classed("graph__link", true)
+              .classed("graph__link--sidenote", (link) => link.type === "sidenote")
+              .classed("graph__link--link", (link) => link.type === "link")
+              .attr("stroke", (link) => this.subgraphColour(link.subgraphId))
+              .attr("marker-end", "url(#arrowhead)")
+              .on("click", async function (link) {
+                  const returnedValue = await vm.handleLinkClick(
+                      {
+                          link,
+                          coordinates: d3mouse(this)
+                      }
+                  );
+                  if (returnedValue != null) {
+                      const postIdToFocusOn = returnedValue;
+                      vm.focusOnPost(postIdToFocusOn, 1.5);
+                  }
+              })
+              .call(d3drag().clickDistance(4));
 
-                this.textSelection
-                    .attr("x", d => d.x - 6)
-                    .attr("y", d => d.y - 4);
-            });
+          let nodeGroups = this.nodesG
+              .selectAll("g")
+              .data(nodes, post => post.id);
 
-            if (this.shouldResetZooming) {
-                this.shouldResetZooming = false;
-                this.$nextTick(() => {
-                    this.resetZoomToCenter();
-                });
-            }
+          // remove nodes for old posts
+          nodeGroups.exit().remove();
 
-            let postsKeyedById = {};
-            for (const post of nodes) {
-                postsKeyedById[post.id] = post;
-            }
-            this.nodesWithCoordinates = postsKeyedById;
-            this.setIsRenderingGraph(false);
-        },
+          // add nodes for new posts
+          const newNodeGroups = nodeGroups.enter();
+          const newNodeGroup = newNodeGroups.append("g")
+              .classed("node", true);
+          newNodeGroup.append("circle");
+          newNodeGroup.append("text");
+          
+          // merge the previously-existing and newly-made selections together
+          nodeGroups = nodeGroups.merge(newNodeGroups);
+          nodeGroups
+              .selectAll("g")
+              .attr("dataset-id", post => post.id);
 
-        setupZooming() {
-            /*
-            https://github.com/d3/d3-zoom/blob/v1.8.3/README.md#zoom
-            Zooms work like this:
-                there's a zoom _behaviour_, which is a function and object - it's normally applied to a selection with `selection.call(zoomBehaviour)` (which is the same as `zoomBehaviour(selection)`). Applying the behaviour binds the panning and zooming event listeners and initialises the zoom transform
-                the behaviour doesn't store the state of the zoom, a zoom _transform_ does
-                doing `zoom.transform(selection, transform)` sets the zoom transform on that selection to be the transform argument, which is what you do to programmatically zoom - it seems to trigger the behaviour's "zoom" event listener
+          // if the nodes aren't being made, that might be because the .node circles don't exist in the DOM when this function is called
+          this.nodeSelection = d3selectAll(".node").select("circle")
+              .classed("node__circle", true)
+              .attr("r", this.linkStroke)
+              .attr("title", post => post.title);
+              
+          this.textSelection = d3selectAll(".node").select("text")
+              .classed("node__text", true)
+              .attr("text-anchor", "end")
+              .attr("id", post => `text-${post.id}`)
+              .text(post => this.titleOrBody(post.id))
+              .on("mouseover", (post) => {
+                  this.highlightPost(post.id);
+              })
+              .on("mouseout", (post) => {
+                  this.unhighlightPost(post.id);
+              });
+              
+          d3selectAll(".node *")
+              .on("click", this.handlePostClick)
+              .call(d3drag().clickDistance(4)) // if the mouse moves less than 4 units while clicking, it's counted as a click
+              .call(this.createDragBehaviour(simulation));
 
-                d3zoomIdentity.translate(x, y).scale(k) makes a new transform
-             */
-            this.zoomBehaviour = d3zoom()
-                .scaleExtent([0.025, 2]) // limits zooming so you can only zoom between 0.2x and 2x
-                .on("zoom", () => {
-                    const x = d3event.transform.x;
-                    const y = d3event.transform.y;
-                    const scale = d3event.transform.k;
-                    this.zoom = {x, y, scale};
-                });
-            this.svg.call(this.zoomBehaviour)
-                .on("wheel", () => {
-                    d3event.preventDefault();
-                });
-        },
-        resetZoomToCenter() {
-            this.svg.call(this.zoomBehaviour)
-                .call(
-                    this.zoomBehaviour.transform,
-                    d3zoomIdentity
-                        .translate(WIDTH / 2, HEIGHT / 2)
-                        .scale(INITIAL_ZOOM)
-                ); // sets initial x/y and zoom amount
-        },
-        debouncedSaveZoomState: debounce(
-            function() {
-                // we have to do it like this because this.zoom is set in mounted(), and that triggers this watcher, which sets the zoom in the store, which will autosave - you don't want to immediately autosave data you've just loaded. The zoom in the store is only used to backup the state, so it doesn't matter if it's not set there immediately
-                if (this.hasMounted) {
-                    this.setZoom(this.zoom);
-                } else {
-                    this.hasMounted = true;
-                }
-            },
-            250,
-            {
-                "leading": false,
-                "trailing": true, // we always need to call it the final time, so that D3 picks up any new nodes or links,
-            }
-        ),
-        focusOnPost(id, speed = 1) {
-            const xOffset = this.isPhone()
-                ? 550
-                : 2000;
-            const yOffset = this.isPhone()
-                ? 300
-                : 500;
+          // set x and y co-ordinates of the links, and nodes
+          simulation.on("tick", () => {
+              this.linkSelection
+                  .attr("x1", d => d.source.x)
+                  .attr("y1", d => d.source.y)
+                  .attr("x2", d => d.target.x)
+                  .attr("y2", d => d.target.y);
 
-            const post = this.nodesWithCoordinates[id];
-            this.svg.transition()
-                .duration(1500 / speed)
-                .call(
-                    this.zoomBehaviour.transform,
-                    d3zoomIdentity
-                        .scale(INITIAL_ZOOM)
-                        .translate(-post.x + xOffset, -post.y + yOffset) // magic numbers that work on desktop and my phone
-                );
-        },
-        zoomIn() {
-            this.svg.transition()
-                .call(this.zoomBehaviour.scaleBy, 2);
-        },
-        zoomOut() {
-            this.svg.transition()
-                .call(this.zoomBehaviour.scaleBy, 0.5);
-        },
+              this.nodeSelection
+                  .attr("cx", d => d.x)
+                  .attr("cy", d => d.y);
 
-        createDragBehaviour(simulation) {
-            const vm = this;
-            function dragStarted(node) {
-                if (!d3event.active) {
-                    simulation.alphaTarget(0.3).restart();
-                }
+              this.textSelection
+                  .attr("x", d => d.x - 6)
+                  .attr("y", d => d.y - 4);
+          });
 
-                // Preventing other nodes from moving while dragging one node
-                function fixNodes(thisNode) {
-                    vm.nodeSelection.each(function (d) {
-                        if (thisNode !== d) {
-                            d.fx = d.x;
-                            d.fy = d.y;
-                        }
-                    });
-                }
-                node.fx = node.x;
-                node.fy = node.y;
-                fixNodes(node);
-            }
+          if (this.shouldResetZooming) {
+              this.shouldResetZooming = false;
+              nextTick(() => {
+                  this.resetZoomToCenter();
+              });
+          }
 
-            function dragged(node) {
-                node.fx = d3event.x;
-                node.fy = d3event.y;
-            }
+          let postsKeyedById = {};
+          for (const post of nodes) {
+              postsKeyedById[post.id] = post;
+          }
+          this.nodesWithCoordinates = postsKeyedById;
+          this.setIsRenderingGraph(false);
+      },
 
-            function dragEnded(node) {
-                if (!d3event.active) {
-                    simulation.alpha(0);
-                    simulation.alphaTarget(0);
-                }
-                node.fx = d3event.x;
-                node.fy = d3event.y;
-                vm.setPostPosition({
-                    postId: node.id,
-                    position: {
-                        x: d3event.x,
-                        y: d3event.y
-                    }
-                });
-            }
+      setupZooming() {
+          /*
+          https://github.com/d3/d3-zoom/blob/v1.8.3/README.md#zoom
+          Zooms work like this:
+              there's a zoom _behaviour_, which is a function and object - it's normally applied to a selection with `selection.call(zoomBehaviour)` (which is the same as `zoomBehaviour(selection)`). Applying the behaviour binds the panning and zooming event listeners and initialises the zoom transform
+              the behaviour doesn't store the state of the zoom, a zoom _transform_ does
+              doing `zoom.transform(selection, transform)` sets the zoom transform on that selection to be the transform argument, which is what you do to programmatically zoom - it seems to trigger the behaviour's "zoom" event listener
 
-            return d3drag()
-                .on("start", dragStarted)
-                .on("drag", dragged)
-                .on("end", dragEnded);
-        },
+              d3zoomIdentity.translate(x, y).scale(k) makes a new transform
+           */
+          this.zoomBehaviour = d3zoom()
+              .scaleExtent([0.025, 2]) // limits zooming so you can only zoom between 0.2x and 2x
+              .on("zoom", () => {
+                  const x = d3event.transform.x;
+                  const y = d3event.transform.y;
+                  const scale = d3event.transform.k;
+                  this.zoom = {x, y, scale};
+              });
+          this.svg.call(this.zoomBehaviour)
+              .on("wheel", () => {
+                  d3event.preventDefault();
+              });
+      },
+      resetZoomToCenter() {
+          this.svg.call(this.zoomBehaviour)
+              .call(
+                  this.zoomBehaviour.transform,
+                  d3zoomIdentity
+                      .translate(WIDTH / 2, HEIGHT / 2)
+                      .scale(INITIAL_ZOOM)
+              ); // sets initial x/y and zoom amount
+      },
+      debouncedSaveZoomState: debounce(
+          function() {
+              // we have to do it like this because this.zoom is set in mounted(), and that triggers this watcher, which sets the zoom in the store, which will autosave - you don't want to immediately autosave data you've just loaded. The zoom in the store is only used to backup the state, so it doesn't matter if it's not set there immediately
+              if (this.hasMounted) {
+                  this.setZoom(this.zoom);
+              } else {
+                  this.hasMounted = true;
+              }
+          },
+          250,
+          {
+              "leading": false,
+              "trailing": true, // we always need to call it the final time, so that D3 picks up any new nodes or links,
+          }
+      ),
+      focusOnPost(id, speed = 1) {
+          const xOffset = this.isPhone()
+              ? 550
+              : 2000;
+          const yOffset = this.isPhone()
+              ? 300
+              : 500;
 
-        highlightPost(postId) {
-            const textElement = document.getElementById(`text-${postId}`);
-            d3select(textElement)
-                .style("filter", "url(#postHoverFilter)");
+          const post = this.nodesWithCoordinates[id];
+          this.svg.transition()
+              .duration(1500 / speed)
+              .call(
+                  this.zoomBehaviour.transform,
+                  d3zoomIdentity
+                      .scale(INITIAL_ZOOM)
+                      .translate(-post.x + xOffset, -post.y + yOffset) // magic numbers that work on desktop and my phone
+              );
+      },
+      zoomIn() {
+          this.svg.transition()
+              .call(this.zoomBehaviour.scaleBy, 2);
+      },
+      zoomOut() {
+          this.svg.transition()
+              .call(this.zoomBehaviour.scaleBy, 0.5);
+      },
 
-            // SVG doesn't have a z-index, the z-direction is by element order, this re-inserts the parent <node> in the DOM at the bottom of its parent so this text is on top of any others
-            d3select(d3select(textElement).node().parentNode).raise();
+      createDragBehaviour(simulation) {
+          const vm = this;
+          function dragStarted(node) {
+              if (!d3event.active) {
+                  simulation.alphaTarget(0.3).restart();
+              }
 
-            const nonNeighbourNodes = this.nodeSelection.filter(otherPost => {
-                if (postId === otherPost.id) {
-                    return false;
-                }
-                return !this.isNeighbour(postId, otherPost.id);
-            });
-            nonNeighbourNodes.style("opacity", 0.2);
+              // Preventing other nodes from moving while dragging one node
+              function fixNodes(thisNode) {
+                  vm.nodeSelection.each(function (d) {
+                      if (thisNode !== d) {
+                          d.fx = d.x;
+                          d.fy = d.y;
+                      }
+                  });
+              }
+              node.fx = node.x;
+              node.fy = node.y;
+              fixNodes(node);
+          }
 
-            const nonNeighbourTexts = this.textSelection.filter(otherPost => {
-                if (postId === otherPost.id) {
-                    return false;
-                }
-                return !this.isNeighbour(postId, otherPost.id);
-            });
-            nonNeighbourTexts.style("opacity", 0.2);
+          function dragged(node) {
+              node.fx = d3event.x;
+              node.fy = d3event.y;
+          }
 
-            const nonNeighbourLinks = this.linkSelection.filter(link => {
-                const linkDoesntIncludeThisPost = postId !== link.source.id
-                    && postId !== link.target.id;
-                return linkDoesntIncludeThisPost;
-            });
-            nonNeighbourLinks.style("opacity", 0.2);
-        },
-        unhighlightPost(postId) {
-            const textElement = document.getElementById(`text-${postId}`);
-            d3select(textElement)
-                .style("filter", "");
-            this.nodeSelection.style("opacity", 1);
-            this.textSelection.style("opacity", 1);
-            this.linkSelection.style("opacity", 1);
-        }
-    }
-};
+          function dragEnded(node) {
+              if (!d3event.active) {
+                  simulation.alpha(0);
+                  simulation.alphaTarget(0);
+              }
+              node.fx = d3event.x;
+              node.fy = d3event.y;
+              vm.setPostPosition({
+                  postId: node.id,
+                  position: {
+                      x: d3event.x,
+                      y: d3event.y
+                  }
+              });
+          }
+
+          return d3drag()
+              .on("start", dragStarted)
+              .on("drag", dragged)
+              .on("end", dragEnded);
+      },
+
+      highlightPost(postId) {
+          const textElement = document.getElementById(`text-${postId}`);
+          d3select(textElement)
+              .style("filter", "url(#postHoverFilter)");
+
+          // SVG doesn't have a z-index, the z-direction is by element order, this re-inserts the parent <node> in the DOM at the bottom of its parent so this text is on top of any others
+          d3select(d3select(textElement).node().parentNode).raise();
+
+          const nonNeighbourNodes = this.nodeSelection.filter(otherPost => {
+              if (postId === otherPost.id) {
+                  return false;
+              }
+              return !this.isNeighbour(postId, otherPost.id);
+          });
+          nonNeighbourNodes.style("opacity", 0.2);
+
+          const nonNeighbourTexts = this.textSelection.filter(otherPost => {
+              if (postId === otherPost.id) {
+                  return false;
+              }
+              return !this.isNeighbour(postId, otherPost.id);
+          });
+          nonNeighbourTexts.style("opacity", 0.2);
+
+          const nonNeighbourLinks = this.linkSelection.filter(link => {
+              const linkDoesntIncludeThisPost = postId !== link.source.id
+                  && postId !== link.target.id;
+              return linkDoesntIncludeThisPost;
+          });
+          nonNeighbourLinks.style("opacity", 0.2);
+      },
+      unhighlightPost(postId) {
+          const textElement = document.getElementById(`text-${postId}`);
+          d3select(textElement)
+              .style("filter", "");
+          this.nodeSelection.style("opacity", 1);
+          this.textSelection.style("opacity", 1);
+          this.linkSelection.style("opacity", 1);
+      }
+  },
+});
 </script>
 
 <style>

@@ -173,126 +173,131 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import {mapState, mapGetters, mapActions} from "vuex";
 import BlogpostExporter from "@/commonComponents/BlogpostExporter/BlogpostExporter.vue";
 
-export default {
-    name: "LoadSave",
-    components: {BlogpostExporter},
-    data() {
-        return {
-            fileToImport: null,
-            shouldImportData: false,
-            shouldImportSettings: false,
+export default defineComponent({
+  name: "LoadSave",
+  components: {BlogpostExporter},
 
-            shouldTakeDataFrom: null, // "local" | "firebase"
-        };
-    },
-    computed: {
-        ...mapState("settingsModule", ["shouldAutosave"]),
+  data() {
+      return {
+          fileToImport: null,
+          shouldImportData: false,
+          shouldImportSettings: false,
 
-        ...mapGetters(["storageObject"]),
+          shouldTakeDataFrom: null, // "local" | "firebase"
+      };
+  },
 
-        isAlreadySyncingWithFirebase() {
-            return this.$store.state.settingsModule.remoteStorageMethod === "firebase";
-        },
-        shouldShowTakeDataFromSelect() {
-            return this.shouldImportSettings
-                && !this.isAlreadySyncingWithFirebase // if you're already syncing with Firebase, your local data and the data in Firebase will be the same, so you don't need to choose between them
-                && !this.shouldImportData; // if you're importing data, you'll want to use it, not take data from Firebase
-        },
+  computed: {
+      ...mapState("settingsModule", ["shouldAutosave"]),
 
-        fileToImportIsValid() {
-            return this.fileToImport !== null
-                && this.fileToImport.type === "application/json";
-        },
-        importButtonIsDisabled() {
-            return !this.fileToImportIsValid
-                || (
-                    !this.shouldImportData && !this.shouldImportSettings
-                )
-                || (
-                    this.shouldShowTakeDataFromSelect
-                    && this.shouldTakeDataFrom === null
-                );
-        }
-    },
-    methods: {
-        ...mapActions(["saveStateToStorage", "loadStateFromStorage", "importData", "importSettings"]),
+      ...mapGetters(["storageObject"]),
 
-        onFileUpload(event) {
-            const files = event.target.files || event.dataTransfer.files;
-            if (!files.length || files.length > 1) {
-                return;
-            }
-            const file = files[0];
-            this.fileToImport = files[0];
-            if (file.type !== "application/json") {
-                alert("You must upload a JSON file exported by the 'export' button");
-                return;
-            }
-        },
-        async importState() {
-            const stateString = await this.fileToImport.text();
-            const parsedState = JSON.parse(stateString);
+      isAlreadySyncingWithFirebase() {
+          return this.$store.state.settingsModule.remoteStorageMethod === "firebase";
+      },
+      shouldShowTakeDataFromSelect() {
+          return this.shouldImportSettings
+              && !this.isAlreadySyncingWithFirebase // if you're already syncing with Firebase, your local data and the data in Firebase will be the same, so you don't need to choose between them
+              && !this.shouldImportData; // if you're importing data, you'll want to use it, not take data from Firebase
+      },
 
-            if (
-                !("dataModule" in parsedState)
-                || !("settingsModule" in parsedState)
-                || !("firebaseModule" in parsedState)
-            ) {
-                alert("Imported file isn't valid");
-                return;
-            }
+      fileToImportIsValid() {
+          return this.fileToImport !== null
+              && this.fileToImport.type === "application/json";
+      },
+      importButtonIsDisabled() {
+          return !this.fileToImportIsValid
+              || (
+                  !this.shouldImportData && !this.shouldImportSettings
+              )
+              || (
+                  this.shouldShowTakeDataFromSelect
+                  && this.shouldTakeDataFrom === null
+              );
+      }
+  },
 
-            if (this.shouldImportData) {
-                await this.importData(parsedState);
-            }
+  methods: {
+      ...mapActions(["saveStateToStorage", "loadStateFromStorage", "importData", "importSettings"]),
 
-            const willStartSyncingWithFirebaseAfterImport = parsedState.settingsModule.remoteStorageMethod && parsedState.settingsModule.remoteStorageMethod === "firebase";
-            if (this.shouldImportSettings) {
-                if (
-                    this.shouldShowTakeDataFromSelect
-                    && this.shouldTakeDataFrom !== null
-                    && willStartSyncingWithFirebaseAfterImport
-                ) {
-                    await this.importSettings({
-                        storageObject: parsedState,
-                        shouldTakeDataFrom: this.shouldTakeDataFrom
-                    });
-                } else {
-                    await this.importSettings({
-                        storageObject: parsedState,
-                        shouldTakeDataFrom: null
-                    });
-                }
-            }
-            this.fileToImport = null;
-            await this.saveStateToStorage();
-        },
+      onFileUpload(event) {
+          const files = event.target.files || event.dataTransfer.files;
+          if (!files.length || files.length > 1) {
+              return;
+          }
+          const file = files[0];
+          this.fileToImport = files[0];
+          if (file.type !== "application/json") {
+              alert("You must upload a JSON file exported by the 'export' button");
+              return;
+          }
+      },
+      async importState() {
+          const stateString = await this.fileToImport.text();
+          const parsedState = JSON.parse(stateString);
 
-        exportState() {
-            const blob = new Blob(
-                [JSON.stringify(this.storageObject)],
-                {type: "application/json"}
-            );
-            const now = new Date().toISOString()
-                .replace("T", "_")
-                .replace("Z", "");
+          if (
+              !("dataModule" in parsedState)
+              || !("settingsModule" in parsedState)
+              || !("firebaseModule" in parsedState)
+          ) {
+              alert("Imported file isn't valid");
+              return;
+          }
 
-            this.downloadData(blob, `spiderwebExport-${now}.json`);
-        },
-        downloadData(blob, filename) {
-            let a = document.createElement("a");
-            document.body.appendChild(a);
-            a.style = "display: none";
+          if (this.shouldImportData) {
+              await this.importData(parsedState);
+          }
 
-            const url = window.URL.createObjectURL(blob);
-            a.href = url;
-            a.download = filename;
-            a.click();
-            window.URL.revokeObjectURL(url);
-        }
-    }
-};
+          const willStartSyncingWithFirebaseAfterImport = parsedState.settingsModule.remoteStorageMethod && parsedState.settingsModule.remoteStorageMethod === "firebase";
+          if (this.shouldImportSettings) {
+              if (
+                  this.shouldShowTakeDataFromSelect
+                  && this.shouldTakeDataFrom !== null
+                  && willStartSyncingWithFirebaseAfterImport
+              ) {
+                  await this.importSettings({
+                      storageObject: parsedState,
+                      shouldTakeDataFrom: this.shouldTakeDataFrom
+                  });
+              } else {
+                  await this.importSettings({
+                      storageObject: parsedState,
+                      shouldTakeDataFrom: null
+                  });
+              }
+          }
+          this.fileToImport = null;
+          await this.saveStateToStorage();
+      },
+
+      exportState() {
+          const blob = new Blob(
+              [JSON.stringify(this.storageObject)],
+              {type: "application/json"}
+          );
+          const now = new Date().toISOString()
+              .replace("T", "_")
+              .replace("Z", "");
+
+          this.downloadData(blob, `spiderwebExport-${now}.json`);
+      },
+      downloadData(blob, filename) {
+          let a = document.createElement("a");
+          document.body.appendChild(a);
+          a.style = "display: none";
+
+          const url = window.URL.createObjectURL(blob);
+          a.href = url;
+          a.download = filename;
+          a.click();
+          window.URL.revokeObjectURL(url);
+      }
+  },
+});
 </script>

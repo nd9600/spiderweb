@@ -51,47 +51,54 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import {mapGetters, mapMutations, mapState} from "vuex";
 
-export default {
-    name: "SubgraphEditor",
-    props: {
-        subgraphId: {
-            type: String,
-            required: true
-        },
-    },
-    data() {
-        return {
-            postIdToAddToGraph: null,
-            newSubgraphName: "",
-            newSubgraphColour: "#000000"
-        };
-    },
-    computed: {
-        ...mapState("dataModule", ["subgraphs"]),
-        ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
+export default defineComponent({
+  name: "SubgraphEditor",
 
-        subgraph() {
-            return this.subgraphs[this.subgraphId];
-        }
-    },
-    mounted() {
-        this.newSubgraphColour = this.subgraph.colour || "#000000";
-    },
-    methods: {
-        ...mapMutations("dataModule", ["changeSubgraphName", "changeSubgraphColour", "removeSubgraph"]),
-        changeSubgraphNameLocal() {
-            if (this.newSubgraphName.trim().length === 0) {
-                return;
-            }
+  props: {
+      subgraphId: {
+          type: String,
+          required: true
+      },
+  },
 
-            this.changeSubgraphName({
-                subgraphId: this.subgraphId,
-                newSubgraphName: this.newSubgraphName
-            });
-            this.newSubgraphName = "";
-        }
-    }
-};
+  data() {
+      return {
+          postIdToAddToGraph: null,
+          newSubgraphName: "",
+          newSubgraphColour: "#000000"
+      };
+  },
+
+  computed: {
+      ...mapState("dataModule", ["subgraphs"]),
+      ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
+
+      subgraph() {
+          return this.subgraphs[this.subgraphId];
+      }
+  },
+
+  mounted() {
+      this.newSubgraphColour = this.subgraph.colour || "#000000";
+  },
+
+  methods: {
+      ...mapMutations("dataModule", ["changeSubgraphName", "changeSubgraphColour", "removeSubgraph"]),
+      changeSubgraphNameLocal() {
+          if (this.newSubgraphName.trim().length === 0) {
+              return;
+          }
+
+          this.changeSubgraphName({
+              subgraphId: this.subgraphId,
+              newSubgraphName: this.newSubgraphName
+          });
+          this.newSubgraphName = "";
+      }
+  },
+});
 </script>

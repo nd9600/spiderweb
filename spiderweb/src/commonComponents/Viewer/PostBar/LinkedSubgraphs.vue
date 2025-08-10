@@ -25,23 +25,28 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import {mapState, mapGetters, mapMutations} from "vuex";
 
-export default {
-    name: "LinkedSubgraphs",
-    props: {
-        post: {
-            type: Object,
-            required: true
-        }
-    },
-    computed: {
-        ...mapState("dataModule", ["subgraphs"]),
-        ...mapGetters("dataModule", ["linkedSubgraphs"]),
-    },
-    methods: {
-        ...mapMutations("dataModule", ["toggleSubgraphId", "removePostFromSubgraph"]),
+export default defineComponent({
+  name: "LinkedSubgraphs",
 
-    }
-};
+  props: {
+      post: {
+          type: Object,
+          required: true
+      }
+  },
+
+  computed: {
+      ...mapState("dataModule", ["subgraphs"]),
+      ...mapGetters("dataModule", ["linkedSubgraphs"]),
+  },
+
+  methods: {
+      ...mapMutations("dataModule", ["toggleSubgraphId", "removePostFromSubgraph"]),
+
+  },
+});
 </script>

@@ -63,6 +63,8 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import {mapActions, mapState} from "vuex";
 
 import Viewer from "@/commonComponents/Viewer/Viewer.vue";
@@ -70,57 +72,61 @@ import Graphs from "@/commonComponents/Graphs/Graphs.vue";
 import LoadSave from "@/commonComponents/LoadSave.vue";
 import Settings from "@/commonComponents/Settings/Settings.vue";
 
-export default {
-    name: "OfflineApp",
-    components: {
-        Viewer,
-        Graphs,
-        LoadSave,
-        Settings
-    },
-    data() {
-        return {
-            currentTab: "viewer", // | viewer | graphs  | links | load-save | settings,
-            tabs: [
-                {
-                    key: "viewer",
-                    name: "Viewer",
-                },
-                {
-                    key: "graphs",
-                    name: "Graphs",
-                },
-                {
-                    key: "load-save",
-                    name: "Load/save",
-                },
-                {
-                    key: "settings",
-                    name: "Settings",
-                }
-            ]
-        };
-    },
-    computed: {
-        ...mapState(["loadingApp", "failedToLoadData"])
-    },
-    methods: {
-        ...mapActions(["loadStateFromStorage"]),
-        ...mapActions("settingsModule", ["setRemoteStorageMethod",]),
+export default defineComponent({
+  name: "OfflineApp",
 
-        refreshPage() {
-            window.location.reload();
-        },
+  components: {
+      Viewer,
+      Graphs,
+      LoadSave,
+      Settings
+  },
 
-        async switchToLoadingDataFromLocalStorage() {
-            await this.setRemoteStorageMethod({
-                remoteStorageMethod: "none",
-                shouldTakeDataFrom: "local"
-            });
-            await this.loadStateFromStorage();
-        }
-    }
-};
+  data() {
+      return {
+          currentTab: "viewer", // | viewer | graphs  | links | load-save | settings,
+          tabs: [
+              {
+                  key: "viewer",
+                  name: "Viewer",
+              },
+              {
+                  key: "graphs",
+                  name: "Graphs",
+              },
+              {
+                  key: "load-save",
+                  name: "Load/save",
+              },
+              {
+                  key: "settings",
+                  name: "Settings",
+              }
+          ]
+      };
+  },
+
+  computed: {
+      ...mapState(["loadingApp", "failedToLoadData"])
+  },
+
+  methods: {
+      ...mapActions(["loadStateFromStorage"]),
+      ...mapActions("settingsModule", ["setRemoteStorageMethod",]),
+
+      refreshPage() {
+          window.location.reload();
+      },
+
+      async switchToLoadingDataFromLocalStorage() {
+          await this.setRemoteStorageMethod({
+              remoteStorageMethod: "none",
+              shouldTakeDataFrom: "local"
+          });
+          await this.loadStateFromStorage();
+      }
+  },
+});
 </script>
 
 <style scoped>

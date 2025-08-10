@@ -78,50 +78,56 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
 
 
 import PostSearch from "@/commonComponents/Posts/PostSearch.vue";
 
-export default {
-    name: "LinkAdder",
-    components: {
-        PostSearch
-    },
-    computed: {
-        ...mapState("dataModule", ["subgraphs", "selectedSubgraphIds"]),
-        ...mapGetters("dataModule", ["titleOrBody"]),
+export default defineComponent({
+  name: "LinkAdder",
 
-        ...mapState("clickerModule", ["newLinkSource"]),
+  components: {
+      PostSearch
+  },
 
-        newLinkSubgraphIds: {
-            get() {
-                return this.$store.state.clickerModule.newLinkSubgraphIds;
-            },
-            set(newLinkSubgraphIds) {
-                this.setNewLinkSubgraphIds(newLinkSubgraphIds);
-            }
-        },
+  computed: {
+      ...mapState("dataModule", ["subgraphs", "selectedSubgraphIds"]),
+      ...mapGetters("dataModule", ["titleOrBody"]),
 
-        newLinkType: {
-            get() {
-                return this.$store.state.clickerModule.newLinkType;
-            },
-            set(newLinkType) {
-                this.setNewLinkType(newLinkType);
-            }
-        },
-    },
-    created() {
-        this.newLinkSubgraphIds = this.selectedSubgraphIds;
-    },
-    methods: {
-        ...mapMutations("clickerModule", [
-            "setNewLinkSource",
-            "setNewLinkType",
-            "setNewLinkSubgraphIds"
-        ]),
-        ...mapActions("clickerModule", ["handlePostClick"]),
-    }
-};
+      ...mapState("clickerModule", ["newLinkSource"]),
+
+      newLinkSubgraphIds: {
+          get() {
+              return this.$store.state.clickerModule.newLinkSubgraphIds;
+          },
+          set(newLinkSubgraphIds) {
+              this.setNewLinkSubgraphIds(newLinkSubgraphIds);
+          }
+      },
+
+      newLinkType: {
+          get() {
+              return this.$store.state.clickerModule.newLinkType;
+          },
+          set(newLinkType) {
+              this.setNewLinkType(newLinkType);
+          }
+      },
+  },
+
+  created() {
+      this.newLinkSubgraphIds = this.selectedSubgraphIds;
+  },
+
+  methods: {
+      ...mapMutations("clickerModule", [
+          "setNewLinkSource",
+          "setNewLinkType",
+          "setNewLinkSubgraphIds"
+      ]),
+      ...mapActions("clickerModule", ["handlePostClick"]),
+  },
+});
 </script>

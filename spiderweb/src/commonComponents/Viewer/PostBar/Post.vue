@@ -152,6 +152,8 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import {mapState, mapMutations, mapGetters} from "vuex";
 import marked from "@/helpers/markedCustomised";
 
@@ -160,66 +162,71 @@ import LinkedPosts from "./LinkedPosts.vue";
 import LinkedSubgraphs from "./LinkedSubgraphs.vue";
 import AddLinkedPost from "./AddLinkedPost.vue";
 
-export default {
-    name: "Post",
-    components: {
-        PostEditor,
-        LinkedPosts,
-        LinkedSubgraphs,
-        AddLinkedPost,
-    },
-    props: {
-        post: {
-            type: Object,
-            required: true
-        }
-    },
-    data() {
-        return {
-            showPostEditor: false,
-            bottomTab: "" // linked-posts | linked-subgraphs | add-linked-post
-        };
-    },
-    computed: {
-        ...mapState("settingsModule", ["postWidth"]),
-        ...mapState("dataModule", ["selectedPostIds"]),
+export default defineComponent({
+  name: "Post",
 
-        ...mapGetters("dataModule", ["postIdsInSelectedSubgraphs", "postIdsThatLinkToPost", "linkedSubgraphs"]),
+  components: {
+      PostEditor,
+      LinkedPosts,
+      LinkedSubgraphs,
+      AddLinkedPost,
+  },
 
-        linkedPosts() {
-            return this.postIdsThatLinkToPost(this.post.id);
-        },
+  props: {
+      post: {
+          type: Object,
+          required: true
+      }
+  },
 
-        hasLinkedPosts() {
-            return Object.keys(this.linkedPosts.to).length > 0
-                || Object.keys(this.linkedPosts.from).length > 0;
-        },
-        isPartOfASubgraph() {
-            return this.linkedSubgraphs(this.post.id).length > 0;
-        },
-        isVisibleInGraph() {
-            return this.postIdsInSelectedSubgraphs.includes(this.post.id);
-        },
+  data() {
+      return {
+          showPostEditor: false,
+          bottomTab: "" // linked-posts | linked-subgraphs | add-linked-post
+      };
+  },
 
-        minPostWidth() {
-            // this means if only 2 posts are open, each will be at least 46% wide
-            //                    3 posts are open, each will be at least 30% wide, ...
-            // without this, one post could be 70%, the other 30%, which looks really bad
-            const numberOfPostsCurrentlySelected = this.selectedPostIds.length;
-            return Math.max(this.postWidth, Math.floor(92 / numberOfPostsCurrentlySelected));
-        }
-    },
-    methods: {
-        marked,
-        ...mapMutations("dataModule", ["unselectPostId", "movePostLeft", "movePostRight"]),
+  computed: {
+      ...mapState("settingsModule", ["postWidth"]),
+      ...mapState("dataModule", ["selectedPostIds"]),
 
-        toggleBottomTab(tab) {
-            this.bottomTab = this.bottomTab === tab
-                ? ""
-                : tab;
-        }
-    }
-};
+      ...mapGetters("dataModule", ["postIdsInSelectedSubgraphs", "postIdsThatLinkToPost", "linkedSubgraphs"]),
+
+      linkedPosts() {
+          return this.postIdsThatLinkToPost(this.post.id);
+      },
+
+      hasLinkedPosts() {
+          return Object.keys(this.linkedPosts.to).length > 0
+              || Object.keys(this.linkedPosts.from).length > 0;
+      },
+      isPartOfASubgraph() {
+          return this.linkedSubgraphs(this.post.id).length > 0;
+      },
+      isVisibleInGraph() {
+          return this.postIdsInSelectedSubgraphs.includes(this.post.id);
+      },
+
+      minPostWidth() {
+          // this means if only 2 posts are open, each will be at least 46% wide
+          //                    3 posts are open, each will be at least 30% wide, ...
+          // without this, one post could be 70%, the other 30%, which looks really bad
+          const numberOfPostsCurrentlySelected = this.selectedPostIds.length;
+          return Math.max(this.postWidth, Math.floor(92 / numberOfPostsCurrentlySelected));
+      }
+  },
+
+  methods: {
+      marked,
+      ...mapMutations("dataModule", ["unselectPostId", "movePostLeft", "movePostRight"]),
+
+      toggleBottomTab(tab) {
+          this.bottomTab = this.bottomTab === tab
+              ? ""
+              : tab;
+      }
+  },
+});
 </script>
 
 <style scoped>

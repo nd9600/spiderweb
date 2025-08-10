@@ -80,66 +80,74 @@
     </div>
 </template>
 <script>
+import { defineComponent } from 'vue';
+
 import {mapMutations, mapGetters, mapState} from "vuex";
 
-export default {
-    name: "PostAttacher",
-    props: {
-        post: {
-            type: Object,
-            required: true
-        },
-        initialShouldExpand: {
-            type: Boolean,
-            default: false,
-        }
-    },
-    data() {
-        return {
-            shouldExpand: this.initialShouldExpand,
-            shouldAttachPostToGraph: true,
-            subgraphIdsToAttachPostTo: []
-        };
-    },
-    computed: {
-        ...mapState("dataModule", ["selectedGraphId"]),
-        ...mapGetters("dataModule", ["subgraphsInSelectedGraph", "linkedSubgraphs"]),
+export default defineComponent({
+  emits: ['attachedPost'],
+  name: "PostAttacher",
 
-        subgraphsNotAlreadyAttachedTo() {
-            const subgraphsAlreadyAttachedTo = this.linkedSubgraphs(this.post.id)
-                .map(id => parseInt(id, 10));
-            return this.subgraphsInSelectedGraph
-                .filter(subgraph => !subgraphsAlreadyAttachedTo.includes(Number(subgraph.id)));
-        }
-    },
-    created() {
-        if (this.subgraphsInSelectedGraph.length === 1) {
-            this.subgraphIdsToAttachPostTo = this.subgraphsInSelectedGraph[0];
-        }
-    },
-    methods: {
-        ...mapMutations("dataModule", ["addPostToGraph", "addPostToSubgraph"]),
+  props: {
+      post: {
+          type: Object,
+          required: true
+      },
+      initialShouldExpand: {
+          type: Boolean,
+          default: false,
+      }
+  },
 
-        attachPost() {
-            if (this.shouldAttachPostToGraph) {
-                this.addPostToGraph({
-                    graphId: this.selectedGraphId,
-                    postId: this.post.id
-                });
-            }
+  data() {
+      return {
+          shouldExpand: this.initialShouldExpand,
+          shouldAttachPostToGraph: true,
+          subgraphIdsToAttachPostTo: []
+      };
+  },
 
-            if (this.subgraphIdsToAttachPostTo.length > 0) {
-                for (const subgraphId of this.subgraphIdsToAttachPostTo) {
-                    this.addPostToSubgraph({
-                        subgraphId,
-                        postId: this.post.id
-                    });
-                }
-                this.$emit("attachedPost", this.subgraphIdsToAttachPostTo);
-            }
-        }
-    }
-};
+  computed: {
+      ...mapState("dataModule", ["selectedGraphId"]),
+      ...mapGetters("dataModule", ["subgraphsInSelectedGraph", "linkedSubgraphs"]),
+
+      subgraphsNotAlreadyAttachedTo() {
+          const subgraphsAlreadyAttachedTo = this.linkedSubgraphs(this.post.id)
+              .map(id => parseInt(id, 10));
+          return this.subgraphsInSelectedGraph
+              .filter(subgraph => !subgraphsAlreadyAttachedTo.includes(Number(subgraph.id)));
+      }
+  },
+
+  created() {
+      if (this.subgraphsInSelectedGraph.length === 1) {
+          this.subgraphIdsToAttachPostTo = this.subgraphsInSelectedGraph[0];
+      }
+  },
+
+  methods: {
+      ...mapMutations("dataModule", ["addPostToGraph", "addPostToSubgraph"]),
+
+      attachPost() {
+          if (this.shouldAttachPostToGraph) {
+              this.addPostToGraph({
+                  graphId: this.selectedGraphId,
+                  postId: this.post.id
+              });
+          }
+
+          if (this.subgraphIdsToAttachPostTo.length > 0) {
+              for (const subgraphId of this.subgraphIdsToAttachPostTo) {
+                  this.addPostToSubgraph({
+                      subgraphId,
+                      postId: this.post.id
+                  });
+              }
+              this.$emit("attachedPost", this.subgraphIdsToAttachPostTo);
+          }
+      }
+  },
+});
 </script>
 
 <style scoped>

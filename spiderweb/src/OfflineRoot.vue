@@ -5,19 +5,24 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import OfflineApp from "@/commonComponents/OfflineApp.vue";
 import { mapActions } from "vuex";
 
-export default {
-    name: "OfflineRoot",
-    components: {
-        OfflineApp,
-    },
-    async mounted() {
-        await this.loadStateFromStorage();
-    },
-    methods: {
-        ...mapActions(["loadStateFromStorage"]),
-    }
-};
+export default defineComponent({
+  name: "OfflineRoot",
+
+  components: {
+      OfflineApp,
+  },
+
+  async mounted() {
+      await this.loadStateFromStorage();
+  },
+
+  methods: {
+      ...mapActions(["loadStateFromStorage"]),
+  },
+});
 </script>

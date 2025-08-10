@@ -95,33 +95,38 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import {mapState, mapGetters, mapMutations} from "vuex";
 
-export default {
-    name: "LinkedPosts",
-    props: {
-        post: {
-            type: Object,
-            required: true
-        }
-    },
-    computed: {
-        ...mapState("settingsModule", ["canOpenMultiplePosts"]),
-        ...mapState("dataModule", ["posts"]),
-        ...mapGetters("dataModule", ["titleOrBody", "postIdsThatLinkToPost"]),
+export default defineComponent({
+  name: "LinkedPosts",
 
-        linkedPosts() {
-            return this.postIdsThatLinkToPost(this.post.id);
-        }
-    },
-    methods: {
-        ...mapMutations("dataModule", ["togglePostId", "removeLink"]),
-        togglePostIdLocal(postId) {
-            this.togglePostId({
-                id: postId,
-                canOpenMultiplePosts: this.canOpenMultiplePosts
-            });
-        }
-    }
-};
+  props: {
+      post: {
+          type: Object,
+          required: true
+      }
+  },
+
+  computed: {
+      ...mapState("settingsModule", ["canOpenMultiplePosts"]),
+      ...mapState("dataModule", ["posts"]),
+      ...mapGetters("dataModule", ["titleOrBody", "postIdsThatLinkToPost"]),
+
+      linkedPosts() {
+          return this.postIdsThatLinkToPost(this.post.id);
+      }
+  },
+
+  methods: {
+      ...mapMutations("dataModule", ["togglePostId", "removeLink"]),
+      togglePostIdLocal(postId) {
+          this.togglePostId({
+              id: postId,
+              canOpenMultiplePosts: this.canOpenMultiplePosts
+          });
+      }
+  },
+});
 </script>

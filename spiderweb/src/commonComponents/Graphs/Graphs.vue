@@ -41,28 +41,33 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import {mapGetters, mapMutations, mapState} from "vuex";
 import GraphEditor from "./GraphEditor.vue";
 
-export default {
-    name: "Graphs",
-    components: {GraphEditor},
-    data() {
-        return {
-            newGraphName: "",
-        };
-    },
-    computed: {
-        ...mapState("dataModule", ["graphs"]),
-        ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
-    },
-    methods: {
-        ...mapMutations("dataModule", ["makeNewGraph"]),
+export default defineComponent({
+  name: "Graphs",
+  components: {GraphEditor},
 
-        makeNewGraphLocal() {
-            this.makeNewGraph(this.newGraphName);
-            this.newGraphName = "";
-        }
-    }
-};
+  data() {
+      return {
+          newGraphName: "",
+      };
+  },
+
+  computed: {
+      ...mapState("dataModule", ["graphs"]),
+      ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
+  },
+
+  methods: {
+      ...mapMutations("dataModule", ["makeNewGraph"]),
+
+      makeNewGraphLocal() {
+          this.makeNewGraph(this.newGraphName);
+          this.newGraphName = "";
+      }
+  },
+});
 </script>

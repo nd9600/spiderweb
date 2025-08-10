@@ -41,42 +41,48 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import {mapGetters, mapMutations, mapState} from "vuex";
 import SubgraphEditor from "./SubgraphEditor.vue";
 
-export default {
-    name: "Subgraphs",
-    components: {SubgraphEditor},
-    props: {
-        graphId: {
-            type: String,
-            required: true
-        },
-    },
-    data() {
-        return {
-            newSubgraphName: "",
-        };
-    },
-    computed: {
-        ...mapState("dataModule", ["graphs", "subgraphs"]),
-        ...mapGetters("dataModule", ["subgraphsInGraph", "postIds", "titleOrBody"]),
+export default defineComponent({
+  name: "Subgraphs",
+  components: {SubgraphEditor},
 
-        subgraphsInGraph() {
-            return this.graphs[this.graphId].subgraphs
-                .map(id => this.subgraphs[id]);
-        }
-    },
-    methods: {
-        ...mapMutations("dataModule", ["makeNewSubgraph"]),
+  props: {
+      graphId: {
+          type: String,
+          required: true
+      },
+  },
 
-        makeNewSubgraphLocal() {
-            this.makeNewSubgraph({
-                graphId: this.graphId,
-                newSubgraphName: this.newSubgraphName
-            });
-            this.newSubgraphName = "";
-        }
-    }
-};
+  data() {
+      return {
+          newSubgraphName: "",
+      };
+  },
+
+  computed: {
+      ...mapState("dataModule", ["graphs", "subgraphs"]),
+      ...mapGetters("dataModule", ["subgraphsInGraph", "postIds", "titleOrBody"]),
+
+      subgraphsInGraph() {
+          return this.graphs[this.graphId].subgraphs
+              .map(id => this.subgraphs[id]);
+      }
+  },
+
+  methods: {
+      ...mapMutations("dataModule", ["makeNewSubgraph"]),
+
+      makeNewSubgraphLocal() {
+          this.makeNewSubgraph({
+              graphId: this.graphId,
+              newSubgraphName: this.newSubgraphName
+          });
+          this.newSubgraphName = "";
+      }
+  },
+});
 </script>

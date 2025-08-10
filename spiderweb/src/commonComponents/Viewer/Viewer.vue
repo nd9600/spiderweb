@@ -146,6 +146,8 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import {mapGetters, mapMutations, mapState} from "vuex";
 
 import OfflineGraph from "./OfflineGraph.vue";
@@ -153,50 +155,54 @@ import PostBar from "./PostBar/PostBar.vue";
 
 import {STORAGE_KEY} from "@/commonComponents/constants";
 
-export default {
-    name: "Viewer",
-    components: {
-        OfflineGraph,
-        PostBar,
-    },
-    data() {
-        const storedData = localStorage.getItem(STORAGE_KEY);
+export default defineComponent({
+  name: "Viewer",
 
-        return {
-            localStorageSize: storedData != null
-                ? (storedData.length / (1000 ** 2)).toFixed(2)
-                : 0
-        };
-    },
-    computed: {
-        ...mapState(["isRenderingGraph"]),
-        ...mapState("settingsModule", ["graphHeight", "postBarHeight"]),
-        ...mapState("dataModule", ["graphs"]),
-        ...mapGetters("dataModule", ["subgraphsInSelectedGraph"]),
+  components: {
+      OfflineGraph,
+      PostBar,
+  },
 
-        selectedGraphId: {
-            get() {
-                return this.$store.state.dataModule.selectedGraphId;
-            },
-            set(selectedGraphId) {
-                this.$store.commit("dataModule/setSelectedGraphId", selectedGraphId);
-            }
-        },
-        selectedSubgraphIds: {
-            get() {
-                return this.$store.state.dataModule.selectedSubgraphIds;
-            },
-            set(selectedSubgraphIds) {
-                this.$store.commit("dataModule/setSelectedSubgraphIds", selectedSubgraphIds);
-            }
-        }
-    },
-    methods: {
-        ...mapMutations("dataModule", ["selectAllSubgraphs"]),
+  data() {
+      const storedData = localStorage.getItem(STORAGE_KEY);
 
-        scrollToPostBar() {
-            window.scrollBy(0, document.getElementById("postBar").getBoundingClientRect().top - 5);
-        }
-    }
-};
+      return {
+          localStorageSize: storedData != null
+              ? (storedData.length / (1000 ** 2)).toFixed(2)
+              : 0
+      };
+  },
+
+  computed: {
+      ...mapState(["isRenderingGraph"]),
+      ...mapState("settingsModule", ["graphHeight", "postBarHeight"]),
+      ...mapState("dataModule", ["graphs"]),
+      ...mapGetters("dataModule", ["subgraphsInSelectedGraph"]),
+
+      selectedGraphId: {
+          get() {
+              return this.$store.state.dataModule.selectedGraphId;
+          },
+          set(selectedGraphId) {
+              this.$store.commit("dataModule/setSelectedGraphId", selectedGraphId);
+          }
+      },
+      selectedSubgraphIds: {
+          get() {
+              return this.$store.state.dataModule.selectedSubgraphIds;
+          },
+          set(selectedSubgraphIds) {
+              this.$store.commit("dataModule/setSelectedSubgraphIds", selectedSubgraphIds);
+          }
+      }
+  },
+
+  methods: {
+      ...mapMutations("dataModule", ["selectAllSubgraphs"]),
+
+      scrollToPostBar() {
+          window.scrollBy(0, document.getElementById("postBar").getBoundingClientRect().top - 5);
+      }
+  },
+});
 </script>

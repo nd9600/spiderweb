@@ -43,55 +43,62 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import {mapState, mapGetters} from "vuex";
-export default {
-    name: "PostSearch",
-    data() {
-        return {
-            searchTerm: "",
-            isLoadingSearchResults: false,
-            searchResults: []
-        };
-    },
-    computed: {
-        ...mapState("dataModule", ["posts"]),
-        ...mapGetters("dataModule", ["titleOrBody", "postIdsThatLinkToPost"]),
-    },
-    watch: {
-        searchTerm(newSearchTerm) {
-            const searchTerm = newSearchTerm.trim().toLowerCase();
-            if (searchTerm.length === 0) {
-                this.searchResults = [];
-                this.isLoadingSearchResults = false;
-                return;
-            }
-            this.isLoadingSearchResults = true;
+export default defineComponent({
+  emits: ['clickedOnResult'],
+  name: "PostSearch",
 
-            this.searchResults = Object.values(this.posts)
-                .filter(post =>
-                    post.title.toLowerCase().includes(searchTerm)
-                    || post.body.toLowerCase().includes(searchTerm)
-                ).sort((postA, postB) => {
-                    const postAStringToCompare = postA.title.length > 0
-                        ? postA.title
-                        : postA.body;
-                    const postBStringToCompare = postB.title.length > 0
-                        ? postB.title
-                        : postB.body;
+  data() {
+      return {
+          searchTerm: "",
+          isLoadingSearchResults: false,
+          searchResults: []
+      };
+  },
 
-                    if (postAStringToCompare < postBStringToCompare) {
-                        return -1;
-                    } else if (postBStringToCompare < postAStringToCompare) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                }).slice(0, 25);
-            this.isLoadingSearchResults = false;
-        }
-    },
-    mounted() {
-        this.$refs.searchInput.focus();
-    }
-};
+  computed: {
+      ...mapState("dataModule", ["posts"]),
+      ...mapGetters("dataModule", ["titleOrBody", "postIdsThatLinkToPost"]),
+  },
+
+  watch: {
+      searchTerm(newSearchTerm) {
+          const searchTerm = newSearchTerm.trim().toLowerCase();
+          if (searchTerm.length === 0) {
+              this.searchResults = [];
+              this.isLoadingSearchResults = false;
+              return;
+          }
+          this.isLoadingSearchResults = true;
+
+          this.searchResults = Object.values(this.posts)
+              .filter(post =>
+                  post.title.toLowerCase().includes(searchTerm)
+                  || post.body.toLowerCase().includes(searchTerm)
+              ).sort((postA, postB) => {
+                  const postAStringToCompare = postA.title.length > 0
+                      ? postA.title
+                      : postA.body;
+                  const postBStringToCompare = postB.title.length > 0
+                      ? postB.title
+                      : postB.body;
+
+                  if (postAStringToCompare < postBStringToCompare) {
+                      return -1;
+                  } else if (postBStringToCompare < postAStringToCompare) {
+                      return 1;
+                  } else {
+                      return 0;
+                  }
+              }).slice(0, 25);
+          this.isLoadingSearchResults = false;
+      }
+  },
+
+  mounted() {
+      this.$refs.searchInput.focus();
+  },
+});
 </script>

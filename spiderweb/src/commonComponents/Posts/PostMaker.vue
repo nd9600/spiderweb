@@ -85,82 +85,90 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue';
+
 import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
 
-export default {
-    name: "PostMaker",
-    props: {
-        shouldShowPostAttacher: {
-            type: Boolean,
-            default: true
-        }
-    },
-    data() {
-        return {
-            showTitleInput: false,
+export default defineComponent({
+  emits: ['madePost'],
+  name: "PostMaker",
 
-            title: "",
-            body: "",
-            shouldAttachPostToGraph: true,
-            subgraphIdsToAttachPostTo: []
-        };
-    },
-    computed: {
-        ...mapState("dataModule", ["selectedGraphId", "selectedSubgraphIds"]),
-        ...mapGetters("dataModule", ["subgraphsInSelectedGraph"]),
-    },
-    created() {
-        this.subgraphIdsToAttachPostTo = this.selectedSubgraphIds;
-    },
-    methods: {
-        ...mapMutations("dataModule", ["addPostToGraph", "addPostToSubgraph"]),
-        ...mapActions("dataModule", ["makeNewPost"]),
+  props: {
+      shouldShowPostAttacher: {
+          type: Boolean,
+          default: true
+      }
+  },
 
-        toggleTitleInput() {
-            const dontLetUserHideTitleInput = this.showTitleInput
-                && this.title.trim().length > 0;
-            if (dontLetUserHideTitleInput) {
-                this.$refs.inputTitle.focus();
-                return;
-            }
-            this.showTitleInput = !this.showTitleInput;
-        },
+  data() {
+      return {
+          showTitleInput: false,
 
-        async makePost() {
-            let newPost = {
-                title: this.title,
-                body: this.body,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            };
-            const newPostWithId = await this.makeNewPost(newPost);
+          title: "",
+          body: "",
+          shouldAttachPostToGraph: true,
+          subgraphIdsToAttachPostTo: []
+      };
+  },
 
-            if (this.shouldAttachPostToGraph) {
-                this.addPostToGraph({
-                    graphId: this.selectedGraphId,
-                    postId: newPostWithId.id
-                });
-            }
+  computed: {
+      ...mapState("dataModule", ["selectedGraphId", "selectedSubgraphIds"]),
+      ...mapGetters("dataModule", ["subgraphsInSelectedGraph"]),
+  },
 
-            if (this.subgraphIdsToAttachPostTo.length > 0) {
-                for (const subgraphId of this.subgraphIdsToAttachPostTo) {
-                    this.addPostToSubgraph({
-                        subgraphId,
-                        postId: newPostWithId.id
-                    });
-                }
-            }
+  created() {
+      this.subgraphIdsToAttachPostTo = this.selectedSubgraphIds;
+  },
 
-            this.resetNewPost();
-            this.$emit("madePost", newPostWithId);
-        },
-        resetNewPost() {
-            this.title = "";
-            this.body = "";
-            this.subgraphIdsToAttachPostTo = [];
-        }
-    }
-};
+  methods: {
+      ...mapMutations("dataModule", ["addPostToGraph", "addPostToSubgraph"]),
+      ...mapActions("dataModule", ["makeNewPost"]),
+
+      toggleTitleInput() {
+          const dontLetUserHideTitleInput = this.showTitleInput
+              && this.title.trim().length > 0;
+          if (dontLetUserHideTitleInput) {
+              this.$refs.inputTitle.focus();
+              return;
+          }
+          this.showTitleInput = !this.showTitleInput;
+      },
+
+      async makePost() {
+          let newPost = {
+              title: this.title,
+              body: this.body,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+          };
+          const newPostWithId = await this.makeNewPost(newPost);
+
+          if (this.shouldAttachPostToGraph) {
+              this.addPostToGraph({
+                  graphId: this.selectedGraphId,
+                  postId: newPostWithId.id
+              });
+          }
+
+          if (this.subgraphIdsToAttachPostTo.length > 0) {
+              for (const subgraphId of this.subgraphIdsToAttachPostTo) {
+                  this.addPostToSubgraph({
+                      subgraphId,
+                      postId: newPostWithId.id
+                  });
+              }
+          }
+
+          this.resetNewPost();
+          this.$emit("madePost", newPostWithId);
+      },
+      resetNewPost() {
+          this.title = "";
+          this.body = "";
+          this.subgraphIdsToAttachPostTo = [];
+      }
+  },
+});
 </script>
 
 <style scoped>
