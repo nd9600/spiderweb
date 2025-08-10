@@ -1,5 +1,5 @@
-import Post, {PostSerialised} from "@/store/classes/Post";
-import {DataModuleState, LinkId, LinksMap, NodePositionsMap, PostId, PostsMap} from "@/store/StoreTypes";
+import Post from "@/store/classes/Post";
+import type {DataModuleState, LinkId, LinksMap, NodePositionsMap, PostId, PostsMap} from "@/store/StoreTypes";
 import Link from "@/store/classes/Link";
 
 const state: {

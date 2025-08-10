@@ -4,7 +4,7 @@ import graphs from "./dataModules/graphs";
 import posts from "./dataModules/posts";
 import links from "./dataModules/links";
 import subgraphs from "./dataModules/subgraphs";
-import {
+import type {
     DataModuleState,
     DataModuleStateSerialised,
     GraphId,

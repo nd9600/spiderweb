@@ -1,4 +1,4 @@
-import {DataModuleState, GraphId, PostId, SubgraphId} from "@/store/StoreTypes";
+import type {DataModuleState, GraphId, PostId, SubgraphId} from "@/store/StoreTypes";
 
 function stringToColour(str: string) {
     let hash = 0;

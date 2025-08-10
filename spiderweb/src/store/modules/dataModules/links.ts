@@ -1,4 +1,4 @@
-import {DataModuleState, GraphId, LinkId, PostId, SubgraphId} from "@/store/StoreTypes";
+import type {DataModuleState, GraphId, LinkId, PostId, SubgraphId} from "@/store/StoreTypes";
 import Link from "@/store/classes/Link";
 
 const state = {
