@@ -9,7 +9,7 @@ const state = {
     graphHeight: 66,
     postBarHeight: 66,
 
-    postWidth: 50,
+    postWidth: 46,
 };
 
 const getters = {
