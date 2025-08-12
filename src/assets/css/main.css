@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@import "./components/components.css";
+@import "./markdown.css";
+
+
+/*------------------------------------*\
+   Page
+\*------------------------------------*/
+
+html {
+  box-sizing: border-box;
+  font-size: 16px;
+}
+@media (max-width: 768px) {
+  html {
+    font-size: 15px;
+  }
+}
+@media (max-width: 400px) {
+  html {
+    font-size: 13px;
+  }
+}
+
+/* applies a natural box layout model to all elements, but allowing components to change */
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+:root {
+  --white: #fefefe;
+
+  --grey: #353535;
+  --grey-light: #8b8b8b;
+
+  --red: #f00;
+  --red-dark: #c10000;
+}
+
+::selection {
+  color: var(--white);
+  background: var(--red-dark);
+}
+::-moz-selection {
+  color: var(--white);
+  background: var(--red-dark);
+}
+
+body {
+  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif !important;
+  line-height: 1.5;
+
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  padding: 0;
+  margin: 0;
+  background-color: var(--white);
+  color: var(--grey);
+}
+
+.text-red {
+  color: var(--red);
+}
+
+.text-grey {
+  color: var(--grey);
+}
