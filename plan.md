@@ -49,22 +49,11 @@ This plan does **not** perform the migration.
 
 ## Recommended Strategy: staged migration in one branch with parity gates
 
-1. First migrate tooling and state architecture with behavior parity checks.
-2. Then migrate components in waves.
-3. Migrate D3 last (high risk).
-4. Cut over only after characterization tests and manual scenario checklist pass.
-
-Trade-offs:
-- Pros: lower regression risk, easier debugging, clearer rollback points.
-- Cons: temporary duplication and adapter code during transition.
-
-## Alternative Strategy: big-bang rewrite
-
-Trade-offs:
-- Pros: cleaner final code faster.
-- Cons: highest risk, hard to isolate regressions, especially in D3/persistence flows.
-
-Recommendation: do **not** big-bang this codebase.
+1. First write lots of tests asserting the current behaviour.
+2. Then migrate tooling and state architecture with behavior parity checks, running the tests to ensure everything still works.
+3. Then migrate components in waves, running the tests to ensure everything still works.
+4. Migrate D3 last (high risk).
+5. Cut over only after characterization tests and manual scenario checklist pass.
 
 ---
 
@@ -95,6 +84,8 @@ resources/assets/js/src/
     ... (migrated Vue 3 SFCs with <script lang="ts">)
 ```
 
+Vue components must use the Options API, not the Composition API.
+
 ## 4.2 State ownership
 
 - `useDataStore` (Pinia): graphs/posts/links/subgraphs + selection + zoom + graph invariants.
@@ -108,7 +99,7 @@ Trade-off:
 - Keeping one large `data.store.ts` preserves current mutation coupling and reduces regression risk.
 - Splitting into many entity stores improves modularity but raises cross-store transaction complexity.
 
-Recommendation: start with one `data.store.ts`, refactor later.
+Recommendation: start with one `data.store.ts`.
 
 ---
 
@@ -116,10 +107,9 @@ Recommendation: start with one `data.store.ts`, refactor later.
 
 ## Phase 0: Baseline freeze and safety net
 
-1. Create a migration branch.
-2. Snapshot current behavior with a manual scenario checklist.
-3. Port existing Jest store tests to Vitest-compatible tests **before** structural changes.
-4. Add characterization tests for missing critical flows:
+1. Snapshot current behavior with a manual scenario checklist.
+2. Port existing Jest store tests to Vitest-compatible tests **before** structural changes.
+3. Add characterization tests for missing critical flows:
 - storage method switching behavior;
 - import settings/data decisions;
 - click mode transitions;
@@ -128,8 +118,6 @@ Recommendation: start with one `data.store.ts`, refactor later.
 Deliverable:
 - baseline tests passing under current code (Jest or temporary dual runner).
 
-Trade-off:
-- Extra upfront work, but prevents silent behavioral drift.
 
 ## Phase 1: Tooling scaffold (Vite + Vue 3 + TS + Vitest)
 
