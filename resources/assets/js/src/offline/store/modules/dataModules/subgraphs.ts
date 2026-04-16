@@ -1,5 +1,6 @@
 import Vue from "vue";
 import {DataModuleState, GraphId, PostId, SubgraphId} from "@/src/@types/StoreTypes";
+import Subgraph from "@/src/offline/store/classes/Subgraph";
 
 function stringToColour(str: string) {
     let hash = 0;
@@ -14,7 +15,7 @@ function stringToColour(str: string) {
     return colour;
 }
 
-const state = {
+const state: Pick<DataModuleState, "subgraphs"> = {
     subgraphs: {
         /*
         1: {
@@ -64,12 +65,7 @@ const mutations = {
         Vue.set(
             state.subgraphs,
             newSubgraphId,
-            {
-                id: newSubgraphId,
-                name: newSubgraphName,
-                nodes: [],
-                links: []
-            }
+            new Subgraph(newSubgraphId, newSubgraphName, [], []).serialise()
         );
         state.graphs[graphId].subgraphs.push(newSubgraphId);
     },

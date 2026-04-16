@@ -1,3 +1,4 @@
+import type {ActionTree, GetterTree, Module, MutationTree} from "vuex";
 import {HEIGHT, INITIAL_ZOOM, WIDTH} from "@/src/commonComponents/constants";
 
 import graphs from "./dataModules/graphs";
@@ -10,6 +11,7 @@ import {
     GraphId,
     LinkId,
     PostId,
+    RootStoreState,
     SubgraphId,
     Zoom
 } from "@/src/@types/StoreTypes";
@@ -60,14 +62,14 @@ function objectMap<T, S>(f: (o: T) => S, o: Record<string, T>): Record<string, S
     return Object.assign({}, ...Object.keys(o).map(k => ({ [k]: f(o[k]) })))
 }
 
-const state = {
+const state: DataModuleState = {
     ...graphs.state,
     ...posts.state,
     ...links.state,
     ...subgraphs.state,
 
     selectedPostIds: [],
-    selectedGraphId: 1,
+    selectedGraphId: "1",
     selectedSubgraphIds: [],
     zoom: {
         x: WIDTH / 2,
@@ -76,7 +78,7 @@ const state = {
     }
 };
 
-const getters = {
+const getters: GetterTree<DataModuleState, RootStoreState> = {
     ...graphs.getters,
     ...posts.getters,
     ...links.getters,
@@ -147,7 +149,7 @@ const getters = {
     },
 };
 
-const mutations = {
+const mutations: MutationTree<DataModuleState> = {
     ...graphs.mutations,
     ...posts.mutations,
     ...links.mutations,
@@ -246,7 +248,7 @@ const mutations = {
     }
 };
 
-const actions = {
+const actions: ActionTree<DataModuleState, RootStoreState> = {
     ...graphs.actions,
     ...posts.actions,
     ...links.actions,
@@ -254,10 +256,12 @@ const actions = {
 };
 
 
-export default {
+const dataModule: Module<DataModuleState, RootStoreState> = {
     state,
     getters,
     mutations,
     actions,
     namespaced: true
 };
+
+export default dataModule;

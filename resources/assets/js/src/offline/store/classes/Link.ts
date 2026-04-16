@@ -1,11 +1,11 @@
-import {GraphId, LinkId, PostId, SubgraphId} from "@/src/@types/StoreTypes";
+import {GraphId, LinkId, LinkType, PostId, SubgraphId} from "@/src/@types/StoreTypes";
 
 export interface LinkSerialised {
     id: LinkId;
     graph: GraphId;
     source: PostId;
     target: PostId;
-    type: string;
+    type: LinkType;
 }
 
 export default class Link {
@@ -16,7 +16,7 @@ export default class Link {
         public graph: GraphId,
         public source: PostId,
         public target: PostId,
-        public type: string = "reply"
+        public type: LinkType = "reply"
     ) {
     }
 

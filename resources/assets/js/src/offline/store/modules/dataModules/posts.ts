@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Post, {PostSerialised} from "@/src/offline/store/classes/Post";
-import {DataModuleState, LinkId, LinksMap, NodePositionsMap, PostId, PostsMap} from "@/src/@types/StoreTypes";
+import {DataModuleState, LinkId, LinksMap, NodePositionsMap, PostId, PostsMap, SubgraphId} from "@/src/@types/StoreTypes";
 import Link from "@/src/offline/store/classes/Link";
 
 const state: {
@@ -26,7 +26,7 @@ const getters = {
             .map(id => state.posts[id]);
     },
 
-    titleOrBody: (state: DataModuleState) => (postId: number) => {
+    titleOrBody: (state: DataModuleState) => (postId: PostId) => {
         const MAX_BODY_LENGTH = 30;
         const post = state.posts[postId];
         const possibleTitle = post.title.split("\n")[0].trim(); // we don't want to show text after a newline
@@ -79,7 +79,7 @@ const getters = {
     },
 
     linkedSubgraphs: (state: DataModuleState) => (postId: PostId) => {
-        let linkedSubgraphs = [];
+        let linkedSubgraphs: SubgraphId[] = [];
 
         for (let subgraph of Object.values(state.subgraphs)) {
             if (subgraph.nodes.includes(postId)) {

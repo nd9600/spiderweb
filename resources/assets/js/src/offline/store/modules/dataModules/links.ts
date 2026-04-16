@@ -1,8 +1,8 @@
 import Vue from "vue";
-import {DataModuleState, GraphId, LinkId, PostId, SubgraphId} from "@/src/@types/StoreTypes";
+import {DataModuleState, GraphId, LinkId, LinkType, PostId, SubgraphId} from "@/src/@types/StoreTypes";
 import Link from "@/src/offline/store/classes/Link";
 
-const state = {
+const state: Pick<DataModuleState, "links"> = {
     links: {},
 };
 
@@ -12,7 +12,7 @@ const getters = {
     },
 
     subgraphsLinkIsIn: (state: DataModuleState) => (linkId: LinkId) => {
-        let subgraphsLinkIsIn = [];
+        let subgraphsLinkIsIn: SubgraphId[] = [];
 
         for (let subgraph of Object.values(state.subgraphs)) {
             if (subgraph.links.includes(linkId)) {
@@ -24,7 +24,7 @@ const getters = {
 };
 
 const mutations = {
-    addLink(state: DataModuleState, {source, target, graph, type = "reply", subgraphIds = []}: {source: PostId, target: PostId, graph: GraphId, type: string, subgraphIds?: SubgraphId[]}) {
+    addLink(state: DataModuleState, {source, target, graph, type = "reply", subgraphIds = []}: {source: PostId, target: PostId, graph: GraphId, type: LinkType, subgraphIds?: SubgraphId[]}) {
         const existingLinkIds = Object.keys(state.links);
         const highestLinkId = existingLinkIds.length === 0
             ? 0

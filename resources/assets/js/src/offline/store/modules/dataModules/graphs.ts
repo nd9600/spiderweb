@@ -3,10 +3,10 @@ import {DataModuleState, GraphId, LinksMap, NodePosition, NodePositionsMap, Post
 import Graph from "@/src/offline/store/classes/Graph";
 import {SubgraphSerialised} from "@/src/offline/store/classes/Subgraph";
 
-const state = {
+const state: Pick<DataModuleState, "graphs"> = {
     graphs: {
-        1: {
-            id: 1,
+        "1": {
+            id: "1",
             name: "default",
             nodes: [],
             nodePositions: {},
@@ -39,8 +39,8 @@ const mutations = {
                         .map(id => parseInt(id, 10))
                 )
             );
-        const newGraphId = highestGraphId + 1;
-        const newGraph = new Graph(String(newGraphId), newGraphName, [], {}, []);
+        const newGraphId = String(highestGraphId + 1);
+        const newGraph = new Graph(newGraphId, newGraphName, [], {}, []);
 
         Vue.set(
             state.graphs,

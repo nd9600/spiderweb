@@ -1,23 +1,35 @@
+import type {ActionContext, ActionTree, GetterTree, Module, MutationTree} from "vuex";
+
 import {isInteger} from "@/src/helpers/numberHelpers";
 import {setProperty} from "@/src/helpers/vuexHelpers";
+import {
+    RootStoreState,
+    SettingsModuleState,
+    ShouldTakeDataFrom,
+    RemoteStorageMethod
+} from "@/src/@types/StoreTypes";
 
-const state = {
+interface SetRemoteStorageMethodPayload {
+    remoteStorageMethod: RemoteStorageMethod;
+    shouldTakeDataFrom: Nullable<ShouldTakeDataFrom>;
+}
+
+type SettingsActionContext = ActionContext<SettingsModuleState, RootStoreState>;
+
+const state: SettingsModuleState = {
     shouldAutosave: true,
-    remoteStorageMethod: "none", // none | firebase
-
+    remoteStorageMethod: "none",
     canOpenMultiplePosts: true,
-
     graphHeight: 66,
     postBarHeight: 66,
-
     postWidth: 50,
 };
 
-const getters = {
+const getters: GetterTree<SettingsModuleState, RootStoreState> = {
 };
 
-const mutations = {
-    setState(state, newState) {
+const mutations: MutationTree<SettingsModuleState> = {
+    setState(state, newState: Partial<SettingsModuleState>) {
         if (Object.keys(newState).length === 0) {
             return;
         }
@@ -33,41 +45,41 @@ const mutations = {
         state.postBarHeight = newState.postBarHeight || 66;
         state.postWidth = newState.postWidth || 50;
     },
-    
-    setShouldAutosave(state, shouldAutosave) {
+
+    setShouldAutosave(state, shouldAutosave: boolean) {
         state.shouldAutosave = shouldAutosave;
     },
-    setRemoteStorageMethod(state, remoteStorageMethod) {
+    setRemoteStorageMethod(state, remoteStorageMethod: RemoteStorageMethod) {
         setProperty(state, ["remoteStorageMethod"], remoteStorageMethod);
     },
 
-    setCanOpenMultiplePosts(state, canOpenMultiplePosts) {
+    setCanOpenMultiplePosts(state, canOpenMultiplePosts: boolean) {
         state.canOpenMultiplePosts = canOpenMultiplePosts;
     },
 
-    setGraphHeight(state, graphHeight) {
-        if(!isInteger(graphHeight) || graphHeight > 100) {
+    setGraphHeight(state, graphHeight: number | string) {
+        if (!isInteger(graphHeight) || graphHeight > 100) {
             return;
         }
-        state.graphHeight = graphHeight;
+        state.graphHeight = Number(graphHeight);
     },
-    setPostBarHeight(state, postBarHeight) {
+    setPostBarHeight(state, postBarHeight: number | string) {
         if (!isInteger(postBarHeight) || postBarHeight > 100) {
             return;
         }
-        state.postBarHeight = postBarHeight;
+        state.postBarHeight = Number(postBarHeight);
     },
 
-    setPostWidth(state, postWidth) {
+    setPostWidth(state, postWidth: number | string) {
         if (!isInteger(postWidth) || postWidth > 100) {
             return;
         }
-        state.postWidth = postWidth;
+        state.postWidth = Number(postWidth);
     },
 };
 
-const actions = {
-    async setRemoteStorageMethod(context, {remoteStorageMethod, shouldTakeDataFrom}) {
+const actions: ActionTree<SettingsModuleState, RootStoreState> = {
+    async setRemoteStorageMethod(context: SettingsActionContext, {remoteStorageMethod, shouldTakeDataFrom}: SetRemoteStorageMethodPayload) {
         // if you're making the remoteStorageMethod be Firebase, then you can choose to either keep the data that's in Local Storage, or overwrite it with the data that's already in Firebase
         const thereAreDifferentDataSources = remoteStorageMethod !== "none";
 
@@ -101,11 +113,12 @@ const actions = {
     }
 };
 
-
-export default {
+const settingsModule: Module<SettingsModuleState, RootStoreState> = {
     state,
     getters,
     mutations,
     actions,
     namespaced: true
 };
+
+export default settingsModule;

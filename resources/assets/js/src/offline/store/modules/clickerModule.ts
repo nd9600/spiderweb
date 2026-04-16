@@ -1,23 +1,55 @@
-const state = {
+import type {ActionContext, ActionTree, GetterTree, Module, MutationTree} from "vuex";
+
+import {
+    ClickerModuleState,
+    ClickMode,
+    LinkId,
+    LinkType,
+    PostId,
+    RootStoreState,
+    SubgraphId
+} from "@/src/@types/StoreTypes";
+
+interface ClickedPost {
+    id: PostId;
+}
+
+interface ClickedLinkEndpoint {
+    id: PostId;
+    x: number;
+    y: number;
+}
+
+interface ClickedLink {
+    id: LinkId;
+    source: ClickedLinkEndpoint;
+    target: ClickedLinkEndpoint;
+}
+
+interface LinkClickPayload {
+    link: ClickedLink;
+    coordinates: [number, number];
+}
+
+type ClickerActionContext = ActionContext<ClickerModuleState, RootStoreState>;
+
+const state: ClickerModuleState = {
     shouldShowClickButtonMenu: false,
-
-    clickMode: "openPosts", // openPosts | addLink | changeLink | addPost | attachPostsToGraphs
-
+    clickMode: "openPosts",
     newLinkSource: null,
     newLinkTarget: null,
     newLinkType: "reply",
     newLinkSubgraphIds: [],
-
     linkToEdit: null,
     wantsToChangeSource: false,
     wantsToChangeTarget: false,
 };
 
-const getters = {
+const getters: GetterTree<ClickerModuleState, RootStoreState> = {
 };
 
-const mutations = {
-    setShouldShowClickButtonMenu(state, shouldShowClickButtonMenu) {
+const mutations: MutationTree<ClickerModuleState> = {
+    setShouldShowClickButtonMenu(state, shouldShowClickButtonMenu: boolean) {
         state.shouldShowClickButtonMenu = shouldShowClickButtonMenu;
         if (!shouldShowClickButtonMenu) {
             state.newLinkSource = null;
@@ -31,36 +63,36 @@ const mutations = {
         }
     },
 
-    setClickMode(state, clickMode) {
+    setClickMode(state, clickMode: ClickMode) {
         state.clickMode = clickMode;
     },
-    setNewLinkSource(state, newLinkSource) {
+    setNewLinkSource(state, newLinkSource: Nullable<PostId>) {
         state.newLinkSource = newLinkSource;
     },
-    setNewLinkTarget(state, newLinkTarget) {
+    setNewLinkTarget(state, newLinkTarget: Nullable<PostId>) {
         state.newLinkTarget = newLinkTarget;
     },
-    setNewLinkType(state, newLinkType) {
+    setNewLinkType(state, newLinkType: LinkType) {
         state.newLinkType = newLinkType;
     },
-    setNewLinkSubgraphIds(state, newLinkSubgraphIds) {
+    setNewLinkSubgraphIds(state, newLinkSubgraphIds: SubgraphId[]) {
         state.newLinkSubgraphIds = newLinkSubgraphIds;
     },
 
-    setLinkToEdit(state, linkToEdit) {
+    setLinkToEdit(state, linkToEdit: Nullable<LinkId>) {
         state.linkToEdit = linkToEdit;
     },
-    setWantsToChangeSource(state, wantsToChangeSource) {
+    setWantsToChangeSource(state, wantsToChangeSource: boolean) {
         state.wantsToChangeSource = wantsToChangeSource;
     },
-    setWantsToChangeTarget(state, wantsToChangeTarget) {
+    setWantsToChangeTarget(state, wantsToChangeTarget: boolean) {
         state.wantsToChangeTarget = wantsToChangeTarget;
     },
 };
 
-const actions = {
-    async handlePostClick(context, post) {
-        if (typeof post !== "object") {
+const actions: ActionTree<ClickerModuleState, RootStoreState> = {
+    async handlePostClick(context: ClickerActionContext, post: ClickedPost | unknown) {
+        if (typeof post !== "object" || post === null || !("id" in post)) {
             console.error("no post clicked, clicked", post);
             return;
         }
@@ -97,7 +129,7 @@ const actions = {
                         "dataModule/addLink",
                         {
                             source: context.state.newLinkSource,
-                            target: context.state.newLinkTarget,
+                            target: post.id,
                             graph: context.rootState.dataModule.selectedGraphId,
                             type: context.state.newLinkType,
                             subgraphIds: context.state.newLinkSubgraphIds
@@ -149,7 +181,7 @@ const actions = {
         }
     },
 
-    async handleLinkClick(context, {link, coordinates}) {
+    async handleLinkClick(context: ClickerActionContext, {link, coordinates}: LinkClickPayload) {
         if (typeof link !== "object") {
             console.error("no link clicked, clicked", link);
             return;
@@ -157,8 +189,8 @@ const actions = {
 
         switch (context.state.clickMode) {
             case "openPosts": {
-                const sourceCoordinates = [link.source.x, link.source.y];
-                const targetCoordinates = [link.target.x, link.target.y];
+                const sourceCoordinates: [number, number] = [link.source.x, link.source.y];
+                const targetCoordinates: [number, number] = [link.target.x, link.target.y];
 
                 const distanceBetweenClickAndSource = Math.hypot(
                     sourceCoordinates[0] - coordinates[0],
@@ -188,11 +220,12 @@ const actions = {
     }
 };
 
-
-export default {
+const clickerModule: Module<ClickerModuleState, RootStoreState> = {
     state,
     getters,
     mutations,
     actions,
     namespaced: true
 };
+
+export default clickerModule;
