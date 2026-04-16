@@ -50,7 +50,7 @@ const mutations: MutationTree<SettingsModuleState> = {
         state.shouldAutosave = shouldAutosave;
     },
     setRemoteStorageMethod(state, remoteStorageMethod: RemoteStorageMethod) {
-        setProperty(state, ["remoteStorageMethod"], remoteStorageMethod);
+        state.remoteStorageMethod = remoteStorageMethod;
     },
 
     setCanOpenMultiplePosts(state, canOpenMultiplePosts: boolean) {
@@ -58,23 +58,26 @@ const mutations: MutationTree<SettingsModuleState> = {
     },
 
     setGraphHeight(state, graphHeight: number | string) {
-        if (!isInteger(graphHeight) || graphHeight > 100) {
+        const parsedGraphHeight = Number(graphHeight);
+        if (!isInteger(graphHeight) || parsedGraphHeight > 100) {
             return;
         }
-        state.graphHeight = Number(graphHeight);
+        state.graphHeight = parsedGraphHeight;
     },
     setPostBarHeight(state, postBarHeight: number | string) {
-        if (!isInteger(postBarHeight) || postBarHeight > 100) {
+        const parsedPostBarHeight = Number(postBarHeight);
+        if (!isInteger(postBarHeight) || parsedPostBarHeight > 100) {
             return;
         }
-        state.postBarHeight = Number(postBarHeight);
+        state.postBarHeight = parsedPostBarHeight;
     },
 
     setPostWidth(state, postWidth: number | string) {
-        if (!isInteger(postWidth) || postWidth > 100) {
+        const parsedPostWidth = Number(postWidth);
+        if (!isInteger(postWidth) || parsedPostWidth > 100) {
             return;
         }
-        state.postWidth = Number(postWidth);
+        state.postWidth = parsedPostWidth;
     },
 };
 

@@ -16,19 +16,16 @@
 
         "allowSyntheticDefaultImports": true,
         "module": "es2015",
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "target": "es6",
         "lib": ["es2017", "dom"],
-        "baseUrl": "./resources/assets/js",
+        "skipLibCheck": true,
         "paths": {
-            "@/*": ["*"]
+            "@/*": ["./resources/assets/js/*"]
         },
         "types": [
             "node",
             "vitest/globals"
-        ],
-        "typeRoots": [
-            "./node_modules/@types"
         ]
     },
     "include": [

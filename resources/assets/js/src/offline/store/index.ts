@@ -70,10 +70,10 @@ const actions: ActionTree<RootUiState, RootStoreState> = {
 
         localStorage.setItem(STORAGE_KEY, stringifiedStorage);
 
-        const remoteStorageMethod = context.state.settingsModule.remoteStorageMethod;
+        const remoteStorageMethod = context.rootState.settingsModule.remoteStorageMethod;
         switch (remoteStorageMethod) {
             case "firebase": {
-                const firebaseDB = firebaseDbFactory(context.state.firebaseModule.firebaseConfig);
+                const firebaseDB = firebaseDbFactory(context.rootState.firebaseModule.firebaseConfig);
                 firebaseDB.ref(STORAGE_KEY).set(stringifiedStorage);
                 break;
             }
@@ -151,7 +151,7 @@ const actions: ActionTree<RootUiState, RootStoreState> = {
             case "firebase": {
                 context.commit("setLoadingApp", true);
                 try {
-                    const firebaseDB = firebaseDbFactory(context.state.firebaseModule.firebaseConfig);
+                    const firebaseDB = firebaseDbFactory(context.rootState.firebaseModule.firebaseConfig);
                     const firebaseSnapshot = await firebaseDB.ref(STORAGE_KEY).once("value");
                     const firebaseStorageObject = JSON.parse(firebaseSnapshot.val()) as ImportedStorageObject;
                     await context.dispatch("importData", firebaseStorageObject);
@@ -186,7 +186,7 @@ const actions: ActionTree<RootUiState, RootStoreState> = {
         }
     },
     async importSettings(context: RootActionContext, {storageObject, shouldTakeDataFrom}: ImportSettingsPayload) {
-        const isStorageMethodChanging = context.state.settingsModule.remoteStorageMethod !== storageObject.settingsModule?.remoteStorageMethod;
+        const isStorageMethodChanging = context.rootState.settingsModule.remoteStorageMethod !== storageObject.settingsModule?.remoteStorageMethod;
 
         if (storageObject.settingsModule) {
             context.commit("settingsModule/setState", storageObject.settingsModule, {root: true});

@@ -15,9 +15,9 @@ import {
     SubgraphId,
     Zoom
 } from "@/src/@types/StoreTypes";
-import Post from "@/src/offline/store/classes/Post";
-import Subgraph from "@/src/offline/store/classes/Subgraph";
-import Link from "@/src/offline/store/classes/Link";
+import Post, {PostSerialised} from "@/src/offline/store/classes/Post";
+import Subgraph, {SubgraphSerialised} from "@/src/offline/store/classes/Subgraph";
+import Link, {LinkSerialised} from "@/src/offline/store/classes/Link";
 import Graph from "@/src/offline/store/classes/Graph";
 
 
@@ -62,6 +62,10 @@ function objectMap<T, S>(f: (o: T) => S, o: Record<string, T>): Record<string, S
     return Object.assign({}, ...Object.keys(o).map(k => ({ [k]: f(o[k]) })))
 }
 
+type LinkWithSubgraphId = LinkSerialised & {
+    subgraphId?: SubgraphId;
+};
+
 const state: DataModuleState = {
     ...graphs.state,
     ...posts.state,
@@ -84,7 +88,7 @@ const getters: GetterTree<DataModuleState, RootStoreState> = {
     ...links.getters,
     ...subgraphs.getters,
 
-    subgraphsInSelectedGraph(state: DataModuleState): Subgraph[] {
+    subgraphsInSelectedGraph(state: DataModuleState): SubgraphSerialised[] {
         const graph = state.graphs[state.selectedGraphId!];
         return graph.subgraphs.map(id => state.subgraphs[id]);
     },
@@ -102,10 +106,10 @@ const getters: GetterTree<DataModuleState, RootStoreState> = {
         const uniquePostIDs = [...new Set(postIDs.filter(id => id != null))];
         return uniquePostIDs;
     },
-    postsInSelectedSubgraphs(state: DataModuleState, getters: any): Post[] {
+    postsInSelectedSubgraphs(state: DataModuleState, getters: any): PostSerialised[] {
         return getters.postIdsInSelectedSubgraphs.map((id: PostId) => state.posts[id]);
     },
-    linksInSelectedSubgraphs(state: DataModuleState): Link[] {
+    linksInSelectedSubgraphs(state: DataModuleState): LinkWithSubgraphId[] {
         // if we have subgraphs, add the `subgraphId` to each link object
         if (state.selectedSubgraphIds.length > 0) {
             let linksWithSubgraphIDs: Array<{linkId: LinkId, subgraphId: SubgraphId}> = [];
@@ -120,9 +124,9 @@ const getters: GetterTree<DataModuleState, RootStoreState> = {
                 );
             }
             return linksWithSubgraphIDs
-                .map(({linkId, subgraphId}) => {
+                .map(({linkId, subgraphId}): LinkWithSubgraphId => {
                     // console.log(linkId, state.links[linkId]);
-                    let link = JSON.parse(JSON.stringify(state.links[linkId]));
+                    const link = JSON.parse(JSON.stringify(state.links[linkId])) as LinkWithSubgraphId;
                     link.subgraphId = subgraphId;
                     return link;
                 });
@@ -137,13 +141,14 @@ const getters: GetterTree<DataModuleState, RootStoreState> = {
                 .filter(link => {
                     return state.selectedGraphId === link.graph;
                 })
-                .map(link => {
+                .map((link): LinkWithSubgraphId => {
                     const subgraphId = linkToSubgraphMap[link.id];
                     if (subgraphId) {
-                        link = JSON.parse(JSON.stringify(state.links[link.id]));
-                        link.subgraphId = subgraphId;
+                        const linkWithSubgraphId = JSON.parse(JSON.stringify(state.links[link.id])) as LinkWithSubgraphId;
+                        linkWithSubgraphId.subgraphId = subgraphId;
+                        return linkWithSubgraphId;
                     }
-                    return link;
+                    return link as LinkWithSubgraphId;
                 });
         }
     },

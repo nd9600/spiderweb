@@ -217,6 +217,8 @@ const actions: ActionTree<ClickerModuleState, RootStoreState> = {
                 return;
             }
         }
+
+        return;
     }
 };
 

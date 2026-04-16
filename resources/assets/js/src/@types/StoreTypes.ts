@@ -1,7 +1,7 @@
-import type Graph, {GraphSerialised} from "@/src/offline/store/classes/Graph";
-import type Post, {PostSerialised} from "@/src/offline/store/classes/Post";
-import type Link, {LinkSerialised} from "@/src/offline/store/classes/Link";
-import type Subgraph, {SubgraphSerialised} from "@/src/offline/store/classes/Subgraph";
+import type {GraphSerialised} from "@/src/offline/store/classes/Graph";
+import type {PostSerialised} from "@/src/offline/store/classes/Post";
+import type {LinkSerialised} from "@/src/offline/store/classes/Link";
+import type {SubgraphSerialised} from "@/src/offline/store/classes/Subgraph";
 
 export type GraphId = string;
 export type PostId = string;
@@ -18,10 +18,10 @@ export type ClickMode =
     | "attachPostsToGraphs"
     | "searchForPosts";
 
-export type GraphsMap = Record<GraphId, Graph>;
-export type PostsMap = Record<PostId, Post>;
-export type LinksMap = Record<LinkId, Link>;
-export type SubgraphsMap = Record<SubgraphId, Subgraph>;
+export type GraphsMap = Record<GraphId, GraphSerialised>;
+export type PostsMap = Record<PostId, PostSerialised>;
+export type LinksMap = Record<LinkId, LinkSerialised>;
+export type SubgraphsMap = Record<SubgraphId, SubgraphSerialised>;
 export type NodePositionsMap = Record<PostId, NodePosition>;
 
 export interface Zoom {
