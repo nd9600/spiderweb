@@ -55,19 +55,25 @@ I haven't made it yet, but you can host a release wherever you want yourself.
 ### Offline
 To work on the offline version:
 
-1. You need [Node](https://nodejs.org/en/) ([NVM](https://github.com/nvm-sh/nvm) is good for this) and [Gulp](https://gulpjs.com/docs/en/getting-started/quick-start), then
+1. You need [Node](https://nodejs.org/en/) ([NVM](https://github.com/nvm-sh/nvm) is good for this), then
 2. `git clone git@github.com:nd9600/spiderweb.git && cd spiderweb`
-3. `npm install && gulp && npm run dev`
-4. Copy the `assets` folder from `public/` into `dist`/
-5. Then you can open `dist/index.html` and it should load - you might need to change the URLs to the stylesheets & the JS files in the `<script>`s at the bottom to get it to work
+3. `npm install`
+4. `npm run dev`
+5. Open the URL Vite prints, usually `http://localhost:5173/`
+
+To make a production asset build for the offline app:
+
+1. `npm run build`
+2. Copy the `assets` folder from `public/` into `dist`/
+3. Open `dist/index.html`
 
 ### Online
 To work on the online version:
 
-1. Install [PHP](https://www.php.net/), [Node](https://nodejs.org/en/) ([NVM](https://github.com/nvm-sh/nvm) is good for this)  and [Gulp](https://gulpjs.com/docs/en/getting-started/quick-start), [Composer](https://getcomposer.org/doc/00-intro.md), for PHP package management, and MySQL for your system (be sure to include any PHP extensions Composer needs, like `php-mysql` or `php-mbstring`)
+1. Install [PHP](https://www.php.net/), [Node](https://nodejs.org/en/) ([NVM](https://github.com/nvm-sh/nvm) is good for this), [Composer](https://getcomposer.org/doc/00-intro.md), for PHP package management, and MySQL for your system (be sure to include any PHP extensions Composer needs, like `php-mysql` or `php-mbstring`)
 2. `git clone git@github.com:nd9600/spiderweb.git && cd spiderweb`
 3. `composer install`
-4. `npm install && gulp && npm run dev`
+4. `npm install && npm run dev`
 5. `php artisan serve`, then it'll be available on `localhost:8000`
 
 ## Known bugs/limitations

@@ -18,6 +18,5 @@
     ></div>
 </div>
 
-<script src="{{ Helper::getAssetPath('js/vendors.js') }}"></script>
-<script src="{{ Helper::getAssetPath('js/offline/graph.js') }}"></script>
+{!! Helper::renderScriptEntryTags('js/src/offline/graph.js') !!}
 @endsection

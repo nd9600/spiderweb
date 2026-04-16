@@ -23,24 +23,21 @@ class MakeOfflineRelease extends Command
 
     public function handle(): void
     {
-        $this->info("Deleting existing manifest");
-        shell_exec("rm rev-manifest.json");
-    
         $this->info("Deleting existing assets");
-        shell_exec("rm -rf dist/assets/ public/assets/");
-        
-        $this->info("Compiling CSS");
-        shell_exec("gulp");
-        
-        $this->info("Transpiling JS");
-        shell_exec("npm run prod");
-        
-        $this->info(file_get_contents("rev-manifest.json"));
+        File::deleteDirectory(base_path("dist/assets"));
+
+        $this->info("Building assets with Vite");
+        shell_exec("npm run build");
+
+        $manifestPath = public_path("assets/manifest.json");
+        if (file_exists($manifestPath)) {
+            $this->info(file_get_contents($manifestPath));
+        }
         
         $this->info("Rendering Blade template");
         File::put("dist/index.html", view("offline")->render());
         
         $this->info("Copying over assets to dist/");
-        shell_exec("cp -r public/assets dist/assets");
+        File::copyDirectory(public_path("assets"), base_path("dist/assets"));
     }
 }

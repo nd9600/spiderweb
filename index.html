@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta
@@ -29,22 +29,29 @@
         href="/site.webmanifest"
     >
 
-    <!-- CSRF Token -->
-    <meta
-        name="csrf-token"
-        content="{{ csrf_token() }}"
-    >
-
-    <title>
-        @yield('title', "Spiderweb")
-    </title>
-
-    <!-- Scripts -->
-
-    <!-- Styles -->
-    {!! Helper::renderStyleEntryTags('js/src/styles.js') !!}
+    <title>Spiderweb</title>
 </head>
 <body>
-    @yield("appContent")
+    <div class="min-h-full h-full">
+        <div class="ml-5">
+            <h1 class="h h--1">
+                Spiderweb
+            </h1>
+        </div>
+        <noscript>
+            <h2 class="h h--2">
+                Spiderweb needs Javascript to be enabled for it to work, please turn it on
+            </h2>
+        </noscript>
+        <div
+            id="offlineGraphApp"
+            class="min-h-full h-full"
+        ></div>
+    </div>
+
+    <script
+        type="module"
+        src="/resources/assets/js/src/dev.js"
+    ></script>
 </body>
 </html>

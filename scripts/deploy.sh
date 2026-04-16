@@ -29,16 +29,12 @@ wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
-nvm install 12 # latest LTS as of 2019-12-14
+nvm install 20
 
-npm install --global gulp-cli
 npm ci
 
-echo "Bundling CSS"
-gulp
-
-echo "Bundling JS"
-npm run production
+echo "Building frontend assets"
+npm run build
 
 cp env.example .env
 echo "Please change the .env"
