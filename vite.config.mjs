@@ -1,8 +1,10 @@
-const path = require("path");
-const {defineConfig} = require("vite");
-const vuePlugin = require("@vitejs/plugin-vue");
+import path from "path";
+import {fileURLToPath} from "url";
 
-const rootDir = __dirname;
+import {defineConfig} from "vite";
+import vue from "@vitejs/plugin-vue";
+
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
 const frontendPublicDir = path.resolve(rootDir, "frontend-public");
 
 function getAssetSubdirectory(name) {
@@ -17,11 +19,11 @@ function getAssetSubdirectory(name) {
     return "assets";
 }
 
-module.exports = defineConfig(({mode}) => ({
+export default defineConfig(({mode}) => ({
     base: "./",
     publicDir: frontendPublicDir,
     plugins: [
-        (vuePlugin.default || vuePlugin)()
+        vue()
     ],
     resolve: {
         alias: {
@@ -36,9 +38,9 @@ module.exports = defineConfig(({mode}) => ({
         outDir: path.resolve(rootDir, "dist"),
         emptyOutDir: true,
         manifest: false,
-        minify: mode === "production" ? "esbuild" : false,
+        minify: mode === "production" ? "oxc" : false,
         sourcemap: mode === "production",
-        rollupOptions: {
+        rolldownOptions: {
             output: {
                 entryFileNames: "assets/js/[name]-[hash].js",
                 chunkFileNames: "assets/js/[name]-[hash].js",
