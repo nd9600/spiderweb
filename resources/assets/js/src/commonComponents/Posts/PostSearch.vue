@@ -46,6 +46,7 @@
 import {mapState, mapGetters} from "vuex";
 export default {
     name: "PostSearch",
+    emits: ["clickedOnResult"],
     data() {
         return {
             searchTerm: "",

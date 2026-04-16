@@ -89,6 +89,7 @@ import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
 
 export default {
     name: "PostMaker",
+    emits: ["madePost"],
     props: {
         shouldShowPostAttacher: {
             type: Boolean,

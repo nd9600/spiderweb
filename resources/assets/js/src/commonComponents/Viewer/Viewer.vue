@@ -16,7 +16,7 @@
                         class="btn btn--secondary mt-2"
                         type="button"
                         title="zoom out"
-                        @click.stop="$root.$emit('zoomOut')"
+                        @click.stop="emitZoomOut"
                     >
                         -
                     </button>
@@ -27,7 +27,7 @@
                             class="btn btn--secondary"
                             type="button"
                             title="refresh the graph"
-                            @click.stop="$root.$emit('refreshGraph')"
+                            @click.stop="emitRefreshGraph"
                         >
                             ⟳
                         </button>
@@ -42,7 +42,7 @@
                         class="btn btn--secondary mt-2"
                         type="button"
                         title="zoom in"
-                        @click.stop="$root.$emit('zoomIn')"
+                        @click.stop="emitZoomIn"
                     >
                         +
                     </button>
@@ -152,6 +152,7 @@ import OfflineGraph from "./OfflineGraph";
 import PostBar from "./PostBar/PostBar";
 
 import {STORAGE_KEY} from "@/src/commonComponents/constants";
+import graphEventBus from "@/src/helpers/graphEventBus";
 
 export default {
     name: "Viewer",
@@ -194,6 +195,15 @@ export default {
     methods: {
         ...mapMutations("dataModule", ["selectAllSubgraphs"]),
 
+        emitRefreshGraph() {
+            graphEventBus.emit("refreshGraph");
+        },
+        emitZoomIn() {
+            graphEventBus.emit("zoomIn");
+        },
+        emitZoomOut() {
+            graphEventBus.emit("zoomOut");
+        },
         scrollToPostBar() {
             window.scrollBy(0, document.getElementById("postBar").getBoundingClientRect().top - 5);
         }

@@ -1,6 +1,6 @@
 const path = require("path");
 const {defineConfig} = require("vite");
-const {createVuePlugin} = require("vite-plugin-vue2");
+const vuePlugin = require("@vitejs/plugin-vue");
 
 const rootDir = __dirname;
 const frontendPublicDir = path.resolve(rootDir, "frontend-public");
@@ -21,7 +21,7 @@ module.exports = defineConfig(({mode}) => ({
     base: "./",
     publicDir: frontendPublicDir,
     plugins: [
-        createVuePlugin()
+        (vuePlugin.default || vuePlugin)()
     ],
     resolve: {
         alias: {

@@ -1,5 +1,4 @@
-import Vue from "vue";
-import Vuex, {Store} from "vuex";
+import {createStore, Store} from "vuex";
 import type {ActionContext, ActionTree, GetterTree, MutationTree, StoreOptions} from "vuex";
 
 import settingsModule from "./modules/settingsModule";
@@ -18,8 +17,6 @@ import type {
     RootUiState,
     ShouldTakeDataFrom
 } from "@/src/@types/StoreTypes";
-
-Vue.use(Vuex);
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -215,7 +212,7 @@ const storeOptions: StoreOptions<RootStoreState> = {
     actions,
 };
 
-const store = new Vuex.Store(storeOptions);
+const store = createStore(storeOptions);
 
 const saveToFirebase = debounce(
     (state: RootStoreState, stringifiedStorage: string) => {

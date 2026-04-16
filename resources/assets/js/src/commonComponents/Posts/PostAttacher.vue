@@ -84,6 +84,7 @@ import {mapMutations, mapGetters, mapState} from "vuex";
 
 export default {
     name: "PostAttacher",
+    emits: ["attachedPost"],
     props: {
         post: {
             type: Object,

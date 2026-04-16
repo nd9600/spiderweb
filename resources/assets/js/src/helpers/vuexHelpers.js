@@ -1,5 +1,3 @@
-import Vue from "vue";
-
 /**
  * Deletes a deeply nested property in an object, in a way that Vue can react to (it's useful for vuex)
  * Use like
@@ -18,7 +16,7 @@ function deleteProperty(obj, props) {
         return;
     }
     if (!props.length) {
-        Vue.delete(obj, prop);
+        delete obj[prop];
         return;
     }
     deleteProperty(obj[prop], props);
@@ -40,7 +38,7 @@ function deleteProperty(obj, props) {
 function setProperty(obj, props, value) {
     const prop = props.shift();
     if (!obj[prop]) {
-        Vue.set(obj, prop, {});
+        obj[prop] = {};
     }
     if (!props.length) {
         if (value && typeof value === "object" && !Array.isArray(value)) {
@@ -62,11 +60,11 @@ function setProperty(obj, props, value) {
 function setPropertyAndOverwrite(obj, props, value) {
     const prop = props.shift();
     if (!obj[prop]) {
-        Vue.set(obj, prop, {});
+        obj[prop] = {};
     }
     if (!props.length) {
         if (value && typeof value === "object" && !Array.isArray(value)) {
-            Vue.set(obj, prop, Object.assign({}, value));
+            obj[prop] = Object.assign({}, value);
         } else {
             obj[prop] = value;
         }

@@ -17,9 +17,9 @@
                         class="focusButton mr-2"
                         type="button"
                         title="focus on this post in the viewer above"
-                        @click="$root.$emit('focusOnPost', post.id)"
-                        @mouseover="$root.$emit('highlightPost', post.id)"
-                        @mouseout="$root.$emit('unhighlightPost', post.id)"
+                        @click="emitFocusOnPost(post.id)"
+                        @mouseover="emitHighlightPost(post.id)"
+                        @mouseout="emitUnhighlightPost(post.id)"
                     >
                         <span class="text-base">&#128269;</span>
                     </button>{{ post.title }}</h3>
@@ -73,9 +73,9 @@
                     class="focusButton mr-2 float-left"
                     type="button"
                     title="focus on this post in the viewer above"
-                    @click="$root.$emit('focusOnPost', post.id)"
-                    @mouseover="$root.$emit('highlightPost', post.id)"
-                    @mouseout="$root.$emit('unhighlightPost', post.id)"
+                    @click="emitFocusOnPost(post.id)"
+                    @mouseover="emitHighlightPost(post.id)"
+                    @mouseout="emitUnhighlightPost(post.id)"
                 >
                     <span class="text-base">&#128269;</span>
                 </button>
@@ -159,6 +159,7 @@ import PostEditor from "@/src/commonComponents/Posts/PostEditor";
 import LinkedPosts from "./LinkedPosts";
 import LinkedSubgraphs from "./LinkedSubgraphs";
 import AddLinkedPost from "./AddLinkedPost";
+import graphEventBus from "@/src/helpers/graphEventBus";
 
 export default {
     name: "Post",
@@ -213,6 +214,15 @@ export default {
         marked,
         ...mapMutations("dataModule", ["unselectPostId", "movePostLeft", "movePostRight"]),
 
+        emitFocusOnPost(postId) {
+            graphEventBus.emit("focusOnPost", postId);
+        },
+        emitHighlightPost(postId) {
+            graphEventBus.emit("highlightPost", postId);
+        },
+        emitUnhighlightPost(postId) {
+            graphEventBus.emit("unhighlightPost", postId);
+        },
         toggleBottomTab(tab) {
             this.bottomTab = this.bottomTab === tab
                 ? ""

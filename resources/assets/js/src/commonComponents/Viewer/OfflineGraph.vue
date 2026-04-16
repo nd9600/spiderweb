@@ -54,6 +54,7 @@ import debounce from "lodash/debounce";
 import {mapActions, mapGetters, mapMutations, mapState} from "vuex";
 import FloatingActionButton from "./FloatingActionButton";
 import {HEIGHT, INITIAL_ZOOM, WIDTH} from "@/src/commonComponents/constants";
+import graphEventBus from "@/src/helpers/graphEventBus";
 
 export default {
     name: "OfflineGraph",
@@ -81,6 +82,7 @@ export default {
             linkStroke: originalLinkStroke,
 
             nodesWithCoordinates: {}, // after D3 has added `x` and `y` coordinates to each object
+            graphEventHandlers: null,
         };
     },
     computed: {
@@ -171,12 +173,45 @@ export default {
             this.debouncedMakeGraphSvg();
         });
 
-        this.$root.$on("focusOnPost", this.focusOnPost);
-        this.$root.$on("highlightPost", this.highlightPost);
-        this.$root.$on("unhighlightPost", this.unhighlightPost);
-        this.$root.$on("refreshGraph", this.debouncedMakeGraphSvg);
-        this.$root.$on("zoomIn", this.zoomIn);
-        this.$root.$on("zoomOut", this.zoomOut);
+        this.graphEventHandlers = {
+            focusOnPost: (postId) => {
+                this.focusOnPost(postId);
+            },
+            highlightPost: (postId) => {
+                this.highlightPost(postId);
+            },
+            unhighlightPost: (postId) => {
+                this.unhighlightPost(postId);
+            },
+            refreshGraph: () => {
+                this.debouncedMakeGraphSvg();
+            },
+            zoomIn: () => {
+                this.zoomIn();
+            },
+            zoomOut: () => {
+                this.zoomOut();
+            }
+        };
+
+        graphEventBus.on("focusOnPost", this.graphEventHandlers.focusOnPost);
+        graphEventBus.on("highlightPost", this.graphEventHandlers.highlightPost);
+        graphEventBus.on("unhighlightPost", this.graphEventHandlers.unhighlightPost);
+        graphEventBus.on("refreshGraph", this.graphEventHandlers.refreshGraph);
+        graphEventBus.on("zoomIn", this.graphEventHandlers.zoomIn);
+        graphEventBus.on("zoomOut", this.graphEventHandlers.zoomOut);
+    },
+    beforeUnmount() {
+        if (this.graphEventHandlers == null) {
+            return;
+        }
+
+        graphEventBus.off("focusOnPost", this.graphEventHandlers.focusOnPost);
+        graphEventBus.off("highlightPost", this.graphEventHandlers.highlightPost);
+        graphEventBus.off("unhighlightPost", this.graphEventHandlers.unhighlightPost);
+        graphEventBus.off("refreshGraph", this.graphEventHandlers.refreshGraph);
+        graphEventBus.off("zoomIn", this.graphEventHandlers.zoomIn);
+        graphEventBus.off("zoomOut", this.graphEventHandlers.zoomOut);
     },
     methods: {
         ...mapMutations(["setIsRenderingGraph"]),

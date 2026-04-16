@@ -1,4 +1,3 @@
-import Vue from "vue";
 import {DataModuleState, GraphId, PostId, SubgraphId} from "@/src/@types/StoreTypes";
 import Subgraph from "@/src/offline/store/classes/Subgraph";
 
@@ -62,11 +61,7 @@ const mutations = {
             );
         const newSubgraphId = String(highestSubgraphId + 1);
 
-        Vue.set(
-            state.subgraphs,
-            newSubgraphId,
-            new Subgraph(newSubgraphId, newSubgraphName, [], []).serialise()
-        );
+        state.subgraphs[newSubgraphId] = new Subgraph(newSubgraphId, newSubgraphName, [], []).serialise();
         state.graphs[graphId].subgraphs.push(newSubgraphId);
     },
     changeSubgraphName(state: DataModuleState, {subgraphId, newSubgraphName}: {subgraphId: SubgraphId, newSubgraphName: string}) {
@@ -85,7 +80,7 @@ const mutations = {
             state.graphs[state.selectedGraphId!].subgraphs.indexOf(subgraphId),
             1
         );
-        Vue.delete(state.subgraphs, subgraphId);
+        delete state.subgraphs[subgraphId];
     },
     addPostToSubgraph(state: DataModuleState, {subgraphId, postId}: {subgraphId: SubgraphId, postId: PostId}) {
         // we also need to add it to the graph that contains the subgraph, if it's not there already

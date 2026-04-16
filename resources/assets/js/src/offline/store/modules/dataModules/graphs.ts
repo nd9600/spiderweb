@@ -1,4 +1,3 @@
-import Vue from "vue";
 import {DataModuleState, GraphId, LinksMap, NodePosition, NodePositionsMap, PostId} from "@/src/@types/StoreTypes";
 import Graph from "@/src/offline/store/classes/Graph";
 import {SubgraphSerialised} from "@/src/offline/store/classes/Subgraph";
@@ -42,11 +41,7 @@ const mutations = {
         const newGraphId = String(highestGraphId + 1);
         const newGraph = new Graph(newGraphId, newGraphName, [], {}, []);
 
-        Vue.set(
-            state.graphs,
-            newGraphId,
-            newGraph.serialise()
-        );
+        state.graphs[newGraphId] = newGraph.serialise();
     },
     changeGraphName(state: DataModuleState, {graphId, newGraphName}: {graphId: GraphId, newGraphName: string}) {
         state.graphs[graphId].name = newGraphName;
@@ -67,15 +62,17 @@ const mutations = {
 
         // when we remove a graph, we need to remove any of its subgraphs, and any links in it
         for (const subgraphId of state.graphs[graphId].subgraphs) {
-            Vue.delete(state.subgraphs, subgraphId);
+            delete state.subgraphs[subgraphId];
         }
 
         for (const link of Object.values(state.links)) {
             const isRemovingThisLinksGraph = link.graph === graphId;
             if (isRemovingThisLinksGraph) {
-                Vue.delete(state.links, link.id);
+                delete state.links[link.id];
             }
         }
+
+        delete state.graphs[graphId];
     },
 
     addPostToGraph(state: DataModuleState, {graphId, postId}: {graphId: GraphId, postId: PostId}) {
@@ -107,7 +104,7 @@ const mutations = {
             }
             linksAfterPostRemoval[link.id] = link;
         }
-        Vue.set(state, "links", linksAfterPostRemoval);
+        state.links = linksAfterPostRemoval;
 
         // and remove it from any subgraphs it's in
         for (let subgraphId of state.graphs[graphId].subgraphs) {
@@ -116,7 +113,7 @@ const mutations = {
                 ...subgraph,
                 nodes: subgraph.nodes.filter(postId => postId !== postId)
             };
-            Vue.set(state.subgraphs, subgraphId, newSubgraph);
+            state.subgraphs[subgraphId] = newSubgraph;
         }
 
         // and its positions
@@ -127,20 +124,11 @@ const mutations = {
             }
         }
 
-        Vue.set(
-            state.graphs[graphId],
-            "nodePositions",
-            nodePositions
-        );
-
-        Vue.set(
-            state.graphs[graphId],
-            "nodes",
-            state.graphs[graphId].nodes.filter(id => id !== postId)
-        );
+        state.graphs[graphId].nodePositions = nodePositions;
+        state.graphs[graphId].nodes = state.graphs[graphId].nodes.filter(id => id !== postId);
     },
     setPostPosition(state: DataModuleState, {postId, position}: {postId: PostId, position: NodePosition}) {
-        Vue.set(state.graphs[state.selectedGraphId!].nodePositions, postId, position);
+        state.graphs[state.selectedGraphId!].nodePositions[postId] = position;
     }
 };
 

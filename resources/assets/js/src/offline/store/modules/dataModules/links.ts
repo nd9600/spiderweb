@@ -1,4 +1,3 @@
-import Vue from "vue";
 import {DataModuleState, GraphId, LinkId, LinkType, PostId, SubgraphId} from "@/src/@types/StoreTypes";
 import Link from "@/src/offline/store/classes/Link";
 
@@ -62,7 +61,7 @@ const mutations = {
         }
 
         const link = new Link(newLinkId, graph, source, target, type);
-        Vue.set(state.links, newLinkId, link.serialise());
+        state.links[newLinkId] = link.serialise();
 
         if (subgraphIds.length > 0) {
             for (const subgraphId of subgraphIds) {
@@ -89,7 +88,7 @@ const mutations = {
             state.graphs[link.graph].nodes.push(link.target);
         }
 
-        Vue.set(state.links, link.id, link);
+        state.links[link.id] = link;
     },
     changeLinkSource(state: DataModuleState, {id, source}: {id: LinkId, source: PostId}) {
         let link = JSON.parse(JSON.stringify(state.links[id]));
@@ -106,7 +105,7 @@ const mutations = {
         }
         link.source = source;
 
-        Vue.set(state.links, id, link);
+        state.links[id] = link;
     },
     changeLinkTarget(state: DataModuleState, {id, target}: {id: LinkId, target: PostId}) {
         let link = JSON.parse(JSON.stringify(state.links[id]));
@@ -123,7 +122,7 @@ const mutations = {
         }
         link.target = target;
 
-        Vue.set(state.links, id, link);
+        state.links[id] = link;
     },
     setSubgraphsLinkIsIn(state: DataModuleState, {linkId, subgraphsLinkIsIn}: {linkId: LinkId, subgraphsLinkIsIn: SubgraphId[]}) {
         for (const subgraphId of Object.keys(state.subgraphs)) {
@@ -159,7 +158,7 @@ const mutations = {
             }
         }
 
-        Vue.delete(state.links, id);
+        delete state.links[id];
     },
 };
 

@@ -116,6 +116,7 @@ import PostSearch from "@/src/commonComponents/Posts/PostSearch";
 
 export default {
     name: "LinkEditor",
+    emits: ["updatedLink", "removedLink"],
     components: {
         PostSearch
     },

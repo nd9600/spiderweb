@@ -1,4 +1,4 @@
-import Vue from "vue";
+import {createApp} from "vue";
 
 import OfflineRoot from "./OfflineRoot";
 import store from "./store";
@@ -6,8 +6,7 @@ import store from "./store";
 const mountElement = document.getElementById("offlineGraphApp");
 
 if (mountElement) {
-    new Vue({
-        store,
-        render: (createElement) => createElement(OfflineRoot)
-    }).$mount(mountElement);
+    createApp(OfflineRoot)
+        .use(store)
+        .mount(mountElement);
 }
