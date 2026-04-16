@@ -14,7 +14,7 @@
                 v-if="showTitleInput"
                 ref="inputTitle"
                 :value="title"
-                @input="onTitleUpdate($event.target.value)"
+                @input="onTitleInput"
                 class="p-2 rounded border text-gray-800 placeholder-gray-600"
                 type="text"
                 placeholder="On the Origin of Species"
@@ -27,7 +27,7 @@
             <span class="font-bold">Body</span>
             <textarea
                 :value="body"
-                @input="onBodyUpdate($event.target.value)"
+                @input="onBodyInput"
                 class="p-2 h-64 rounded border text-gray-800 placeholder-gray-600 resize-y"
                 placeholder="you can type Markdown here"
             />
@@ -44,15 +44,17 @@
     </section>
 </template>
 
-<script>
+<script lang="ts">
+import {defineComponent, PropType} from "vue";
 import {mapActions} from "pinia";
+import type {PostSerialised} from "@/src/offline/store/classes/Post";
 import {useDataStore} from "@/src/offline/store";
 
-export default {
+export default defineComponent({
     name: "PostEditor",
     props: {
         post: {
-            type: Object,
+            type: Object as PropType<PostSerialised>,
             required: true
         }
     },
@@ -71,7 +73,7 @@ export default {
             const dontLetUserHideTitleInput = this.showTitleInput
                 && this.title.trim().length > 0;
             if (dontLetUserHideTitleInput) {
-                this.$refs.inputTitle.focus();
+                (this.$refs.inputTitle as HTMLInputElement).focus();
                 return;
             }
             this.showTitleInput = !this.showTitleInput;
@@ -86,14 +88,28 @@ export default {
             });
         },
 
-        onTitleUpdate(title) {
+        onTitleInput(event: Event) {
+            const title = (event.target as HTMLInputElement | null)?.value;
+            if (title == null) {
+                return;
+            }
+            this.onTitleUpdate(title);
+        },
+        onTitleUpdate(title: string) {
             this.updatePostTitle({
                 id: this.post.id,
                 title,
                 updatedAt: new Date().toISOString()
             });
         },
-        onBodyUpdate(body) {
+        onBodyInput(event: Event) {
+            const body = (event.target as HTMLTextAreaElement | null)?.value;
+            if (body == null) {
+                return;
+            }
+            this.onBodyUpdate(body);
+        },
+        onBodyUpdate(body: string) {
             this.updatePostBody({
                 id: this.post.id,
                 body,
@@ -101,5 +117,5 @@ export default {
             });
         }
     }
-};
+});
 </script>

@@ -62,16 +62,17 @@
     </section>
 </template>
 
-<script>
+<script lang="ts">
+import {defineComponent} from "vue";
 import {mapActions, mapState} from "pinia";
 
-import Viewer from "@/src/commonComponents/Viewer/Viewer";
-import Graphs from "@/src/commonComponents/Graphs/Graphs";
-import LoadSave from "@/src/commonComponents/LoadSave";
-import Settings from "@/src/commonComponents/Settings/Settings";
+import Viewer from "@/src/commonComponents/Viewer/Viewer.vue";
+import Graphs from "@/src/commonComponents/Graphs/Graphs.vue";
+import LoadSave from "@/src/commonComponents/LoadSave.vue";
+import Settings from "@/src/commonComponents/Settings/Settings.vue";
 import {useRootStore, useSettingsStore} from "@/src/offline/store";
 
-export default {
+export default defineComponent({
     name: "OfflineApp",
     components: {
         Viewer,
@@ -121,7 +122,7 @@ export default {
             await this.loadStateFromStorage();
         }
     }
-};
+});
 </script>
 
 <style scoped>

@@ -36,8 +36,8 @@
                         click on a link to change it
                     </sub>
                     <LinkEditor
-                        v-else
-                        :link="links[linkToEdit]"
+                        v-else-if="linkBeingEdited != null"
+                        :link="linkBeingEdited"
                         @removedLink="onRemovedLink"
                     />
                 </template>
@@ -111,17 +111,18 @@
         </div>
     </div>
 </template>
-<script>
-import {mapActions, mapState} from "pinia";
-
-import LinkEditor from "@/src/commonComponents/Links/LinkEditor";
-import LinkAdder from "@/src/commonComponents/Links/LinkAdder";
-import PostMaker from "@/src/commonComponents/Posts/PostMaker";
-import PostsAttacher from "@/src/commonComponents/Posts/PostsAttacher";
-import PostSearch from "@/src/commonComponents/Posts/PostSearch";
+<script lang="ts">
+import {defineComponent} from "vue";
+import type {ClickMode, PostId} from "@/src/@types/StoreTypes";
+import type Post from "@/src/offline/store/classes/Post";
+import LinkEditor from "@/src/commonComponents/Links/LinkEditor.vue";
+import LinkAdder from "@/src/commonComponents/Links/LinkAdder.vue";
+import PostMaker from "@/src/commonComponents/Posts/PostMaker.vue";
+import PostsAttacher from "@/src/commonComponents/Posts/PostsAttacher.vue";
+import PostSearch from "@/src/commonComponents/Posts/PostSearch.vue";
 import {useClickerStore, useDataStore, useSettingsStore} from "@/src/offline/store";
 
-export default {
+export default defineComponent({
     name: "FloatingActionButton",
     components: {
         LinkEditor,
@@ -131,26 +132,41 @@ export default {
         PostSearch
     },
     computed: {
-        ...mapState(useSettingsStore, ["graphHeight", "canOpenMultiplePosts"]),
-
-        ...mapState(useDataStore, ["graphs", "selectedSubgraphIds", "links", "zoom", "titleOrBody"]),
-
-        ...mapState(useClickerStore, ["newLinkSource", "linkToEdit"]),
+        graphHeight() {
+            return useSettingsStore().graphHeight;
+        },
+        canOpenMultiplePosts() {
+            return useSettingsStore().canOpenMultiplePosts;
+        },
+        links() {
+            return useDataStore().links;
+        },
+        linkBeingEdited() {
+            return this.linkToEdit == null
+                ? null
+                : (this.links[this.linkToEdit] ?? null);
+        },
+        zoom() {
+            return useDataStore().zoom;
+        },
+        linkToEdit() {
+            return useClickerStore().linkToEdit;
+        },
 
         shouldShowClickButtonMenu: {
             get() {
                 return useClickerStore().shouldShowClickButtonMenu;
             },
-            set(shouldShowClickButtonMenu) {
-                this.setShouldShowClickButtonMenu(shouldShowClickButtonMenu);
+            set(shouldShowClickButtonMenu: boolean) {
+                useClickerStore().setShouldShowClickButtonMenu(shouldShowClickButtonMenu);
             }
         },
         clickMode: {
             get() {
                 return useClickerStore().clickMode;
             },
-            set(clickMode) {
-                this.setClickMode(clickMode);
+            set(clickMode: ClickMode) {
+                useClickerStore().setClickMode(clickMode);
             }
         },
 
@@ -159,30 +175,23 @@ export default {
         }
     },
     watch: {
-        clickMode(newClickMode, previousClickMode) {
-            const currentStrokeWidth = document.querySelector(":root").style.getPropertyValue("--link-stroke-width");
-            const currentStrokeWidthPixels = parseInt(currentStrokeWidth.match(/^(\d*)px$/)[1], 10);
+        clickMode(newClickMode: ClickMode, previousClickMode: ClickMode) {
+            const rootElement = document.documentElement;
+            const currentStrokeWidth = rootElement.style.getPropertyValue("--link-stroke-width");
+            const strokeWidthMatch = currentStrokeWidth.match(/^(\d+)px$/);
+            if (strokeWidthMatch == null) {
+                return;
+            }
+
+            const currentStrokeWidthPixels = parseInt(strokeWidthMatch[1], 10);
             if (newClickMode === "changeLink") {
-                document.querySelector(":root")
-                    .style.setProperty("--link-stroke-width", `${currentStrokeWidthPixels * 2}px`);
+                rootElement.style.setProperty("--link-stroke-width", `${currentStrokeWidthPixels * 2}px`);
             } else if (previousClickMode === "changeLink") {
-                document.querySelector(":root")
-                    .style.setProperty("--link-stroke-width", `${currentStrokeWidthPixels / 2}px`);
+                rootElement.style.setProperty("--link-stroke-width", `${currentStrokeWidthPixels / 2}px`);
             }
         }
     },
     methods: {
-        ...mapActions(useDataStore, [
-            "selectPostId",
-            "setPostPosition"
-        ]),
-
-        ...mapActions(useClickerStore, [
-            "setShouldShowClickButtonMenu",
-            "setClickMode",
-            "setLinkToEdit"
-        ]),
-
         toggleClickButtonMenu() {
             const menuWasPreviouslyShown = this.shouldShowClickButtonMenu;
             this.shouldShowClickButtonMenu = !this.shouldShowClickButtonMenu;
@@ -192,19 +201,19 @@ export default {
             }
         },
 
-        toggleClickMode(clickMode) {
+        toggleClickMode(clickMode: ClickMode) {
             const previousClickMode = this.clickMode;
             this.clickMode = (previousClickMode === clickMode) // clicking on the existing button means you want to close the open dialog
                 ? "openPosts"
                 : clickMode;
         },
 
-        madePost(newPost) {
+        madePost(newPost: Post) {
             const positionOfNewPost = {
                 x: (Math.abs(this.zoom.x) * (1 / this.zoom.scale)) + 100,
                 y: (Math.abs(this.zoom.y) * (1 / this.zoom.scale)) + 150
             };
-            this.setPostPosition({
+            useDataStore().setPostPosition({
                 postId: newPost.id,
                 position: positionOfNewPost
             });
@@ -213,19 +222,20 @@ export default {
             this.shouldShowClickButtonMenu = false;
         },
 
-        selectPost(post) {
-            this.selectPostId({
+        selectPost(post: {id: PostId}) {
+            useDataStore().selectPostId({
                 id: post.id,
                 canOpenMultiplePosts: this.canOpenMultiplePosts
             });
+            this.shouldShowClickButtonMenu = false;
         },
 
         onRemovedLink() {
-            this.setLinkToEdit(null);
+            useClickerStore().setLinkToEdit(null);
             this.clickMode = "openPosts";
         }
     }
-};
+});
 </script>
 
 <style scoped>

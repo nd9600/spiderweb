@@ -27,7 +27,7 @@
                 v-model="body"
                 class="p-2 h-48 rounded border text-gray-800 placeholder-gray-600 textareaBody"
                 placeholder="[Markdown] But with regard to the material world, we can at least go so far as this—we can perceive that events are brought about not by insulated interpositions of Divine power, exerted in each particular case, but by the establishment of general laws"
-                required="required"
+                required
                 minlength="1"
                 maxlength="10000"
             ></textarea>
@@ -84,11 +84,13 @@
     </div>
 </template>
 
-<script>
-import {mapActions, mapState} from "pinia";
+<script lang="ts">
+import {defineComponent} from "vue";
+import type Post from "@/src/offline/store/classes/Post";
 import {useDataStore} from "@/src/offline/store";
+import {getSubgraphsInSelectedGraph} from "@/src/offline/store/selectors";
 
-export default {
+export default defineComponent({
     name: "PostMaker",
     emits: ["madePost"],
     props: {
@@ -104,39 +106,47 @@ export default {
             title: "",
             body: "",
             shouldAttachPostToGraph: true,
-            subgraphIdsToAttachPostTo: []
+            subgraphIdsToAttachPostTo: [] as string[]
         };
     },
     computed: {
-        ...mapState(useDataStore, ["selectedGraphId", "selectedSubgraphIds", "subgraphsInSelectedGraph"]),
+        selectedGraphId() {
+            return useDataStore().selectedGraphId;
+        },
+        selectedSubgraphIds() {
+            return useDataStore().selectedSubgraphIds;
+        },
+        subgraphsInSelectedGraph() {
+            const dataStore = useDataStore();
+            return getSubgraphsInSelectedGraph(dataStore.graphs, dataStore.subgraphs, dataStore.selectedGraphId);
+        },
     },
     created() {
         this.subgraphIdsToAttachPostTo = this.selectedSubgraphIds;
     },
     methods: {
-        ...mapActions(useDataStore, ["addPostToGraph", "addPostToSubgraph", "makeNewPost"]),
-
         toggleTitleInput() {
             const dontLetUserHideTitleInput = this.showTitleInput
                 && this.title.trim().length > 0;
             if (dontLetUserHideTitleInput) {
-                this.$refs.inputTitle.focus();
+                (this.$refs.inputTitle as HTMLInputElement).focus();
                 return;
             }
             this.showTitleInput = !this.showTitleInput;
         },
 
         async makePost() {
-            let newPost = {
+            const newPost = {
                 title: this.title,
                 body: this.body,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
             };
-            const newPostWithId = await this.makeNewPost(newPost);
+            const dataStore = useDataStore();
+            const newPostWithId = await dataStore.makeNewPost(newPost) as Post;
 
-            if (this.shouldAttachPostToGraph) {
-                this.addPostToGraph({
+            if (this.shouldAttachPostToGraph && this.selectedGraphId != null) {
+                dataStore.addPostToGraph({
                     graphId: this.selectedGraphId,
                     postId: newPostWithId.id
                 });
@@ -144,7 +154,7 @@ export default {
 
             if (this.subgraphIdsToAttachPostTo.length > 0) {
                 for (const subgraphId of this.subgraphIdsToAttachPostTo) {
-                    this.addPostToSubgraph({
+                    dataStore.addPostToSubgraph({
                         subgraphId,
                         postId: newPostWithId.id
                     });
@@ -160,7 +170,7 @@ export default {
             this.subgraphIdsToAttachPostTo = [];
         }
     }
-};
+});
 </script>
 
 <style scoped>

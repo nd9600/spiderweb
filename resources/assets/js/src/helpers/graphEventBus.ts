@@ -1,6 +1,5 @@
 import mitt from "mitt";
-
-type PostId = string | number;
+import type {PostId} from "@/src/@types/StoreTypes";
 
 type GraphEvents = {
     focusOnPost: PostId;

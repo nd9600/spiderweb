@@ -1,9 +1,10 @@
 import postsModule from "@/src/offline/store/modules/dataModules/posts";
+import type {DataModuleState} from "@/src/@types/StoreTypes";
 
 import overallState from "./state";
-let state;
+let state: DataModuleState;
 beforeEach(() => {
-    state = JSON.parse(JSON.stringify(overallState.dataModule));
+    state = JSON.parse(JSON.stringify(overallState.dataModule)) as DataModuleState;
 });
 
 test("deleting posts removes their positions too", () => {

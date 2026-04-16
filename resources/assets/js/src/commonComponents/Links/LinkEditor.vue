@@ -109,13 +109,15 @@
     </div>
 </template>
 
-<script>
-import {mapActions, mapState} from "pinia";
-
-import PostSearch from "@/src/commonComponents/Posts/PostSearch";
+<script lang="ts">
+import {defineComponent, PropType} from "vue";
+import type {LinkType, PostId, SubgraphId} from "@/src/@types/StoreTypes";
+import type {LinkSerialised} from "@/src/offline/store/classes/Link";
+import PostSearch from "@/src/commonComponents/Posts/PostSearch.vue";
 import {useClickerStore, useDataStore} from "@/src/offline/store";
+import {getTitleOrBody} from "@/src/offline/store/selectors";
 
-export default {
+export default defineComponent({
     name: "LinkEditor",
     emits: ["updatedLink", "removedLink"],
     components: {
@@ -123,26 +125,33 @@ export default {
     },
     props: {
         link: {
-            type: Object,
+            type: Object as PropType<LinkSerialised>,
             required: true,
         }
     },
     data() {
         return {
-            source: this.link.source,
-            target: this.link.target,
-            type: this.link.type,
+            source: this.link.source as PostId,
+            target: this.link.target as PostId,
+            type: this.link.type as LinkType,
         };
     },
     computed: {
-        ...mapState(useDataStore, ["subgraphs", "posts", "postIds", "titleOrBody"]),
+        subgraphs() {
+            return useDataStore().subgraphs;
+        },
+        titleOrBody() {
+            return (postId: string) => getTitleOrBody(useDataStore().posts, postId);
+        },
 
         subgraphsLinkIsIn: {
             get() {
-                return useDataStore().subgraphsLinkIsIn(this.link.id);
+                return Object.values(useDataStore().subgraphs)
+                    .filter((subgraph) => subgraph.links.includes(this.link.id))
+                    .map((subgraph) => subgraph.id);
             },
-            set(subgraphsLinkIsIn) {
-                this.setSubgraphsLinkIsIn({linkId: this.link.id, subgraphsLinkIsIn});
+            set(subgraphsLinkIsIn: SubgraphId[]) {
+                useDataStore().setSubgraphsLinkIsIn({linkId: this.link.id, subgraphsLinkIsIn});
             }
         },
 
@@ -150,16 +159,16 @@ export default {
             get() {
                 return useClickerStore().wantsToChangeSource;
             },
-            set(wantsToChangeSource) {
-                this.setWantsToChangeSource(wantsToChangeSource);
+            set(wantsToChangeSource: boolean) {
+                useClickerStore().setWantsToChangeSource(wantsToChangeSource);
             }
         },
         wantsToChangeTarget: {
             get() {
                 return useClickerStore().wantsToChangeTarget;
             },
-            set(wantsToChangeTarget) {
-                this.setWantsToChangeTarget(wantsToChangeTarget);
+            set(wantsToChangeTarget: boolean) {
+                useClickerStore().setWantsToChangeTarget(wantsToChangeTarget);
             }
         }
     },
@@ -177,10 +186,7 @@ export default {
         "type": "updateLinkLocal",
     },
     methods: {
-        ...mapActions(useDataStore, ["setSubgraphsLinkIsIn", "updateLink", "removeLink"]),
-        ...mapActions(useClickerStore, ["setWantsToChangeSource", "setWantsToChangeTarget"]),
-
-        onPostClick(sourceOrTarget, post) {
+        onPostClick(sourceOrTarget: "source" | "target", post: {id: PostId}) {
             if (sourceOrTarget === "source") {
                 this.source = post.id;
                 this.wantsToChangeSource = false;
@@ -191,22 +197,21 @@ export default {
         },
 
         updateLinkLocal() {
-            this.updateLink({
+            useDataStore().updateLink({
                 id: this.link.id,
                 graph: this.link.graph,
                 source: this.source,
                 target: this.target,
-                type: this.type,
-                updatedAt: new Date().toISOString()
+                type: this.type
             });
             this.$emit("updatedLink", this.link.id);
         },
         removeLinkLocal() {
-            this.removeLink({
+            useDataStore().removeLink({
                 id: this.link.id,
             });
             this.$emit("removedLink", this.link.id);
         }
     }
-};
+});
 </script>

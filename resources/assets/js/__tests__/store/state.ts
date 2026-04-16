@@ -1,4 +1,6 @@
-export default {
+import type {OfflineStorageObjectSerialised} from "@/src/@types/StoreTypes";
+
+const state: OfflineStorageObjectSerialised = {
     "dataModule": {
         "posts": {
             "1": {
@@ -125,7 +127,12 @@ export default {
         "selectedGraphId": "1",
         "selectedSubgraphIds": [
             "1"
-        ]
+        ],
+        "zoom": {
+            "x": 200,
+            "y": 100,
+            "scale": 0.5
+        }
     },
     "settingsModule": {
         "shouldAutosave": true,
@@ -146,4 +153,6 @@ export default {
             "appId": "456"
         }
     }
-}
+};
+
+export default state;

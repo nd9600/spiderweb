@@ -66,25 +66,33 @@
     </section>
 </template>
 
-<script>
-import {mapState} from "pinia";
+<script lang="ts">
+import {defineComponent, PropType} from "vue";
 import marked from "@/src/helpers/markedCustomised";
+import type {LinkId} from "@/src/@types/StoreTypes";
+import type {PostSerialised} from "@/src/offline/store/classes/Post";
 import {useDataStore} from "@/src/offline/store";
+import {getPostIdsThatLinkToPost, getTitleOrBody} from "@/src/offline/store/selectors";
 
-export default {
+export default defineComponent({
     name: "ExportedPost",
     props: {
         post: {
-            type: Object,
+            type: Object as PropType<PostSerialised>,
             required: true
         },
         linkIdsToExport: {
-            type: Array,
+            type: Array as PropType<LinkId[]>,
             required: true
         }
     },
     computed: {
-        ...mapState(useDataStore, ["posts", "links", "postIds", "titleOrBody", "postIdsThatLinkToPost"]),
+        titleOrBody() {
+            return (postId: string) => getTitleOrBody(useDataStore().posts, postId);
+        },
+        postIdsThatLinkToPost() {
+            return (postId: string) => getPostIdsThatLinkToPost(useDataStore().links, postId);
+        },
 
         linkedPosts() {
             return this.postIdsThatLinkToPost(this.post.id);
@@ -103,5 +111,5 @@ export default {
     methods: {
         marked
     }
-};
+});
 </script>

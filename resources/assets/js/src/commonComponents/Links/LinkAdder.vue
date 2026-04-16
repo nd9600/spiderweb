@@ -77,29 +77,38 @@
     </div>
 </template>
 
-<script>
-import {mapActions, mapState} from "pinia";
-
-
-import PostSearch from "@/src/commonComponents/Posts/PostSearch";
+<script lang="ts">
+import {defineComponent} from "vue";
+import type {LinkType, PostId, SubgraphId} from "@/src/@types/StoreTypes";
+import PostSearch from "@/src/commonComponents/Posts/PostSearch.vue";
 import {useClickerStore, useDataStore} from "@/src/offline/store";
+import {getTitleOrBody} from "@/src/offline/store/selectors";
 
-export default {
+export default defineComponent({
     name: "LinkAdder",
     components: {
         PostSearch
     },
     computed: {
-        ...mapState(useDataStore, ["subgraphs", "selectedSubgraphIds", "titleOrBody"]),
-
-        ...mapState(useClickerStore, ["newLinkSource"]),
+        subgraphs() {
+            return useDataStore().subgraphs;
+        },
+        selectedSubgraphIds() {
+            return useDataStore().selectedSubgraphIds;
+        },
+        titleOrBody() {
+            return (postId: string) => getTitleOrBody(useDataStore().posts, postId);
+        },
+        newLinkSource() {
+            return useClickerStore().newLinkSource;
+        },
 
         newLinkSubgraphIds: {
             get() {
                 return useClickerStore().newLinkSubgraphIds;
             },
-            set(newLinkSubgraphIds) {
-                this.setNewLinkSubgraphIds(newLinkSubgraphIds);
+            set(newLinkSubgraphIds: SubgraphId[]) {
+                useClickerStore().setNewLinkSubgraphIds(newLinkSubgraphIds);
             }
         },
 
@@ -107,8 +116,8 @@ export default {
             get() {
                 return useClickerStore().newLinkType;
             },
-            set(newLinkType) {
-                this.setNewLinkType(newLinkType);
+            set(newLinkType: LinkType) {
+                useClickerStore().setNewLinkType(newLinkType);
             }
         },
     },
@@ -116,12 +125,12 @@ export default {
         this.newLinkSubgraphIds = this.selectedSubgraphIds;
     },
     methods: {
-        ...mapActions(useClickerStore, [
-            "setNewLinkSource",
-            "setNewLinkType",
-            "setNewLinkSubgraphIds"
-        ]),
-        ...mapActions(useClickerStore, ["handlePostClick"]),
+        setNewLinkSource(postId: Nullable<PostId>) {
+            useClickerStore().setNewLinkSource(postId);
+        },
+        handlePostClick(post: {id: PostId}) {
+            void useClickerStore().handlePostClick(post);
+        },
     }
-};
+});
 </script>

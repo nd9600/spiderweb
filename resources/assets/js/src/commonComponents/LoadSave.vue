@@ -17,7 +17,7 @@
                 <label class="mb-4">
                     <button
                         class="btn btn--secondary"
-                        @click="$refs.fileInput.click()"
+                        @click="clickFileInput"
                     >
                         Upload a data/settings file that's been previously exported
                     </button>
@@ -172,27 +172,39 @@
     </section>
 </template>
 
-<script>
-import {mapActions, mapState} from "pinia";
-import BlogpostExporter from "@/src/commonComponents/BlogpostExporter/BlogpostExporter";
+<script lang="ts">
+import {defineComponent} from "vue";
+import type {ImportedStorageObject, ShouldTakeDataFrom} from "@/src/@types/StoreTypes";
+import BlogpostExporter from "@/src/commonComponents/BlogpostExporter/BlogpostExporter.vue";
 import {useRootStore, useSettingsStore} from "@/src/offline/store";
 
-export default {
+function isImportedStorageObject(value: unknown): value is Required<ImportedStorageObject> {
+    return typeof value === "object"
+        && value !== null
+        && "dataModule" in value
+        && "settingsModule" in value
+        && "firebaseModule" in value;
+}
+
+export default defineComponent({
     name: "LoadSave",
     components: {BlogpostExporter},
     data() {
         return {
-            fileToImport: null,
+            fileToImport: null as Nullable<File>,
             shouldImportData: false,
             shouldImportSettings: false,
 
-            shouldTakeDataFrom: null, // "local" | "firebase"
+            shouldTakeDataFrom: null as Nullable<ShouldTakeDataFrom>,
         };
     },
     computed: {
-        ...mapState(useSettingsStore, ["shouldAutosave"]),
-
-        ...mapState(useRootStore, ["storageObject"]),
+        shouldAutosave() {
+            return useSettingsStore().shouldAutosave;
+        },
+        storageObject() {
+            return useRootStore().storageObject;
+        },
 
         isAlreadySyncingWithFirebase() {
             return useSettingsStore().remoteStorageMethod === "firebase";
@@ -204,8 +216,12 @@ export default {
         },
 
         fileToImportIsValid() {
-            return this.fileToImport !== null
-                && this.fileToImport.type === "application/json";
+            const fileToImport = this.fileToImport;
+            if (fileToImport == null) {
+                return false;
+            }
+
+            return fileToImport.type === "application/json";
         },
         importButtonIsDisabled() {
             return !this.fileToImportIsValid
@@ -219,35 +235,43 @@ export default {
         }
     },
     methods: {
-        ...mapActions(useRootStore, ["saveStateToStorage", "loadStateFromStorage", "importData", "importSettings"]),
-
-        onFileUpload(event) {
-            const files = event.target.files || event.dataTransfer.files;
-            if (!files.length || files.length > 1) {
+        saveStateToStorage() {
+            return useRootStore().saveStateToStorage();
+        },
+        clickFileInput() {
+            (this.$refs.fileInput as HTMLInputElement | undefined)?.click();
+        },
+        onFileUpload(event: Event) {
+            const target = event.target as HTMLInputElement | null;
+            const files = target?.files;
+            if (files == null || files.length === 0 || files.length > 1) {
                 return;
             }
             const file = files[0];
-            this.fileToImport = files[0];
+            if (file == null) {
+                return;
+            }
+            this.fileToImport = file;
             if (file.type !== "application/json") {
                 alert("You must upload a JSON file exported by the 'export' button");
                 return;
             }
         },
         async importState() {
-            const stateString = await this.fileToImport.text();
-            const parsedState = JSON.parse(stateString);
+            if (this.fileToImport == null) {
+                return;
+            }
 
-            if (
-                !("dataModule" in parsedState)
-                || !("settingsModule" in parsedState)
-                || !("firebaseModule" in parsedState)
-            ) {
+            const stateString = await this.fileToImport.text();
+            const parsedState = JSON.parse(stateString) as unknown;
+
+            if (!isImportedStorageObject(parsedState)) {
                 alert("Imported file isn't valid");
                 return;
             }
 
             if (this.shouldImportData) {
-                await this.importData(parsedState);
+                await useRootStore().importData(parsedState);
             }
 
             const willStartSyncingWithFirebaseAfterImport = parsedState.settingsModule.remoteStorageMethod && parsedState.settingsModule.remoteStorageMethod === "firebase";
@@ -257,19 +281,19 @@ export default {
                     && this.shouldTakeDataFrom !== null
                     && willStartSyncingWithFirebaseAfterImport
                 ) {
-                    await this.importSettings({
+                    await useRootStore().importSettings({
                         storageObject: parsedState,
                         shouldTakeDataFrom: this.shouldTakeDataFrom
                     });
                 } else {
-                    await this.importSettings({
+                    await useRootStore().importSettings({
                         storageObject: parsedState,
                         shouldTakeDataFrom: null
                     });
                 }
             }
             this.fileToImport = null;
-            await this.saveStateToStorage();
+            await useRootStore().saveStateToStorage();
         },
 
         exportState() {
@@ -283,8 +307,8 @@ export default {
 
             this.downloadData(blob, `spiderwebExport-${now}.json`);
         },
-        downloadData(blob, filename) {
-            let a = document.createElement("a");
+        downloadData(blob: Blob, filename: string) {
+            const a = document.createElement("a");
             document.body.appendChild(a);
             a.style = "display: none";
 
@@ -295,5 +319,5 @@ export default {
             window.URL.revokeObjectURL(url);
         }
     }
-};
+});
 </script>

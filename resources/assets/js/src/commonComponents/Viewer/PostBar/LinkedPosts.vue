@@ -94,34 +94,49 @@
     </section>
 </template>
 
-<script>
-import {mapActions, mapState} from "pinia";
+<script lang="ts">
+import {defineComponent, PropType} from "vue";
+import type {PostId} from "@/src/@types/StoreTypes";
+import type {PostSerialised} from "@/src/offline/store/classes/Post";
 import {useDataStore, useSettingsStore} from "@/src/offline/store";
+import {getPostIdsThatLinkToPost, getTitleOrBody} from "@/src/offline/store/selectors";
 
-export default {
+export default defineComponent({
     name: "LinkedPosts",
     props: {
         post: {
-            type: Object,
+            type: Object as PropType<PostSerialised>,
             required: true
         }
     },
     computed: {
-        ...mapState(useSettingsStore, ["canOpenMultiplePosts"]),
-        ...mapState(useDataStore, ["posts", "titleOrBody", "postIdsThatLinkToPost"]),
+        canOpenMultiplePosts() {
+            return useSettingsStore().canOpenMultiplePosts;
+        },
+        posts() {
+            return useDataStore().posts;
+        },
+        titleOrBody() {
+            return (postId: string) => getTitleOrBody(useDataStore().posts, postId);
+        },
+        postIdsThatLinkToPost() {
+            return (postId: string) => getPostIdsThatLinkToPost(useDataStore().links, postId);
+        },
 
         linkedPosts() {
             return this.postIdsThatLinkToPost(this.post.id);
         }
     },
     methods: {
-        ...mapActions(useDataStore, ["togglePostId", "removeLink"]),
-        togglePostIdLocal(postId) {
-            this.togglePostId({
+        togglePostIdLocal(postId: PostId) {
+            useDataStore().togglePostId({
                 id: postId,
                 canOpenMultiplePosts: this.canOpenMultiplePosts
             });
+        },
+        removeLink(payload: {id: string}) {
+            useDataStore().removeLink(payload);
         }
     }
-};
+});
 </script>

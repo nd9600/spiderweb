@@ -40,12 +40,12 @@
     </div>
 </template>
 
-<script>
-import {mapActions, mapState} from "pinia";
-import SubgraphEditor from "./SubgraphEditor";
+<script lang="ts">
+import {defineComponent} from "vue";
+import SubgraphEditor from "./SubgraphEditor.vue";
 import {useDataStore} from "@/src/offline/store";
 
-export default {
+export default defineComponent({
     name: "Subgraphs",
     components: {SubgraphEditor},
     props: {
@@ -60,7 +60,12 @@ export default {
         };
     },
     computed: {
-        ...mapState(useDataStore, ["graphs", "subgraphs", "postIds", "titleOrBody"]),
+        graphs() {
+            return useDataStore().graphs;
+        },
+        subgraphs() {
+            return useDataStore().subgraphs;
+        },
 
         subgraphsInGraph() {
             return this.graphs[this.graphId].subgraphs
@@ -68,15 +73,13 @@ export default {
         }
     },
     methods: {
-        ...mapActions(useDataStore, ["makeNewSubgraph"]),
-
         makeNewSubgraphLocal() {
-            this.makeNewSubgraph({
+            useDataStore().makeNewSubgraph({
                 graphId: this.graphId,
                 newSubgraphName: this.newSubgraphName
             });
             this.newSubgraphName = "";
         }
     }
-};
+});
 </script>

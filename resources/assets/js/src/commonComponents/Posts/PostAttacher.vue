@@ -79,16 +79,18 @@
         </template>
     </div>
 </template>
-<script>
-import {mapActions, mapState} from "pinia";
+<script lang="ts">
+import {defineComponent, PropType} from "vue";
+import type {PostSerialised} from "@/src/offline/store/classes/Post";
 import {useDataStore} from "@/src/offline/store";
+import {getLinkedSubgraphs, getSubgraphsInSelectedGraph} from "@/src/offline/store/selectors";
 
-export default {
+export default defineComponent({
     name: "PostAttacher",
     emits: ["attachedPost"],
     props: {
         post: {
-            type: Object,
+            type: Object as PropType<PostSerialised>,
             required: true
         },
         initialShouldExpand: {
@@ -100,17 +102,26 @@ export default {
         return {
             shouldExpand: this.initialShouldExpand,
             shouldAttachPostToGraph: true,
-            subgraphIdsToAttachPostTo: []
+            subgraphIdsToAttachPostTo: [] as string[]
         };
     },
     computed: {
-        ...mapState(useDataStore, ["selectedGraphId", "subgraphsInSelectedGraph", "linkedSubgraphs"]),
+        selectedGraphId() {
+            return useDataStore().selectedGraphId;
+        },
+        subgraphsInSelectedGraph() {
+            const dataStore = useDataStore();
+            return getSubgraphsInSelectedGraph(dataStore.graphs, dataStore.subgraphs, dataStore.selectedGraphId);
+        },
+        linkedSubgraphs() {
+            return (postId: string) => getLinkedSubgraphs(useDataStore().subgraphs, postId);
+        },
 
         subgraphsNotAlreadyAttachedTo() {
             const subgraphsAlreadyAttachedTo = this.linkedSubgraphs(this.post.id)
-                .map(id => parseInt(id, 10));
+                .map((id: string) => parseInt(id, 10));
             return this.subgraphsInSelectedGraph
-                .filter(subgraph => !subgraphsAlreadyAttachedTo.includes(Number(subgraph.id)));
+                .filter((subgraph) => !subgraphsAlreadyAttachedTo.includes(Number(subgraph.id)));
         }
     },
     created() {
@@ -119,11 +130,10 @@ export default {
         }
     },
     methods: {
-        ...mapActions(useDataStore, ["addPostToGraph", "addPostToSubgraph"]),
-
         attachPost() {
-            if (this.shouldAttachPostToGraph) {
-                this.addPostToGraph({
+            const dataStore = useDataStore();
+            if (this.shouldAttachPostToGraph && this.selectedGraphId != null) {
+                dataStore.addPostToGraph({
                     graphId: this.selectedGraphId,
                     postId: this.post.id
                 });
@@ -131,7 +141,7 @@ export default {
 
             if (this.subgraphIdsToAttachPostTo.length > 0) {
                 for (const subgraphId of this.subgraphIdsToAttachPostTo) {
-                    this.addPostToSubgraph({
+                    dataStore.addPostToSubgraph({
                         subgraphId,
                         postId: this.post.id
                     });
@@ -140,7 +150,7 @@ export default {
             }
         }
     }
-};
+});
 </script>
 
 <style scoped>

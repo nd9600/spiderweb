@@ -32,16 +32,17 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
+import {defineComponent} from "vue";
 import {mapState} from "pinia";
 import {useDataStore} from "@/src/offline/store";
 
-export default {
+export default defineComponent({
     name: "PostBarScrollButtons",
     data() {
         return {
-            visiblePosts: [],
-            postsWithVisibleSecondHalves: []
+            visiblePosts: [] as number[],
+            postsWithVisibleSecondHalves: [] as number[]
         };
     },
     computed: {
@@ -76,15 +77,18 @@ export default {
     },
     mounted() {
         this.setVisiblePosts();
-        document.getElementById("postsContainer").onscroll = this.setVisiblePosts;
+        const postsContainer = document.getElementById("postsContainer");
+        if (postsContainer != null) {
+            postsContainer.onscroll = this.setVisiblePosts;
+        }
     },
     activated() {
         this.setVisiblePosts();
     },
     methods: {
-        isPostVisible(element, scrolledThing) {
+        isPostVisible(element: HTMLElement | null, scrolledThing: HTMLElement | null) {
             // a post is visible if its top left corner and mid point is visible
-            if (!element || scrolledThing.scrollLeft == null) {
+            if (element == null || scrolledThing == null || scrolledThing.scrollLeft == null) {
                 return false;
             }
 
@@ -96,9 +100,9 @@ export default {
             const midpointIsVisible = ((postDimensions.left + postDimensions.right) / 2) <= container.right;
             return topLeftIsVisible && midpointIsVisible;
         },
-        isPostSecondHalfVisible(element, scrolledThing) {
+        isPostSecondHalfVisible(element: HTMLElement | null, scrolledThing: HTMLElement | null) {
             // a post's second half is visible if its top right corner and mid point is visible
-            if (!element || scrolledThing.scrollLeft == null) {
+            if (element == null || scrolledThing == null || scrolledThing.scrollLeft == null) {
                 return false;
             }
 
@@ -111,8 +115,8 @@ export default {
             return topRightIsVisible && midpointIsVisible;
         },
         setVisiblePosts() {
-            let visiblePosts = [];
-            let postsWithVisibleSecondHalves = [];
+            const visiblePosts: number[] = [];
+            const postsWithVisibleSecondHalves: number[] = [];
 
             const postsContainerElement = document.getElementById("postsContainer");
 
@@ -149,10 +153,16 @@ export default {
             }
 
             const postToScrollTo = document.getElementById(`post-${postIdToScrollTo}`);
+            if (postToScrollTo == null) {
+                return;
+            }
 
             const postDimensions = postToScrollTo.getBoundingClientRect();
-            let postsContainer = document.getElementById("postsContainer");
-            let container = postsContainer.getBoundingClientRect();
+            const postsContainer = document.getElementById("postsContainer");
+            if (postsContainer == null) {
+                return;
+            }
+            const container = postsContainer.getBoundingClientRect();
 
             postsContainer.scrollLeft = postsContainer.scrollLeft - (Math.abs(postDimensions.left) + container.left + 10);
         },
@@ -166,17 +176,27 @@ export default {
             }
 
             const postToScrollTo = document.getElementById(`post-${postIdToScrollTo}`);
+            if (postToScrollTo == null) {
+                return;
+            }
 
             const postDimensions = postToScrollTo.getBoundingClientRect();
-            let postsContainer = document.getElementById("postsContainer");
-            let container = postsContainer.getBoundingClientRect();
+            const postsContainer = document.getElementById("postsContainer");
+            if (postsContainer == null) {
+                return;
+            }
+            const container = postsContainer.getBoundingClientRect();
 
             postsContainer.scrollLeft = postsContainer.scrollLeft + (postDimensions.right - container.right + 10);
         },
 
         scrollToTop() {
-            window.scrollBy(0, document.getElementById("scrollToPostBarButton").getBoundingClientRect().top - 5);
+            const scrollButton = document.getElementById("scrollToPostBarButton");
+            if (scrollButton == null) {
+                return;
+            }
+            window.scrollBy(0, scrollButton.getBoundingClientRect().top - 5);
         }
     }
-};
+});
 </script>

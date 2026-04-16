@@ -22,14 +22,15 @@
     </section>
 </template>
 
-<script>
+<script lang="ts">
+import {defineComponent} from "vue";
 import {mapState} from "pinia";
 
-import Post from "./Post";
-import PostBarScrollButtons from "./PostBarScrollButtons";
+import Post from "./Post.vue";
+import PostBarScrollButtons from "./PostBarScrollButtons.vue";
 import {useDataStore} from "@/src/offline/store";
 
-export default {
+export default defineComponent({
     name: "PostBar",
     components: {
         Post,
@@ -38,7 +39,7 @@ export default {
     computed: {
         ...mapState(useDataStore, ["posts", "selectedPostIds"]),
     },
-};
+});
 </script>
 
 <style>

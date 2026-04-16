@@ -1,9 +1,10 @@
 import linksModule from "@/src/offline/store/modules/dataModules/links";
+import type {DataModuleState} from "@/src/@types/StoreTypes";
 
 import overallState from "./state";
-let state;
+let state: DataModuleState;
 beforeEach(() => {
-    state = JSON.parse(JSON.stringify(overallState.dataModule));
+    state = JSON.parse(JSON.stringify(overallState.dataModule)) as DataModuleState;
 });
 
 test("deleting links removes them from subgraphs", () => {

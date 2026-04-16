@@ -68,13 +68,14 @@ Link IDs error: {{ linkIdsError.isError }}
     </div>
 </template>
 
-<script>
+<script lang="ts">
+import {defineComponent} from "vue";
 import {isInteger} from "@/src/helpers/numberHelpers";
-import {mapState} from "pinia";
-import ExportedPost from "./ExportedPost";
+import ExportedPost from "./ExportedPost.vue";
 import {useDataStore} from "@/src/offline/store";
+import {getLinkIds, getPostIds} from "@/src/offline/store/selectors";
 
-export default {
+export default defineComponent({
     name: "BlogpostExporter",
     components: {ExportedPost},
     data() {
@@ -84,19 +85,27 @@ export default {
         };
     },
     computed: {
-        ...mapState(useDataStore, ["posts", "links", "postIds", "linkIds"]),
+        posts() {
+            return useDataStore().posts;
+        },
+        postIds() {
+            return getPostIds(this.posts);
+        },
+        linkIds() {
+            return getLinkIds(useDataStore().links);
+        },
 
         postIdsToExport() {
             return this.postIdsString
                 .split(",")
-                .map((s) => s.trim().replaceAll('"', ""))
+                .map((s) => s.trim().split('"').join(""))
                 .filter((s) => s.length !== 0);
         },
 
         linkIdsToExport() {
             return this.linkIdsString
                 .split(",")
-                .map((s) => s.trim().replaceAll('"', ""))
+                .map((s) => s.trim().split('"').join(""))
                 .filter((s) => s.length !== 0);
         },
 
@@ -122,7 +131,7 @@ Invalid post IDs: ${this.postIdsToExport.filter((postId) => !isInteger(postId) |
     methods: {
         exportBlogPost() {
             const blob = new Blob(
-                [this.$refs["export"].innerHTML],
+                [(this.$refs.export as HTMLElement).innerHTML],
                 {type: "text/html"}
             );
             const now = new Date().toISOString()
@@ -131,8 +140,8 @@ Invalid post IDs: ${this.postIdsToExport.filter((postId) => !isInteger(postId) |
 
             this.downloadData(blob, `blogPost-${now}.html`);
         },
-        downloadData(blob, filename) {
-            let a = document.createElement("a");
+        downloadData(blob: Blob, filename: string) {
+            const a = document.createElement("a");
             document.body.appendChild(a);
             a.style = "display: none";
 
@@ -143,5 +152,5 @@ Invalid post IDs: ${this.postIdsToExport.filter((postId) => !isInteger(postId) |
             window.URL.revokeObjectURL(url);
         }
     }
-};
+});
 </script>

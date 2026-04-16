@@ -24,24 +24,35 @@
     </section>
 </template>
 
-<script>
-import {mapActions, mapState} from "pinia";
+<script lang="ts">
+import {defineComponent, PropType} from "vue";
+import type {PostSerialised} from "@/src/offline/store/classes/Post";
 import {useDataStore} from "@/src/offline/store";
+import {getLinkedSubgraphs} from "@/src/offline/store/selectors";
 
-export default {
+export default defineComponent({
     name: "LinkedSubgraphs",
     props: {
         post: {
-            type: Object,
+            type: Object as PropType<PostSerialised>,
             required: true
         }
     },
     computed: {
-        ...mapState(useDataStore, ["subgraphs", "linkedSubgraphs"]),
+        subgraphs() {
+            return useDataStore().subgraphs;
+        },
+        linkedSubgraphs() {
+            return (postId: string) => getLinkedSubgraphs(useDataStore().subgraphs, postId);
+        },
     },
     methods: {
-        ...mapActions(useDataStore, ["toggleSubgraphId", "removePostFromSubgraph"]),
-
+        toggleSubgraphId(subgraphId: string) {
+            useDataStore().toggleSubgraphId(subgraphId);
+        },
+        removePostFromSubgraph(payload: {subgraphId: string; postId: string}) {
+            useDataStore().removePostFromSubgraph(payload);
+        },
     }
-};
+});
 </script>

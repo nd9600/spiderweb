@@ -108,7 +108,7 @@
                     type="button"
                     @click="toggleBottomTab('linked-subgraphs')"
                 >
-                    <span class="text-xs">{{ linkedSubgraphs(this.post.id).length }} subgraphs</span>
+                    <span class="text-xs">{{ linkedSubgraphIds.length }} subgraphs</span>
                 </button>
                 <button
                     v-if="hasLinkedPosts"
@@ -151,18 +151,25 @@
     </section>
 </template>
 
-<script>
-import {mapActions, mapState} from "pinia";
+<script lang="ts">
+import {defineComponent, PropType} from "vue";
+import type {PostId} from "@/src/@types/StoreTypes";
 import marked from "@/src/helpers/markedCustomised";
 
-import PostEditor from "@/src/commonComponents/Posts/PostEditor";
-import LinkedPosts from "./LinkedPosts";
-import LinkedSubgraphs from "./LinkedSubgraphs";
-import AddLinkedPost from "./AddLinkedPost";
+import type {PostSerialised} from "@/src/offline/store/classes/Post";
+import PostEditor from "@/src/commonComponents/Posts/PostEditor.vue";
+import LinkedPosts from "./LinkedPosts.vue";
+import LinkedSubgraphs from "./LinkedSubgraphs.vue";
+import AddLinkedPost from "./AddLinkedPost.vue";
 import graphEventBus from "@/src/helpers/graphEventBus";
 import {useDataStore, useSettingsStore} from "@/src/offline/store";
+import {
+    getLinkedSubgraphs,
+    getPostIdsInSelectedSubgraphs,
+    getPostIdsThatLinkToPost
+} from "@/src/offline/store/selectors";
 
-export default {
+export default defineComponent({
     name: "Post",
     components: {
         PostEditor,
@@ -172,7 +179,7 @@ export default {
     },
     props: {
         post: {
-            type: Object,
+            type: Object as PropType<PostSerialised>,
             required: true
         }
     },
@@ -183,11 +190,33 @@ export default {
         };
     },
     computed: {
-        ...mapState(useSettingsStore, ["postWidth"]),
-        ...mapState(useDataStore, ["selectedPostIds", "postIdsInSelectedSubgraphs", "postIdsThatLinkToPost", "linkedSubgraphs"]),
+        postWidth() {
+            return useSettingsStore().postWidth;
+        },
+        selectedPostIds() {
+            return useDataStore().selectedPostIds;
+        },
+        postIdsInSelectedSubgraphs() {
+            const dataStore = useDataStore();
+            return getPostIdsInSelectedSubgraphs(
+                dataStore.graphs,
+                dataStore.subgraphs,
+                dataStore.selectedGraphId,
+                dataStore.selectedSubgraphIds
+            );
+        },
+        postIdsThatLinkToPost() {
+            return (postId: string) => getPostIdsThatLinkToPost(useDataStore().links, postId);
+        },
+        linkedSubgraphs() {
+            return (postId: string) => getLinkedSubgraphs(useDataStore().subgraphs, postId);
+        },
 
         linkedPosts() {
             return this.postIdsThatLinkToPost(this.post.id);
+        },
+        linkedSubgraphIds() {
+            return this.linkedSubgraphs(this.post.id);
         },
 
         hasLinkedPosts() {
@@ -195,7 +224,7 @@ export default {
                 || Object.keys(this.linkedPosts.from).length > 0;
         },
         isPartOfASubgraph() {
-            return this.linkedSubgraphs(this.post.id).length > 0;
+            return this.linkedSubgraphIds.length > 0;
         },
         isVisibleInGraph() {
             return this.postIdsInSelectedSubgraphs.includes(this.post.id);
@@ -211,24 +240,31 @@ export default {
     },
     methods: {
         marked,
-        ...mapActions(useDataStore, ["unselectPostId", "movePostLeft", "movePostRight"]),
-
-        emitFocusOnPost(postId) {
+        unselectPostId(postId: PostId) {
+            useDataStore().unselectPostId(postId);
+        },
+        movePostLeft(postId: PostId) {
+            useDataStore().movePostLeft(postId);
+        },
+        movePostRight(postId: PostId) {
+            useDataStore().movePostRight(postId);
+        },
+        emitFocusOnPost(postId: PostId) {
             graphEventBus.emit("focusOnPost", postId);
         },
-        emitHighlightPost(postId) {
+        emitHighlightPost(postId: PostId) {
             graphEventBus.emit("highlightPost", postId);
         },
-        emitUnhighlightPost(postId) {
+        emitUnhighlightPost(postId: PostId) {
             graphEventBus.emit("unhighlightPost", postId);
         },
-        toggleBottomTab(tab) {
+        toggleBottomTab(tab: string) {
             this.bottomTab = this.bottomTab === tab
                 ? ""
                 : tab;
         }
     }
-};
+});
 </script>
 
 <style scoped>

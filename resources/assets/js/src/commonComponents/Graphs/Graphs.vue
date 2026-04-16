@@ -40,12 +40,12 @@
     </div>
 </template>
 
-<script>
-import {mapActions, mapState} from "pinia";
-import GraphEditor from "./GraphEditor";
+<script lang="ts">
+import {defineComponent} from "vue";
+import GraphEditor from "./GraphEditor.vue";
 import {useDataStore} from "@/src/offline/store";
 
-export default {
+export default defineComponent({
     name: "Graphs",
     components: {GraphEditor},
     data() {
@@ -54,15 +54,15 @@ export default {
         };
     },
     computed: {
-        ...mapState(useDataStore, ["graphs", "postIds", "titleOrBody"]),
+        graphs() {
+            return useDataStore().graphs;
+        },
     },
     methods: {
-        ...mapActions(useDataStore, ["makeNewGraph"]),
-
         makeNewGraphLocal() {
-            this.makeNewGraph(this.newGraphName);
+            useDataStore().makeNewGraph(this.newGraphName);
             this.newGraphName = "";
         }
     }
-};
+});
 </script>

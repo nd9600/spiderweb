@@ -62,42 +62,62 @@
         />
     </section>
 </template>
-<script>
-import PostMaker from "@/src/commonComponents/Posts/PostMaker";
-import {mapActions, mapState} from "pinia";
+<script lang="ts">
+import {defineComponent, PropType} from "vue";
+import type {LinkType, NodePosition} from "@/src/@types/StoreTypes";
+import type Post from "@/src/offline/store/classes/Post";
+import type {PostSerialised} from "@/src/offline/store/classes/Post";
+import PostMaker from "@/src/commonComponents/Posts/PostMaker.vue";
 import {useDataStore} from "@/src/offline/store";
+import {getSubgraphsInSelectedGraph, getTitleOrBody} from "@/src/offline/store/selectors";
 
-export default {
+export default defineComponent({
     name: "AddLinkedPost",
     components: {
         PostMaker
     },
     props: {
         post: {
-            type: Object,
+            type: Object as PropType<PostSerialised>,
             required: true
         }
     },
     data() {
         return {
-            fromOrToNewPost: "to",
-            linkType: "reply",
-            subgraphIdsToAttachPostTo: []
+            fromOrToNewPost: "to" as "from" | "to",
+            linkType: "reply" as LinkType,
+            subgraphIdsToAttachPostTo: [] as string[]
         };
     },
     computed: {
-        ...mapState(useDataStore, ["graphs", "selectedGraphId", "selectedSubgraphIds", "zoom", "titleOrBody", "subgraphsInSelectedGraph"]),
+        selectedGraphId() {
+            return useDataStore().selectedGraphId;
+        },
+        selectedSubgraphIds() {
+            return useDataStore().selectedSubgraphIds;
+        },
+        zoom() {
+            return useDataStore().zoom;
+        },
+        titleOrBody() {
+            return (postId: string) => getTitleOrBody(useDataStore().posts, postId);
+        },
+        subgraphsInSelectedGraph() {
+            const dataStore = useDataStore();
+            return getSubgraphsInSelectedGraph(dataStore.graphs, dataStore.subgraphs, dataStore.selectedGraphId);
+        },
 
         nodePositions() {
-            return useDataStore().graphs[this.selectedGraphId].nodePositions;
+            const selectedGraphId = this.selectedGraphId;
+            return selectedGraphId == null
+                ? {}
+                : useDataStore().graphs[selectedGraphId].nodePositions;
         }
     },
     created() {
         this.subgraphIdsToAttachPostTo = this.selectedSubgraphIds;
     },
     methods: {
-        ...mapActions(useDataStore, ["addLink", "setPostPosition", "addPostToSubgraph"]),
-
         toggleFromOrToTheNewPost() {
             const newValue = this.fromOrToNewPost === "from"
                 ? "to"
@@ -105,14 +125,19 @@ export default {
             this.fromOrToNewPost = newValue;
         },
 
-        addedPost(newPost) {
+        addedPost(newPost: Post) {
+            const dataStore = useDataStore();
             const source = this.fromOrToNewPost === "from"
                 ? newPost.id
                 : this.post.id;
             const target = this.fromOrToNewPost === "to"
                 ? newPost.id
                 : this.post.id;
-            this.addLink({
+            if (this.selectedGraphId == null) {
+                return;
+            }
+
+            dataStore.addLink({
                 source: source,
                 target: target,
                 graph: this.selectedGraphId,
@@ -121,7 +146,7 @@ export default {
             });
 
             // we need to set the new post's position too, so it doesn't get added in the middle of the graph
-            let positionOfNewPost = {};
+            let positionOfNewPost: NodePosition;
             const originalPostPosition = this.nodePositions[this.post.id];
             if (originalPostPosition != null) {
                 positionOfNewPost = {
@@ -134,14 +159,14 @@ export default {
                     y: (Math.abs(this.zoom.y) * (1 / this.zoom.scale)) + 150
                 };
             }
-            this.setPostPosition({
+            dataStore.setPostPosition({
                 postId: newPost.id,
                 position: positionOfNewPost
             });
 
             if (this.subgraphIdsToAttachPostTo.length > 0) {
                 for (const subgraphId of this.subgraphIdsToAttachPostTo) {
-                    this.addPostToSubgraph({
+                    dataStore.addPostToSubgraph({
                         subgraphId,
                         postId: newPost.id
                     });
@@ -149,5 +174,5 @@ export default {
             }
         }
     }
-};
+});
 </script>

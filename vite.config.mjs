@@ -54,7 +54,7 @@ export default defineConfig(({mode}) => ({
         globals: true,
         environment: "node",
         include: [
-            "resources/assets/js/__tests__/**/*.test.js"
+            "resources/assets/js/__tests__/**/*.test.ts"
         ],
         exclude: [
             "node_modules",

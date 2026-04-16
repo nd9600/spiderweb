@@ -38,12 +38,12 @@
     </div>
 </template>
 
-<script>
-import {mapActions, mapState} from "pinia";
-import Subgraphs from "./Subgraphs";
+<script lang="ts">
+import {defineComponent} from "vue";
+import Subgraphs from "./Subgraphs.vue";
 import {useDataStore} from "@/src/offline/store";
 
-export default {
+export default defineComponent({
     name: "GraphEditor",
     components: {
         Subgraphs
@@ -61,25 +61,29 @@ export default {
         };
     },
     computed: {
-        ...mapState(useDataStore, ["graphs", "postIds", "titleOrBody"]),
+        graphs() {
+            return useDataStore().graphs;
+        },
 
         graph() {
             return this.graphs[this.graphId];
         },
     },
     methods: {
-        ...mapActions(useDataStore, ["changeGraphName", "removeGraph"]),
         changeGraphNameLocal() {
             if (this.newGraphName.trim().length === 0) {
                 return;
             }
 
-            this.changeGraphName({
+            useDataStore().changeGraphName({
                 graphId: this.graphId,
                 newGraphName: this.newGraphName
             });
             this.newGraphName = "";
-        }
+        },
+        removeGraph(graphId: string) {
+            useDataStore().removeGraph(graphId);
+        },
     }
-};
+});
 </script>

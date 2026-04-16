@@ -1,9 +1,10 @@
 import graphsModule from "@/src/offline/store/modules/dataModules/graphs";
+import type {DataModuleState} from "@/src/@types/StoreTypes";
 
 import overallState from "./state";
-let state;
+let state: DataModuleState;
 beforeEach(() => {
-    state = JSON.parse(JSON.stringify(overallState.dataModule));
+    state = JSON.parse(JSON.stringify(overallState.dataModule)) as DataModuleState;
 });
 
 test("deleting graphs deletes subgraphs and links", () => {
@@ -26,5 +27,5 @@ test("removing posts from a graph removes their links from a subgraph too", () =
     expect(Object.keys(state.subgraphs[1].links).length).toEqual(3);
     graphsModule.mutations.removePostFromGraph(state, {graphId: "1", postId: "1"});
     expect(Object.keys(state.subgraphs[1].links).length).toEqual(2);
-    expect(state.subgraphs[1].links.includes(1)).toBeFalsy();
+    expect(state.subgraphs[1].links.includes("1")).toBeFalsy();
 });

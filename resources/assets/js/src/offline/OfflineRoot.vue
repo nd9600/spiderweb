@@ -4,12 +4,13 @@
     </div>
 </template>
 
-<script>
-import OfflineApp from "@/src/commonComponents/OfflineApp";
+<script lang="ts">
+import {defineComponent} from "vue";
 import {mapActions} from "pinia";
+import OfflineApp from "@/src/commonComponents/OfflineApp.vue";
 import {useRootStore} from "@/src/offline/store";
 
-export default {
+export default defineComponent({
     name: "OfflineRoot",
     components: {
         OfflineApp,
@@ -20,5 +21,5 @@ export default {
     methods: {
         ...mapActions(useRootStore, ["loadStateFromStorage"]),
     }
-};
+});
 </script>

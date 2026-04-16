@@ -2,7 +2,7 @@
     "compilerOptions": {
         "outDir": "./public/assets/js",
         "sourceMap": true,
-        "allowJs": true,
+        "allowJs": false,
         "strict": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
@@ -29,7 +29,6 @@
         ]
     },
     "include": [
-        "./resources/assets/js/src/**/*.js",
         "./resources/assets/js/src/**/*.ts",
         "./resources/assets/js/src/**/*.vue",
         "./resources/assets/js/__tests__/**/*"

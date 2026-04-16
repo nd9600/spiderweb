@@ -42,21 +42,24 @@
     </div>
 </template>
 
-<script>
-import {mapState} from "pinia";
+<script lang="ts">
+import {defineComponent} from "vue";
+import type {PostSerialised} from "@/src/offline/store/classes/Post";
 import {useDataStore} from "@/src/offline/store";
-export default {
+export default defineComponent({
     name: "PostSearch",
     emits: ["clickedOnResult"],
     data() {
         return {
             searchTerm: "",
             isLoadingSearchResults: false,
-            searchResults: []
+            searchResults: [] as PostSerialised[]
         };
     },
     computed: {
-        ...mapState(useDataStore, ["posts", "titleOrBody", "postIdsThatLinkToPost"]),
+        posts() {
+            return useDataStore().posts;
+        },
     },
     watch: {
         searchTerm(newSearchTerm) {
@@ -92,7 +95,7 @@ export default {
         }
     },
     mounted() {
-        this.$refs.searchInput.focus();
+        (this.$refs.searchInput as HTMLInputElement).focus();
     }
-};
+});
 </script>

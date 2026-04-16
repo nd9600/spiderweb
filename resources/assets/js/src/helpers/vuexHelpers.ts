@@ -10,16 +10,21 @@
  * @param obj {object}
  * @param props {array}
  */
-function deleteProperty(obj, props) {
+type NestedObject = Record<string, unknown>;
+
+function deleteProperty(obj: NestedObject, props: string[]): void {
     const prop = props.shift();
-    if (!obj[prop]) {
+    if (prop == null || !(prop in obj) || obj[prop] == null) {
         return;
     }
     if (!props.length) {
         delete obj[prop];
         return;
     }
-    deleteProperty(obj[prop], props);
+    const nextObject = obj[prop];
+    if (typeof nextObject === "object" && !Array.isArray(nextObject)) {
+        deleteProperty(nextObject as NestedObject, props);
+    }
 }
 
 /**
@@ -35,20 +40,23 @@ function deleteProperty(obj, props) {
  * @param props {array}
  * @param value {object}
  */
-function setProperty(obj, props, value) {
+function setProperty(obj: NestedObject, props: string[], value: unknown): void {
     const prop = props.shift();
-    if (!obj[prop]) {
+    if (prop == null) {
+        return;
+    }
+    if (obj[prop] == null || typeof obj[prop] !== "object" || Array.isArray(obj[prop])) {
         obj[prop] = {};
     }
     if (!props.length) {
         if (value && typeof value === "object" && !Array.isArray(value)) {
-            obj[prop] = { ...obj[prop], ...value };
+            obj[prop] = {...(obj[prop] as NestedObject), ...(value as NestedObject)};
         } else {
             obj[prop] = value;
         }
         return;
     }
-    setProperty(obj[prop], props, value);
+    setProperty(obj[prop] as NestedObject, props, value);
 }
 
 /**
@@ -57,9 +65,12 @@ function setProperty(obj, props, value) {
  * @param props {array}
  * @param value {object}
  */
-function setPropertyAndOverwrite(obj, props, value) {
+function setPropertyAndOverwrite(obj: NestedObject, props: string[], value: unknown): void {
     const prop = props.shift();
-    if (!obj[prop]) {
+    if (prop == null) {
+        return;
+    }
+    if (obj[prop] == null || typeof obj[prop] !== "object" || Array.isArray(obj[prop])) {
         obj[prop] = {};
     }
     if (!props.length) {
@@ -70,7 +81,7 @@ function setPropertyAndOverwrite(obj, props, value) {
         }
         return;
     }
-    setPropertyAndOverwrite(obj[prop], props, value);
+    setPropertyAndOverwrite(obj[prop] as NestedObject, props, value);
 }
 
 export { deleteProperty, setProperty, setPropertyAndOverwrite };

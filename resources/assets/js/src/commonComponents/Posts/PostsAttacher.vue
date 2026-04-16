@@ -38,14 +38,16 @@
     </div>
 </template>
 
-<script>
-import {mapState} from "pinia";
+<script lang="ts">
+import {defineComponent} from "vue";
+import type {PostSerialised} from "@/src/offline/store/classes/Post";
 
-import PostAttacher from "./PostAttacher";
-import PostSearch from "@/src/commonComponents/Posts/PostSearch";
+import PostAttacher from "./PostAttacher.vue";
+import PostSearch from "@/src/commonComponents/Posts/PostSearch.vue";
 import {useDataStore} from "@/src/offline/store";
+import {getUnattachedPosts} from "@/src/offline/store/selectors";
 
-export default {
+export default defineComponent({
     name: "PostsAttacher",
     components: {
         PostAttacher,
@@ -53,14 +55,17 @@ export default {
     },
     data() {
         return {
-            postToAttach: null
+            postToAttach: null as PostSerialised | null
         };
     },
     computed: {
-        ...mapState(useDataStore, ["posts", "links", "unattachedPosts"])
+        unattachedPosts() {
+            const dataStore = useDataStore();
+            return getUnattachedPosts(dataStore.graphs, dataStore.posts);
+        }
     },
     methods: {
-        onPostClick(post) {
+        onPostClick(post: PostSerialised) {
             if (
                 this.postToAttach === null
                 || this.postToAttach.id !== post.id
@@ -71,5 +76,5 @@ export default {
             }
         }
     }
-};
+});
 </script>

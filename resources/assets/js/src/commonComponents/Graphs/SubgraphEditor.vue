@@ -50,11 +50,11 @@
     </div>
 </template>
 
-<script>
-import {mapActions, mapState} from "pinia";
+<script lang="ts">
+import {defineComponent} from "vue";
 import {useDataStore} from "@/src/offline/store";
 
-export default {
+export default defineComponent({
     name: "SubgraphEditor",
     props: {
         subgraphId: {
@@ -70,7 +70,9 @@ export default {
         };
     },
     computed: {
-        ...mapState(useDataStore, ["subgraphs", "postIds", "titleOrBody"]),
+        subgraphs() {
+            return useDataStore().subgraphs;
+        },
 
         subgraph() {
             return this.subgraphs[this.subgraphId];
@@ -80,18 +82,23 @@ export default {
         this.newSubgraphColour = this.subgraph.colour || "#000000";
     },
     methods: {
-        ...mapActions(useDataStore, ["changeSubgraphName", "changeSubgraphColour", "removeSubgraph"]),
         changeSubgraphNameLocal() {
             if (this.newSubgraphName.trim().length === 0) {
                 return;
             }
 
-            this.changeSubgraphName({
+            useDataStore().changeSubgraphName({
                 subgraphId: this.subgraphId,
                 newSubgraphName: this.newSubgraphName
             });
             this.newSubgraphName = "";
+        },
+        changeSubgraphColour(payload: {subgraphId: string; colour: string}) {
+            useDataStore().changeSubgraphColour(payload);
+        },
+        removeSubgraph(subgraphId: string) {
+            useDataStore().removeSubgraph(subgraphId);
         }
     }
-};
+});
 </script>

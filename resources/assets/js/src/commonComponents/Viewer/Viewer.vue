@@ -145,17 +145,18 @@
     </div>
 </template>
 
-<script>
-import {mapActions, mapState} from "pinia";
-
-import OfflineGraph from "./OfflineGraph";
-import PostBar from "./PostBar/PostBar";
+<script lang="ts">
+import {defineComponent} from "vue";
+import type {GraphId, SubgraphId} from "@/src/@types/StoreTypes";
+import OfflineGraph from "./OfflineGraph.vue";
+import PostBar from "./PostBar/PostBar.vue";
 
 import {STORAGE_KEY} from "@/src/commonComponents/constants";
 import graphEventBus from "@/src/helpers/graphEventBus";
 import {useDataStore, useRootStore, useSettingsStore} from "@/src/offline/store";
+import {getSubgraphsInSelectedGraph} from "@/src/offline/store/selectors";
 
-export default {
+export default defineComponent({
     name: "Viewer",
     components: {
         OfflineGraph,
@@ -166,35 +167,48 @@ export default {
 
         return {
             localStorageSize: storedData != null
-                ? (storedData.length / (1000 ** 2)).toFixed(2)
+                ? Number((storedData.length / (1000 ** 2)).toFixed(2))
                 : 0
         };
     },
     computed: {
-        ...mapState(useRootStore, ["isRenderingGraph"]),
-        ...mapState(useSettingsStore, ["graphHeight", "postBarHeight"]),
-        ...mapState(useDataStore, ["graphs", "subgraphsInSelectedGraph"]),
+        isRenderingGraph() {
+            return useRootStore().isRenderingGraph;
+        },
+        graphHeight() {
+            return useSettingsStore().graphHeight;
+        },
+        postBarHeight() {
+            return useSettingsStore().postBarHeight;
+        },
+        graphs() {
+            return useDataStore().graphs;
+        },
+        subgraphsInSelectedGraph() {
+            const dataStore = useDataStore();
+            return getSubgraphsInSelectedGraph(dataStore.graphs, dataStore.subgraphs, dataStore.selectedGraphId);
+        },
 
         selectedGraphId: {
             get() {
                 return useDataStore().selectedGraphId;
             },
-            set(selectedGraphId) {
-                useDataStore().setSelectedGraphId(selectedGraphId);
+            set(selectedGraphId: Nullable<GraphId>) {
+                if (selectedGraphId != null) {
+                    useDataStore().setSelectedGraphId(selectedGraphId);
+                }
             }
         },
         selectedSubgraphIds: {
             get() {
                 return useDataStore().selectedSubgraphIds;
             },
-            set(selectedSubgraphIds) {
+            set(selectedSubgraphIds: SubgraphId[]) {
                 useDataStore().setSelectedSubgraphIds(selectedSubgraphIds);
             }
         }
     },
     methods: {
-        ...mapActions(useDataStore, ["selectAllSubgraphs"]),
-
         emitRefreshGraph() {
             graphEventBus.emit("refreshGraph");
         },
@@ -205,8 +219,16 @@ export default {
             graphEventBus.emit("zoomOut");
         },
         scrollToPostBar() {
-            window.scrollBy(0, document.getElementById("postBar").getBoundingClientRect().top - 5);
+            const postBar = document.getElementById("postBar");
+            if (postBar == null) {
+                return;
+            }
+
+            window.scrollBy(0, postBar.getBoundingClientRect().top - 5);
+        },
+        selectAllSubgraphs() {
+            useDataStore().selectAllSubgraphs();
         }
     }
-};
+});
 </script>

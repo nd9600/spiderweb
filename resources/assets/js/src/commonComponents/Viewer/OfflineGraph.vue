@@ -43,21 +43,133 @@
     </section>
 </template>
 
-<script>
+<script lang="ts">
+import {defineComponent} from "vue";
 import {select as d3select, selectAll as d3selectAll, event as d3event, mouse as d3mouse} from "d3-selection";
 import {forceSimulation as d3forceSimulation, forceLink as d3forceLink, forceManyBody as d3forceManyBody, forceCenter as d3forceCenter} from "d3-force";
 import {zoom as d3zoom, zoomIdentity as d3zoomIdentity} from "d3-zoom";
 import {drag as d3drag} from "d3-drag";
-
 import debounce from "lodash/debounce";
 
-import {mapActions, mapState} from "pinia";
-import FloatingActionButton from "./FloatingActionButton";
+import type {
+    ClickMode,
+    NodePosition,
+    PostId,
+    SubgraphId,
+    Zoom,
+} from "@/src/@types/StoreTypes";
+import type {PostSerialised} from "@/src/offline/store/classes/Post";
+import type {LinkWithSubgraphId} from "@/src/offline/store/selectors";
+import FloatingActionButton from "./FloatingActionButton.vue";
 import {HEIGHT, INITIAL_ZOOM, WIDTH} from "@/src/commonComponents/constants";
 import graphEventBus from "@/src/helpers/graphEventBus";
 import {useClickerStore, useDataStore, useRootStore, useSettingsStore} from "@/src/offline/store";
+import {
+    getLinksInSelectedSubgraphs,
+    getNeighbourIndex,
+    getPostsInSelectedSubgraphs,
+    getSubgraphColour,
+    getTitleOrBody,
+    isNeighbour,
+} from "@/src/offline/store/selectors";
 
-export default {
+interface GraphNode extends PostSerialised {
+    x?: number;
+    y?: number;
+    fx?: number;
+    fy?: number;
+}
+
+interface GraphLink extends Omit<LinkWithSubgraphId, "source" | "target"> {
+    source: PostId | GraphNode;
+    target: PostId | GraphNode;
+}
+
+interface D3SelectionLike {
+    attr(name: string, value: unknown): D3SelectionLike;
+    call(fn: unknown, ...args: unknown[]): D3SelectionLike;
+    classed(name: string, value: unknown): D3SelectionLike;
+    data(data: unknown, key?: unknown): D3SelectionLike;
+    duration(durationMs: number): D3SelectionLike;
+    each(fn: (this: unknown, datum: GraphNode) => void): D3SelectionLike;
+    enter(): D3SelectionLike;
+    exit(): D3SelectionLike;
+    filter(fn: (datum: unknown) => boolean): D3SelectionLike;
+    join(tagName: string): D3SelectionLike;
+    merge(selection: unknown): D3SelectionLike;
+    node(): Node | null;
+    on(eventName: string, handler: (...args: unknown[]) => unknown): D3SelectionLike;
+    raise(): D3SelectionLike;
+    remove(): D3SelectionLike;
+    select(selector: string): D3SelectionLike;
+    selectAll(selector: string): D3SelectionLike;
+    style(name: string, value: unknown): D3SelectionLike;
+    text(value: unknown): D3SelectionLike;
+    transition(): D3SelectionLike;
+    append(tagName: string): D3SelectionLike;
+}
+
+interface D3ZoomBehaviourLike {
+    (selection: unknown): void;
+    on(eventName: string, handler: () => void): D3ZoomBehaviourLike;
+    scaleExtent(extent: [number, number]): D3ZoomBehaviourLike;
+    scaleBy: unknown;
+    transform: unknown;
+}
+
+interface D3DragBehaviourLike {
+    (selection: unknown): void;
+    clickDistance(distance: number): D3DragBehaviourLike;
+    on(eventName: string, handler: (node: GraphNode) => void): D3DragBehaviourLike;
+}
+
+interface D3SimulationLike {
+    alpha(value: number): D3SimulationLike;
+    alphaTarget(value: number): D3SimulationLike;
+    force(name: string, value: unknown): D3SimulationLike;
+    on(eventName: string, handler: () => void): D3SimulationLike;
+    restart(): D3SimulationLike;
+    tick(iterations?: number): D3SimulationLike;
+}
+
+interface GraphEventHandlers {
+    focusOnPost: (postId: PostId) => void;
+    highlightPost: (postId: PostId) => void;
+    unhighlightPost: (postId: PostId) => void;
+    refreshGraph: () => void;
+    zoomIn: () => void;
+    zoomOut: () => void;
+}
+
+interface ClickedLinkPayload {
+    link: {
+        id: string;
+        source: {id: string; x: number; y: number;};
+        target: {id: string; x: number; y: number;};
+    };
+    coordinates: [number, number];
+}
+
+function isGraphNode(value: PostId | GraphNode): value is GraphNode {
+    return typeof value === "object" && value !== null && "id" in value;
+}
+
+function getEndpointId(value: PostId | GraphNode): PostId {
+    return typeof value === "string" ? value : value.id;
+}
+
+function getEndpointPosition(value: PostId | GraphNode): NodePosition {
+    if (!isGraphNode(value) || value.x == null || value.y == null) {
+        return {x: 0, y: 0};
+    }
+
+    return {
+        x: value.x,
+        y: value.y,
+    };
+}
+
+export default defineComponent({
     name: "OfflineGraph",
     components: {
         FloatingActionButton
@@ -65,35 +177,82 @@ export default {
     data() {
         const originalLinkStroke = 20;
         return {
-            svg: null,
-            rootG: null,
+            svg: null as Nullable<D3SelectionLike>,
+            rootG: null as Nullable<D3SelectionLike>,
 
             hasMounted: false,
-            zoom: null,
-            zoomBehaviour: null,
+            zoom: {
+                x: WIDTH / 2,
+                y: HEIGHT / 2,
+                scale: INITIAL_ZOOM,
+            } as Zoom,
+            zoomBehaviour: null as Nullable<D3ZoomBehaviourLike>,
             shouldResetZooming: false,
 
-            linksG: null,
-            nodesG: null,
-            linkSelection: null,
-            nodeSelection: null,
-            textSelection: null,
+            linksG: null as Nullable<D3SelectionLike>,
+            nodesG: null as Nullable<D3SelectionLike>,
+            linkSelection: null as Nullable<D3SelectionLike>,
+            nodeSelection: null as Nullable<D3SelectionLike>,
+            textSelection: null as Nullable<D3SelectionLike>,
 
             originalLinkStroke: originalLinkStroke,
             linkStroke: originalLinkStroke,
 
-            nodesWithCoordinates: {}, // after D3 has added `x` and `y` coordinates to each object
-            graphEventHandlers: null,
+            nodesWithCoordinates: {} as Record<PostId, GraphNode>,
+            graphEventHandlers: null as Nullable<GraphEventHandlers>,
+            debouncedMakeGraphSvg: (() => {}) as () => void,
+            debouncedSaveZoomState: (() => {}) as () => void,
         };
     },
     computed: {
-        ...mapState(useSettingsStore, ["canOpenMultiplePosts"]),
-
-        ...mapState(useDataStore, ["selectedGraphId", "selectedSubgraphIds", "postsInSelectedSubgraphs", "linksInSelectedSubgraphs", "subgraphColour", "titleOrBody", "isNeighbour"]),
-
-        ...mapState(useClickerStore, ["shouldShowClickButtonMenu", "clickMode"]),
+        selectedGraphId() {
+            return useDataStore().selectedGraphId;
+        },
+        selectedSubgraphIds() {
+            return useDataStore().selectedSubgraphIds;
+        },
+        postsInSelectedSubgraphs() {
+            const dataStore = useDataStore();
+            return getPostsInSelectedSubgraphs(
+                dataStore.graphs,
+                dataStore.posts,
+                dataStore.subgraphs,
+                dataStore.selectedGraphId,
+                dataStore.selectedSubgraphIds
+            );
+        },
+        linksInSelectedSubgraphs() {
+            const dataStore = useDataStore();
+            return getLinksInSelectedSubgraphs(
+                dataStore.links,
+                dataStore.subgraphs,
+                dataStore.selectedGraphId,
+                dataStore.selectedSubgraphIds
+            );
+        },
+        neighbourIndex() {
+            return getNeighbourIndex(this.linksInSelectedSubgraphs);
+        },
+        subgraphColour() {
+            return (subgraphId: Nullable<SubgraphId>) => getSubgraphColour(useDataStore().subgraphs, subgraphId);
+        },
+        titleOrBody() {
+            return (postId: PostId) => getTitleOrBody(useDataStore().posts, postId);
+        },
+        isNeighbour() {
+            return (postAId: PostId, postBId: PostId) => isNeighbour(this.neighbourIndex, postAId, postBId);
+        },
+        shouldShowClickButtonMenu() {
+            return useClickerStore().shouldShowClickButtonMenu;
+        },
+        clickMode() {
+            return useClickerStore().clickMode;
+        },
         nodePositions() {
-            return useDataStore().graphs[this.selectedGraphId].nodePositions;
+            const selectedGraphId = this.selectedGraphId;
+            return selectedGraphId == null
+                ? {}
+                : useDataStore().graphs[selectedGraphId]?.nodePositions ?? {};
         }
     },
     watch: {
@@ -110,7 +269,11 @@ export default {
         linksInSelectedSubgraphs() {
             this.debouncedMakeGraphSvg();
         },
-        zoom({x, y, scale}) {
+        zoom({x, y, scale}: Zoom) {
+            if (this.rootG == null) {
+                return;
+            }
+
             this.rootG.attr("transform", `translate(${x} ${y}) scale(${scale})`);
 
             const unshiftedTextScaleFactor = INITIAL_ZOOM / scale;
@@ -124,8 +287,7 @@ export default {
                 Math.ceil(originalTextSize * textScaleFactor)
             );
 
-            document.querySelector(":root")
-                .style.setProperty("--node-text-size", (this.isPhone() ? (newTextSize / 2) : newTextSize) + "px");
+            document.documentElement.style.setProperty("--node-text-size", (this.isPhone() ? (newTextSize / 2) : newTextSize) + "px");
 
             const minLinkStroke = 8;
             const maxLinkStroke = 110;
@@ -136,8 +298,7 @@ export default {
                     Math.ceil(this.originalLinkStroke * textScaleFactor)
                 )
             );
-            document.querySelector(":root")
-                .style.setProperty("--link-stroke-width", this.linkStroke + "px");
+            document.documentElement.style.setProperty("--link-stroke-width", this.linkStroke + "px");
 
             if (this.nodeSelection != null) {
                 this.nodeSelection
@@ -147,20 +308,51 @@ export default {
             this.debouncedSaveZoomState();
         }
     },
+    created() {
+        this.debouncedMakeGraphSvg = debounce(
+            () => {
+                void this.makeGraphSvg();
+            },
+            500,
+            {
+                leading: true,
+                trailing: true,
+            }
+        );
+        this.debouncedSaveZoomState = debounce(
+            () => {
+                // Avoid immediately autosaving the zoom state we just loaded.
+                if (this.hasMounted) {
+                    this.setZoom(this.zoom);
+                } else {
+                    this.hasMounted = true;
+                }
+            },
+            250,
+            {
+                leading: false,
+                trailing: true,
+            }
+        );
+    },
     mounted() {
-        this.svg = d3select("#graphSvg");
-        this.rootG = d3select("#graphSvg g");
+        this.svg = d3select("#graphSvg") as unknown as D3SelectionLike;
+        this.rootG = d3select("#graphSvg g") as unknown as D3SelectionLike;
 
-        this.linksG = d3select(".graph__links")
+        this.linksG = (d3select(".graph__links") as unknown as D3SelectionLike)
             .attr("stroke", "#999")
             .attr("stroke-opacity", 0.6);
 
-        this.nodesG = d3select(".graph__nodes")
+        this.nodesG = (d3select(".graph__nodes") as unknown as D3SelectionLike)
             .attr("stroke", "#fff")
             .attr("stroke-width", 1.5);
 
         this.setupZooming();
         const dataStore = useDataStore();
+        if (this.svg == null || this.zoomBehaviour == null) {
+            return;
+        }
+
         this.svg.call(this.zoomBehaviour)
             .call(
                 this.zoomBehaviour.transform,
@@ -175,13 +367,13 @@ export default {
         });
 
         this.graphEventHandlers = {
-            focusOnPost: (postId) => {
+            focusOnPost: (postId: PostId) => {
                 this.focusOnPost(postId);
             },
-            highlightPost: (postId) => {
+            highlightPost: (postId: PostId) => {
                 this.highlightPost(postId);
             },
-            unhighlightPost: (postId) => {
+            unhighlightPost: (postId: PostId) => {
                 this.unhighlightPost(postId);
             },
             refreshGraph: () => {
@@ -215,19 +407,34 @@ export default {
         graphEventBus.off("zoomOut", this.graphEventHandlers.zoomOut);
     },
     methods: {
-        ...mapActions(useRootStore, ["setIsRenderingGraph"]),
-        ...mapActions(useDataStore, ["setZoom", "setPostPosition"]),
-        ...mapActions(useClickerStore, ["setShouldShowClickButtonMenu", "setClickMode"]),
-
-        ...mapActions(useClickerStore, ["handlePostClick", "handleLinkClick"]),
-
         isPhone() {
             const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
             return viewportWidth <= 576;
         },
-
-        onSvgClick(event) {
-            if (event.target.id !== "graphSvg") {
+        setIsRenderingGraph(isRenderingGraph: boolean) {
+            useRootStore().setIsRenderingGraph(isRenderingGraph);
+        },
+        setZoom(zoom: Zoom) {
+            useDataStore().setZoom(zoom);
+        },
+        setPostPosition(payload: {postId: PostId; position: NodePosition}) {
+            useDataStore().setPostPosition(payload);
+        },
+        setShouldShowClickButtonMenu(shouldShowClickButtonMenu: boolean) {
+            useClickerStore().setShouldShowClickButtonMenu(shouldShowClickButtonMenu);
+        },
+        setClickMode(clickMode: ClickMode) {
+            useClickerStore().setClickMode(clickMode);
+        },
+        async handlePostClick(post: unknown) {
+            await useClickerStore().handlePostClick(post);
+        },
+        async handleLinkClick(payload: ClickedLinkPayload) {
+            return useClickerStore().handleLinkClick(payload);
+        },
+        onSvgClick(event: MouseEvent) {
+            const target = event.target as HTMLElement | null;
+            if (target?.id !== "graphSvg") {
                 return;
             }
 
@@ -239,38 +446,32 @@ export default {
                 this.setClickMode("openPosts");
             }
         },
-
-        debouncedMakeGraphSvg: debounce(
-            function() {
-                this.makeGraphSvg();
-            },
-            500,
-            {
-                "leading": true,
-                "trailing": true,
-            }
-        ),
         async makeGraphSvg() {
+            if (this.linksG == null || this.nodesG == null) {
+                return;
+            }
+
             this.setIsRenderingGraph(true);
 
-            //todo: almost definitely in-efficient
-            let nodes = JSON.parse(JSON.stringify(this.postsInSelectedSubgraphs));
-            nodes = nodes.map((node) => {
+            let nodes = JSON.parse(JSON.stringify(this.postsInSelectedSubgraphs)) as GraphNode[];
+            nodes = nodes.map((node: GraphNode) => {
                 const nodePosition = this.nodePositions[node.id];
                 if (nodePosition != null) {
                     node.fx = nodePosition.x;
                     node.fy = nodePosition.y;
+                    node.x = nodePosition.x;
+                    node.y = nodePosition.y;
                 }
                 return node;
             });
-            const links = JSON.parse(JSON.stringify(this.linksInSelectedSubgraphs));
+            const links = JSON.parse(JSON.stringify(this.linksInSelectedSubgraphs)) as GraphLink[];
 
             const vm = this;
 
-            // setup force simulation
-            const simulation = d3forceSimulation(nodes)
-                .force("link", d3forceLink(links)
-                    .id(d => d.id)
+            const simulation = d3forceSimulation(nodes as never) as unknown as D3SimulationLike;
+            simulation
+                .force("link", d3forceLink(links as never)
+                    .id((node: unknown) => (node as {id: string}).id)
                     .distance(200)
                 )
                 .force("charge", d3forceManyBody()
@@ -282,18 +483,33 @@ export default {
             // add links
             this.linkSelection = this.linksG
                 .selectAll("line")
-                .data(links, link => link.id)
+                .data(links, (link: GraphLink) => link.id)
                 .join("line")
-                .classed("graph__link", true)
-                .classed("graph__link--sidenote", (link) => link.type === "sidenote")
-                .classed("graph__link--link", (link) => link.type === "link")
-                .attr("stroke", (link) => this.subgraphColour(link.subgraphId))
+                .classed("graph__link", true as unknown)
+                .classed("graph__link--sidenote", (link: GraphLink) => link.type === "sidenote")
+                .classed("graph__link--link", (link: GraphLink) => link.type === "link")
+                .attr("stroke", (link: GraphLink) => this.subgraphColour(link.subgraphId))
                 .attr("marker-end", "url(#arrowhead)")
-                .on("click", async function (link) {
+                .on("click", async function(this: SVGLineElement, linkValue: unknown) {
+                    const link = linkValue as GraphLink;
+                    const sourcePosition = getEndpointPosition(link.source);
+                    const targetPosition = getEndpointPosition(link.target);
                     const returnedValue = await vm.handleLinkClick(
                         {
-                            link,
-                            coordinates: d3mouse(this)
+                            link: {
+                                id: link.id,
+                                source: {
+                                    id: getEndpointId(link.source),
+                                    x: sourcePosition.x,
+                                    y: sourcePosition.y,
+                                },
+                                target: {
+                                    id: getEndpointId(link.target),
+                                    x: targetPosition.x,
+                                    y: targetPosition.y,
+                                }
+                            },
+                            coordinates: d3mouse(this as unknown as SVGSVGElement) as [number, number]
                         }
                     );
                     if (returnedValue != null) {
@@ -305,7 +521,7 @@ export default {
 
             let nodeGroups = this.nodesG
                 .selectAll("g")
-                .data(nodes, post => post.id);
+                .data(nodes, (post: GraphNode) => post.id);
 
             // remove nodes for old posts
             nodeGroups.exit().remove();
@@ -313,7 +529,7 @@ export default {
             // add nodes for new posts
             const newNodeGroups = nodeGroups.enter();
             const newNodeGroup = newNodeGroups.append("g")
-                .classed("node", true);
+                .classed("node", true as unknown);
             newNodeGroup.append("circle");
             newNodeGroup.append("text");
             
@@ -321,46 +537,52 @@ export default {
             nodeGroups = nodeGroups.merge(newNodeGroups);
             nodeGroups
                 .selectAll("g")
-                .attr("dataset-id", post => post.id);
+                .attr("dataset-id", (post: GraphNode) => post.id);
 
-            // if the nodes aren't being made, that might be because the .node circles don't exist in the DOM when this function is called
-            this.nodeSelection = d3selectAll(".node").select("circle")
-                .classed("node__circle", true)
+            this.nodeSelection = (d3selectAll(".node").select("circle") as unknown as D3SelectionLike)
+                .classed("node__circle", true as unknown)
                 .attr("r", this.linkStroke)
-                .attr("title", post => post.title);
-                
-            this.textSelection = d3selectAll(".node").select("text")
-                .classed("node__text", true)
+                .attr("title", (post: GraphNode) => post.title);
+
+            this.textSelection = (d3selectAll(".node").select("text") as unknown as D3SelectionLike)
+                .classed("node__text", true as unknown)
                 .attr("text-anchor", "end")
-                .attr("id", post => `text-${post.id}`)
-                .text(post => this.titleOrBody(post.id))
-                .on("mouseover", (post) => {
+                .attr("id", (post: GraphNode) => `text-${post.id}`)
+                .text((post: GraphNode) => this.titleOrBody(post.id))
+                .on("mouseover", (postValue: unknown) => {
+                    const post = postValue as GraphNode;
                     this.highlightPost(post.id);
                 })
-                .on("mouseout", (post) => {
+                .on("mouseout", (postValue: unknown) => {
+                    const post = postValue as GraphNode;
                     this.unhighlightPost(post.id);
                 });
-                
-            d3selectAll(".node *")
-                .on("click", this.handlePostClick)
-                .call(d3drag().clickDistance(4)) // if the mouse moves less than 4 units while clicking, it's counted as a click
+
+            (d3selectAll(".node *") as unknown as D3SelectionLike)
+                .on("click", (post: unknown) => {
+                    void this.handlePostClick(post);
+                })
+                .call((d3drag() as unknown as D3DragBehaviourLike).clickDistance(4))
                 .call(this.createDragBehaviour(simulation));
 
-            // set x and y co-ordinates of the links, and nodes
             simulation.on("tick", () => {
+                if (this.linkSelection == null || this.nodeSelection == null || this.textSelection == null) {
+                    return;
+                }
+
                 this.linkSelection
-                    .attr("x1", d => d.source.x)
-                    .attr("y1", d => d.source.y)
-                    .attr("x2", d => d.target.x)
-                    .attr("y2", d => d.target.y);
+                    .attr("x1", (link: GraphLink) => getEndpointPosition(link.source).x)
+                    .attr("y1", (link: GraphLink) => getEndpointPosition(link.source).y)
+                    .attr("x2", (link: GraphLink) => getEndpointPosition(link.target).x)
+                    .attr("y2", (link: GraphLink) => getEndpointPosition(link.target).y);
 
                 this.nodeSelection
-                    .attr("cx", d => d.x)
-                    .attr("cy", d => d.y);
+                    .attr("cx", (node: GraphNode) => node.x ?? 0)
+                    .attr("cy", (node: GraphNode) => node.y ?? 0);
 
                 this.textSelection
-                    .attr("x", d => d.x - 6)
-                    .attr("y", d => d.y - 4);
+                    .attr("x", (node: GraphNode) => (node.x ?? 0) - 6)
+                    .attr("y", (node: GraphNode) => (node.y ?? 0) - 4);
             });
 
             if (this.shouldResetZooming) {
@@ -370,7 +592,7 @@ export default {
                 });
             }
 
-            let postsKeyedById = {};
+            const postsKeyedById: Record<PostId, GraphNode> = {};
             for (const post of nodes) {
                 postsKeyedById[post.id] = post;
             }
@@ -388,20 +610,28 @@ export default {
 
                 d3zoomIdentity.translate(x, y).scale(k) makes a new transform
              */
-            this.zoomBehaviour = d3zoom()
-                .scaleExtent([0.025, 2]) // limits zooming so you can only zoom between 0.2x and 2x
+            this.zoomBehaviour = (d3zoom() as unknown as D3ZoomBehaviourLike)
+                .scaleExtent([0.025, 2])
                 .on("zoom", () => {
                     const x = d3event.transform.x;
                     const y = d3event.transform.y;
                     const scale = d3event.transform.k;
                     this.zoom = {x, y, scale};
                 });
+            if (this.svg == null) {
+                return;
+            }
+
             this.svg.call(this.zoomBehaviour)
                 .on("wheel", () => {
                     d3event.preventDefault();
                 });
         },
         resetZoomToCenter() {
+            if (this.svg == null || this.zoomBehaviour == null) {
+                return;
+            }
+
             this.svg.call(this.zoomBehaviour)
                 .call(
                     this.zoomBehaviour.transform,
@@ -410,22 +640,11 @@ export default {
                         .scale(INITIAL_ZOOM)
                 ); // sets initial x/y and zoom amount
         },
-        debouncedSaveZoomState: debounce(
-            function() {
-                // we have to do it like this because this.zoom is set in mounted(), and that triggers this watcher, which sets the zoom in the store, which will autosave - you don't want to immediately autosave data you've just loaded. The zoom in the store is only used to backup the state, so it doesn't matter if it's not set there immediately
-                if (this.hasMounted) {
-                    this.setZoom(this.zoom);
-                } else {
-                    this.hasMounted = true;
-                }
-            },
-            250,
-            {
-                "leading": false,
-                "trailing": true, // we always need to call it the final time, so that D3 picks up any new nodes or links,
+        focusOnPost(id: PostId, speed = 1) {
+            if (this.svg == null || this.zoomBehaviour == null) {
+                return;
             }
-        ),
-        focusOnPost(id, speed = 1) {
+
             const xOffset = this.isPhone()
                 ? 550
                 : 2000;
@@ -434,6 +653,10 @@ export default {
                 : 500;
 
             const post = this.nodesWithCoordinates[id];
+            if (post?.x == null || post?.y == null) {
+                return;
+            }
+
             this.svg.transition()
                 .duration(1500 / speed)
                 .call(
@@ -444,24 +667,29 @@ export default {
                 );
         },
         zoomIn() {
+            if (this.svg == null || this.zoomBehaviour == null) {
+                return;
+            }
             this.svg.transition()
                 .call(this.zoomBehaviour.scaleBy, 2);
         },
         zoomOut() {
+            if (this.svg == null || this.zoomBehaviour == null) {
+                return;
+            }
             this.svg.transition()
                 .call(this.zoomBehaviour.scaleBy, 0.5);
         },
 
-        createDragBehaviour(simulation) {
+        createDragBehaviour(simulation: D3SimulationLike) {
             const vm = this;
-            function dragStarted(node) {
+            function dragStarted(node: GraphNode) {
                 if (!d3event.active) {
                     simulation.alphaTarget(0.3).restart();
                 }
 
-                // Preventing other nodes from moving while dragging one node
-                function fixNodes(thisNode) {
-                    vm.nodeSelection.each(function (d) {
+                function fixNodes(thisNode: GraphNode) {
+                    vm.nodeSelection?.each(function (d: GraphNode) {
                         if (thisNode !== d) {
                             d.fx = d.x;
                             d.fy = d.y;
@@ -473,12 +701,12 @@ export default {
                 fixNodes(node);
             }
 
-            function dragged(node) {
+            function dragged(node: GraphNode) {
                 node.fx = d3event.x;
                 node.fy = d3event.y;
             }
 
-            function dragEnded(node) {
+            function dragEnded(node: GraphNode) {
                 if (!d3event.active) {
                     simulation.alpha(0);
                     simulation.alphaTarget(0);
@@ -494,53 +722,64 @@ export default {
                 });
             }
 
-            return d3drag()
+            return (d3drag() as unknown as D3DragBehaviourLike)
                 .on("start", dragStarted)
                 .on("drag", dragged)
                 .on("end", dragEnded);
         },
 
-        highlightPost(postId) {
+        highlightPost(postId: PostId) {
             const textElement = document.getElementById(`text-${postId}`);
+            if (textElement == null || this.nodeSelection == null || this.textSelection == null || this.linkSelection == null) {
+                return;
+            }
+
             d3select(textElement)
                 .style("filter", "url(#postHoverFilter)");
 
-            // SVG doesn't have a z-index, the z-direction is by element order, this re-inserts the parent <node> in the DOM at the bottom of its parent so this text is on top of any others
-            d3select(d3select(textElement).node().parentNode).raise();
+            const parentNode = d3select(textElement).node()?.parentNode;
+            if (parentNode != null) {
+                d3select(parentNode as Element).raise();
+            }
 
-            const nonNeighbourNodes = this.nodeSelection.filter(otherPost => {
-                if (postId === otherPost.id) {
+            const nonNeighbourNodes = this.nodeSelection.filter((otherPost: unknown) => {
+                const post = otherPost as GraphNode;
+                if (postId === post.id) {
                     return false;
                 }
-                return !this.isNeighbour(postId, otherPost.id);
+                return !this.isNeighbour(postId, post.id);
             });
             nonNeighbourNodes.style("opacity", 0.2);
 
-            const nonNeighbourTexts = this.textSelection.filter(otherPost => {
-                if (postId === otherPost.id) {
+            const nonNeighbourTexts = this.textSelection.filter((otherPost: unknown) => {
+                const post = otherPost as GraphNode;
+                if (postId === post.id) {
                     return false;
                 }
-                return !this.isNeighbour(postId, otherPost.id);
+                return !this.isNeighbour(postId, post.id);
             });
             nonNeighbourTexts.style("opacity", 0.2);
 
-            const nonNeighbourLinks = this.linkSelection.filter(link => {
-                const linkDoesntIncludeThisPost = postId !== link.source.id
-                    && postId !== link.target.id;
+            const nonNeighbourLinks = this.linkSelection.filter((linkValue: unknown) => {
+                const link = linkValue as GraphLink;
+                const linkDoesntIncludeThisPost = postId !== getEndpointId(link.source)
+                    && postId !== getEndpointId(link.target);
                 return linkDoesntIncludeThisPost;
             });
             nonNeighbourLinks.style("opacity", 0.2);
         },
-        unhighlightPost(postId) {
+        unhighlightPost(postId: PostId) {
             const textElement = document.getElementById(`text-${postId}`);
-            d3select(textElement)
-                .style("filter", "");
-            this.nodeSelection.style("opacity", 1);
-            this.textSelection.style("opacity", 1);
-            this.linkSelection.style("opacity", 1);
+            if (textElement != null) {
+                d3select(textElement)
+                    .style("filter", "");
+            }
+            this.nodeSelection?.style("opacity", 1);
+            this.textSelection?.style("opacity", 1);
+            this.linkSelection?.style("opacity", 1);
         }
     }
-};
+});
 </script>
 
 <style>

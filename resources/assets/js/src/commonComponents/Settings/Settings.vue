@@ -94,7 +94,7 @@
                     ><label><textarea
                         v-model="firebaseConfigInComponent"
                         class="p-2 w-full h-48 rounded border text-gray-800 placeholder-gray-600"
-                        required="required"
+                        required
                     /></label></pre>
 
                     <p
@@ -228,16 +228,47 @@
     </section>
 </template>
 
-<script>
-import {mapActions} from "pinia";
+<script lang="ts">
+import {defineComponent} from "vue";
+import type {
+    FirebaseConfig,
+    RemoteStorageMethod,
+    ShouldTakeDataFrom
+} from "@/src/@types/StoreTypes";
 import {useFirebaseStore, useSettingsStore} from "@/src/offline/store";
 
-export default {
+function parseFirebaseConfig(configString: string): Nullable<FirebaseConfig> {
+    try {
+        const parsedConfig = JSON.parse(configString) as Partial<FirebaseConfig>;
+        if (
+            typeof parsedConfig !== "object"
+            || parsedConfig === null
+            || typeof parsedConfig.apiKey !== "string"
+            || parsedConfig.apiKey.trim() === ""
+        ) {
+            return null;
+        }
+
+        return {
+            apiKey: parsedConfig.apiKey,
+            authDomain: String(parsedConfig.authDomain ?? ""),
+            databaseURL: String(parsedConfig.databaseURL ?? ""),
+            projectId: String(parsedConfig.projectId ?? ""),
+            storageBucket: String(parsedConfig.storageBucket ?? ""),
+            messagingSenderId: String(parsedConfig.messagingSenderId ?? ""),
+            appId: String(parsedConfig.appId ?? ""),
+        };
+    } catch {
+        return null;
+    }
+}
+
+export default defineComponent({
     name: "Settings",
     data() {
         return {
-            remoteStorageMethodInComponent: "none", // "none" | "firebase"
-            shouldTakeDataFrom: null, // "local" | "firebase",
+            remoteStorageMethodInComponent: "none" as RemoteStorageMethod,
+            shouldTakeDataFrom: null as Nullable<ShouldTakeDataFrom>,
             firebaseConfigInComponent: "",
         };
     },
@@ -246,8 +277,8 @@ export default {
             get() {
                 return useSettingsStore().shouldAutosave;
             },
-            set(shouldAutosave) {
-                this.setShouldAutosave(shouldAutosave);
+            set(shouldAutosave: boolean) {
+                useSettingsStore().setShouldAutosave(shouldAutosave);
             }
         },
         remoteStorageMethod() {
@@ -257,12 +288,13 @@ export default {
             get() {
                 return JSON.stringify(useFirebaseStore().firebaseConfig);
             },
-            set(firebaseConfig) {
-                try {
-                    this.setFirebaseConfig(JSON.parse(firebaseConfig));
-                } catch (error) {
+            set(firebaseConfig: string) {
+                const parsedConfig = parseFirebaseConfig(firebaseConfig);
+                if (parsedConfig == null) {
                     alert("Firebase config isn't formatted correctly, it should be like this: {\"apiKey\":\"xx\",\"authDomain\":\"x.firebaseapp.com\",\"databaseURL\":\"https://x.firebaseio.com\",\"projectId\":\"spiderweb-e49bd\",\"storageBucket\":\"x.appspot.com\",\"messagingSenderId\":\"123\",\"appId\":\"xyz\"}");
+                    return;
                 }
+                void useFirebaseStore().setFirebaseConfig(parsedConfig);
             }
         },
 
@@ -270,8 +302,8 @@ export default {
             get() {
                 return useSettingsStore().canOpenMultiplePosts;
             },
-            set(canOpenMultiplePosts) {
-                this.setCanOpenMultiplePosts(canOpenMultiplePosts);
+            set(canOpenMultiplePosts: boolean) {
+                useSettingsStore().setCanOpenMultiplePosts(canOpenMultiplePosts);
             }
         },
 
@@ -279,36 +311,29 @@ export default {
             get() {
                 return useSettingsStore().graphHeight;
             },
-            set(graphHeight) {
-                this.setGraphHeight(graphHeight);
+            set(graphHeight: number) {
+                useSettingsStore().setGraphHeight(graphHeight);
             }
         },
         postBarHeight: {
             get() {
                 return useSettingsStore().postBarHeight;
             },
-            set(postBarHeight) {
-                this.setPostBarHeight(postBarHeight);
+            set(postBarHeight: number) {
+                useSettingsStore().setPostBarHeight(postBarHeight);
             }
         },
         postWidth: {
             get() {
                 return useSettingsStore().postWidth;
             },
-            set(postWidth) {
-                this.setPostWidth(Math.min(94, postWidth)); // 94% allows for margin & padding
+            set(postWidth: number) {
+                useSettingsStore().setPostWidth(Math.min(94, postWidth));
             }
         },
 
         firebaseConfigIsValid() {
-            try {
-                const firebaseConfig = JSON.parse(this.firebaseConfigInComponent);
-                return typeof firebaseConfig === "object"
-                    && typeof firebaseConfig.apiKey === "string"
-                    && firebaseConfig.apiKey.trim() !== "";
-            } catch (e) {
-                return false;
-            }
+            return parseFirebaseConfig(this.firebaseConfigInComponent) != null;
         },
         canChangeStorageMethod() {
             if (this.remoteStorageMethodInComponent !== "firebase") {
@@ -326,31 +351,17 @@ export default {
         this.firebaseConfigInComponent = this.firebaseConfig;
     },
     methods: {
-        ...mapActions(useSettingsStore, [
-            "setShouldAutosave",
-            "setCanOpenMultiplePosts",
-            "setGraphHeight",
-            "setPostBarHeight",
-            "setPostWidth"
-        ]),
-        ...mapActions(useSettingsStore, [
-            "setRemoteStorageMethod",
-        ]),
-        ...mapActions(useFirebaseStore, [
-            "setFirebaseConfig"
-        ]),
-
         async changeStorageMethod() {
             if (this.firebaseConfig !== this.firebaseConfigInComponent) {
                 this.firebaseConfig = this.firebaseConfigInComponent;
             }
-            await this.setRemoteStorageMethod({
+            await useSettingsStore().setRemoteStorageMethod({
                 remoteStorageMethod: this.remoteStorageMethodInComponent,
                 shouldTakeDataFrom: this.shouldTakeDataFrom
             });
         }
     }
-};
+});
 </script>
 
 <style scoped>
