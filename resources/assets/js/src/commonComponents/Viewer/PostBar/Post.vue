@@ -152,7 +152,7 @@
 </template>
 
 <script>
-import {mapState, mapMutations, mapGetters} from "vuex";
+import {mapActions, mapState} from "pinia";
 import marked from "@/src/helpers/markedCustomised";
 
 import PostEditor from "@/src/commonComponents/Posts/PostEditor";
@@ -160,6 +160,7 @@ import LinkedPosts from "./LinkedPosts";
 import LinkedSubgraphs from "./LinkedSubgraphs";
 import AddLinkedPost from "./AddLinkedPost";
 import graphEventBus from "@/src/helpers/graphEventBus";
+import {useDataStore, useSettingsStore} from "@/src/offline/store";
 
 export default {
     name: "Post",
@@ -182,10 +183,8 @@ export default {
         };
     },
     computed: {
-        ...mapState("settingsModule", ["postWidth"]),
-        ...mapState("dataModule", ["selectedPostIds"]),
-
-        ...mapGetters("dataModule", ["postIdsInSelectedSubgraphs", "postIdsThatLinkToPost", "linkedSubgraphs"]),
+        ...mapState(useSettingsStore, ["postWidth"]),
+        ...mapState(useDataStore, ["selectedPostIds", "postIdsInSelectedSubgraphs", "postIdsThatLinkToPost", "linkedSubgraphs"]),
 
         linkedPosts() {
             return this.postIdsThatLinkToPost(this.post.id);
@@ -212,7 +211,7 @@ export default {
     },
     methods: {
         marked,
-        ...mapMutations("dataModule", ["unselectPostId", "movePostLeft", "movePostRight"]),
+        ...mapActions(useDataStore, ["unselectPostId", "movePostLeft", "movePostRight"]),
 
         emitFocusOnPost(postId) {
             graphEventBus.emit("focusOnPost", postId);

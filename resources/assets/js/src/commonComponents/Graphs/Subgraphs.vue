@@ -41,8 +41,9 @@
 </template>
 
 <script>
-import {mapGetters, mapMutations, mapState} from "vuex";
+import {mapActions, mapState} from "pinia";
 import SubgraphEditor from "./SubgraphEditor";
+import {useDataStore} from "@/src/offline/store";
 
 export default {
     name: "Subgraphs",
@@ -59,8 +60,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["graphs", "subgraphs"]),
-        ...mapGetters("dataModule", ["subgraphsInGraph", "postIds", "titleOrBody"]),
+        ...mapState(useDataStore, ["graphs", "subgraphs", "postIds", "titleOrBody"]),
 
         subgraphsInGraph() {
             return this.graphs[this.graphId].subgraphs
@@ -68,7 +68,7 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("dataModule", ["makeNewSubgraph"]),
+        ...mapActions(useDataStore, ["makeNewSubgraph"]),
 
         makeNewSubgraphLocal() {
             this.makeNewSubgraph({

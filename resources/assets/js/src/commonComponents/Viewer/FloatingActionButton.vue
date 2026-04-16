@@ -112,13 +112,14 @@
     </div>
 </template>
 <script>
-import {mapState, mapGetters, mapMutations} from "vuex";
+import {mapActions, mapState} from "pinia";
 
 import LinkEditor from "@/src/commonComponents/Links/LinkEditor";
 import LinkAdder from "@/src/commonComponents/Links/LinkAdder";
 import PostMaker from "@/src/commonComponents/Posts/PostMaker";
 import PostsAttacher from "@/src/commonComponents/Posts/PostsAttacher";
 import PostSearch from "@/src/commonComponents/Posts/PostSearch";
+import {useClickerStore, useDataStore, useSettingsStore} from "@/src/offline/store";
 
 export default {
     name: "FloatingActionButton",
@@ -130,16 +131,15 @@ export default {
         PostSearch
     },
     computed: {
-        ...mapState("settingsModule", ["graphHeight", "canOpenMultiplePosts"]),
+        ...mapState(useSettingsStore, ["graphHeight", "canOpenMultiplePosts"]),
 
-        ...mapState("dataModule", ["graphs", "selectedSubgraphIds", "links", "zoom"]),
-        ...mapGetters("dataModule", ["titleOrBody"]),
+        ...mapState(useDataStore, ["graphs", "selectedSubgraphIds", "links", "zoom", "titleOrBody"]),
 
-        ...mapState("clickerModule", ["newLinkSource", "linkToEdit"]),
+        ...mapState(useClickerStore, ["newLinkSource", "linkToEdit"]),
 
         shouldShowClickButtonMenu: {
             get() {
-                return this.$store.state.clickerModule.shouldShowClickButtonMenu;
+                return useClickerStore().shouldShowClickButtonMenu;
             },
             set(shouldShowClickButtonMenu) {
                 this.setShouldShowClickButtonMenu(shouldShowClickButtonMenu);
@@ -147,7 +147,7 @@ export default {
         },
         clickMode: {
             get() {
-                return this.$store.state.clickerModule.clickMode;
+                return useClickerStore().clickMode;
             },
             set(clickMode) {
                 this.setClickMode(clickMode);
@@ -172,12 +172,12 @@ export default {
         }
     },
     methods: {
-        ...mapMutations("dataModule", [
+        ...mapActions(useDataStore, [
             "selectPostId",
             "setPostPosition"
         ]),
 
-        ...mapMutations("clickerModule", [
+        ...mapActions(useClickerStore, [
             "setShouldShowClickButtonMenu",
             "setClickMode",
             "setLinkToEdit"

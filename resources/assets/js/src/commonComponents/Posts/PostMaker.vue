@@ -85,7 +85,8 @@
 </template>
 
 <script>
-import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
+import {mapActions, mapState} from "pinia";
+import {useDataStore} from "@/src/offline/store";
 
 export default {
     name: "PostMaker",
@@ -107,15 +108,13 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["selectedGraphId", "selectedSubgraphIds"]),
-        ...mapGetters("dataModule", ["subgraphsInSelectedGraph"]),
+        ...mapState(useDataStore, ["selectedGraphId", "selectedSubgraphIds", "subgraphsInSelectedGraph"]),
     },
     created() {
         this.subgraphIdsToAttachPostTo = this.selectedSubgraphIds;
     },
     methods: {
-        ...mapMutations("dataModule", ["addPostToGraph", "addPostToSubgraph"]),
-        ...mapActions("dataModule", ["makeNewPost"]),
+        ...mapActions(useDataStore, ["addPostToGraph", "addPostToSubgraph", "makeNewPost"]),
 
         toggleTitleInput() {
             const dontLetUserHideTitleInput = this.showTitleInput

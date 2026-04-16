@@ -39,8 +39,9 @@
 </template>
 
 <script>
-import {mapGetters, mapMutations, mapState} from "vuex";
+import {mapActions, mapState} from "pinia";
 import Subgraphs from "./Subgraphs";
+import {useDataStore} from "@/src/offline/store";
 
 export default {
     name: "GraphEditor",
@@ -60,15 +61,14 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["graphs"]),
-        ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
+        ...mapState(useDataStore, ["graphs", "postIds", "titleOrBody"]),
 
         graph() {
             return this.graphs[this.graphId];
         },
     },
     methods: {
-        ...mapMutations("dataModule", ["changeGraphName", "removeGraph"]),
+        ...mapActions(useDataStore, ["changeGraphName", "removeGraph"]),
         changeGraphNameLocal() {
             if (this.newGraphName.trim().length === 0) {
                 return;

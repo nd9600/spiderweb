@@ -95,7 +95,8 @@
 </template>
 
 <script>
-import {mapState, mapGetters, mapMutations} from "vuex";
+import {mapActions, mapState} from "pinia";
+import {useDataStore, useSettingsStore} from "@/src/offline/store";
 
 export default {
     name: "LinkedPosts",
@@ -106,16 +107,15 @@ export default {
         }
     },
     computed: {
-        ...mapState("settingsModule", ["canOpenMultiplePosts"]),
-        ...mapState("dataModule", ["posts"]),
-        ...mapGetters("dataModule", ["titleOrBody", "postIdsThatLinkToPost"]),
+        ...mapState(useSettingsStore, ["canOpenMultiplePosts"]),
+        ...mapState(useDataStore, ["posts", "titleOrBody", "postIdsThatLinkToPost"]),
 
         linkedPosts() {
             return this.postIdsThatLinkToPost(this.post.id);
         }
     },
     methods: {
-        ...mapMutations("dataModule", ["togglePostId", "removeLink"]),
+        ...mapActions(useDataStore, ["togglePostId", "removeLink"]),
         togglePostIdLocal(postId) {
             this.togglePostId({
                 id: postId,

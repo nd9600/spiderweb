@@ -23,10 +23,11 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import {mapState} from "pinia";
 
 import Post from "./Post";
 import PostBarScrollButtons from "./PostBarScrollButtons";
+import {useDataStore} from "@/src/offline/store";
 
 export default {
     name: "PostBar",
@@ -35,7 +36,7 @@ export default {
         PostBarScrollButtons
     },
     computed: {
-        ...mapState("dataModule", ["posts", "selectedPostIds"]),
+        ...mapState(useDataStore, ["posts", "selectedPostIds"]),
     },
 };
 </script>

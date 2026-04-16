@@ -229,7 +229,8 @@
 </template>
 
 <script>
-import {mapMutations, mapActions} from "vuex";
+import {mapActions} from "pinia";
+import {useFirebaseStore, useSettingsStore} from "@/src/offline/store";
 
 export default {
     name: "Settings",
@@ -243,18 +244,18 @@ export default {
     computed: {
         shouldAutosave: {
             get() {
-                return this.$store.state.settingsModule.shouldAutosave;
+                return useSettingsStore().shouldAutosave;
             },
             set(shouldAutosave) {
                 this.setShouldAutosave(shouldAutosave);
             }
         },
         remoteStorageMethod() {
-            return this.$store.state.settingsModule.remoteStorageMethod;
+            return useSettingsStore().remoteStorageMethod;
         },
         firebaseConfig: {
             get() {
-                return JSON.stringify(this.$store.state.firebaseModule.firebaseConfig);
+                return JSON.stringify(useFirebaseStore().firebaseConfig);
             },
             set(firebaseConfig) {
                 try {
@@ -267,7 +268,7 @@ export default {
 
         canOpenMultiplePosts: {
             get() {
-                return this.$store.state.settingsModule.canOpenMultiplePosts;
+                return useSettingsStore().canOpenMultiplePosts;
             },
             set(canOpenMultiplePosts) {
                 this.setCanOpenMultiplePosts(canOpenMultiplePosts);
@@ -276,7 +277,7 @@ export default {
 
         graphHeight: {
             get() {
-                return this.$store.state.settingsModule.graphHeight;
+                return useSettingsStore().graphHeight;
             },
             set(graphHeight) {
                 this.setGraphHeight(graphHeight);
@@ -284,7 +285,7 @@ export default {
         },
         postBarHeight: {
             get() {
-                return this.$store.state.settingsModule.postBarHeight;
+                return useSettingsStore().postBarHeight;
             },
             set(postBarHeight) {
                 this.setPostBarHeight(postBarHeight);
@@ -292,7 +293,7 @@ export default {
         },
         postWidth: {
             get() {
-                return this.$store.state.settingsModule.postWidth;
+                return useSettingsStore().postWidth;
             },
             set(postWidth) {
                 this.setPostWidth(Math.min(94, postWidth)); // 94% allows for margin & padding
@@ -325,17 +326,17 @@ export default {
         this.firebaseConfigInComponent = this.firebaseConfig;
     },
     methods: {
-        ...mapMutations("settingsModule", [
+        ...mapActions(useSettingsStore, [
             "setShouldAutosave",
             "setCanOpenMultiplePosts",
             "setGraphHeight",
             "setPostBarHeight",
             "setPostWidth"
         ]),
-        ...mapActions("settingsModule", [
+        ...mapActions(useSettingsStore, [
             "setRemoteStorageMethod",
         ]),
-        ...mapActions("firebaseModule", [
+        ...mapActions(useFirebaseStore, [
             "setFirebaseConfig"
         ]),
 

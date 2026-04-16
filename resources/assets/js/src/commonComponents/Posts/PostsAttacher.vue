@@ -39,10 +39,11 @@
 </template>
 
 <script>
-import {mapGetters, mapState} from "vuex";
+import {mapState} from "pinia";
 
 import PostAttacher from "./PostAttacher";
 import PostSearch from "@/src/commonComponents/Posts/PostSearch";
+import {useDataStore} from "@/src/offline/store";
 
 export default {
     name: "PostsAttacher",
@@ -56,8 +57,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["posts", "links"]),
-        ...mapGetters("dataModule", ["unattachedPosts"])
+        ...mapState(useDataStore, ["posts", "links", "unattachedPosts"])
     },
     methods: {
         onPostClick(post) {

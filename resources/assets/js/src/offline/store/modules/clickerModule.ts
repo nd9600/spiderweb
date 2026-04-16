@@ -1,4 +1,4 @@
-import type {ActionContext, ActionTree, GetterTree, Module, MutationTree} from "vuex";
+import {defineStore} from "pinia";
 
 import {
     ClickerModuleState,
@@ -6,9 +6,10 @@ import {
     LinkId,
     LinkType,
     PostId,
-    RootStoreState,
     SubgraphId
 } from "@/src/@types/StoreTypes";
+import {useDataStore} from "./dataModule";
+import {useSettingsStore} from "./settingsModule";
 
 interface ClickedPost {
     id: PostId;
@@ -31,7 +32,22 @@ interface LinkClickPayload {
     coordinates: [number, number];
 }
 
-type ClickerActionContext = ActionContext<ClickerModuleState, RootStoreState>;
+interface ClickerStoreApi extends ClickerModuleState {
+    setNewLinkSource(newLinkSource: Nullable<PostId>): void;
+    setNewLinkTarget(newLinkTarget: Nullable<PostId>): void;
+    setNewLinkSubgraphIds(newLinkSubgraphIds: SubgraphId[]): void;
+    setClickMode(clickMode: ClickMode): void;
+    setLinkToEdit(linkToEdit: Nullable<LinkId>): void;
+    setWantsToChangeSource(wantsToChangeSource: boolean): void;
+    setWantsToChangeTarget(wantsToChangeTarget: boolean): void;
+}
+
+function isClickedPost(post: unknown): post is ClickedPost {
+    return typeof post === "object"
+        && post !== null
+        && "id" in post
+        && typeof post.id === "string";
+}
 
 const state: ClickerModuleState = {
     shouldShowClickButtonMenu: false,
@@ -45,11 +61,8 @@ const state: ClickerModuleState = {
     wantsToChangeTarget: false,
 };
 
-const getters: GetterTree<ClickerModuleState, RootStoreState> = {
-};
-
-const mutations: MutationTree<ClickerModuleState> = {
-    setShouldShowClickButtonMenu(state, shouldShowClickButtonMenu: boolean) {
+const mutations = {
+    setShouldShowClickButtonMenu(state: ClickerModuleState, shouldShowClickButtonMenu: boolean) {
         state.shouldShowClickButtonMenu = shouldShowClickButtonMenu;
         if (!shouldShowClickButtonMenu) {
             state.newLinkSource = null;
@@ -63,131 +76,115 @@ const mutations: MutationTree<ClickerModuleState> = {
         }
     },
 
-    setClickMode(state, clickMode: ClickMode) {
+    setClickMode(state: ClickerModuleState, clickMode: ClickMode) {
         state.clickMode = clickMode;
     },
-    setNewLinkSource(state, newLinkSource: Nullable<PostId>) {
+    setNewLinkSource(state: ClickerModuleState, newLinkSource: Nullable<PostId>) {
         state.newLinkSource = newLinkSource;
     },
-    setNewLinkTarget(state, newLinkTarget: Nullable<PostId>) {
+    setNewLinkTarget(state: ClickerModuleState, newLinkTarget: Nullable<PostId>) {
         state.newLinkTarget = newLinkTarget;
     },
-    setNewLinkType(state, newLinkType: LinkType) {
+    setNewLinkType(state: ClickerModuleState, newLinkType: LinkType) {
         state.newLinkType = newLinkType;
     },
-    setNewLinkSubgraphIds(state, newLinkSubgraphIds: SubgraphId[]) {
+    setNewLinkSubgraphIds(state: ClickerModuleState, newLinkSubgraphIds: SubgraphId[]) {
         state.newLinkSubgraphIds = newLinkSubgraphIds;
     },
 
-    setLinkToEdit(state, linkToEdit: Nullable<LinkId>) {
+    setLinkToEdit(state: ClickerModuleState, linkToEdit: Nullable<LinkId>) {
         state.linkToEdit = linkToEdit;
     },
-    setWantsToChangeSource(state, wantsToChangeSource: boolean) {
+    setWantsToChangeSource(state: ClickerModuleState, wantsToChangeSource: boolean) {
         state.wantsToChangeSource = wantsToChangeSource;
     },
-    setWantsToChangeTarget(state, wantsToChangeTarget: boolean) {
+    setWantsToChangeTarget(state: ClickerModuleState, wantsToChangeTarget: boolean) {
         state.wantsToChangeTarget = wantsToChangeTarget;
     },
 };
 
-const actions: ActionTree<ClickerModuleState, RootStoreState> = {
-    async handlePostClick(context: ClickerActionContext, post: ClickedPost | unknown) {
-        if (typeof post !== "object" || post === null || !("id" in post)) {
+const actions = {
+    async handlePostClick(store: ClickerStoreApi, post: unknown) {
+        if (!isClickedPost(post)) {
             console.error("no post clicked, clicked", post);
             return;
         }
 
-        switch (context.state.clickMode) {
+        const dataStore = useDataStore();
+        const settingsStore = useSettingsStore();
+
+        switch (store.clickMode) {
             case "openPosts":
             default: {
-                context.commit(
-                    "dataModule/selectPostId",
-                    {
-                        id: post.id,
-                        canOpenMultiplePosts: context.rootState.settingsModule.canOpenMultiplePosts
-                    },
-                    {
-                        root: true
-                    }
-                );
+                dataStore.selectPostId({
+                    id: post.id,
+                    canOpenMultiplePosts: settingsStore.canOpenMultiplePosts
+                });
                 break;
             }
 
             case "addLink": {
-                // first we set the source, then we set the target & add the link
-                if (context.state.newLinkSource === null) {
-                    context.commit("setNewLinkSource", post.id);
+                if (store.newLinkSource === null) {
+                    store.setNewLinkSource(post.id);
                     break;
                 } else {
-                    if (context.state.newLinkSource === post.id) {
+                    const newLinkSource = store.newLinkSource;
+                    if (newLinkSource == null || newLinkSource === post.id) {
                         return;
                     }
 
-                    context.commit("setNewLinkTarget", post.id);
+                    store.setNewLinkTarget(post.id);
 
-                    context.commit(
-                        "dataModule/addLink",
-                        {
-                            source: context.state.newLinkSource,
-                            target: post.id,
-                            graph: context.rootState.dataModule.selectedGraphId,
-                            type: context.state.newLinkType,
-                            subgraphIds: context.state.newLinkSubgraphIds
-                        },
-                        {
-                            root: true
-                        }
-                    );
+                    dataStore.addLink({
+                        source: newLinkSource,
+                        target: post.id,
+                        graph: dataStore.selectedGraphId!,
+                        type: store.newLinkType,
+                        subgraphIds: store.newLinkSubgraphIds
+                    });
 
-                    context.commit("setClickMode", "openPosts");
-                    context.commit("setNewLinkSource", null);
-                    context.commit("setNewLinkTarget", null);
-                    context.commit("setNewLinkSubgraphIds", []);
+                    store.setClickMode("openPosts");
+                    store.setNewLinkSource(null);
+                    store.setNewLinkTarget(null);
+                    store.setNewLinkSubgraphIds([]);
 
                     break;
                 }
             }
 
             case "changeLink": {
-                if (context.state.wantsToChangeSource) {
-                    context.commit(
-                        "dataModule/changeLinkSource",
-                        {
-                            id: context.state.linkToEdit,
-                            source: post.id
-                        },
-                        {
-                            root: true
-                        }
-                    );
-                    context.commit("setWantsToChangeSource", false);
-
-                } else if (context.state.wantsToChangeTarget) {
-                    context.commit(
-                        "dataModule/changeLinkTarget",
-                        {
-                            id: context.state.linkToEdit,
-                            target: post.id
-                        },
-                        {
-                            root: true
-                        }
-                    );
-                    context.commit("setWantsToChangeTarget", false);
+                if (store.wantsToChangeSource) {
+                    if (store.linkToEdit == null) {
+                        return;
+                    }
+                    dataStore.changeLinkSource({
+                        id: store.linkToEdit,
+                        source: post.id
+                    });
+                    store.setWantsToChangeSource(false);
+                } else if (store.wantsToChangeTarget) {
+                    if (store.linkToEdit == null) {
+                        return;
+                    }
+                    dataStore.changeLinkTarget({
+                        id: store.linkToEdit,
+                        target: post.id
+                    });
+                    store.setWantsToChangeTarget(false);
                 }
-                context.commit("setClickMode", "openPosts");
-                context.commit("setLinkToEdit", null);
+                store.setClickMode("openPosts");
+                store.setLinkToEdit(null);
             }
         }
     },
 
-    async handleLinkClick(context: ClickerActionContext, {link, coordinates}: LinkClickPayload) {
+    async handleLinkClick(store: ClickerStoreApi, {link, coordinates}: LinkClickPayload) {
         if (typeof link !== "object") {
             console.error("no link clicked, clicked", link);
             return;
         }
 
-        switch (context.state.clickMode) {
+        switch (store.clickMode) {
             case "openPosts": {
                 const sourceCoordinates: [number, number] = [link.source.x, link.source.y];
                 const targetCoordinates: [number, number] = [link.target.x, link.target.y];
@@ -210,7 +207,7 @@ const actions: ActionTree<ClickerModuleState, RootStoreState> = {
                 }
             }
             case "changeLink": {
-                context.commit("setLinkToEdit", link.id);
+                store.setLinkToEdit(link.id);
                 break;
             }
             default: {
@@ -222,12 +219,52 @@ const actions: ActionTree<ClickerModuleState, RootStoreState> = {
     }
 };
 
-const clickerModule: Module<ClickerModuleState, RootStoreState> = {
+export const useClickerStore = defineStore("clickerModule", {
+    state: (): ClickerModuleState => ({
+        ...state
+    }),
+    actions: {
+        setShouldShowClickButtonMenu(shouldShowClickButtonMenu: boolean) {
+            mutations.setShouldShowClickButtonMenu(this, shouldShowClickButtonMenu);
+        },
+        setClickMode(clickMode: ClickMode) {
+            mutations.setClickMode(this, clickMode);
+        },
+        setNewLinkSource(newLinkSource: Nullable<PostId>) {
+            mutations.setNewLinkSource(this, newLinkSource);
+        },
+        setNewLinkTarget(newLinkTarget: Nullable<PostId>) {
+            mutations.setNewLinkTarget(this, newLinkTarget);
+        },
+        setNewLinkType(newLinkType: LinkType) {
+            mutations.setNewLinkType(this, newLinkType);
+        },
+        setNewLinkSubgraphIds(newLinkSubgraphIds: SubgraphId[]) {
+            mutations.setNewLinkSubgraphIds(this, newLinkSubgraphIds);
+        },
+        setLinkToEdit(linkToEdit: Nullable<LinkId>) {
+            mutations.setLinkToEdit(this, linkToEdit);
+        },
+        setWantsToChangeSource(wantsToChangeSource: boolean) {
+            mutations.setWantsToChangeSource(this, wantsToChangeSource);
+        },
+        setWantsToChangeTarget(wantsToChangeTarget: boolean) {
+            mutations.setWantsToChangeTarget(this, wantsToChangeTarget);
+        },
+        async handlePostClick(post: ClickedPost | unknown) {
+            await actions.handlePostClick(this, post);
+        },
+        async handleLinkClick(payload: LinkClickPayload) {
+            return actions.handleLinkClick(this, payload);
+        }
+    }
+});
+
+export {state, mutations, actions};
+
+export default {
     state,
-    getters,
+    getters: {},
     mutations,
     actions,
-    namespaced: true
 };
-
-export default clickerModule;

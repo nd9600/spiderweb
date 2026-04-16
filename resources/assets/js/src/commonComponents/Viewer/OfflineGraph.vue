@@ -51,10 +51,11 @@ import {drag as d3drag} from "d3-drag";
 
 import debounce from "lodash/debounce";
 
-import {mapActions, mapGetters, mapMutations, mapState} from "vuex";
+import {mapActions, mapState} from "pinia";
 import FloatingActionButton from "./FloatingActionButton";
 import {HEIGHT, INITIAL_ZOOM, WIDTH} from "@/src/commonComponents/constants";
 import graphEventBus from "@/src/helpers/graphEventBus";
+import {useClickerStore, useDataStore, useRootStore, useSettingsStore} from "@/src/offline/store";
 
 export default {
     name: "OfflineGraph",
@@ -86,14 +87,13 @@ export default {
         };
     },
     computed: {
-        ...mapState("settingsModule", ["canOpenMultiplePosts"]),
+        ...mapState(useSettingsStore, ["canOpenMultiplePosts"]),
 
-        ...mapState("dataModule", ["selectedGraphId", "selectedSubgraphIds"]),
-        ...mapGetters("dataModule", ["postsInSelectedSubgraphs", "linksInSelectedSubgraphs", "subgraphColour", "titleOrBody", "isNeighbour"]),
+        ...mapState(useDataStore, ["selectedGraphId", "selectedSubgraphIds", "postsInSelectedSubgraphs", "linksInSelectedSubgraphs", "subgraphColour", "titleOrBody", "isNeighbour"]),
 
-        ...mapState("clickerModule", ["shouldShowClickButtonMenu", "clickMode"]),
+        ...mapState(useClickerStore, ["shouldShowClickButtonMenu", "clickMode"]),
         nodePositions() {
-            return this.$store.state.dataModule.graphs[this.selectedGraphId].nodePositions;
+            return useDataStore().graphs[this.selectedGraphId].nodePositions;
         }
     },
     watch: {
@@ -160,14 +160,15 @@ export default {
             .attr("stroke-width", 1.5);
 
         this.setupZooming();
+        const dataStore = useDataStore();
         this.svg.call(this.zoomBehaviour)
             .call(
                 this.zoomBehaviour.transform,
                 d3zoomIdentity
                     .translate(
-                        this.$store.state.dataModule.zoom.x, // sets initial x/y and zoom amount
-                        this.$store.state.dataModule.zoom.y
-                    ).scale(this.$store.state.dataModule.zoom.scale)
+                        dataStore.zoom.x,
+                        dataStore.zoom.y
+                    ).scale(dataStore.zoom.scale)
             );
         this.$nextTick(() => {
             this.debouncedMakeGraphSvg();
@@ -214,11 +215,11 @@ export default {
         graphEventBus.off("zoomOut", this.graphEventHandlers.zoomOut);
     },
     methods: {
-        ...mapMutations(["setIsRenderingGraph"]),
-        ...mapMutations("dataModule", ["setZoom", "setPostPosition"]),
-        ...mapMutations("clickerModule", ["setShouldShowClickButtonMenu", "setClickMode"]),
+        ...mapActions(useRootStore, ["setIsRenderingGraph"]),
+        ...mapActions(useDataStore, ["setZoom", "setPostPosition"]),
+        ...mapActions(useClickerStore, ["setShouldShowClickButtonMenu", "setClickMode"]),
 
-        ...mapActions("clickerModule", ["handlePostClick", "handleLinkClick"]),
+        ...mapActions(useClickerStore, ["handlePostClick", "handleLinkClick"]),
 
         isPhone() {
             const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);

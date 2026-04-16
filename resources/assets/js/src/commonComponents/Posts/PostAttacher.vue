@@ -80,7 +80,8 @@
     </div>
 </template>
 <script>
-import {mapMutations, mapGetters, mapState} from "vuex";
+import {mapActions, mapState} from "pinia";
+import {useDataStore} from "@/src/offline/store";
 
 export default {
     name: "PostAttacher",
@@ -103,8 +104,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["selectedGraphId"]),
-        ...mapGetters("dataModule", ["subgraphsInSelectedGraph", "linkedSubgraphs"]),
+        ...mapState(useDataStore, ["selectedGraphId", "subgraphsInSelectedGraph", "linkedSubgraphs"]),
 
         subgraphsNotAlreadyAttachedTo() {
             const subgraphsAlreadyAttachedTo = this.linkedSubgraphs(this.post.id)
@@ -115,11 +115,11 @@ export default {
     },
     created() {
         if (this.subgraphsInSelectedGraph.length === 1) {
-            this.subgraphIdsToAttachPostTo = this.subgraphsInSelectedGraph[0];
+            this.subgraphIdsToAttachPostTo = [this.subgraphsInSelectedGraph[0].id];
         }
     },
     methods: {
-        ...mapMutations("dataModule", ["addPostToGraph", "addPostToSubgraph"]),
+        ...mapActions(useDataStore, ["addPostToGraph", "addPostToSubgraph"]),
 
         attachPost() {
             if (this.shouldAttachPostToGraph) {

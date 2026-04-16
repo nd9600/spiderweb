@@ -78,10 +78,11 @@
 </template>
 
 <script>
-import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
+import {mapActions, mapState} from "pinia";
 
 
 import PostSearch from "@/src/commonComponents/Posts/PostSearch";
+import {useClickerStore, useDataStore} from "@/src/offline/store";
 
 export default {
     name: "LinkAdder",
@@ -89,14 +90,13 @@ export default {
         PostSearch
     },
     computed: {
-        ...mapState("dataModule", ["subgraphs", "selectedSubgraphIds"]),
-        ...mapGetters("dataModule", ["titleOrBody"]),
+        ...mapState(useDataStore, ["subgraphs", "selectedSubgraphIds", "titleOrBody"]),
 
-        ...mapState("clickerModule", ["newLinkSource"]),
+        ...mapState(useClickerStore, ["newLinkSource"]),
 
         newLinkSubgraphIds: {
             get() {
-                return this.$store.state.clickerModule.newLinkSubgraphIds;
+                return useClickerStore().newLinkSubgraphIds;
             },
             set(newLinkSubgraphIds) {
                 this.setNewLinkSubgraphIds(newLinkSubgraphIds);
@@ -105,7 +105,7 @@ export default {
 
         newLinkType: {
             get() {
-                return this.$store.state.clickerModule.newLinkType;
+                return useClickerStore().newLinkType;
             },
             set(newLinkType) {
                 this.setNewLinkType(newLinkType);
@@ -116,12 +116,12 @@ export default {
         this.newLinkSubgraphIds = this.selectedSubgraphIds;
     },
     methods: {
-        ...mapMutations("clickerModule", [
+        ...mapActions(useClickerStore, [
             "setNewLinkSource",
             "setNewLinkType",
             "setNewLinkSubgraphIds"
         ]),
-        ...mapActions("clickerModule", ["handlePostClick"]),
+        ...mapActions(useClickerStore, ["handlePostClick"]),
     }
 };
 </script>

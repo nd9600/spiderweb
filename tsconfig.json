@@ -21,8 +21,7 @@
         "lib": ["es2017", "dom"],
         "skipLibCheck": true,
         "paths": {
-            "@/*": ["./resources/assets/js/*"],
-            "vuex": ["./node_modules/vuex/types/index.d.ts"]
+            "@/*": ["./resources/assets/js/*"]
         },
         "types": [
             "node",

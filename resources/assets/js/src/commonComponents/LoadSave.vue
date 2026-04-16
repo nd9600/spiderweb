@@ -173,8 +173,9 @@
 </template>
 
 <script>
-import {mapState, mapGetters, mapActions} from "vuex";
+import {mapActions, mapState} from "pinia";
 import BlogpostExporter from "@/src/commonComponents/BlogpostExporter/BlogpostExporter";
+import {useRootStore, useSettingsStore} from "@/src/offline/store";
 
 export default {
     name: "LoadSave",
@@ -189,12 +190,12 @@ export default {
         };
     },
     computed: {
-        ...mapState("settingsModule", ["shouldAutosave"]),
+        ...mapState(useSettingsStore, ["shouldAutosave"]),
 
-        ...mapGetters(["storageObject"]),
+        ...mapState(useRootStore, ["storageObject"]),
 
         isAlreadySyncingWithFirebase() {
-            return this.$store.state.settingsModule.remoteStorageMethod === "firebase";
+            return useSettingsStore().remoteStorageMethod === "firebase";
         },
         shouldShowTakeDataFromSelect() {
             return this.shouldImportSettings
@@ -218,7 +219,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions(["saveStateToStorage", "loadStateFromStorage", "importData", "importSettings"]),
+        ...mapActions(useRootStore, ["saveStateToStorage", "loadStateFromStorage", "importData", "importSettings"]),
 
         onFileUpload(event) {
             const files = event.target.files || event.dataTransfer.files;

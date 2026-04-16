@@ -70,8 +70,9 @@ Link IDs error: {{ linkIdsError.isError }}
 
 <script>
 import {isInteger} from "@/src/helpers/numberHelpers";
-import {mapGetters, mapState} from "vuex";
+import {mapState} from "pinia";
 import ExportedPost from "./ExportedPost";
+import {useDataStore} from "@/src/offline/store";
 
 export default {
     name: "BlogpostExporter",
@@ -83,8 +84,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["posts", "links"]),
-        ...mapGetters("dataModule", ["postIds", "linkIds"]),
+        ...mapState(useDataStore, ["posts", "links", "postIds", "linkIds"]),
 
         postIdsToExport() {
             return this.postIdsString

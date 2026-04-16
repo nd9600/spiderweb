@@ -63,12 +63,13 @@
 </template>
 
 <script>
-import {mapActions, mapState} from "vuex";
+import {mapActions, mapState} from "pinia";
 
 import Viewer from "@/src/commonComponents/Viewer/Viewer";
 import Graphs from "@/src/commonComponents/Graphs/Graphs";
 import LoadSave from "@/src/commonComponents/LoadSave";
 import Settings from "@/src/commonComponents/Settings/Settings";
+import {useRootStore, useSettingsStore} from "@/src/offline/store";
 
 export default {
     name: "OfflineApp",
@@ -102,11 +103,11 @@ export default {
         };
     },
     computed: {
-        ...mapState(["loadingApp", "failedToLoadData"])
+        ...mapState(useRootStore, ["loadingApp", "failedToLoadData"])
     },
     methods: {
-        ...mapActions(["loadStateFromStorage"]),
-        ...mapActions("settingsModule", ["setRemoteStorageMethod",]),
+        ...mapActions(useRootStore, ["loadStateFromStorage"]),
+        ...mapActions(useSettingsStore, ["setRemoteStorageMethod"]),
 
         refreshPage() {
             window.location.reload();

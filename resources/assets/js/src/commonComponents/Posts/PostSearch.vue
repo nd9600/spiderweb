@@ -43,7 +43,8 @@
 </template>
 
 <script>
-import {mapState, mapGetters} from "vuex";
+import {mapState} from "pinia";
+import {useDataStore} from "@/src/offline/store";
 export default {
     name: "PostSearch",
     emits: ["clickedOnResult"],
@@ -55,8 +56,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["posts"]),
-        ...mapGetters("dataModule", ["titleOrBody", "postIdsThatLinkToPost"]),
+        ...mapState(useDataStore, ["posts", "titleOrBody", "postIdsThatLinkToPost"]),
     },
     watch: {
         searchTerm(newSearchTerm) {

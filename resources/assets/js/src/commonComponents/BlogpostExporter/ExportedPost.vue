@@ -67,8 +67,9 @@
 </template>
 
 <script>
-import {mapGetters, mapState} from "vuex";
+import {mapState} from "pinia";
 import marked from "@/src/helpers/markedCustomised";
+import {useDataStore} from "@/src/offline/store";
 
 export default {
     name: "ExportedPost",
@@ -83,8 +84,7 @@ export default {
         }
     },
     computed: {
-        ...mapState("dataModule", ["posts", "links"]),
-        ...mapGetters("dataModule", ["postIds", "titleOrBody", "postIdsThatLinkToPost"]),
+        ...mapState(useDataStore, ["posts", "links", "postIds", "titleOrBody", "postIdsThatLinkToPost"]),
 
         linkedPosts() {
             return this.postIdsThatLinkToPost(this.post.id);

@@ -25,7 +25,8 @@
 </template>
 
 <script>
-import {mapState, mapGetters, mapMutations} from "vuex";
+import {mapActions, mapState} from "pinia";
+import {useDataStore} from "@/src/offline/store";
 
 export default {
     name: "LinkedSubgraphs",
@@ -36,11 +37,10 @@ export default {
         }
     },
     computed: {
-        ...mapState("dataModule", ["subgraphs"]),
-        ...mapGetters("dataModule", ["linkedSubgraphs"]),
+        ...mapState(useDataStore, ["subgraphs", "linkedSubgraphs"]),
     },
     methods: {
-        ...mapMutations("dataModule", ["toggleSubgraphId", "removePostFromSubgraph"]),
+        ...mapActions(useDataStore, ["toggleSubgraphId", "removePostFromSubgraph"]),
 
     }
 };

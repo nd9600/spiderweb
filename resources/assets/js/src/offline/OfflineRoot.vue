@@ -6,7 +6,8 @@
 
 <script>
 import OfflineApp from "@/src/commonComponents/OfflineApp";
-import { mapActions } from "vuex";
+import {mapActions} from "pinia";
+import {useRootStore} from "@/src/offline/store";
 
 export default {
     name: "OfflineRoot",
@@ -17,7 +18,7 @@ export default {
         await this.loadStateFromStorage();
     },
     methods: {
-        ...mapActions(["loadStateFromStorage"]),
+        ...mapActions(useRootStore, ["loadStateFromStorage"]),
     }
 };
 </script>

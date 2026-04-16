@@ -1,5 +1,5 @@
 import {DataModuleState, GraphId, LinkId, LinkType, PostId, SubgraphId} from "@/src/@types/StoreTypes";
-import Link from "@/src/offline/store/classes/Link";
+import Link, {LinkSerialised} from "@/src/offline/store/classes/Link";
 
 const state: Pick<DataModuleState, "links"> = {
     links: {},
@@ -78,7 +78,7 @@ const mutations = {
             }
         }
     },
-    updateLink(state: DataModuleState, link: Link) {
+    updateLink(state: DataModuleState, link: LinkSerialised) {
         // add source and/or target posts to the graph, if they're not there already
         const postIdsAlreadyInGraph = state.graphs[link.graph].nodes;
         if (!postIdsAlreadyInGraph.includes(link.source)) {

@@ -33,7 +33,8 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import {mapState} from "pinia";
+import {useDataStore} from "@/src/offline/store";
 
 export default {
     name: "PostBarScrollButtons",
@@ -44,7 +45,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["selectedPostIds"]),
+        ...mapState(useDataStore, ["selectedPostIds"]),
 
         numberOfPostsHiddenToTheLeft() {
             if (this.visiblePosts.length === 0) {

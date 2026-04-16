@@ -110,9 +110,10 @@
 </template>
 
 <script>
-import {mapState, mapGetters, mapMutations} from "vuex";
+import {mapActions, mapState} from "pinia";
 
 import PostSearch from "@/src/commonComponents/Posts/PostSearch";
+import {useClickerStore, useDataStore} from "@/src/offline/store";
 
 export default {
     name: "LinkEditor",
@@ -134,12 +135,11 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["subgraphs", "posts"]),
-        ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
+        ...mapState(useDataStore, ["subgraphs", "posts", "postIds", "titleOrBody"]),
 
         subgraphsLinkIsIn: {
             get() {
-                return this.$store.getters["dataModule/subgraphsLinkIsIn"](this.link.id);
+                return useDataStore().subgraphsLinkIsIn(this.link.id);
             },
             set(subgraphsLinkIsIn) {
                 this.setSubgraphsLinkIsIn({linkId: this.link.id, subgraphsLinkIsIn});
@@ -148,7 +148,7 @@ export default {
 
         wantsToChangeSource: {
             get() {
-                return this.$store.state.clickerModule.wantsToChangeSource;
+                return useClickerStore().wantsToChangeSource;
             },
             set(wantsToChangeSource) {
                 this.setWantsToChangeSource(wantsToChangeSource);
@@ -156,7 +156,7 @@ export default {
         },
         wantsToChangeTarget: {
             get() {
-                return this.$store.state.clickerModule.wantsToChangeTarget;
+                return useClickerStore().wantsToChangeTarget;
             },
             set(wantsToChangeTarget) {
                 this.setWantsToChangeTarget(wantsToChangeTarget);
@@ -177,8 +177,8 @@ export default {
         "type": "updateLinkLocal",
     },
     methods: {
-        ...mapMutations("dataModule", ["setSubgraphsLinkIsIn", "updateLink", "removeLink"]),
-        ...mapMutations("clickerModule", ["setWantsToChangeSource", "setWantsToChangeTarget"]),
+        ...mapActions(useDataStore, ["setSubgraphsLinkIsIn", "updateLink", "removeLink"]),
+        ...mapActions(useClickerStore, ["setWantsToChangeSource", "setWantsToChangeTarget"]),
 
         onPostClick(sourceOrTarget, post) {
             if (sourceOrTarget === "source") {

@@ -146,13 +146,14 @@
 </template>
 
 <script>
-import {mapGetters, mapMutations, mapState} from "vuex";
+import {mapActions, mapState} from "pinia";
 
 import OfflineGraph from "./OfflineGraph";
 import PostBar from "./PostBar/PostBar";
 
 import {STORAGE_KEY} from "@/src/commonComponents/constants";
 import graphEventBus from "@/src/helpers/graphEventBus";
+import {useDataStore, useRootStore, useSettingsStore} from "@/src/offline/store";
 
 export default {
     name: "Viewer",
@@ -170,30 +171,29 @@ export default {
         };
     },
     computed: {
-        ...mapState(["isRenderingGraph"]),
-        ...mapState("settingsModule", ["graphHeight", "postBarHeight"]),
-        ...mapState("dataModule", ["graphs"]),
-        ...mapGetters("dataModule", ["subgraphsInSelectedGraph"]),
+        ...mapState(useRootStore, ["isRenderingGraph"]),
+        ...mapState(useSettingsStore, ["graphHeight", "postBarHeight"]),
+        ...mapState(useDataStore, ["graphs", "subgraphsInSelectedGraph"]),
 
         selectedGraphId: {
             get() {
-                return this.$store.state.dataModule.selectedGraphId;
+                return useDataStore().selectedGraphId;
             },
             set(selectedGraphId) {
-                this.$store.commit("dataModule/setSelectedGraphId", selectedGraphId);
+                useDataStore().setSelectedGraphId(selectedGraphId);
             }
         },
         selectedSubgraphIds: {
             get() {
-                return this.$store.state.dataModule.selectedSubgraphIds;
+                return useDataStore().selectedSubgraphIds;
             },
             set(selectedSubgraphIds) {
-                this.$store.commit("dataModule/setSelectedSubgraphIds", selectedSubgraphIds);
+                useDataStore().setSelectedSubgraphIds(selectedSubgraphIds);
             }
         }
     },
     methods: {
-        ...mapMutations("dataModule", ["selectAllSubgraphs"]),
+        ...mapActions(useDataStore, ["selectAllSubgraphs"]),
 
         emitRefreshGraph() {
             graphEventBus.emit("refreshGraph");

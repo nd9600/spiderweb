@@ -41,8 +41,9 @@
 </template>
 
 <script>
-import {mapGetters, mapMutations, mapState} from "vuex";
+import {mapActions, mapState} from "pinia";
 import GraphEditor from "./GraphEditor";
+import {useDataStore} from "@/src/offline/store";
 
 export default {
     name: "Graphs",
@@ -53,11 +54,10 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["graphs"]),
-        ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
+        ...mapState(useDataStore, ["graphs", "postIds", "titleOrBody"]),
     },
     methods: {
-        ...mapMutations("dataModule", ["makeNewGraph"]),
+        ...mapActions(useDataStore, ["makeNewGraph"]),
 
         makeNewGraphLocal() {
             this.makeNewGraph(this.newGraphName);

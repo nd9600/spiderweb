@@ -1,20 +1,17 @@
-import type {ActionContext, ActionTree, GetterTree, Module, MutationTree} from "vuex";
+import {defineStore} from "pinia";
 
 import {isInteger} from "@/src/helpers/numberHelpers";
-import {setProperty} from "@/src/helpers/vuexHelpers";
 import {
-    RootStoreState,
     SettingsModuleState,
     ShouldTakeDataFrom,
     RemoteStorageMethod
 } from "@/src/@types/StoreTypes";
+import {useRootStore} from "./rootStore";
 
 interface SetRemoteStorageMethodPayload {
     remoteStorageMethod: RemoteStorageMethod;
     shouldTakeDataFrom: Nullable<ShouldTakeDataFrom>;
 }
-
-type SettingsActionContext = ActionContext<SettingsModuleState, RootStoreState>;
 
 const state: SettingsModuleState = {
     shouldAutosave: true,
@@ -25,11 +22,8 @@ const state: SettingsModuleState = {
     postWidth: 50,
 };
 
-const getters: GetterTree<SettingsModuleState, RootStoreState> = {
-};
-
-const mutations: MutationTree<SettingsModuleState> = {
-    setState(state, newState: Partial<SettingsModuleState>) {
+const mutations = {
+    setState(state: SettingsModuleState, newState: Partial<SettingsModuleState>) {
         if (Object.keys(newState).length === 0) {
             return;
         }
@@ -46,25 +40,25 @@ const mutations: MutationTree<SettingsModuleState> = {
         state.postWidth = newState.postWidth || 50;
     },
 
-    setShouldAutosave(state, shouldAutosave: boolean) {
+    setShouldAutosave(state: SettingsModuleState, shouldAutosave: boolean) {
         state.shouldAutosave = shouldAutosave;
     },
-    setRemoteStorageMethod(state, remoteStorageMethod: RemoteStorageMethod) {
+    setRemoteStorageMethod(state: SettingsModuleState, remoteStorageMethod: RemoteStorageMethod) {
         state.remoteStorageMethod = remoteStorageMethod;
     },
 
-    setCanOpenMultiplePosts(state, canOpenMultiplePosts: boolean) {
+    setCanOpenMultiplePosts(state: SettingsModuleState, canOpenMultiplePosts: boolean) {
         state.canOpenMultiplePosts = canOpenMultiplePosts;
     },
 
-    setGraphHeight(state, graphHeight: number | string) {
+    setGraphHeight(state: SettingsModuleState, graphHeight: number | string) {
         const parsedGraphHeight = Number(graphHeight);
         if (!isInteger(graphHeight) || parsedGraphHeight > 100) {
             return;
         }
         state.graphHeight = parsedGraphHeight;
     },
-    setPostBarHeight(state, postBarHeight: number | string) {
+    setPostBarHeight(state: SettingsModuleState, postBarHeight: number | string) {
         const parsedPostBarHeight = Number(postBarHeight);
         if (!isInteger(postBarHeight) || parsedPostBarHeight > 100) {
             return;
@@ -72,7 +66,7 @@ const mutations: MutationTree<SettingsModuleState> = {
         state.postBarHeight = parsedPostBarHeight;
     },
 
-    setPostWidth(state, postWidth: number | string) {
+    setPostWidth(state: SettingsModuleState, postWidth: number | string) {
         const parsedPostWidth = Number(postWidth);
         if (!isInteger(postWidth) || parsedPostWidth > 100) {
             return;
@@ -81,47 +75,74 @@ const mutations: MutationTree<SettingsModuleState> = {
     },
 };
 
-const actions: ActionTree<SettingsModuleState, RootStoreState> = {
-    async setRemoteStorageMethod(context: SettingsActionContext, {remoteStorageMethod, shouldTakeDataFrom}: SetRemoteStorageMethodPayload) {
-        // if you're making the remoteStorageMethod be Firebase, then you can choose to either keep the data that's in Local Storage, or overwrite it with the data that's already in Firebase
+const actions = {
+    async setRemoteStorageMethod(store: SettingsModuleState & {setRemoteStorageMethodValue(remoteStorageMethod: RemoteStorageMethod): void}, {remoteStorageMethod, shouldTakeDataFrom}: SetRemoteStorageMethodPayload) {
         const thereAreDifferentDataSources = remoteStorageMethod !== "none";
+        store.setRemoteStorageMethodValue(remoteStorageMethod);
 
-        context.commit("setRemoteStorageMethod", remoteStorageMethod);
         if (thereAreDifferentDataSources) {
-            await context.dispatch(
-                "loadDataFrom",
-                shouldTakeDataFrom,
-                {
-                    root: true
-                }
-            );
+            await useRootStore().loadDataFrom(shouldTakeDataFrom);
         }
 
-        /*
-        if remoteStorageMethod == "firebase" && shouldTakeDataFrom == "firebase", and we autosaved this mutation, this would happen:
-        1. remoteStorageMethod set to Firebase
-        2. subscriber in index.js runs, autosaving state with remoteStorageMethod == "firebase" but *without* the data loaded from Firebase
-        3. `loadDataFrom` action runs, since it's async, and then loads data from Firebase, *BUT* we've just autosaved our data to Firebase
-        we're loading the data we've just autosaved, which is exactly what we don't want to happen!
-
-        so we intentionally don't autosave the data, and instead save it manually _after_ `loadDataFrom` finishes
-         */
-        await context.dispatch(
-            "saveStateToLocalStorage",
-            null,
-            {
-                root: true
-            }
-        );
+        await useRootStore().saveStateToLocalStorage();
     }
 };
 
-const settingsModule: Module<SettingsModuleState, RootStoreState> = {
+export const useSettingsStore = defineStore("settingsModule", {
+    state: (): SettingsModuleState => ({
+        ...state
+    }),
+    actions: {
+        setState(newState: Partial<SettingsModuleState>) {
+            mutations.setState(this, newState);
+        },
+        setShouldAutosave(shouldAutosave: boolean) {
+            mutations.setShouldAutosave(this, shouldAutosave);
+            if (this.shouldAutosave) {
+                useRootStore().scheduleAutosave();
+            }
+        },
+        setRemoteStorageMethodValue(remoteStorageMethod: RemoteStorageMethod) {
+            mutations.setRemoteStorageMethod(this, remoteStorageMethod);
+        },
+        async setRemoteStorageMethod(payload: SetRemoteStorageMethodPayload) {
+            await actions.setRemoteStorageMethod(this, payload);
+        },
+        setCanOpenMultiplePosts(canOpenMultiplePosts: boolean) {
+            mutations.setCanOpenMultiplePosts(this, canOpenMultiplePosts);
+            if (this.shouldAutosave) {
+                useRootStore().scheduleAutosave();
+            }
+        },
+        setGraphHeight(graphHeight: number | string) {
+            const oldValue = this.graphHeight;
+            mutations.setGraphHeight(this, graphHeight);
+            if (this.shouldAutosave && this.graphHeight !== oldValue) {
+                useRootStore().scheduleAutosave();
+            }
+        },
+        setPostBarHeight(postBarHeight: number | string) {
+            const oldValue = this.postBarHeight;
+            mutations.setPostBarHeight(this, postBarHeight);
+            if (this.shouldAutosave && this.postBarHeight !== oldValue) {
+                useRootStore().scheduleAutosave();
+            }
+        },
+        setPostWidth(postWidth: number | string) {
+            const oldValue = this.postWidth;
+            mutations.setPostWidth(this, postWidth);
+            if (this.shouldAutosave && this.postWidth !== oldValue) {
+                useRootStore().scheduleAutosave();
+            }
+        },
+    }
+});
+
+export {state, mutations, actions};
+
+export default {
     state,
-    getters,
+    getters: {},
     mutations,
     actions,
-    namespaced: true
 };
-
-export default settingsModule;

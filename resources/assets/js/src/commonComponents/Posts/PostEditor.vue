@@ -45,7 +45,8 @@
 </template>
 
 <script>
-import {mapActions, mapMutations} from "vuex";
+import {mapActions} from "pinia";
+import {useDataStore} from "@/src/offline/store";
 
 export default {
     name: "PostEditor",
@@ -64,8 +65,7 @@ export default {
         };
     },
     methods: {
-        ...mapMutations("dataModule", ["deletePost"]),
-        ...mapActions("dataModule", ["updatePostTitle", "updatePostBody"]),
+        ...mapActions(useDataStore, ["deletePost", "updatePostTitle", "updatePostBody"]),
 
         toggleTitleInput() {
             const dontLetUserHideTitleInput = this.showTitleInput

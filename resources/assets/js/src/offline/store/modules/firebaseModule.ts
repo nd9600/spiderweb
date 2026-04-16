@@ -1,12 +1,10 @@
-import type {ActionContext, ActionTree, GetterTree, Module, MutationTree} from "vuex";
+import {defineStore} from "pinia";
 
 import {
     FirebaseConfig,
     FirebaseModuleState,
-    RootStoreState
 } from "@/src/@types/StoreTypes";
-
-type FirebaseActionContext = ActionContext<FirebaseModuleState, RootStoreState>;
+import {useRootStore} from "./rootStore";
 
 const defaultFirebaseConfig: FirebaseConfig = {
     apiKey: "",
@@ -22,38 +20,54 @@ const state: FirebaseModuleState = {
     firebaseConfig: defaultFirebaseConfig
 };
 
-const getters: GetterTree<FirebaseModuleState, RootStoreState> = {
-};
-
-const mutations: MutationTree<FirebaseModuleState> = {
-    setState(state, newState: Partial<FirebaseModuleState>) {
+const mutations = {
+    setState(state: FirebaseModuleState, newState: Partial<FirebaseModuleState>) {
         if (Object.keys(newState).length === 0) {
             return;
         }
 
         state.firebaseConfig = newState.firebaseConfig || defaultFirebaseConfig;
     },
-    setFirebaseConfig(state, firebaseConfig: FirebaseConfig) {
+    setFirebaseConfig(state: FirebaseModuleState, firebaseConfig: FirebaseConfig) {
         state.firebaseConfig = firebaseConfig;
     }
 };
 
-const actions: ActionTree<FirebaseModuleState, RootStoreState> = {
-    async setFirebaseConfig(context: FirebaseActionContext, firebaseConfig: FirebaseConfig) {
+const actions = {
+    async setFirebaseConfig(store: FirebaseModuleState & {setFirebaseConfigValue(firebaseConfig: FirebaseConfig): void}, firebaseConfig: FirebaseConfig) {
         if (firebaseConfig.apiKey === "") {
             throw new Error("firebase config is wrong, please check it");
         }
-        context.commit("setFirebaseConfig", firebaseConfig);
-        await context.dispatch("loadStateFromStorage", null, {root: true});
+
+        store.setFirebaseConfigValue(firebaseConfig);
+        await useRootStore().loadStateFromStorage();
     }
 };
 
-const firebaseModule: Module<FirebaseModuleState, RootStoreState> = {
+export const useFirebaseStore = defineStore("firebaseModule", {
+    state: (): FirebaseModuleState => ({
+        firebaseConfig: {
+            ...defaultFirebaseConfig
+        }
+    }),
+    actions: {
+        setState(newState: Partial<FirebaseModuleState>) {
+            mutations.setState(this, newState);
+        },
+        setFirebaseConfigValue(firebaseConfig: FirebaseConfig) {
+            mutations.setFirebaseConfig(this, firebaseConfig);
+        },
+        async setFirebaseConfig(firebaseConfig: FirebaseConfig) {
+            await actions.setFirebaseConfig(this, firebaseConfig);
+        }
+    }
+});
+
+export {defaultFirebaseConfig, state, mutations, actions};
+
+export default {
     state,
-    getters,
+    getters: {},
     mutations,
     actions,
-    namespaced: true
 };
-
-export default firebaseModule;

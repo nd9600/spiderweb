@@ -64,7 +64,8 @@
 </template>
 <script>
 import PostMaker from "@/src/commonComponents/Posts/PostMaker";
-import {mapState, mapGetters, mapMutations} from "vuex";
+import {mapActions, mapState} from "pinia";
+import {useDataStore} from "@/src/offline/store";
 
 export default {
     name: "AddLinkedPost",
@@ -85,18 +86,17 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["graphs", "selectedGraphId", "selectedSubgraphIds", "zoom"]),
-        ...mapGetters("dataModule", ["titleOrBody", "subgraphsInSelectedGraph"]),
+        ...mapState(useDataStore, ["graphs", "selectedGraphId", "selectedSubgraphIds", "zoom", "titleOrBody", "subgraphsInSelectedGraph"]),
 
         nodePositions() {
-            return this.$store.state.dataModule.graphs[this.selectedGraphId].nodePositions;
+            return useDataStore().graphs[this.selectedGraphId].nodePositions;
         }
     },
     created() {
         this.subgraphIdsToAttachPostTo = this.selectedSubgraphIds;
     },
     methods: {
-        ...mapMutations("dataModule", ["addLink", "setPostPosition", "addPostToSubgraph"]),
+        ...mapActions(useDataStore, ["addLink", "setPostPosition", "addPostToSubgraph"]),
 
         toggleFromOrToTheNewPost() {
             const newValue = this.fromOrToNewPost === "from"

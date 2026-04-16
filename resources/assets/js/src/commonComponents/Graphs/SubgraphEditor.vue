@@ -51,7 +51,8 @@
 </template>
 
 <script>
-import {mapGetters, mapMutations, mapState} from "vuex";
+import {mapActions, mapState} from "pinia";
+import {useDataStore} from "@/src/offline/store";
 
 export default {
     name: "SubgraphEditor",
@@ -69,8 +70,7 @@ export default {
         };
     },
     computed: {
-        ...mapState("dataModule", ["subgraphs"]),
-        ...mapGetters("dataModule", ["postIds", "titleOrBody"]),
+        ...mapState(useDataStore, ["subgraphs", "postIds", "titleOrBody"]),
 
         subgraph() {
             return this.subgraphs[this.subgraphId];
@@ -80,7 +80,7 @@ export default {
         this.newSubgraphColour = this.subgraph.colour || "#000000";
     },
     methods: {
-        ...mapMutations("dataModule", ["changeSubgraphName", "changeSubgraphColour", "removeSubgraph"]),
+        ...mapActions(useDataStore, ["changeSubgraphName", "changeSubgraphColour", "removeSubgraph"]),
         changeSubgraphNameLocal() {
             if (this.newSubgraphName.trim().length === 0) {
                 return;
