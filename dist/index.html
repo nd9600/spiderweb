@@ -10,58 +10,47 @@
     <link
         rel="apple-touch-icon"
         sizes="180x180"
-        href="/apple-touch-icon.png"
+        href="./apple-touch-icon.png"
     >
     <link
         rel="icon"
         type="image/png"
         sizes="32x32"
-        href="/favicon-32x32.png"
+        href="./favicon-32x32.png"
     >
     <link
         rel="icon"
         type="image/png"
         sizes="16x16"
-        href="/favicon-16x16.png"
+        href="./favicon-16x16.png"
     >
     <link
         rel="manifest"
-        href="/site.webmanifest"
+        href="./site.webmanifest"
     >
 
-    <!-- CSRF Token -->
-    <meta
-        name="csrf-token"
-        content=""
-    >
-
-    <title>
-        Spiderweb    </title>
-
-    <!-- Scripts -->
-
-    <!-- Styles -->
-    <link href="assets/css/styles-e4813ede.css" rel="stylesheet">
-    <link href="assets/css/graph-a13f84f5.css" rel="stylesheet">
+    <title>Spiderweb</title>
+  <script type="module" crossorigin src="./assets/js/index-9bc52cf3.js"></script>
+  <link rel="stylesheet" href="./assets/css/index-b0ec1c0a.css">
 </head>
 <body>
     <div class="min-h-full h-full">
-    <div class="ml-5">
-        <h1 class="h h--1">
-            Spiderweb
-        </h1>
+        <div class="ml-5">
+            <h1 class="h h--1">
+                Spiderweb
+            </h1>
+        </div>
+        <noscript>
+            <h2 class="h h--2">
+                Spiderweb needs Javascript to be enabled for it to work, please turn it on
+            </h2>
+        </noscript>
+        <div
+            id="offlineGraphApp"
+            class="min-h-full h-full"
+        ></div>
     </div>
-    <noscript>
-        <h2 class="h h--2">
-            Spiderweb needs Javascript to be enabled for it to work, please turn it on
-        </h2>
-    </noscript>
-    <div
-        id="offlineGraphApp"
-        class="min-h-full h-full"
-    ></div>
-</div>
 
-<script type="module" src="assets/js/offline/graph-25ec5647.js"></script>
+    
 </body>
 </html>

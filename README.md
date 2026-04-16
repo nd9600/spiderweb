@@ -61,11 +61,12 @@ To work on the offline version:
 4. `npm run dev`
 5. Open the URL Vite prints, usually `http://localhost:5173/`
 
-To make a production asset build for the offline app:
+To make a standalone production build for the offline app:
 
 1. `npm run build`
-2. Copy the `assets` folder from `public/` into `dist`/
-3. Open `dist/index.html`
+2. Open `dist/index.html`
+
+The offline frontend no longer needs Laravel or Blade for either dev or production builds.
 
 ### Online
 To work on the online version:

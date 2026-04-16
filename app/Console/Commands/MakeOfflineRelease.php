@@ -3,8 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\File;
-
 class MakeOfflineRelease extends Command
 {
     /**
@@ -23,21 +21,11 @@ class MakeOfflineRelease extends Command
 
     public function handle(): void
     {
-        $this->info("Deleting existing assets");
-        File::deleteDirectory(base_path("dist/assets"));
-
-        $this->info("Building assets with Vite");
+        $this->info("Building standalone offline app with Vite");
         shell_exec("npm run build");
 
-        $manifestPath = public_path("assets/manifest.json");
-        if (file_exists($manifestPath)) {
-            $this->info(file_get_contents($manifestPath));
+        if (file_exists(base_path("dist/index.html"))) {
+            $this->info("Wrote dist/index.html");
         }
-        
-        $this->info("Rendering Blade template");
-        File::put("dist/index.html", view("offline")->render());
-        
-        $this->info("Copying over assets to dist/");
-        File::copyDirectory(public_path("assets"), base_path("dist/assets"));
     }
 }
