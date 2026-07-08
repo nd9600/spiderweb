@@ -1,4 +1,4 @@
-import graphsModule from "@/src/offline/store/modules/dataModules/graphs";
+import graphsModule from "@/src/store/modules/dataModules/graphs";
 import type {DataModuleState} from "@/src/@types/StoreTypes";
 
 import overallState from "./state";

@@ -1,4 +1,4 @@
-import postsModule from "@/src/offline/store/modules/dataModules/posts";
+import postsModule from "@/src/store/modules/dataModules/posts";
 import type {DataModuleState} from "@/src/@types/StoreTypes";
 
 import overallState from "./state";

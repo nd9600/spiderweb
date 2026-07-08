@@ -1,4 +1,4 @@
-import subgraphsModule from "@/src/offline/store/modules/dataModules/subgraphs";
+import subgraphsModule from "@/src/store/modules/dataModules/subgraphs";
 import type {DataModuleState} from "@/src/@types/StoreTypes";
 
 import overallState from "./state";

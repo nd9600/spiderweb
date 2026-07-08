@@ -1,4 +1,4 @@
-import linksModule from "@/src/offline/store/modules/dataModules/links";
+import linksModule from "@/src/store/modules/dataModules/links";
 import type {DataModuleState} from "@/src/@types/StoreTypes";
 
 import overallState from "./state";

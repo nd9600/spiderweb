@@ -1,7 +1,7 @@
-import type {GraphSerialised} from "@/src/offline/store/classes/Graph";
-import type {PostSerialised} from "@/src/offline/store/classes/Post";
-import type {LinkSerialised} from "@/src/offline/store/classes/Link";
-import type {SubgraphSerialised} from "@/src/offline/store/classes/Subgraph";
+import type {GraphSerialised} from "@/src/store/classes/Graph";
+import type {PostSerialised} from "@/src/store/classes/Post";
+import type {LinkSerialised} from "@/src/store/classes/Link";
+import type {SubgraphSerialised} from "@/src/store/classes/Subgraph";
 
 export type GraphId = string;
 export type PostId = string;
