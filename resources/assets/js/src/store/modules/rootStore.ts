@@ -161,7 +161,7 @@ export const useRootStore = defineStore("root", {
                             10000
                         );
                     } catch (error) {
-                        useSettingsStore().setRemoteStorageMethodValue("none");
+                        useSettingsStore().remoteStorageMethod = "none";
                         this.setLoadingApp(false);
                         alert(error);
                     }

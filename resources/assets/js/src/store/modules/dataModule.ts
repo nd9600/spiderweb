@@ -1,23 +1,21 @@
 import {defineStore} from "pinia";
 import {HEIGHT, INITIAL_ZOOM, WIDTH} from "@/src/components/constants";
-
-import graphs from "./dataModules/graphs";
-import posts from "./dataModules/posts";
-import links from "./dataModules/links";
-import subgraphs from "./dataModules/subgraphs";
-import {
+import type {
     DataModuleState,
     GraphId,
     LinkId,
+    LinksMap,
     LinkType,
+    NodePosition,
+    NodePositionsMap,
     PostId,
     SubgraphId,
     Zoom
 } from "@/src/@types/StoreTypes";
-import Post, {PostSerialised} from "@/src/store/classes/Post";
-import Subgraph, {SubgraphSerialised} from "@/src/store/classes/Subgraph";
-import Link, {LinkSerialised} from "@/src/store/classes/Link";
-import Graph, {GraphSerialised} from "@/src/store/classes/Graph";
+import Graph, {type GraphSerialised} from "@/src/store/classes/Graph";
+import Link, {type LinkSerialised} from "@/src/store/classes/Link";
+import Post, {type PostSerialised} from "@/src/store/classes/Post";
+import Subgraph, {type SubgraphSerialised} from "@/src/store/classes/Subgraph";
 import {useRootStore} from "./rootStore";
 
 export interface DataModuleStateSerialised {
@@ -32,194 +30,31 @@ export interface DataModuleStateSerialised {
     zoom: Zoom
 }
 
-/*
-We have multiple graphs
- * each graph can have multiple nodes (which are posts) and multiple (directed) links
- * each graph can be subgraphs, which are named and coloured subsets of posts and links
-
-Posts can live independently of graphs, but links can't - they're a part of graphs
-
-When you create a graph, it has no posts, links or subgraphs
-When you delete a graph, also remove any links or subgraphs it has
-
-When you create a post, do nothing else
-When you delete a post, also remove any links that have it as a source or target, remove it from any subgraphs, remove it from any graphs, and remove its positions
-
-When you add a post (to a graph), do nothing else
-When you remove a post (from a graph), also remove any links that have it as a source or target, remove it from any of the graph's subgraphs, and remove its positions
-
-When you create a link (to a graph), if its target or source post isn't in the graph, add them to the graph, and if its target or source post isn't in the subgraph, add them to the subgraph
-When you delete a link (from a graph), remove it from any subgraphs
-
-When you add a post (to a subgraph), do nothing else
-When you remove a post (from a subgraph), also remove any links from the subgraph that have it as a source or target
-
-When you add a link (to a subgraph), if its target or source post isn't in the subgraph, add them to the subgraph
-When you remove a link (from a subgraph), do nothing else
-
-When you create a subgraph, it has no posts or links
-When you delete a subgraph, remove it from its graph
- */
-
-function arrayMove<T>(array: Array<T>, fromIndex: number, toIndex: number) {
-    let arrayCopy = array.slice(0);
-    const element = array[fromIndex];
-    arrayCopy.splice(fromIndex, 1);
-    arrayCopy.splice(toIndex, 0, element);
-    return arrayCopy;
-}
-
-function objectMap<T, S>(f: (o: T) => S, o: Record<string, T>): Record<string, S> {
-    return Object.assign({}, ...Object.keys(o).map(k => ({ [k]: f(o[k]) })))
-}
-
 type LinkWithSubgraphId = LinkSerialised & {
     subgraphId?: SubgraphId;
 };
 
-const state: DataModuleState = {
-    ...graphs.state,
-    ...posts.state,
-    ...links.state,
-    ...subgraphs.state,
-
-    selectedPostIds: [],
-    selectedGraphId: "1",
-    selectedSubgraphIds: [],
-    zoom: {
-        x: WIDTH / 2,
-        y: HEIGHT / 2,
-        scale: INITIAL_ZOOM,
-    }
-};
-
-const mutations = {
-    ...graphs.mutations,
-    ...posts.mutations,
-    ...links.mutations,
-    ...subgraphs.mutations,
-
-    setState(state: DataModuleState, newState: DataModuleStateSerialised) {
-        if (
-            Object.keys(newState).length === 0
-            || Object.keys(newState.posts).length === 0
-        ) {
-            return;
-        }
-
-        state.graphs = objectMap(Graph.unserialise, newState.graphs);
-        state.posts = objectMap(Post.unserialise, newState.posts);
-        state.links = objectMap(Link.unserialise, newState.links);
-        state.subgraphs = newState.subgraphs == null
-            ? {}
-            :  objectMap(Subgraph.unserialise, newState.subgraphs);
-
-        state.selectedPostIds = newState.selectedPostIds.map(String) || [];
-        state.selectedGraphId = String(newState.selectedGraphId) || "1";
-        state.selectedSubgraphIds = newState.selectedSubgraphIds.map(String) || [];
-
-        state.zoom = newState.zoom || {
-            x: WIDTH / 2,
-            y: HEIGHT / 2,
-            scale: INITIAL_ZOOM,
-        };
-    },
-
-    setSelectedPostIds(state: DataModuleState, selectedPostIds: PostId[]) {
-        state.selectedPostIds = selectedPostIds;
-    },
-    selectPostId(state: DataModuleState, {id, canOpenMultiplePosts}: {id: PostId, canOpenMultiplePosts: boolean}) {
-        if (state.selectedPostIds.includes(id)) { // we want to move it to the front of the list
-            state.selectedPostIds.splice(state.selectedPostIds.indexOf(id), 1);
-        }
-        
-        if (canOpenMultiplePosts) {
-            state.selectedPostIds.unshift(id);
-        } else {
-            state.selectedPostIds = [id];
-        }
-    },
-    unselectPostId(state: DataModuleState, id: PostId) {
-        state.selectedPostIds.splice(state.selectedPostIds.indexOf(id), 1);
-    },
-    togglePostId(state: DataModuleState, {id, canOpenMultiplePosts}: {id: PostId, canOpenMultiplePosts: boolean}) {
-        if (state.selectedPostIds.includes(id)) {
-            state.selectedPostIds.splice(state.selectedPostIds.indexOf(id), 1);
-        } else {
-            if (canOpenMultiplePosts) {
-                state.selectedPostIds.unshift(id);
-            } else {
-                state.selectedPostIds = [id];
-            }
-        }
-    },
-    movePostLeft(state: DataModuleState, id: PostId) {
-        const currentIndex = state.selectedPostIds.indexOf(id);
-        const newIndex = currentIndex === 0
-            ? state.selectedPostIds.length - 1
-            : currentIndex - 1;
-        state.selectedPostIds = arrayMove(state.selectedPostIds, currentIndex, newIndex);
-    },
-    movePostRight(state: DataModuleState, id: PostId) {
-        const currentIndex = state.selectedPostIds.indexOf(id);
-        const newIndex = currentIndex === (state.selectedPostIds.length - 1)
-            ? 0
-            : currentIndex + 1;
-        state.selectedPostIds = arrayMove(state.selectedPostIds, currentIndex, newIndex);
-    },
-
-    setSelectedGraphId(state: DataModuleState, selectedGraphId: GraphId) {
-        state.selectedSubgraphIds = [];
-        state.selectedGraphId = selectedGraphId;
-    },
-
-    setSelectedSubgraphIds(state: DataModuleState, selectedSubgraphIds: SubgraphId[]) {
-        state.selectedSubgraphIds = selectedSubgraphIds;
-    },
-    selectAllSubgraphs(state: DataModuleState) {
-        state.selectedSubgraphIds = state.graphs[state.selectedGraphId!].subgraphs;
-    },
-    toggleSubgraphId(state: DataModuleState, subgraphId: SubgraphId) {
-        if (state.selectedSubgraphIds.includes(subgraphId)) {
-            state.selectedSubgraphIds.splice(state.selectedSubgraphIds.indexOf(subgraphId), 1);
-        } else {
-            state.selectedSubgraphIds.push(subgraphId);
-        }
-    },
-
-    setZoom(state: DataModuleState, zoom: Zoom) {
-        state.zoom = zoom;
-    }
-};
-
-const actions = {
-    ...graphs.actions,
-    ...posts.actions,
-    ...links.actions,
-    ...subgraphs.actions,
-};
-
-function scheduleAutosave() {
-    const rootStore = useRootStore();
-    if (rootStore != null) {
-        rootStore.scheduleAutosave();
-    }
+interface MakeNewPostPayload {
+    title: string;
+    body: string;
+    updatedAt: string;
+    createdAt: string;
 }
 
-export const useDataStore = defineStore("dataModule", {
-    state: (): DataModuleState => ({
+function initialState(): DataModuleState {
+    return {
         graphs: {
-            ...state.graphs,
+            "1": {
+                id: "1",
+                name: "default",
+                nodes: [],
+                nodePositions: {},
+                subgraphs: [],
+            },
         },
-        posts: {
-            ...state.posts,
-        },
-        links: {
-            ...state.links,
-        },
-        subgraphs: {
-            ...state.subgraphs,
-        },
+        posts: {},
+        links: {},
+        subgraphs: {},
         selectedPostIds: [],
         selectedGraphId: "1",
         selectedSubgraphIds: [],
@@ -227,38 +62,309 @@ export const useDataStore = defineStore("dataModule", {
             x: WIDTH / 2,
             y: HEIGHT / 2,
             scale: INITIAL_ZOOM,
+        },
+    };
+}
+
+function objectMap<T, S>(f: (o: T) => S, o: Record<string, T>): Record<string, S> {
+    return Object.assign({}, ...Object.keys(o).map((k) => ({[k]: f(o[k])})));
+}
+
+function nextStringId(records: Record<string, unknown>): string {
+    const existingIds = Object.keys(records).map((id) => parseInt(id, 10));
+    const highestId = existingIds.length === 0
+        ? 0
+        : Math.max(...existingIds);
+    return String(highestId + 1);
+}
+
+function stringToColour(str: string): string {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    let colour = "#";
+    for (let i = 0; i < 3; i++) {
+        const value = (hash >> (i * 8)) & 0xFF;
+        colour += ("00" + value.toString(16)).slice(-2);
+    }
+    return colour;
+}
+
+function arrayMove<T>(array: Array<T>, fromIndex: number, toIndex: number): Array<T> {
+    const arrayCopy = array.slice(0);
+    const element = array[fromIndex];
+    arrayCopy.splice(fromIndex, 1);
+    arrayCopy.splice(toIndex, 0, element);
+    return arrayCopy;
+}
+
+function addPostToGraphState(state: DataModuleState, graphId: GraphId, postId: PostId): void {
+    const graph = state.graphs[graphId];
+    if (graph == null || graph.nodes.includes(postId)) {
+        return;
+    }
+
+    graph.nodes.push(postId);
+}
+
+function getSubgraphGraphId(state: DataModuleState, subgraphId: SubgraphId): Nullable<GraphId> {
+    for (const graph of Object.values(state.graphs)) {
+        if (graph.subgraphs.includes(subgraphId)) {
+            return graph.id;
         }
-    }),
+    }
+
+    return null;
+}
+
+function addPostToSubgraphState(state: DataModuleState, subgraphId: SubgraphId, postId: PostId): void {
+    const subgraph = state.subgraphs[subgraphId];
+    if (subgraph == null) {
+        return;
+    }
+
+    const graphId = getSubgraphGraphId(state, subgraphId) ?? state.selectedGraphId;
+    if (graphId != null) {
+        addPostToGraphState(state, graphId, postId);
+    }
+
+    if (!subgraph.nodes.includes(postId)) {
+        subgraph.nodes.push(postId);
+    }
+}
+
+function removeLinkFromSubgraphs(state: DataModuleState, linkId: LinkId): void {
+    for (const subgraph of Object.values(state.subgraphs)) {
+        subgraph.links = subgraph.links.filter((id) => id !== linkId);
+    }
+}
+
+function removeLinksWhere(state: DataModuleState, shouldRemoveLink: (link: LinkSerialised) => boolean): void {
+    const linksAfterRemoval: LinksMap = {};
+    for (const link of Object.values(state.links)) {
+        if (shouldRemoveLink(link)) {
+            removeLinkFromSubgraphs(state, link.id);
+            continue;
+        }
+
+        linksAfterRemoval[link.id] = link;
+    }
+
+    state.links = linksAfterRemoval;
+}
+
+function removePostPositionFromGraph(graph: GraphSerialised, postId: PostId): void {
+    const nodePositions: NodePositionsMap = {};
+    for (const [positionPostId, position] of Object.entries(graph.nodePositions)) {
+        if (positionPostId !== postId) {
+            nodePositions[positionPostId] = position;
+        }
+    }
+
+    graph.nodePositions = nodePositions;
+}
+
+function removePostFromGraphState(state: DataModuleState, graphId: GraphId, postId: PostId): void {
+    const graph = state.graphs[graphId];
+    if (graph == null) {
+        return;
+    }
+
+    removeLinksWhere(
+        state,
+        (link) => link.graph === graphId && (link.source === postId || link.target === postId)
+    );
+
+    for (const subgraphId of graph.subgraphs) {
+        const subgraph = state.subgraphs[subgraphId];
+        if (subgraph != null) {
+            subgraph.nodes = subgraph.nodes.filter((id) => id !== postId);
+        }
+    }
+
+    removePostPositionFromGraph(graph, postId);
+    graph.nodes = graph.nodes.filter((id) => id !== postId);
+}
+
+function removePostFromSubgraphState(state: DataModuleState, subgraphId: SubgraphId, postId: PostId): void {
+    const subgraph = state.subgraphs[subgraphId];
+    if (subgraph == null) {
+        return;
+    }
+
+    subgraph.links = subgraph.links.filter((linkId) => {
+        const link = state.links[linkId];
+        return link == null || (link.source !== postId && link.target !== postId);
+    });
+    subgraph.nodes = subgraph.nodes.filter((id) => id !== postId);
+}
+
+function removeLinkState(state: DataModuleState, linkId: LinkId): void {
+    removeLinkFromSubgraphs(state, linkId);
+    delete state.links[linkId];
+}
+
+function addLinkToSubgraphState(state: DataModuleState, linkId: LinkId, subgraphId: SubgraphId): void {
+    const link = state.links[linkId];
+    const subgraph = state.subgraphs[subgraphId];
+    if (link == null || subgraph == null) {
+        return;
+    }
+
+    addPostToSubgraphState(state, subgraphId, link.source);
+    addPostToSubgraphState(state, subgraphId, link.target);
+
+    if (!subgraph.links.includes(linkId)) {
+        subgraph.links.push(linkId);
+    }
+}
+
+function ensureLinkedPostsAreInContainingSubgraphs(state: DataModuleState, linkId: LinkId): void {
+    for (const subgraph of Object.values(state.subgraphs)) {
+        if (subgraph.links.includes(linkId)) {
+            addLinkToSubgraphState(state, linkId, subgraph.id);
+        }
+    }
+}
+
+function deletePostState(state: DataModuleState, postId: PostId): void {
+    state.selectedPostIds = state.selectedPostIds.filter((id) => id !== postId);
+
+    removeLinksWhere(
+        state,
+        (link) => link.source === postId || link.target === postId
+    );
+
+    for (const graph of Object.values(state.graphs)) {
+        graph.nodes = graph.nodes.filter((id) => id !== postId);
+        removePostPositionFromGraph(graph, postId);
+    }
+
+    for (const subgraph of Object.values(state.subgraphs)) {
+        subgraph.nodes = subgraph.nodes.filter((id) => id !== postId);
+    }
+
+    delete state.posts[postId];
+}
+
+function scheduleAutosave(): void {
+    if (typeof localStorage === "undefined") {
+        return;
+    }
+
+    useRootStore().scheduleAutosave();
+}
+
+export const useDataStore = defineStore("dataModule", {
+    state: (): DataModuleState => initialState(),
     getters: {
         postIds(store): PostId[] {
-            return posts.getters.postIds(store);
+            return Object.keys(store.posts);
         },
-        unattachedPosts(store) {
-            return posts.getters.unattachedPosts(store);
+        unattachedPosts(store): PostSerialised[] {
+            const attachedPostIds = new Set<PostId>();
+            for (const graph of Object.values(store.graphs)) {
+                graph.nodes.forEach((postId) => attachedPostIds.add(postId));
+            }
+
+            return Object.keys(store.posts)
+                .filter((id) => !attachedPostIds.has(id))
+                .map((id) => store.posts[id]);
         },
-        titleOrBody(store) {
-            return posts.getters.titleOrBody(store);
+        titleOrBody(store): (postId: PostId) => string {
+            return (postId: PostId): string => {
+                const maxBodyLength = 30;
+                const post = store.posts[postId];
+                const possibleTitle = post.title.split("\n")[0].trim();
+                if (possibleTitle.length > 0) {
+                    return possibleTitle;
+                }
+
+                const body = post.body.split("\n")[0].trim();
+                return body.length > maxBodyLength
+                    ? body.substring(0, maxBodyLength) + ".."
+                    : body;
+            };
         },
-        neighbourIndex(store): {[key: string]: number} {
-            return posts.getters.neighbourIndex(store, this);
+        neighbourIndex(): Record<string, number> {
+            const neighbourIndex: Record<string, number> = {};
+            this.linksInSelectedSubgraphs.forEach((link) => {
+                const source = parseInt(link.source, 10);
+                const target = parseInt(link.target, 10);
+                const lowerId = Math.min(source, target);
+                const higherId = Math.max(source, target);
+                neighbourIndex[lowerId + "," + higherId] = 1;
+            });
+            return neighbourIndex;
         },
-        isNeighbour(store) {
-            return posts.getters.isNeighbour(store, this);
+        isNeighbour(): (postAId: PostId, postBId: PostId) => boolean {
+            return (postAId: PostId, postBId: PostId): boolean => {
+                const a = parseInt(postAId, 10);
+                const b = parseInt(postBId, 10);
+                const lowerId = Math.min(a, b);
+                const higherId = Math.max(a, b);
+                return typeof this.neighbourIndex[lowerId + "," + higherId] !== "undefined";
+            };
         },
-        postIdsThatLinkToPost(store) {
-            return posts.getters.postIdsThatLinkToPost(store);
+        postIdsThatLinkToPost(store): (postId: PostId) => {from: Record<LinkId, PostId>; to: Record<LinkId, PostId>} {
+            return (postId: PostId): {from: Record<LinkId, PostId>; to: Record<LinkId, PostId>} => {
+                const fromPostIds: Record<LinkId, PostId> = {};
+                const toPostIds: Record<LinkId, PostId> = {};
+
+                Object.values(store.links).forEach((link) => {
+                    if (link.source === postId) {
+                        fromPostIds[link.id] = link.target;
+                    } else if (link.target === postId) {
+                        toPostIds[link.id] = link.source;
+                    }
+                });
+
+                return {
+                    from: fromPostIds,
+                    to: toPostIds,
+                };
+            };
         },
-        linkedSubgraphs(store) {
-            return posts.getters.linkedSubgraphs(store);
+        linkedSubgraphs(store): (postId: PostId) => SubgraphId[] {
+            return (postId: PostId): SubgraphId[] => {
+                const linkedSubgraphs: SubgraphId[] = [];
+
+                for (const subgraph of Object.values(store.subgraphs)) {
+                    if (subgraph.nodes.includes(postId)) {
+                        linkedSubgraphs.push(subgraph.id);
+                    }
+                }
+
+                return linkedSubgraphs;
+            };
         },
         linkIds(store): LinkId[] {
-            return links.getters.linkIds(store);
+            return Object.keys(store.links);
         },
-        subgraphsLinkIsIn(store) {
-            return links.getters.subgraphsLinkIsIn(store);
+        subgraphsLinkIsIn(store): (linkId: LinkId) => SubgraphId[] {
+            return (linkId: LinkId): SubgraphId[] => {
+                const subgraphsLinkIsIn: SubgraphId[] = [];
+
+                for (const subgraph of Object.values(store.subgraphs)) {
+                    if (subgraph.links.includes(linkId)) {
+                        subgraphsLinkIsIn.push(subgraph.id);
+                    }
+                }
+
+                return subgraphsLinkIsIn;
+            };
         },
-        subgraphColour(store) {
-            return subgraphs.getters.subgraphColour(store);
+        subgraphColour(store): (subgraphId: Nullable<SubgraphId>) => string {
+            return (subgraphId: Nullable<SubgraphId>): string => {
+                if (subgraphId == null) {
+                    return "#000000";
+                }
+
+                return store.subgraphs[subgraphId]?.colour
+                    || stringToColour(`${String(subgraphId)}salt and pepper are good for hashes`);
+            };
         },
         subgraphsInSelectedGraph(store): SubgraphSerialised[] {
             const graphId = store.selectedGraphId;
@@ -266,19 +372,19 @@ export const useDataStore = defineStore("dataModule", {
                 return [];
             }
 
-            return store.graphs[graphId].subgraphs.map(id => store.subgraphs[id]);
+            return store.graphs[graphId].subgraphs.map((id) => store.subgraphs[id]);
         },
         postIdsInSelectedSubgraphs(store): PostId[] {
-            let postIDs: PostId[] = [];
+            let postIds: PostId[] = [];
             if (store.selectedSubgraphIds.length > 0) {
                 for (const selectedSubgraphId of store.selectedSubgraphIds) {
-                    postIDs = postIDs.concat(store.subgraphs[selectedSubgraphId].nodes);
+                    postIds = postIds.concat(store.subgraphs[selectedSubgraphId].nodes);
                 }
             } else if (store.selectedGraphId != null && store.graphs[store.selectedGraphId] != null) {
-                postIDs = store.graphs[store.selectedGraphId].nodes;
+                postIds = store.graphs[store.selectedGraphId].nodes;
             }
 
-            return [...new Set(postIDs.filter(id => id != null))];
+            return [...new Set(postIds.filter((id): id is PostId => id != null))];
         },
         postsInSelectedSubgraphs(store): PostSerialised[] {
             const postIdsInSelectedSubgraphs = store.selectedSubgraphIds.length > 0
@@ -291,9 +397,9 @@ export const useDataStore = defineStore("dataModule", {
         },
         linksInSelectedSubgraphs(store): LinkWithSubgraphId[] {
             if (store.selectedSubgraphIds.length > 0) {
-                let linksWithSubgraphIDs: Array<{linkId: LinkId; subgraphId: SubgraphId}> = [];
+                let linksWithSubgraphIds: Array<{linkId: LinkId; subgraphId: SubgraphId}> = [];
                 for (const selectedSubgraphId of store.selectedSubgraphIds) {
-                    linksWithSubgraphIDs = linksWithSubgraphIDs.concat(
+                    linksWithSubgraphIds = linksWithSubgraphIds.concat(
                         store.subgraphs[selectedSubgraphId].links.map((linkId) => ({
                             linkId,
                             subgraphId: selectedSubgraphId,
@@ -301,11 +407,10 @@ export const useDataStore = defineStore("dataModule", {
                     );
                 }
 
-                return linksWithSubgraphIDs.map(({linkId, subgraphId}): LinkWithSubgraphId => {
-                    const link = JSON.parse(JSON.stringify(store.links[linkId])) as LinkWithSubgraphId;
-                    link.subgraphId = subgraphId;
-                    return link;
-                });
+                return linksWithSubgraphIds.map(({linkId, subgraphId}) => ({
+                    ...store.links[linkId],
+                    subgraphId,
+                }));
             }
 
             const linkToSubgraphMap: Record<LinkId, SubgraphId> = {};
@@ -319,177 +424,322 @@ export const useDataStore = defineStore("dataModule", {
                 .filter((link) => store.selectedGraphId === link.graph)
                 .map((link): LinkWithSubgraphId => {
                     const subgraphId = linkToSubgraphMap[link.id];
-                    if (subgraphId) {
-                        const linkWithSubgraphId = JSON.parse(JSON.stringify(store.links[link.id])) as LinkWithSubgraphId;
-                        linkWithSubgraphId.subgraphId = subgraphId;
-                        return linkWithSubgraphId;
-                    }
-                    return link as LinkWithSubgraphId;
+                    return subgraphId == null
+                        ? link
+                        : {
+                            ...link,
+                            subgraphId,
+                        };
                 });
         },
     },
     actions: {
         setState(newState: DataModuleStateSerialised) {
-            mutations.setState(this, newState);
+            if (
+                Object.keys(newState).length === 0
+                || Object.keys(newState.posts).length === 0
+            ) {
+                return;
+            }
+
+            this.graphs = objectMap((graph) => Graph.unserialise(graph).serialise(), newState.graphs);
+            this.posts = objectMap((post) => Post.unserialise(post).serialise(), newState.posts);
+            this.links = objectMap((link) => Link.unserialise(link).serialise(), newState.links);
+            this.subgraphs = newState.subgraphs == null
+                ? {}
+                : objectMap((subgraph) => Subgraph.unserialise(subgraph).serialise(), newState.subgraphs);
+
+            this.selectedPostIds = newState.selectedPostIds.map(String) || [];
+            this.selectedGraphId = String(newState.selectedGraphId) || "1";
+            this.selectedSubgraphIds = newState.selectedSubgraphIds.map(String) || [];
+
+            this.zoom = newState.zoom || {
+                x: WIDTH / 2,
+                y: HEIGHT / 2,
+                scale: INITIAL_ZOOM,
+            };
         },
         setSelectedPostIds(selectedPostIds: PostId[]) {
-            mutations.setSelectedPostIds(this, selectedPostIds);
+            this.selectedPostIds = selectedPostIds;
             scheduleAutosave();
         },
-        selectPostId(payload: {id: PostId; canOpenMultiplePosts: boolean}) {
-            mutations.selectPostId(this, payload);
+        selectPostId({id, canOpenMultiplePosts}: {id: PostId; canOpenMultiplePosts: boolean}) {
+            this.selectedPostIds = this.selectedPostIds.filter((selectedPostId) => selectedPostId !== id);
+
+            if (canOpenMultiplePosts) {
+                this.selectedPostIds.unshift(id);
+            } else {
+                this.selectedPostIds = [id];
+            }
             scheduleAutosave();
         },
         unselectPostId(id: PostId) {
-            mutations.unselectPostId(this, id);
+            this.selectedPostIds = this.selectedPostIds.filter((selectedPostId) => selectedPostId !== id);
             scheduleAutosave();
         },
-        togglePostId(payload: {id: PostId; canOpenMultiplePosts: boolean}) {
-            mutations.togglePostId(this, payload);
+        togglePostId({id, canOpenMultiplePosts}: {id: PostId; canOpenMultiplePosts: boolean}) {
+            if (this.selectedPostIds.includes(id)) {
+                this.selectedPostIds = this.selectedPostIds.filter((selectedPostId) => selectedPostId !== id);
+            } else if (canOpenMultiplePosts) {
+                this.selectedPostIds.unshift(id);
+            } else {
+                this.selectedPostIds = [id];
+            }
             scheduleAutosave();
         },
         movePostLeft(id: PostId) {
-            mutations.movePostLeft(this, id);
+            const currentIndex = this.selectedPostIds.indexOf(id);
+            if (currentIndex < 0 || this.selectedPostIds.length === 0) {
+                return;
+            }
+
+            const newIndex = currentIndex === 0
+                ? this.selectedPostIds.length - 1
+                : currentIndex - 1;
+            this.selectedPostIds = arrayMove(this.selectedPostIds, currentIndex, newIndex);
             scheduleAutosave();
         },
         movePostRight(id: PostId) {
-            mutations.movePostRight(this, id);
+            const currentIndex = this.selectedPostIds.indexOf(id);
+            if (currentIndex < 0 || this.selectedPostIds.length === 0) {
+                return;
+            }
+
+            const newIndex = currentIndex === (this.selectedPostIds.length - 1)
+                ? 0
+                : currentIndex + 1;
+            this.selectedPostIds = arrayMove(this.selectedPostIds, currentIndex, newIndex);
             scheduleAutosave();
         },
         setSelectedGraphId(selectedGraphId: GraphId) {
-            mutations.setSelectedGraphId(this, selectedGraphId);
+            this.selectedSubgraphIds = [];
+            this.selectedGraphId = selectedGraphId;
             scheduleAutosave();
         },
         setSelectedSubgraphIds(selectedSubgraphIds: SubgraphId[]) {
-            mutations.setSelectedSubgraphIds(this, selectedSubgraphIds);
+            this.selectedSubgraphIds = selectedSubgraphIds;
             scheduleAutosave();
         },
         selectAllSubgraphs() {
-            mutations.selectAllSubgraphs(this);
+            if (this.selectedGraphId == null || this.graphs[this.selectedGraphId] == null) {
+                this.selectedSubgraphIds = [];
+            } else {
+                this.selectedSubgraphIds = this.graphs[this.selectedGraphId].subgraphs;
+            }
             scheduleAutosave();
         },
         toggleSubgraphId(subgraphId: SubgraphId) {
-            mutations.toggleSubgraphId(this, subgraphId);
+            if (this.selectedSubgraphIds.includes(subgraphId)) {
+                this.selectedSubgraphIds = this.selectedSubgraphIds.filter((selectedSubgraphId) => selectedSubgraphId !== subgraphId);
+            } else {
+                this.selectedSubgraphIds.push(subgraphId);
+            }
             scheduleAutosave();
         },
         setZoom(zoom: Zoom) {
-            mutations.setZoom(this, zoom);
+            this.zoom = zoom;
             scheduleAutosave();
         },
         makeNewGraph(newGraphName: string) {
-            mutations.makeNewGraph(this, newGraphName);
+            if (newGraphName.trim().length === 0) {
+                return;
+            }
+
+            const existingGraphNames = Object.values(this.graphs).map((graph) => graph.name);
+            if (existingGraphNames.includes(newGraphName)) {
+                alert("You're trying to add a graph that already exists, choose a different name");
+                return;
+            }
+
+            const newGraphId = nextStringId(this.graphs);
+            this.graphs[newGraphId] = new Graph(newGraphId, newGraphName, [], {}, []).serialise();
             scheduleAutosave();
         },
-        changeGraphName(payload: {graphId: GraphId; newGraphName: string}) {
-            mutations.changeGraphName(this, payload);
+        changeGraphName({graphId, newGraphName}: {graphId: GraphId; newGraphName: string}) {
+            this.graphs[graphId].name = newGraphName;
             scheduleAutosave();
         },
         removeGraph(graphId: GraphId) {
-            mutations.removeGraph(this, graphId);
+            const graph = this.graphs[graphId];
+            if (graph == null) {
+                return;
+            }
+
+            if (this.selectedGraphId === graphId) {
+                this.selectedGraphId = null;
+            }
+
+            this.selectedSubgraphIds = this.selectedSubgraphIds
+                .filter((selectedSubgraphId) => !graph.subgraphs.includes(selectedSubgraphId));
+
+            for (const subgraphId of graph.subgraphs) {
+                delete this.subgraphs[subgraphId];
+            }
+
+            for (const link of Object.values(this.links)) {
+                if (link.graph === graphId) {
+                    delete this.links[link.id];
+                }
+            }
+
+            delete this.graphs[graphId];
             scheduleAutosave();
         },
-        addPostToGraph(payload: {graphId: GraphId; postId: PostId}) {
-            mutations.addPostToGraph(this, payload);
+        addPostToGraph({graphId, postId}: {graphId: GraphId; postId: PostId}) {
+            addPostToGraphState(this, graphId, postId);
             scheduleAutosave();
         },
-        removePostFromGraph(payload: {graphId: GraphId; postId: PostId}) {
-            mutations.removePostFromGraph(this, payload);
+        removePostFromGraph({graphId, postId}: {graphId: GraphId; postId: PostId}) {
+            removePostFromGraphState(this, graphId, postId);
             scheduleAutosave();
         },
-        setPostPosition(payload: {postId: PostId; position: {x: number; y: number}}) {
-            mutations.setPostPosition(this, payload);
+        setPostPosition({postId, position}: {postId: PostId; position: NodePosition}) {
+            if (this.selectedGraphId == null) {
+                return;
+            }
+
+            this.graphs[this.selectedGraphId].nodePositions[postId] = position;
             scheduleAutosave();
         },
-        createPost(newPost: Post) {
-            const createdPost = mutations.createPost(this, newPost);
-            scheduleAutosave();
-            return createdPost;
-        },
-        updatePostTitle(payload: {id: PostId; title: string; updatedAt: string}) {
-            mutations.updatePostTitle(this, payload);
+        updatePostTitle({id, title, updatedAt}: {id: PostId; title: string; updatedAt: string}) {
+            this.posts[id].title = title;
+            this.posts[id].updatedAt = updatedAt;
             scheduleAutosave();
         },
-        updatePostBody(payload: {id: PostId; body: string; updatedAt: string}) {
-            mutations.updatePostBody(this, payload);
+        updatePostBody({id, body, updatedAt}: {id: PostId; body: string; updatedAt: string}) {
+            this.posts[id].body = body;
+            this.posts[id].updatedAt = updatedAt;
             scheduleAutosave();
         },
-        deletePost(payload: {id: PostId}) {
-            mutations.deletePost(this, payload);
+        deletePost({id}: {id: PostId}) {
+            deletePostState(this, id);
             scheduleAutosave();
         },
-        addLink(payload: {source: PostId; target: PostId; graph: GraphId; type: LinkType; subgraphIds?: SubgraphId[]}) {
-            mutations.addLink(this, payload);
+        addLink({source, target, graph, type = "reply", subgraphIds = []}: {source: PostId; target: PostId; graph: GraphId; type: LinkType; subgraphIds?: SubgraphId[]}) {
+            const linkAlreadyExists = Object.values(this.links)
+                .some((link) => {
+                    return (
+                        link.graph === graph
+                        && link.source === source
+                        && link.target === target
+                        && link.type === type
+                    );
+                });
+            if (linkAlreadyExists) {
+                alert("This link already exists");
+                return;
+            }
+
+            addPostToGraphState(this, graph, source);
+            addPostToGraphState(this, graph, target);
+
+            const newLinkId = nextStringId(this.links);
+            this.links[newLinkId] = new Link(newLinkId, graph, source, target, type).serialise();
+
+            for (const subgraphId of subgraphIds) {
+                addLinkToSubgraphState(this, newLinkId, subgraphId);
+            }
+
             scheduleAutosave();
         },
         updateLink(link: LinkSerialised) {
-            mutations.updateLink(this, link);
+            addPostToGraphState(this, link.graph, link.source);
+            addPostToGraphState(this, link.graph, link.target);
+            this.links[link.id] = link;
+            ensureLinkedPostsAreInContainingSubgraphs(this, link.id);
             scheduleAutosave();
         },
-        changeLinkSource(payload: {id: LinkId; source: PostId}) {
-            mutations.changeLinkSource(this, payload);
+        changeLinkSource({id, source}: {id: LinkId; source: PostId}) {
+            const link = this.links[id];
+            if (link == null || link.source === source || link.target === source) {
+                return;
+            }
+
+            addPostToGraphState(this, link.graph, source);
+            link.source = source;
+            ensureLinkedPostsAreInContainingSubgraphs(this, id);
             scheduleAutosave();
         },
-        changeLinkTarget(payload: {id: LinkId; target: PostId}) {
-            mutations.changeLinkTarget(this, payload);
+        changeLinkTarget({id, target}: {id: LinkId; target: PostId}) {
+            const link = this.links[id];
+            if (link == null || link.source === target || link.target === target) {
+                return;
+            }
+
+            addPostToGraphState(this, link.graph, target);
+            link.target = target;
+            ensureLinkedPostsAreInContainingSubgraphs(this, id);
             scheduleAutosave();
         },
-        setSubgraphsLinkIsIn(payload: {linkId: LinkId; subgraphsLinkIsIn: SubgraphId[]}) {
-            mutations.setSubgraphsLinkIsIn(this, payload);
+        setSubgraphsLinkIsIn({linkId, subgraphsLinkIsIn}: {linkId: LinkId; subgraphsLinkIsIn: SubgraphId[]}) {
+            for (const subgraphId of Object.keys(this.subgraphs)) {
+                const subgraph = this.subgraphs[subgraphId];
+                const alreadyInSubgraph = subgraph.links.includes(linkId);
+                const shouldBeInSubgraph = subgraphsLinkIsIn.includes(subgraphId);
+
+                if (alreadyInSubgraph && !shouldBeInSubgraph) {
+                    subgraph.links = subgraph.links.filter((id) => id !== linkId);
+                } else if (!alreadyInSubgraph && shouldBeInSubgraph) {
+                    addLinkToSubgraphState(this, linkId, subgraphId);
+                }
+            }
             scheduleAutosave();
         },
-        removeLink(payload: {id: LinkId}) {
-            mutations.removeLink(this, payload);
+        removeLink({id}: {id: LinkId}) {
+            removeLinkState(this, id);
             scheduleAutosave();
         },
-        makeNewSubgraph(payload: {graphId: GraphId; newSubgraphName: string}) {
-            mutations.makeNewSubgraph(this, payload);
+        makeNewSubgraph({graphId, newSubgraphName}: {graphId: GraphId; newSubgraphName: string}) {
+            if (newSubgraphName.trim().length === 0) {
+                return;
+            }
+
+            const existingSubgraphNames = Object.values(this.subgraphs).map((subgraph) => subgraph.name);
+            if (existingSubgraphNames.includes(newSubgraphName)) {
+                alert("You're trying to make a subgraph that already exists, choose a different name");
+                return;
+            }
+
+            const newSubgraphId = nextStringId(this.subgraphs);
+            this.subgraphs[newSubgraphId] = new Subgraph(newSubgraphId, newSubgraphName, [], []).serialise();
+            this.graphs[graphId].subgraphs.push(newSubgraphId);
             scheduleAutosave();
         },
-        changeSubgraphName(payload: {subgraphId: SubgraphId; newSubgraphName: string}) {
-            mutations.changeSubgraphName(this, payload);
+        changeSubgraphName({subgraphId, newSubgraphName}: {subgraphId: SubgraphId; newSubgraphName: string}) {
+            this.subgraphs[subgraphId].name = newSubgraphName;
             scheduleAutosave();
         },
-        changeSubgraphColour(payload: {subgraphId: SubgraphId; colour: string}) {
-            mutations.changeSubgraphColour(this, payload);
+        changeSubgraphColour({subgraphId, colour}: {subgraphId: SubgraphId; colour: string}) {
+            this.subgraphs[subgraphId].colour = colour;
             scheduleAutosave();
         },
         removeSubgraph(subgraphId: SubgraphId) {
-            mutations.removeSubgraph(this, subgraphId);
+            this.selectedSubgraphIds = this.selectedSubgraphIds
+                .filter((selectedSubgraphId) => selectedSubgraphId !== subgraphId);
+
+            const graphId = getSubgraphGraphId(this, subgraphId);
+            if (graphId != null) {
+                this.graphs[graphId].subgraphs = this.graphs[graphId].subgraphs
+                    .filter((id) => id !== subgraphId);
+            }
+
+            delete this.subgraphs[subgraphId];
             scheduleAutosave();
         },
-        addPostToSubgraph(payload: {subgraphId: SubgraphId; postId: PostId}) {
-            mutations.addPostToSubgraph(this, payload);
+        addPostToSubgraph({subgraphId, postId}: {subgraphId: SubgraphId; postId: PostId}) {
+            addPostToSubgraphState(this, subgraphId, postId);
             scheduleAutosave();
         },
-        removePostFromSubgraph(payload: {subgraphId: SubgraphId; postId: PostId}) {
-            mutations.removePostFromSubgraph(this, payload);
+        removePostFromSubgraph({subgraphId, postId}: {subgraphId: SubgraphId; postId: PostId}) {
+            removePostFromSubgraphState(this, subgraphId, postId);
             scheduleAutosave();
         },
-        async makeNewPost(payload: {title: string; body: string; updatedAt: string; createdAt: string}) {
-            const newPost = await actions.makeNewPost({
-                state: this,
-                commit: (mutationName: "createPost", newPostValue: Post) => {
-                    if (mutationName === "createPost") {
-                        mutations.createPost(this, newPostValue);
-                    }
-                }
-            }, payload);
+        makeNewPost({title, body, updatedAt, createdAt}: MakeNewPostPayload) {
+            const newPostId = nextStringId(this.posts);
+            const newPost = new Post(newPostId, title, body, createdAt, updatedAt);
+            this.posts[newPostId] = newPost.serialise();
             scheduleAutosave();
             return newPost;
         },
-    }
-});
-
-export {state, mutations, actions};
-
-export default {
-    state,
-    getters: {
-        ...graphs.getters,
-        ...posts.getters,
-        ...links.getters,
-        ...subgraphs.getters,
     },
-    mutations,
-    actions,
-};
+});

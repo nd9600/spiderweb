@@ -1,12 +1,6 @@
 import {defineStore} from "pinia";
 
-import {
-    ClickMode,
-    LinkId,
-    LinkType,
-    PostId,
-    SubgraphId
-} from "@/src/@types/StoreTypes";
+import type {ClickMode, LinkId, LinkType, PostId, SubgraphId} from "@/src/@types/StoreTypes";
 import {useDataStore} from "./dataModule";
 import {useSettingsStore} from "./settingsModule";
 
@@ -43,16 +37,6 @@ interface LinkClickPayload {
     coordinates: [number, number];
 }
 
-interface ClickerStoreApi extends ClickerModuleState {
-    setNewLinkSource(newLinkSource: Nullable<PostId>): void;
-    setNewLinkTarget(newLinkTarget: Nullable<PostId>): void;
-    setNewLinkSubgraphIds(newLinkSubgraphIds: SubgraphId[]): void;
-    setClickMode(clickMode: ClickMode): void;
-    setLinkToEdit(linkToEdit: Nullable<LinkId>): void;
-    setWantsToChangeSource(wantsToChangeSource: boolean): void;
-    setWantsToChangeTarget(wantsToChangeTarget: boolean): void;
-}
-
 function isClickedPost(post: unknown): post is ClickedPost {
     return typeof post === "object"
         && post !== null
@@ -60,222 +44,164 @@ function isClickedPost(post: unknown): post is ClickedPost {
         && typeof post.id === "string";
 }
 
-const state: ClickerModuleState = {
-    shouldShowClickButtonMenu: false,
-    clickMode: "openPosts",
-    newLinkSource: null,
-    newLinkTarget: null,
-    newLinkType: "reply",
-    newLinkSubgraphIds: [],
-    linkToEdit: null,
-    wantsToChangeSource: false,
-    wantsToChangeTarget: false,
-};
-
-const mutations = {
-    setShouldShowClickButtonMenu(state: ClickerModuleState, shouldShowClickButtonMenu: boolean) {
-        state.shouldShowClickButtonMenu = shouldShowClickButtonMenu;
-        if (!shouldShowClickButtonMenu) {
-            state.newLinkSource = null;
-            state.newLinkTarget = null;
-            state.newLinkType = "reply";
-            state.newLinkSubgraphIds = [];
-
-            state.linkToEdit = null;
-            state.wantsToChangeSource = false;
-            state.wantsToChangeTarget = false;
-        }
-    },
-
-    setClickMode(state: ClickerModuleState, clickMode: ClickMode) {
-        state.clickMode = clickMode;
-    },
-    setNewLinkSource(state: ClickerModuleState, newLinkSource: Nullable<PostId>) {
-        state.newLinkSource = newLinkSource;
-    },
-    setNewLinkTarget(state: ClickerModuleState, newLinkTarget: Nullable<PostId>) {
-        state.newLinkTarget = newLinkTarget;
-    },
-    setNewLinkType(state: ClickerModuleState, newLinkType: LinkType) {
-        state.newLinkType = newLinkType;
-    },
-    setNewLinkSubgraphIds(state: ClickerModuleState, newLinkSubgraphIds: SubgraphId[]) {
-        state.newLinkSubgraphIds = newLinkSubgraphIds;
-    },
-
-    setLinkToEdit(state: ClickerModuleState, linkToEdit: Nullable<LinkId>) {
-        state.linkToEdit = linkToEdit;
-    },
-    setWantsToChangeSource(state: ClickerModuleState, wantsToChangeSource: boolean) {
-        state.wantsToChangeSource = wantsToChangeSource;
-    },
-    setWantsToChangeTarget(state: ClickerModuleState, wantsToChangeTarget: boolean) {
-        state.wantsToChangeTarget = wantsToChangeTarget;
-    },
-};
-
-const actions = {
-    async handlePostClick(store: ClickerStoreApi, post: unknown) {
-        if (!isClickedPost(post)) {
-            console.error("no post clicked, clicked", post);
-            return;
-        }
-
-        const dataStore = useDataStore();
-        const settingsStore = useSettingsStore();
-
-        switch (store.clickMode) {
-            case "openPosts":
-            default: {
-                dataStore.selectPostId({
-                    id: post.id,
-                    canOpenMultiplePosts: settingsStore.canOpenMultiplePosts
-                });
-                break;
+export const useClickerStore = defineStore("clickerModule", {
+    state: (): ClickerModuleState => ({
+        shouldShowClickButtonMenu: false,
+        clickMode: "openPosts",
+        newLinkSource: null,
+        newLinkTarget: null,
+        newLinkType: "reply",
+        newLinkSubgraphIds: [],
+        linkToEdit: null,
+        wantsToChangeSource: false,
+        wantsToChangeTarget: false,
+    }),
+    actions: {
+        setShouldShowClickButtonMenu(shouldShowClickButtonMenu: boolean) {
+            this.shouldShowClickButtonMenu = shouldShowClickButtonMenu;
+            if (!shouldShowClickButtonMenu) {
+                this.newLinkSource = null;
+                this.newLinkTarget = null;
+                this.newLinkType = "reply";
+                this.newLinkSubgraphIds = [];
+                this.linkToEdit = null;
+                this.wantsToChangeSource = false;
+                this.wantsToChangeTarget = false;
+            }
+        },
+        setClickMode(clickMode: ClickMode) {
+            this.clickMode = clickMode;
+        },
+        setNewLinkSource(newLinkSource: Nullable<PostId>) {
+            this.newLinkSource = newLinkSource;
+        },
+        setNewLinkTarget(newLinkTarget: Nullable<PostId>) {
+            this.newLinkTarget = newLinkTarget;
+        },
+        setNewLinkType(newLinkType: LinkType) {
+            this.newLinkType = newLinkType;
+        },
+        setNewLinkSubgraphIds(newLinkSubgraphIds: SubgraphId[]) {
+            this.newLinkSubgraphIds = newLinkSubgraphIds;
+        },
+        setLinkToEdit(linkToEdit: Nullable<LinkId>) {
+            this.linkToEdit = linkToEdit;
+        },
+        setWantsToChangeSource(wantsToChangeSource: boolean) {
+            this.wantsToChangeSource = wantsToChangeSource;
+        },
+        setWantsToChangeTarget(wantsToChangeTarget: boolean) {
+            this.wantsToChangeTarget = wantsToChangeTarget;
+        },
+        async handlePostClick(post: unknown) {
+            if (!isClickedPost(post)) {
+                console.error("no post clicked, clicked", post);
+                return;
             }
 
-            case "addLink": {
-                if (store.newLinkSource === null) {
-                    store.setNewLinkSource(post.id);
+            const dataStore = useDataStore();
+            const settingsStore = useSettingsStore();
+
+            switch (this.clickMode) {
+                case "openPosts":
+                default: {
+                    dataStore.selectPostId({
+                        id: post.id,
+                        canOpenMultiplePosts: settingsStore.canOpenMultiplePosts,
+                    });
                     break;
-                } else {
-                    const newLinkSource = store.newLinkSource;
-                    if (newLinkSource == null || newLinkSource === post.id) {
+                }
+
+                case "addLink": {
+                    if (this.newLinkSource == null) {
+                        this.newLinkSource = post.id;
+                        break;
+                    }
+
+                    const newLinkSource = this.newLinkSource;
+                    if (newLinkSource === post.id) {
                         return;
                     }
 
-                    store.setNewLinkTarget(post.id);
-
+                    this.newLinkTarget = post.id;
                     dataStore.addLink({
                         source: newLinkSource,
                         target: post.id,
                         graph: dataStore.selectedGraphId!,
-                        type: store.newLinkType,
-                        subgraphIds: store.newLinkSubgraphIds
+                        type: this.newLinkType,
+                        subgraphIds: this.newLinkSubgraphIds,
                     });
 
-                    store.setClickMode("openPosts");
-                    store.setNewLinkSource(null);
-                    store.setNewLinkTarget(null);
-                    store.setNewLinkSubgraphIds([]);
+                    this.clickMode = "openPosts";
+                    this.newLinkSource = null;
+                    this.newLinkTarget = null;
+                    this.newLinkSubgraphIds = [];
 
                     break;
                 }
-            }
 
-            case "changeLink": {
-                if (store.wantsToChangeSource) {
-                    if (store.linkToEdit == null) {
-                        return;
+                case "changeLink": {
+                    if (this.wantsToChangeSource) {
+                        if (this.linkToEdit == null) {
+                            return;
+                        }
+                        dataStore.changeLinkSource({
+                            id: this.linkToEdit,
+                            source: post.id,
+                        });
+                        this.wantsToChangeSource = false;
+                    } else if (this.wantsToChangeTarget) {
+                        if (this.linkToEdit == null) {
+                            return;
+                        }
+                        dataStore.changeLinkTarget({
+                            id: this.linkToEdit,
+                            target: post.id,
+                        });
+                        this.wantsToChangeTarget = false;
                     }
-                    dataStore.changeLinkSource({
-                        id: store.linkToEdit,
-                        source: post.id
-                    });
-                    store.setWantsToChangeSource(false);
-                } else if (store.wantsToChangeTarget) {
-                    if (store.linkToEdit == null) {
-                        return;
-                    }
-                    dataStore.changeLinkTarget({
-                        id: store.linkToEdit,
-                        target: post.id
-                    });
-                    store.setWantsToChangeTarget(false);
+                    this.clickMode = "openPosts";
+                    this.linkToEdit = null;
                 }
-                store.setClickMode("openPosts");
-                store.setLinkToEdit(null);
             }
-        }
-    },
+        },
+        async handleLinkClick({link, coordinates}: LinkClickPayload) {
+            if (typeof link !== "object") {
+                console.error("no link clicked, clicked", link);
+                return;
+            }
 
-    async handleLinkClick(store: ClickerStoreApi, {link, coordinates}: LinkClickPayload) {
-        if (typeof link !== "object") {
-            console.error("no link clicked, clicked", link);
-            return;
-        }
+            switch (this.clickMode) {
+                case "openPosts": {
+                    const sourceCoordinates: [number, number] = [link.source.x, link.source.y];
+                    const targetCoordinates: [number, number] = [link.target.x, link.target.y];
 
-        switch (store.clickMode) {
-            case "openPosts": {
-                const sourceCoordinates: [number, number] = [link.source.x, link.source.y];
-                const targetCoordinates: [number, number] = [link.target.x, link.target.y];
+                    const distanceBetweenClickAndSource = Math.hypot(
+                        sourceCoordinates[0] - coordinates[0],
+                        sourceCoordinates[1] - coordinates[1]
+                    );
+                    const distanceBetweenClickAndTarget = Math.hypot(
+                        targetCoordinates[0] - coordinates[0],
+                        targetCoordinates[1] - coordinates[1]
+                    );
 
-                const distanceBetweenClickAndSource = Math.hypot(
-                    sourceCoordinates[0] - coordinates[0],
-                    sourceCoordinates[1] - coordinates[1]
-                );
-                const distanceBetweenClickAndTarget = Math.hypot(
-                    targetCoordinates[0] - coordinates[0],
-                    targetCoordinates[1] - coordinates[1]
-                );
-
-                if (distanceBetweenClickAndSource < distanceBetweenClickAndTarget) {
-                    return link.target.id;
-                } else if (distanceBetweenClickAndTarget < distanceBetweenClickAndSource) {
-                    return link.source.id;
-                } else {
+                    if (distanceBetweenClickAndSource < distanceBetweenClickAndTarget) {
+                        return link.target.id;
+                    } else if (distanceBetweenClickAndTarget < distanceBetweenClickAndSource) {
+                        return link.source.id;
+                    }
+                    return;
+                }
+                case "changeLink": {
+                    this.linkToEdit = link.id;
+                    break;
+                }
+                default: {
                     return;
                 }
             }
-            case "changeLink": {
-                store.setLinkToEdit(link.id);
-                break;
-            }
-            default: {
-                return;
-            }
-        }
 
-        return;
-    }
-};
-
-export const useClickerStore = defineStore("clickerModule", {
-    state: (): ClickerModuleState => ({
-        ...state
-    }),
-    actions: {
-        setShouldShowClickButtonMenu(shouldShowClickButtonMenu: boolean) {
-            mutations.setShouldShowClickButtonMenu(this, shouldShowClickButtonMenu);
+            return;
         },
-        setClickMode(clickMode: ClickMode) {
-            mutations.setClickMode(this, clickMode);
-        },
-        setNewLinkSource(newLinkSource: Nullable<PostId>) {
-            mutations.setNewLinkSource(this, newLinkSource);
-        },
-        setNewLinkTarget(newLinkTarget: Nullable<PostId>) {
-            mutations.setNewLinkTarget(this, newLinkTarget);
-        },
-        setNewLinkType(newLinkType: LinkType) {
-            mutations.setNewLinkType(this, newLinkType);
-        },
-        setNewLinkSubgraphIds(newLinkSubgraphIds: SubgraphId[]) {
-            mutations.setNewLinkSubgraphIds(this, newLinkSubgraphIds);
-        },
-        setLinkToEdit(linkToEdit: Nullable<LinkId>) {
-            mutations.setLinkToEdit(this, linkToEdit);
-        },
-        setWantsToChangeSource(wantsToChangeSource: boolean) {
-            mutations.setWantsToChangeSource(this, wantsToChangeSource);
-        },
-        setWantsToChangeTarget(wantsToChangeTarget: boolean) {
-            mutations.setWantsToChangeTarget(this, wantsToChangeTarget);
-        },
-        async handlePostClick(post: ClickedPost | unknown) {
-            await actions.handlePostClick(this, post);
-        },
-        async handleLinkClick(payload: LinkClickPayload) {
-            return actions.handleLinkClick(this, payload);
-        }
-    }
+    },
 });
-
-export {state, mutations, actions};
-
-export default {
-    state,
-    getters: {},
-    mutations,
-    actions,
-};

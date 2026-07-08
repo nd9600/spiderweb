@@ -1,16 +1,24 @@
-import postsModule from "@/src/store/modules/dataModules/posts";
-import type {DataModuleState} from "@/src/@types/StoreTypes";
+import {createPinia, setActivePinia} from "pinia";
+import {useDataStore} from "@/src/store/modules/dataModule";
 
 import overallState from "./state";
-let state: DataModuleState;
+
+let store: ReturnType<typeof useDataStore>;
 beforeEach(() => {
-    state = JSON.parse(JSON.stringify(overallState.dataModule)) as DataModuleState;
+    setActivePinia(createPinia());
+    store = useDataStore();
+    store.setState(JSON.parse(JSON.stringify(overallState.dataModule)));
 });
 
-test("deleting posts removes their positions too", () => {
-    expect(Object.keys(state.graphs[1].nodePositions).length === 2).toBeTruthy();
+test("deleting posts cascades through graph and subgraph state", () => {
+    expect(Object.keys(store.graphs["1"].nodePositions).length === 2).toBeTruthy();
 
-    postsModule.mutations.deletePost(state, {id: "2"});
-    expect(Object.keys(state.graphs[1].nodePositions).length === 1).toBeTruthy();
-    expect(state.graphs[1].nodePositions[2]).toBeUndefined();
+    store.deletePost({id: "2"});
+
+    expect(store.posts["2"]).toBeUndefined();
+    expect(store.graphs["1"].nodes.includes("2")).toBeFalsy();
+    expect(store.subgraphs["1"].nodes.includes("2")).toBeFalsy();
+    expect(Object.keys(store.graphs["1"].nodePositions).length === 1).toBeTruthy();
+    expect(store.graphs["1"].nodePositions["2"]).toBeUndefined();
+    expect(Object.values(store.links).some((link) => link.source === "2" || link.target === "2")).toBeFalsy();
 });

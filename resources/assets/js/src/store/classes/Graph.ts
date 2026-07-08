@@ -1,4 +1,4 @@
-import {GraphId, NodePosition, NodePositionsMap, PostId, SubgraphId} from "@/src/@types/StoreTypes";
+import {GraphId, NodePositionsMap, PostId, SubgraphId} from "@/src/@types/StoreTypes";
 
 export interface GraphSerialised {
     id: GraphId;

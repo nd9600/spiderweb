@@ -1,14 +1,18 @@
-import linksModule from "@/src/store/modules/dataModules/links";
-import type {DataModuleState} from "@/src/@types/StoreTypes";
+import {createPinia, setActivePinia} from "pinia";
+import {useDataStore} from "@/src/store/modules/dataModule";
 
 import overallState from "./state";
-let state: DataModuleState;
+
+let store: ReturnType<typeof useDataStore>;
 beforeEach(() => {
-    state = JSON.parse(JSON.stringify(overallState.dataModule)) as DataModuleState;
+    setActivePinia(createPinia());
+    store = useDataStore();
+    store.setState(JSON.parse(JSON.stringify(overallState.dataModule)));
 });
 
 test("deleting links removes them from subgraphs", () => {
-    expect(state.subgraphs[1].links.length === 3).toBeTruthy();
-    linksModule.mutations.removeLink(state, {id: "1"});
-    expect(state.subgraphs[1].links.length === 2).toBeTruthy();
+    expect(store.subgraphs["1"].links.length === 3).toBeTruthy();
+    store.removeLink({id: "1"});
+    expect(store.subgraphs["1"].links.length === 2).toBeTruthy();
+    expect(store.subgraphs["1"].links.includes("1")).toBeFalsy();
 });
