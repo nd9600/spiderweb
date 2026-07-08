@@ -1,4 +1,5 @@
 import debounce from "lodash/debounce";
+import {get, ref, set} from "firebase/database";
 import {defineStore} from "pinia";
 
 import {STORAGE_KEY} from "@/src/commonComponents/constants";
@@ -28,7 +29,7 @@ const saveToFirebase = debounce(
 
         const firebaseStore = useFirebaseStore();
         const firebaseDB = firebaseDbFactory(firebaseStore.firebaseConfig);
-        firebaseDB.ref(STORAGE_KEY).set(stringifiedStorage);
+        void set(ref(firebaseDB, STORAGE_KEY), stringifiedStorage);
     },
     250,
     {
@@ -107,25 +108,24 @@ export const useRootStore = defineStore("root", {
                         }
 
                         const firebaseDB = firebaseDbFactory(firebaseConfig);
-                        firebaseDB.ref(STORAGE_KEY).once("value")
-                            .then(
-                                (snapshot: {val(): string}) => {
-                                    const value = snapshot.val();
-                                    if (value == null) {
-                                        this.setFailedToLoadData(true);
-                                        return;
-                                    }
-
-                                    const firebaseStorageObject = JSON.parse(value) as Nullable<ImportedStorageObject>;
-                                    if (firebaseStorageObject != null) {
-                                        void this.importState(firebaseStorageObject);
-                                        loadedDataSuccesfully = true;
-                                        this.setLoadingApp(false);
-                                    } else {
-                                        this.setFailedToLoadData(true);
-                                    }
+                        get(ref(firebaseDB, STORAGE_KEY))
+                            .then((snapshot) => {
+                                const value = snapshot.val() as Nullable<string>;
+                                if (value == null) {
+                                    this.setFailedToLoadData(true);
+                                    return;
                                 }
-                            ).catch((error: unknown) => {
+
+                                const firebaseStorageObject = JSON.parse(value) as Nullable<ImportedStorageObject>;
+                                if (firebaseStorageObject != null) {
+                                    void this.importState(firebaseStorageObject);
+                                    loadedDataSuccesfully = true;
+                                    this.setLoadingApp(false);
+                                } else {
+                                    this.setFailedToLoadData(true);
+                                }
+                            })
+                            .catch((error: unknown) => {
                                 console.log(error);
                                 alert("There was an error loading the state from Firebase, please refresh the page/change your Firebase config in 'settings', and try again");
                             });
@@ -170,8 +170,8 @@ export const useRootStore = defineStore("root", {
                     try {
                         const firebaseStore = useFirebaseStore();
                         const firebaseDB = firebaseDbFactory(firebaseStore.firebaseConfig);
-                        const firebaseSnapshot = await firebaseDB.ref(STORAGE_KEY).once("value");
-                        const firebaseStorageObject = JSON.parse(firebaseSnapshot.val()) as ImportedStorageObject;
+                        const firebaseSnapshot = await get(ref(firebaseDB, STORAGE_KEY));
+                        const firebaseStorageObject = JSON.parse(firebaseSnapshot.val() as string) as ImportedStorageObject;
                         await this.importData(firebaseStorageObject);
                     } catch (error) {
                         console.log(error);

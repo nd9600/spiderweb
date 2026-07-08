@@ -1,16 +1,19 @@
-import marked from "marked";
+import {Marked, Renderer} from "marked";
+import type {Tokens} from "marked";
 
-const renderer = new marked.Renderer();
+const renderer = new Renderer();
 const linkRenderer = renderer.link;
-renderer.link = (href: string | null, title: string | null, text: string) => {
-    const html = linkRenderer.call(renderer, href, title, text);
+renderer.link = (token: Tokens.Link) => {
+    const html = linkRenderer.call(renderer, token);
     return html.replace(/^<a /, '<a target="_blank" rel="nofollow" ');
 };
-marked.setOptions({
+
+const marked = new Marked({
     breaks: true,
     gfm: true,
-    headerIds: false
+    renderer,
 });
-marked.use({ renderer });
 
-export default marked;
+export default function parseMarkdown(markdown: string): string {
+    return marked.parse(markdown, {async: false});
+}

@@ -45,19 +45,18 @@
 
 <script lang="ts">
 import {defineComponent} from "vue";
-import {select as d3select, selectAll as d3selectAll, event as d3event, mouse as d3mouse} from "d3-selection";
+import {select as d3select, pointer as d3pointer} from "d3-selection";
 import {forceSimulation as d3forceSimulation, forceLink as d3forceLink, forceManyBody as d3forceManyBody, forceCenter as d3forceCenter} from "d3-force";
 import {zoom as d3zoom, zoomIdentity as d3zoomIdentity} from "d3-zoom";
 import {drag as d3drag} from "d3-drag";
 import "d3-transition";
 import type {Selection} from "d3-selection";
 import type {Simulation, SimulationLinkDatum, SimulationNodeDatum} from "d3-force";
-import type {ZoomBehavior} from "d3-zoom";
-import type {DragBehavior, SubjectPosition} from "d3-drag";
+import type {D3ZoomEvent, ZoomBehavior} from "d3-zoom";
+import type {D3DragEvent, DragBehavior, SubjectPosition} from "d3-drag";
 import debounce from "lodash/debounce";
 
 import type {
-    ClickMode,
     NodePosition,
     PostId,
     SubgraphId,
@@ -85,21 +84,13 @@ type GraphEndpoint = GraphLink["source"];
 
 type GraphSvgSelection = Selection<SVGSVGElement, unknown, HTMLElement, any>;
 type GraphGroupSelection = Selection<SVGGElement, unknown, HTMLElement, any>;
+type GraphNodeGroupSelection = Selection<SVGGElement, GraphNode, SVGGElement, unknown>;
 type GraphLinkSelection = Selection<SVGLineElement, GraphLink, SVGGElement, unknown>;
-type GraphNodeSelection = Selection<SVGCircleElement, GraphNode, HTMLElement, any>;
-type GraphTextSelection = Selection<SVGTextElement, GraphNode, HTMLElement, any>;
+type GraphNodeSelection = Selection<SVGCircleElement, GraphNode, SVGGElement, unknown>;
+type GraphTextSelection = Selection<SVGTextElement, GraphNode, SVGGElement, unknown>;
 type GraphZoomBehavior = ZoomBehavior<SVGSVGElement, unknown>;
 type GraphDragBehavior = DragBehavior<SVGElement, GraphNode, GraphNode | SubjectPosition>;
 type GraphSimulation = Simulation<GraphNode, GraphLink>;
-
-interface ClickedLinkPayload {
-    link: {
-        id: string;
-        source: {id: string; x: number; y: number;};
-        target: {id: string; x: number; y: number;};
-    };
-    coordinates: [number, number];
-}
 
 function isGraphNode(value: GraphEndpoint): value is GraphNode {
     return typeof value === "object" && value !== null && "id" in value;
@@ -277,7 +268,7 @@ export default defineComponent({
             () => {
                 // Avoid immediately autosaving the zoom state we just loaded.
                 if (this.hasMounted) {
-                    this.setZoom(this.zoom);
+                    useDataStore().setZoom(this.zoom);
                 } else {
                     this.hasMounted = true;
                 }
@@ -340,27 +331,6 @@ export default defineComponent({
             const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
             return viewportWidth <= 576;
         },
-        setIsRenderingGraph(isRenderingGraph: boolean) {
-            useRootStore().setIsRenderingGraph(isRenderingGraph);
-        },
-        setZoom(zoom: Zoom) {
-            useDataStore().setZoom(zoom);
-        },
-        setPostPosition(payload: {postId: PostId; position: NodePosition}) {
-            useDataStore().setPostPosition(payload);
-        },
-        setShouldShowClickButtonMenu(shouldShowClickButtonMenu: boolean) {
-            useClickerStore().setShouldShowClickButtonMenu(shouldShowClickButtonMenu);
-        },
-        setClickMode(clickMode: ClickMode) {
-            useClickerStore().setClickMode(clickMode);
-        },
-        async handlePostClick(post: unknown) {
-            await useClickerStore().handlePostClick(post);
-        },
-        async handleLinkClick(payload: ClickedLinkPayload) {
-            return useClickerStore().handleLinkClick(payload);
-        },
         onSvgClick(event: MouseEvent) {
             const target = event.target as HTMLElement | null;
             if (target?.id !== "graphSvg") {
@@ -368,17 +338,14 @@ export default defineComponent({
             }
 
             if (this.shouldShowClickButtonMenu) {
-                this.setShouldShowClickButtonMenu(false);
+                useClickerStore().setShouldShowClickButtonMenu(false);
             }
 
             if (this.clickMode !== "openPosts") {
-                this.setClickMode("openPosts");
+                useClickerStore().setClickMode("openPosts");
             }
         },
-        buildGraphData(): {
-            nodes: GraphNode[];
-            links: GraphLink[];
-        } {
+        buildGraphData(): {nodes: GraphNode[]; links: GraphLink[]} {
             const nodes = JSON.parse(JSON.stringify(this.postsInSelectedSubgraphs)) as GraphNode[];
             const positionedNodes = nodes.map((node: GraphNode) => {
                 const nodePosition = this.nodePositions[node.id];
@@ -426,10 +393,10 @@ export default defineComponent({
                 .classed("graph__link--link", (link: GraphLink) => link.type === "link")
                 .attr("stroke", (link: GraphLink) => this.subgraphColour(link.subgraphId))
                 .attr("marker-end", "url(#arrowhead)")
-                .on("click", async function(this: SVGLineElement, link: GraphLink) {
+                .on("click", async function(this: SVGLineElement, event: MouseEvent, link: GraphLink) {
                     const sourcePosition = getEndpointPosition(link.source);
                     const targetPosition = getEndpointPosition(link.target);
-                    const returnedValue = await vm.handleLinkClick(
+                    const returnedValue = await useClickerStore().handleLinkClick(
                         {
                             link: {
                                 id: link.id,
@@ -444,7 +411,7 @@ export default defineComponent({
                                     y: targetPosition.y,
                                 }
                             },
-                            coordinates: d3mouse(this.parentNode as SVGGElement)
+                            coordinates: d3pointer(event, this.parentNode as SVGGElement)
                         }
                     );
                     if (returnedValue != null) {
@@ -458,7 +425,7 @@ export default defineComponent({
                 return;
             }
 
-            let nodeGroups = this.nodesG
+            let nodeGroups: GraphNodeGroupSelection = this.nodesG
                 .selectAll<SVGGElement, GraphNode>("g")
                 .data(nodes, (post: GraphNode) => post.id);
 
@@ -471,32 +438,31 @@ export default defineComponent({
             newNodeGroup.append("text");
 
             nodeGroups = newNodeGroup.merge(nodeGroups);
-            nodeGroups
-                .selectAll<SVGGElement, GraphNode>("g")
-                .attr("dataset-id", (post: GraphNode) => post.id);
+            nodeGroups.attr("data-id", (post: GraphNode) => post.id);
 
-            this.nodeSelection = d3selectAll<SVGGElement, GraphNode>(".node")
+            this.nodeSelection = nodeGroups
                 .select<SVGCircleElement>("circle")
                 .classed("node__circle", true)
                 .attr("r", this.linkStroke)
                 .attr("title", (post: GraphNode) => post.title);
 
-            this.textSelection = d3selectAll<SVGGElement, GraphNode>(".node")
+            this.textSelection = nodeGroups
                 .select<SVGTextElement>("text")
                 .classed("node__text", true)
                 .attr("text-anchor", "end")
                 .attr("id", (post: GraphNode) => `text-${post.id}`)
                 .text((post: GraphNode) => this.titleOrBody(post.id))
-                .on("mouseover", (post: GraphNode) => {
+                .on("mouseover", (_event: MouseEvent, post: GraphNode) => {
                     this.highlightPost(post.id);
                 })
-                .on("mouseout", (post: GraphNode) => {
+                .on("mouseout", (_event: MouseEvent, post: GraphNode) => {
                     this.unhighlightPost(post.id);
                 });
 
-            d3selectAll<SVGElement, GraphNode>(".node *")
-                .on("click", (post: GraphNode) => {
-                    void this.handlePostClick(post);
+            nodeGroups
+                .selectAll<SVGElement, GraphNode>("circle, text")
+                .on("click", (_event: MouseEvent, post: GraphNode) => {
+                    void useClickerStore().handlePostClick(post);
                 })
                 .call(d3drag<SVGElement, GraphNode>().clickDistance(4))
                 .call(this.createDragBehaviour(simulation));
@@ -544,7 +510,7 @@ export default defineComponent({
                 return;
             }
 
-            this.setIsRenderingGraph(true);
+            useRootStore().setIsRenderingGraph(true);
             const {nodes, links} = this.buildGraphData();
             const forceSimulation = this.createForceSimulation(nodes, links);
 
@@ -553,7 +519,7 @@ export default defineComponent({
             this.bindForceSimulationTick(forceSimulation);
             this.maybeResetZoom();
             this.syncNodesWithCoordinates(nodes);
-            this.setIsRenderingGraph(false);
+            useRootStore().setIsRenderingGraph(false);
         },
 
         setupZooming() {
@@ -568,10 +534,10 @@ export default defineComponent({
              */
             this.zoomBehaviour = d3zoom<SVGSVGElement, unknown>()
                 .scaleExtent([0.025, 2])
-                .on("zoom", () => {
-                    const x = d3event.transform.x;
-                    const y = d3event.transform.y;
-                    const scale = d3event.transform.k;
+                .on("zoom", (event: D3ZoomEvent<SVGSVGElement, unknown>) => {
+                    const x = event.transform.x;
+                    const y = event.transform.y;
+                    const scale = event.transform.k;
                     this.zoom = {x, y, scale};
                 });
             if (this.svg == null) {
@@ -579,8 +545,8 @@ export default defineComponent({
             }
 
             this.svg.call(this.zoomBehaviour)
-                .on("wheel", () => {
-                    d3event.preventDefault();
+                .on("wheel", (event: WheelEvent) => {
+                    event.preventDefault();
                 });
         },
         resetZoomToCenter() {
@@ -639,8 +605,10 @@ export default defineComponent({
 
         createDragBehaviour(simulation: GraphSimulation): GraphDragBehavior {
             const vm = this;
-            function dragStarted(node: GraphNode) {
-                if (!d3event.active) {
+            type GraphDragEvent = D3DragEvent<SVGElement, GraphNode, GraphNode | SubjectPosition>;
+
+            function dragStarted(event: GraphDragEvent, node: GraphNode) {
+                if (!event.active) {
                     simulation.alphaTarget(0.3).restart();
                 }
 
@@ -657,23 +625,23 @@ export default defineComponent({
                 fixNodes(node);
             }
 
-            function dragged(node: GraphNode) {
-                node.fx = d3event.x;
-                node.fy = d3event.y;
+            function dragged(event: GraphDragEvent, node: GraphNode) {
+                node.fx = event.x;
+                node.fy = event.y;
             }
 
-            function dragEnded(node: GraphNode) {
-                if (!d3event.active) {
+            function dragEnded(event: GraphDragEvent, node: GraphNode) {
+                if (!event.active) {
                     simulation.alpha(0);
                     simulation.alphaTarget(0);
                 }
-                node.fx = d3event.x;
-                node.fy = d3event.y;
-                vm.setPostPosition({
+                node.fx = event.x;
+                node.fy = event.y;
+                useDataStore().setPostPosition({
                     postId: node.id,
                     position: {
-                        x: d3event.x,
-                        y: d3event.y
+                        x: event.x,
+                        y: event.y
                     }
                 });
             }

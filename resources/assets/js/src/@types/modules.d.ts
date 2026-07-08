@@ -18,4 +18,3 @@ declare module "*.vue" {
 }
 
 declare module "*.css";
-declare module "marked";
