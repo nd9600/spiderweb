@@ -1,16 +1,18 @@
 import type {
     GraphId,
-    GraphsMap,
     LinkId,
     LinksMap,
     PostId,
     PostsMap,
     SubgraphId,
-    SubgraphsMap,
 } from "@/src/@types/StoreTypes";
+import type {GraphSerialised} from "@/src/store/classes/Graph";
 import type {PostSerialised} from "@/src/store/classes/Post";
 import type {LinkSerialised} from "@/src/store/classes/Link";
 import type {SubgraphSerialised} from "@/src/store/classes/Subgraph";
+
+type GraphsMap = Record<GraphId, GraphSerialised>;
+type SubgraphsMap = Record<SubgraphId, SubgraphSerialised>;
 
 export type LinkWithSubgraphId = LinkSerialised & {
     subgraphId?: SubgraphId;

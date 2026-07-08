@@ -2,11 +2,19 @@ import {defineStore} from "pinia";
 
 import {isInteger} from "@/src/helpers/numberHelpers";
 import {
-    SettingsModuleState,
     ShouldTakeDataFrom,
     RemoteStorageMethod
 } from "@/src/@types/StoreTypes";
 import {useRootStore} from "./rootStore";
+
+export interface SettingsModuleState {
+    shouldAutosave: boolean;
+    remoteStorageMethod: RemoteStorageMethod;
+    canOpenMultiplePosts: boolean;
+    graphHeight: number;
+    postBarHeight: number;
+    postWidth: number;
+}
 
 interface SetRemoteStorageMethodPayload {
     remoteStorageMethod: RemoteStorageMethod;

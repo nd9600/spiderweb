@@ -119,6 +119,8 @@ export default [
     {
         files: [
             "eslint.config.mjs",
+            "postcss.config.js",
+            "tailwind.config.js",
             "vite.config.mjs",
             "resources/assets/js/__tests__/**/*.test.ts"
         ],

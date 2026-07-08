@@ -174,7 +174,8 @@
 
 <script lang="ts">
 import {defineComponent} from "vue";
-import type {ImportedStorageObject, ShouldTakeDataFrom} from "@/src/@types/StoreTypes";
+import type {ShouldTakeDataFrom} from "@/src/@types/StoreTypes";
+import type {ImportedStorageObject} from "@/src/store/modules/rootStore";
 import BlogpostExporter from "@/src/components/BlogpostExporter/BlogpostExporter.vue";
 import {useRootStore, useSettingsStore} from "@/src/store";
 

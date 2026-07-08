@@ -1,7 +1,6 @@
 import {defineStore} from "pinia";
 
 import {
-    ClickerModuleState,
     ClickMode,
     LinkId,
     LinkType,
@@ -10,6 +9,18 @@ import {
 } from "@/src/@types/StoreTypes";
 import {useDataStore} from "./dataModule";
 import {useSettingsStore} from "./settingsModule";
+
+interface ClickerModuleState {
+    shouldShowClickButtonMenu: boolean;
+    clickMode: ClickMode;
+    newLinkSource: Nullable<PostId>;
+    newLinkTarget: Nullable<PostId>;
+    newLinkType: LinkType;
+    newLinkSubgraphIds: SubgraphId[];
+    linkToEdit: Nullable<LinkId>;
+    wantsToChangeSource: boolean;
+    wantsToChangeTarget: boolean;
+}
 
 interface ClickedPost {
     id: PostId;

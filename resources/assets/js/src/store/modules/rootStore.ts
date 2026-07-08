@@ -5,15 +5,37 @@ import {defineStore} from "pinia";
 import {STORAGE_KEY} from "@/src/components/constants";
 import firebaseDbFactory from "../firebaseDbFactory";
 import {useDataStore} from "./dataModule";
+import type {DataModuleStateSerialised} from "./dataModule";
 import {useFirebaseStore} from "./firebaseModule";
+import type {FirebaseModuleState} from "./firebaseModule";
 import {useSettingsStore} from "./settingsModule";
+import type {SettingsModuleState} from "./settingsModule";
 import type {
-    ImportedStorageObject,
-    OfflineStorageObject,
-    OfflineStorageObjectSerialised,
-    RootUiState,
+    DataModuleState,
     ShouldTakeDataFrom
 } from "@/src/@types/StoreTypes";
+
+interface RootUiState {
+    loadingApp: boolean;
+    failedToLoadData: boolean;
+    isRenderingGraph: boolean;
+}
+
+interface OfflineStorageObject {
+    dataModule: DataModuleState;
+    settingsModule: SettingsModuleState;
+    firebaseModule: FirebaseModuleState;
+}
+
+export interface OfflineStorageObjectSerialised {
+    dataModule: DataModuleStateSerialised;
+    settingsModule: SettingsModuleState;
+    firebaseModule: FirebaseModuleState;
+}
+
+export type ImportedStorageObject = Partial<OfflineStorageObjectSerialised> & {
+    postsModule?: DataModuleStateSerialised;
+};
 
 interface ImportSettingsPayload {
     storageObject: ImportedStorageObject;
@@ -224,12 +246,3 @@ export const useRootStore = defineStore("root", {
         }
     }
 });
-
-export function serialiseOfflineStorageObject(): OfflineStorageObjectSerialised {
-    const rootStore = useRootStore();
-    return {
-        dataModule: rootStore.storageObject.dataModule,
-        settingsModule: rootStore.storageObject.settingsModule,
-        firebaseModule: rootStore.storageObject.firebaseModule,
-    };
-}

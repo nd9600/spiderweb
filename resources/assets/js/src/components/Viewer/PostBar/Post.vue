@@ -7,24 +7,26 @@
     >
         <div>
             <div class="flex justify-between">
-                <template>
+                <div>
                     <h3
                         v-if="post.title.length > 0"
                         class="h h--3 mr-2 whitespace-pre-wrap"
                         :data-post-id="post.id"
-                    ><button
-                        v-if="isVisibleInGraph"
-                        class="focusButton mr-2"
-                        type="button"
-                        title="focus on this post in the viewer above"
-                        @click="emitFocusOnPost(post.id)"
-                        @mouseover="emitHighlightPost(post.id)"
-                        @mouseout="emitUnhighlightPost(post.id)"
                     >
-                        <span class="text-base">&#128269;</span>
-                    </button>{{ post.title }}</h3>
+                        <button
+                            v-if="isVisibleInGraph"
+                            class="focusButton mr-2"
+                            type="button"
+                            title="focus on this post in the viewer above"
+                            @click="emitFocusOnPost(post.id)"
+                            @mouseover="emitHighlightPost(post.id)"
+                            @mouseout="emitUnhighlightPost(post.id)"
+                        >
+                            <span class="text-base">&#128269;</span>
+                        </button>{{ post.title }}
+                    </h3>
                     <span v-else> </span> <!-- exists so that the icons will always be at the end -->
-                </template>
+                </div>
                 <span style="min-width: 48px;">
                     <button
                         type="button"

@@ -7,7 +7,6 @@ import links from "./dataModules/links";
 import subgraphs from "./dataModules/subgraphs";
 import {
     DataModuleState,
-    DataModuleStateSerialised,
     GraphId,
     LinkId,
     LinkType,
@@ -18,9 +17,20 @@ import {
 import Post, {PostSerialised} from "@/src/store/classes/Post";
 import Subgraph, {SubgraphSerialised} from "@/src/store/classes/Subgraph";
 import Link, {LinkSerialised} from "@/src/store/classes/Link";
-import Graph from "@/src/store/classes/Graph";
+import Graph, {GraphSerialised} from "@/src/store/classes/Graph";
 import {useRootStore} from "./rootStore";
 
+export interface DataModuleStateSerialised {
+    graphs: Record<string, GraphSerialised>,
+    posts: Record<string, PostSerialised>,
+    links: Record<string, LinkSerialised>,
+    subgraphs: Record<string, SubgraphSerialised>,
+
+    selectedPostIds: PostId[],
+    selectedGraphId: Nullable<GraphId>,
+    selectedSubgraphIds: SubgraphId[],
+    zoom: Zoom
+}
 
 /*
 We have multiple graphs

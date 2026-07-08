@@ -2,9 +2,12 @@ import {defineStore} from "pinia";
 
 import {
     FirebaseConfig,
-    FirebaseModuleState,
 } from "@/src/@types/StoreTypes";
 import {useRootStore} from "./rootStore";
+
+export interface FirebaseModuleState {
+    firebaseConfig: FirebaseConfig;
+}
 
 const defaultFirebaseConfig: FirebaseConfig = {
     apiKey: "",
