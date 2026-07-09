@@ -25,7 +25,7 @@ export default class Subgraph {
             nodes: this.nodes,
             links: this.links,
             colour: this.colour
-        }
+        };
     }
 
     static unserialise(subgraph: SubgraphSerialised): Subgraph {

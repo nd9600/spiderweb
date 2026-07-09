@@ -25,7 +25,7 @@ export default class Graph {
             nodes: this.nodes,
             nodePositions: this.nodePositions,
             subgraphs: this.subgraphs
-        }
+        };
     }
 
     static unserialise(graph: GraphSerialised): Graph {

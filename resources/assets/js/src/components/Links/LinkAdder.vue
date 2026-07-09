@@ -82,7 +82,6 @@ import {defineComponent} from "vue";
 import type {LinkType, PostId, SubgraphId} from "@/src/@types/StoreTypes";
 import PostSearch from "@/src/components/Posts/PostSearch.vue";
 import {useClickerStore, useDataStore} from "@/src/store";
-import {getTitleOrBody} from "@/src/store/selectors";
 
 export default defineComponent({
     name: "LinkAdder",
@@ -97,7 +96,7 @@ export default defineComponent({
             return useDataStore().selectedSubgraphIds;
         },
         titleOrBody() {
-            return (postId: string) => getTitleOrBody(useDataStore().posts, postId);
+            return (postId: string) => useDataStore().titleOrBody(postId);
         },
         newLinkSource() {
             return useClickerStore().newLinkSource;

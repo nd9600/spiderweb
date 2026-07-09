@@ -27,10 +27,10 @@ export default class Link {
             source: this.source,
             target: this.target,
             type: this.type
-        }
+        };
     }
 
     static unserialise(link: LinkSerialised): Link {
-        return new Link(String(link.id), String(link.graph), String(link.source), String(link.target), link.type)
+        return new Link(String(link.id), String(link.graph), String(link.source), String(link.target), link.type);
     }
 }

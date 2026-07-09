@@ -72,7 +72,6 @@ import marked from "@/src/helpers/markedCustomised";
 import type {LinkId} from "@/src/@types/StoreTypes";
 import type {PostSerialised} from "@/src/store/classes/Post";
 import {useDataStore} from "@/src/store";
-import {getPostIdsThatLinkToPost, getTitleOrBody} from "@/src/store/selectors";
 
 export default defineComponent({
     name: "ExportedPost",
@@ -88,10 +87,10 @@ export default defineComponent({
     },
     computed: {
         titleOrBody() {
-            return (postId: string) => getTitleOrBody(useDataStore().posts, postId);
+            return (postId: string) => useDataStore().titleOrBody(postId);
         },
         postIdsThatLinkToPost() {
-            return (postId: string) => getPostIdsThatLinkToPost(useDataStore().links, postId);
+            return (postId: string) => useDataStore().postIdsThatLinkToPost(postId);
         },
 
         linkedPosts() {

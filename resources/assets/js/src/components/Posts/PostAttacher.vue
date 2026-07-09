@@ -83,7 +83,6 @@
 import {defineComponent, PropType} from "vue";
 import type {PostSerialised} from "@/src/store/classes/Post";
 import {useDataStore} from "@/src/store";
-import {getLinkedSubgraphs, getSubgraphsInSelectedGraph} from "@/src/store/selectors";
 
 export default defineComponent({
     name: "PostAttacher",
@@ -110,11 +109,10 @@ export default defineComponent({
             return useDataStore().selectedGraphId;
         },
         subgraphsInSelectedGraph() {
-            const dataStore = useDataStore();
-            return getSubgraphsInSelectedGraph(dataStore.graphs, dataStore.subgraphs, dataStore.selectedGraphId);
+            return useDataStore().subgraphsInSelectedGraph;
         },
         linkedSubgraphs() {
-            return (postId: string) => getLinkedSubgraphs(useDataStore().subgraphs, postId);
+            return (postId: string) => useDataStore().linkedSubgraphs(postId);
         },
 
         subgraphsNotAlreadyAttachedTo() {

@@ -42,6 +42,21 @@ interface ImportSettingsPayload {
     shouldTakeDataFrom: Nullable<ShouldTakeDataFrom>;
 }
 
+let autosaveSuppressionDepth = 0;
+
+export function isAutosaveSuppressed(): boolean {
+    return autosaveSuppressionDepth > 0;
+}
+
+export function runWithoutAutosave<T>(callback: () => T): T {
+    autosaveSuppressionDepth += 1;
+    try {
+        return callback();
+    } finally {
+        autosaveSuppressionDepth -= 1;
+    }
+}
+
 const saveToFirebase = debounce(
     (stringifiedStorage: string) => {
         const settingsStore = useSettingsStore();
@@ -99,15 +114,19 @@ export const useRootStore = defineStore("root", {
             this.isRenderingGraph = isRenderingGraph;
         },
         scheduleAutosave() {
+            if (typeof localStorage === "undefined" || isAutosaveSuppressed()) {
+                return;
+            }
+
             autosaveState();
         },
-        async saveStateToLocalStorage() {
+        saveStateToLocalStorage() {
             const stringifiedStorage = JSON.stringify(this.storageObject);
             localStorage.setItem(STORAGE_KEY, stringifiedStorage);
+            return stringifiedStorage;
         },
-        async saveStateToStorage() {
-            const stringifiedStorage = JSON.stringify(this.storageObject);
-            localStorage.setItem(STORAGE_KEY, stringifiedStorage);
+        saveStateToStorage() {
+            const stringifiedStorage = this.saveStateToLocalStorage();
             saveToFirebase(stringifiedStorage);
         },
         async loadStateFromStorage() {
@@ -211,21 +230,25 @@ export const useRootStore = defineStore("root", {
             const settingsStore = useSettingsStore();
             const firebaseStore = useFirebaseStore();
 
-            const importedData = storageObject.dataModule ?? storageObject.postsModule;
-            if (importedData != null) {
-                dataStore.setState(importedData);
-            }
-            if (storageObject.settingsModule) {
-                settingsStore.setState(storageObject.settingsModule);
-            }
-            if (storageObject.firebaseModule) {
-                firebaseStore.setState(storageObject.firebaseModule);
-            }
+            runWithoutAutosave(() => {
+                const importedData = storageObject.dataModule ?? storageObject.postsModule;
+                if (importedData != null) {
+                    dataStore.setState(importedData);
+                }
+                if (storageObject.settingsModule) {
+                    settingsStore.setState(storageObject.settingsModule);
+                }
+                if (storageObject.firebaseModule) {
+                    firebaseStore.setState(storageObject.firebaseModule);
+                }
+            });
         },
         async importData(storageObject: ImportedStorageObject) {
             const dataModule = storageObject.dataModule;
             if (dataModule != null) {
-                useDataStore().setState(dataModule);
+                runWithoutAutosave(() => {
+                    useDataStore().setState(dataModule);
+                });
             }
         },
         async importSettings({storageObject, shouldTakeDataFrom}: ImportSettingsPayload) {
@@ -233,12 +256,14 @@ export const useRootStore = defineStore("root", {
             const firebaseStore = useFirebaseStore();
             const isStorageMethodChanging = settingsStore.remoteStorageMethod !== storageObject.settingsModule?.remoteStorageMethod;
 
-            if (storageObject.settingsModule) {
-                settingsStore.setState(storageObject.settingsModule);
-            }
-            if (storageObject.firebaseModule) {
-                firebaseStore.setState(storageObject.firebaseModule);
-            }
+            runWithoutAutosave(() => {
+                if (storageObject.settingsModule) {
+                    settingsStore.setState(storageObject.settingsModule);
+                }
+                if (storageObject.firebaseModule) {
+                    firebaseStore.setState(storageObject.firebaseModule);
+                }
+            });
 
             if (isStorageMethodChanging) {
                 await this.loadDataFrom(shouldTakeDataFrom);

@@ -69,7 +69,6 @@ import type Post from "@/src/store/classes/Post";
 import type {PostSerialised} from "@/src/store/classes/Post";
 import PostMaker from "@/src/components/Posts/PostMaker.vue";
 import {useDataStore} from "@/src/store";
-import {getSubgraphsInSelectedGraph, getTitleOrBody} from "@/src/store/selectors";
 
 export default defineComponent({
     name: "AddLinkedPost",
@@ -100,11 +99,10 @@ export default defineComponent({
             return useDataStore().zoom;
         },
         titleOrBody() {
-            return (postId: string) => getTitleOrBody(useDataStore().posts, postId);
+            return (postId: string) => useDataStore().titleOrBody(postId);
         },
         subgraphsInSelectedGraph() {
-            const dataStore = useDataStore();
-            return getSubgraphsInSelectedGraph(dataStore.graphs, dataStore.subgraphs, dataStore.selectedGraphId);
+            return useDataStore().subgraphsInSelectedGraph;
         },
 
         nodePositions() {

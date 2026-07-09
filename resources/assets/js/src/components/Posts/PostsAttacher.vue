@@ -45,7 +45,6 @@ import type {PostSerialised} from "@/src/store/classes/Post";
 import PostAttacher from "./PostAttacher.vue";
 import PostSearch from "@/src/components/Posts/PostSearch.vue";
 import {useDataStore} from "@/src/store";
-import {getUnattachedPosts} from "@/src/store/selectors";
 
 export default defineComponent({
     name: "PostsAttacher",
@@ -60,8 +59,7 @@ export default defineComponent({
     },
     computed: {
         unattachedPosts() {
-            const dataStore = useDataStore();
-            return getUnattachedPosts(dataStore.graphs, dataStore.posts);
+            return useDataStore().unattachedPosts;
         }
     },
     methods: {

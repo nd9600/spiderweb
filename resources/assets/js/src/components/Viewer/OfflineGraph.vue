@@ -63,19 +63,11 @@ import type {
     Zoom,
 } from "@/src/@types/StoreTypes";
 import type {PostSerialised} from "@/src/store/classes/Post";
-import type {LinkWithSubgraphId} from "@/src/store/selectors";
+import type {LinkWithSubgraphId} from "@/src/store/modules/dataModule";
 import FloatingActionButton from "./FloatingActionButton.vue";
 import {HEIGHT, INITIAL_ZOOM, WIDTH} from "@/src/components/constants";
 import graphEventBus from "@/src/helpers/graphEventBus";
 import {useClickerStore, useDataStore, useRootStore} from "@/src/store";
-import {
-    getLinksInSelectedSubgraphs,
-    getNeighbourIndex,
-    getPostsInSelectedSubgraphs,
-    getSubgraphColour,
-    getTitleOrBody,
-    isNeighbour,
-} from "@/src/store/selectors";
 
 interface GraphNode extends PostSerialised, SimulationNodeDatum {}
 
@@ -157,35 +149,22 @@ export default defineComponent({
             return useDataStore().selectedSubgraphIds;
         },
         postsInSelectedSubgraphs() {
-            const dataStore = useDataStore();
-            return getPostsInSelectedSubgraphs(
-                dataStore.graphs,
-                dataStore.posts,
-                dataStore.subgraphs,
-                dataStore.selectedGraphId,
-                dataStore.selectedSubgraphIds
-            );
+            return useDataStore().postsInSelectedSubgraphs;
         },
         linksInSelectedSubgraphs() {
-            const dataStore = useDataStore();
-            return getLinksInSelectedSubgraphs(
-                dataStore.links,
-                dataStore.subgraphs,
-                dataStore.selectedGraphId,
-                dataStore.selectedSubgraphIds
-            );
+            return useDataStore().linksInSelectedSubgraphs;
         },
         neighbourIndex() {
-            return getNeighbourIndex(this.linksInSelectedSubgraphs);
+            return useDataStore().neighbourIndex;
         },
         subgraphColour() {
-            return (subgraphId: Nullable<SubgraphId>) => getSubgraphColour(useDataStore().subgraphs, subgraphId);
+            return (subgraphId: Nullable<SubgraphId>) => useDataStore().subgraphColour(subgraphId);
         },
         titleOrBody() {
-            return (postId: PostId) => getTitleOrBody(useDataStore().posts, postId);
+            return (postId: PostId) => useDataStore().titleOrBody(postId);
         },
         isNeighbour() {
-            return (postAId: PostId, postBId: PostId) => isNeighbour(this.neighbourIndex, postAId, postBId);
+            return (postAId: PostId, postBId: PostId) => useDataStore().isNeighbour(postAId, postBId);
         },
         shouldShowClickButtonMenu() {
             return useClickerStore().shouldShowClickButtonMenu;

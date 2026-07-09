@@ -88,7 +88,6 @@
 import {defineComponent} from "vue";
 import type Post from "@/src/store/classes/Post";
 import {useDataStore} from "@/src/store";
-import {getSubgraphsInSelectedGraph} from "@/src/store/selectors";
 
 export default defineComponent({
     name: "PostMaker",
@@ -117,8 +116,7 @@ export default defineComponent({
             return useDataStore().selectedSubgraphIds;
         },
         subgraphsInSelectedGraph() {
-            const dataStore = useDataStore();
-            return getSubgraphsInSelectedGraph(dataStore.graphs, dataStore.subgraphs, dataStore.selectedGraphId);
+            return useDataStore().subgraphsInSelectedGraph;
         },
     },
     created() {

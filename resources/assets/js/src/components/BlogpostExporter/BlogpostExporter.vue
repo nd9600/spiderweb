@@ -47,13 +47,13 @@
             <div ref="export">
                 <div v-if="postIdsError.isError || linkIdsError.isError">
                     <p class="whitespace-pre-wrap">
-Post IDs error: {{ postIdsError.isError }}
-{{ postIdsError.message }}
+                        Post IDs error: {{ postIdsError.isError }}
+                        {{ postIdsError.message }}
 
-</p>
+                    </p>
                     <p class="whitespace-pre-wrap">
-Link IDs error: {{ linkIdsError.isError }}
-{{ linkIdsError.message }}</p>
+                        Link IDs error: {{ linkIdsError.isError }}
+                        {{ linkIdsError.message }}</p>
                 </div>
                 <article v-else>
                     <ExportedPost
@@ -73,7 +73,6 @@ import {defineComponent} from "vue";
 import {isInteger} from "@/src/helpers/numberHelpers";
 import ExportedPost from "./ExportedPost.vue";
 import {useDataStore} from "@/src/store";
-import {getLinkIds, getPostIds} from "@/src/store/selectors";
 
 export default defineComponent({
     name: "BlogpostExporter",
@@ -89,10 +88,10 @@ export default defineComponent({
             return useDataStore().posts;
         },
         postIds() {
-            return getPostIds(this.posts);
+            return useDataStore().postIds;
         },
         linkIds() {
-            return getLinkIds(useDataStore().links);
+            return useDataStore().linkIds;
         },
 
         postIdsToExport() {

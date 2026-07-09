@@ -154,10 +154,9 @@ import PostBar from "./PostBar/PostBar.vue";
 import {STORAGE_KEY} from "@/src/components/constants";
 import graphEventBus from "@/src/helpers/graphEventBus";
 import {useDataStore, useRootStore, useSettingsStore} from "@/src/store";
-import {getSubgraphsInSelectedGraph} from "@/src/store/selectors";
 
 export default defineComponent({
-    name: "Viewer",
+    name: "GraphViewer",
     components: {
         OfflineGraph,
         PostBar,
@@ -185,8 +184,7 @@ export default defineComponent({
             return useDataStore().graphs;
         },
         subgraphsInSelectedGraph() {
-            const dataStore = useDataStore();
-            return getSubgraphsInSelectedGraph(dataStore.graphs, dataStore.subgraphs, dataStore.selectedGraphId);
+            return useDataStore().subgraphsInSelectedGraph;
         },
 
         selectedGraphId: {

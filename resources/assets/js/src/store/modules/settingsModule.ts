@@ -2,7 +2,7 @@ import {defineStore} from "pinia";
 
 import type {RemoteStorageMethod, ShouldTakeDataFrom} from "@/src/@types/StoreTypes";
 import {isInteger} from "@/src/helpers/numberHelpers";
-import {useRootStore} from "./rootStore";
+import {runWithoutAutosave, useRootStore} from "./rootStore";
 
 export interface SettingsModuleState {
     shouldAutosave: boolean;
@@ -29,12 +29,6 @@ function defaultSettingsState(): SettingsModuleState {
     };
 }
 
-function scheduleAutosaveIfEnabled(shouldAutosave: boolean): void {
-    if (shouldAutosave && typeof localStorage !== "undefined") {
-        useRootStore().scheduleAutosave();
-    }
-}
-
 export const useSettingsStore = defineStore("settingsModule", {
     state: (): SettingsModuleState => defaultSettingsState(),
     actions: {
@@ -52,11 +46,12 @@ export const useSettingsStore = defineStore("settingsModule", {
         },
         setShouldAutosave(shouldAutosave: boolean) {
             this.shouldAutosave = shouldAutosave;
-            scheduleAutosaveIfEnabled(this.shouldAutosave);
         },
         async setRemoteStorageMethod({remoteStorageMethod, shouldTakeDataFrom}: SetRemoteStorageMethodPayload) {
             const thereAreDifferentDataSources = remoteStorageMethod !== "none";
-            this.remoteStorageMethod = remoteStorageMethod;
+            runWithoutAutosave(() => {
+                this.remoteStorageMethod = remoteStorageMethod;
+            });
 
             if (thereAreDifferentDataSources) {
                 await useRootStore().loadDataFrom(shouldTakeDataFrom);
@@ -66,7 +61,6 @@ export const useSettingsStore = defineStore("settingsModule", {
         },
         setCanOpenMultiplePosts(canOpenMultiplePosts: boolean) {
             this.canOpenMultiplePosts = canOpenMultiplePosts;
-            scheduleAutosaveIfEnabled(this.shouldAutosave);
         },
         setGraphHeight(graphHeight: number | string) {
             const parsedGraphHeight = Number(graphHeight);
@@ -75,7 +69,6 @@ export const useSettingsStore = defineStore("settingsModule", {
             }
 
             this.graphHeight = parsedGraphHeight;
-            scheduleAutosaveIfEnabled(this.shouldAutosave);
         },
         setPostBarHeight(postBarHeight: number | string) {
             const parsedPostBarHeight = Number(postBarHeight);
@@ -84,7 +77,6 @@ export const useSettingsStore = defineStore("settingsModule", {
             }
 
             this.postBarHeight = parsedPostBarHeight;
-            scheduleAutosaveIfEnabled(this.shouldAutosave);
         },
         setPostWidth(postWidth: number | string) {
             const parsedPostWidth = Number(postWidth);
@@ -93,7 +85,6 @@ export const useSettingsStore = defineStore("settingsModule", {
             }
 
             this.postWidth = parsedPostWidth;
-            scheduleAutosaveIfEnabled(this.shouldAutosave);
         },
     },
 });

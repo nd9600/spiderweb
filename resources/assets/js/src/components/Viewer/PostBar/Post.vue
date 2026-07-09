@@ -165,14 +165,9 @@ import LinkedSubgraphs from "./LinkedSubgraphs.vue";
 import AddLinkedPost from "./AddLinkedPost.vue";
 import graphEventBus from "@/src/helpers/graphEventBus";
 import {useDataStore, useSettingsStore} from "@/src/store";
-import {
-    getLinkedSubgraphs,
-    getPostIdsInSelectedSubgraphs,
-    getPostIdsThatLinkToPost
-} from "@/src/store/selectors";
 
 export default defineComponent({
-    name: "Post",
+    name: "PostBarPost",
     components: {
         PostEditor,
         LinkedPosts,
@@ -199,19 +194,13 @@ export default defineComponent({
             return useDataStore().selectedPostIds;
         },
         postIdsInSelectedSubgraphs() {
-            const dataStore = useDataStore();
-            return getPostIdsInSelectedSubgraphs(
-                dataStore.graphs,
-                dataStore.subgraphs,
-                dataStore.selectedGraphId,
-                dataStore.selectedSubgraphIds
-            );
+            return useDataStore().postIdsInSelectedSubgraphs;
         },
         postIdsThatLinkToPost() {
-            return (postId: string) => getPostIdsThatLinkToPost(useDataStore().links, postId);
+            return (postId: string) => useDataStore().postIdsThatLinkToPost(postId);
         },
         linkedSubgraphs() {
-            return (postId: string) => getLinkedSubgraphs(useDataStore().subgraphs, postId);
+            return (postId: string) => useDataStore().linkedSubgraphs(postId);
         },
 
         linkedPosts() {

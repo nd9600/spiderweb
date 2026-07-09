@@ -25,7 +25,7 @@ export default class Post {
             body: this.body,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt
-        }
+        };
     }
 
     static unserialise(post: PostSerialised): Post {

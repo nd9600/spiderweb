@@ -28,7 +28,6 @@
 import {defineComponent, PropType} from "vue";
 import type {PostSerialised} from "@/src/store/classes/Post";
 import {useDataStore} from "@/src/store";
-import {getLinkedSubgraphs} from "@/src/store/selectors";
 
 export default defineComponent({
     name: "LinkedSubgraphs",
@@ -43,7 +42,7 @@ export default defineComponent({
             return useDataStore().subgraphs;
         },
         linkedSubgraphs() {
-            return (postId: string) => getLinkedSubgraphs(useDataStore().subgraphs, postId);
+            return (postId: string) => useDataStore().linkedSubgraphs(postId);
         },
     },
     methods: {
