@@ -7,4 +7,4 @@ import pinia from "./store";
 
 createApp(App)
     .use(pinia)
-    .mount("#offlineGraphApp");
+    .mount("#app");

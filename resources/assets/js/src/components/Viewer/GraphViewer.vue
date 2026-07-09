@@ -108,7 +108,7 @@ function getEndpointPosition(value: GraphEndpoint): NodePosition {
 }
 
 export default defineComponent({
-    name: "OfflineGraph",
+    name: "GraphViewer",
     components: {
         FloatingActionButton
     },

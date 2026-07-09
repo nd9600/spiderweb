@@ -130,8 +130,7 @@
             </p>
         </div>
         <div class="flex flex-col">
-            <OfflineGraph
-                ref="offlineGraph"
+            <GraphViewer
                 :style="{
                     'min-height': graphHeight + 'vh'
                 }"
@@ -148,7 +147,7 @@
 <script lang="ts">
 import {defineComponent} from "vue";
 import type {GraphId, SubgraphId} from "@/src/@types/StoreTypes";
-import OfflineGraph from "./OfflineGraph.vue";
+import GraphViewer from "./GraphViewer.vue";
 import PostBar from "./PostBar/PostBar.vue";
 
 import {STORAGE_KEY} from "@/src/components/constants";
@@ -156,9 +155,9 @@ import graphEventBus from "@/src/helpers/graphEventBus";
 import {useDataStore, useRootStore, useSettingsStore} from "@/src/store";
 
 export default defineComponent({
-    name: "GraphViewer",
+    name: "Viewer",
     components: {
-        OfflineGraph,
+        GraphViewer,
         PostBar,
     },
     data() {
