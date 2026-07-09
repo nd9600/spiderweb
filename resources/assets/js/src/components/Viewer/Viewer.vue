@@ -155,7 +155,7 @@ import graphEventBus from "@/src/helpers/graphEventBus";
 import {useDataStore, useRootStore, useSettingsStore} from "@/src/store";
 
 export default defineComponent({
-    name: "Viewer",
+    name: "TheViewer",
     components: {
         GraphViewer,
         PostBar,

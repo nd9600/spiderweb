@@ -20,15 +20,15 @@
                 <button
                     type="button"
                     class="btn btn--secondary"
-                    @click="clickMode = 'openPosts'"
+                    @click="clickMode = ClickMode.OpenPosts"
                 >
                     Back
                 </button>
 
                 <hr class="my-2">
 
-                <LinkAdder v-if="clickMode === 'addLink'"/>
-                <template v-else-if="clickMode === 'changeLink'">
+                <LinkAdder v-if="clickMode === ClickMode.AddLink"/>
+                <template v-else-if="clickMode === ClickMode.ChangeLink">
                     <sub
                         v-if="linkToEdit === null"
                         class="text-xs text-gray-500"
@@ -42,12 +42,12 @@
                     />
                 </template>
                 <PostMaker
-                    v-else-if="clickMode === 'addPost'"
+                    v-else-if="clickMode === ClickMode.AddPost"
                     @madePost="madePost"
                 />
-                <PostsAttacher v-else-if="clickMode === 'attachPostsToGraphs'" />
+                <PostsAttacher v-else-if="clickMode === ClickMode.AttachPostsToGraphs" />
                 <PostSearch
-                    v-else-if="clickMode === 'searchForPosts'"
+                    v-else-if="clickMode === ClickMode.SearchForPosts"
                     @clickedOnResult="selectPost($event)"
                 />
             </div>
@@ -58,7 +58,7 @@
                 <button
                     class="clicker__actionButton"
                     type="button"
-                    @click.prevent="toggleClickMode('attachPostsToGraphs')"
+                    @click.prevent="toggleClickMode(ClickMode.AttachPostsToGraphs)"
                 >
                     <span class="linkIcon"></span> Attach posts to graphs
                 </button>
@@ -66,7 +66,7 @@
                 <button
                     class="clicker__actionButton"
                     type="button"
-                    @click.prevent="toggleClickMode('changeLink')"
+                    @click.prevent="toggleClickMode(ClickMode.ChangeLink)"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -87,7 +87,7 @@
                 <button
                     class="clicker__actionButton"
                     type="button"
-                    @click.prevent="toggleClickMode('addLink')"
+                    @click.prevent="toggleClickMode(ClickMode.AddLink)"
                 >
                     <span class="mr-2 text-xl text-red">↔</span> Add link between posts
                 </button>
@@ -95,7 +95,7 @@
                 <button
                     class="clicker__actionButton"
                     type="button"
-                    @click.prevent="toggleClickMode('addPost')"
+                    @click.prevent="toggleClickMode(ClickMode.AddPost)"
                 >
                     <span class="mr-2 text-xl font-bold text-red">+</span> Add post
                 </button>
@@ -103,7 +103,7 @@
                 <button
                     class="clicker__actionButton"
                     type="button"
-                    @click.prevent="toggleClickMode('searchForPosts')"
+                    @click.prevent="toggleClickMode(ClickMode.SearchForPosts)"
                 >
                     <span class="mr-2 text-xl font-bold text-red">&#128269;</span> Search for posts
                 </button>
@@ -113,7 +113,7 @@
 </template>
 <script lang="ts">
 import {defineComponent} from "vue";
-import type {ClickMode, PostId} from "@/src/@types/StoreTypes";
+import {ClickMode, type PostId} from "@/src/@types/StoreTypes";
 import type {Post} from "@/src/store/models/Post";
 import LinkEditor from "@/src/components/Links/LinkEditor.vue";
 import LinkAdder from "@/src/components/Links/LinkAdder.vue";
@@ -130,6 +130,11 @@ export default defineComponent({
         PostMaker,
         PostsAttacher,
         PostSearch
+    },
+    data() {
+        return {
+            ClickMode,
+        };
     },
     computed: {
         graphHeight() {
@@ -171,7 +176,7 @@ export default defineComponent({
         },
 
         shouldShowContextMenu() {
-            return this.clickMode !== "openPosts";
+            return this.clickMode !== ClickMode.OpenPosts;
         }
     },
     watch: {
@@ -184,9 +189,9 @@ export default defineComponent({
             }
 
             const currentStrokeWidthPixels = parseInt(strokeWidthMatch[1], 10);
-            if (newClickMode === "changeLink") {
+            if (newClickMode === ClickMode.ChangeLink) {
                 rootElement.style.setProperty("--link-stroke-width", `${currentStrokeWidthPixels * 2}px`);
-            } else if (previousClickMode === "changeLink") {
+            } else if (previousClickMode === ClickMode.ChangeLink) {
                 rootElement.style.setProperty("--link-stroke-width", `${currentStrokeWidthPixels / 2}px`);
             }
         }
@@ -197,14 +202,14 @@ export default defineComponent({
             this.shouldShowClickButtonMenu = !this.shouldShowClickButtonMenu;
 
             if (!menuWasPreviouslyShown) {
-                this.clickMode = "openPosts";
+                this.clickMode = ClickMode.OpenPosts;
             }
         },
 
         toggleClickMode(clickMode: ClickMode) {
             const previousClickMode = this.clickMode;
             this.clickMode = (previousClickMode === clickMode) // clicking on the existing button means you want to close the open dialog
-                ? "openPosts"
+                ? ClickMode.OpenPosts
                 : clickMode;
         },
 
@@ -218,7 +223,7 @@ export default defineComponent({
                 position: positionOfNewPost
             });
 
-            this.toggleClickMode("openPosts");
+            this.toggleClickMode(ClickMode.OpenPosts);
             this.shouldShowClickButtonMenu = false;
         },
 
@@ -232,7 +237,7 @@ export default defineComponent({
 
         onRemovedLink() {
             useClickerStore().setLinkToEdit(null);
-            this.clickMode = "openPosts";
+            this.clickMode = ClickMode.OpenPosts;
         }
     }
 });

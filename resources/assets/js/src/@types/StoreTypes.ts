@@ -30,13 +30,14 @@ export type {
     Zoom,
 };
 
-export type ClickMode =
-    | "openPosts"
-    | "addLink"
-    | "changeLink"
-    | "addPost"
-    | "attachPostsToGraphs"
-    | "searchForPosts";
+export enum ClickMode {
+    OpenPosts = "openPosts",
+    AddLink = "addLink",
+    ChangeLink = "changeLink",
+    AddPost = "addPost",
+    AttachPostsToGraphs = "attachPostsToGraphs",
+    SearchForPosts = "searchForPosts",
+}
 
 export type PostsMap = Record<PostId, Post>;
 export type LinksMap = Record<LinkId, Link>;

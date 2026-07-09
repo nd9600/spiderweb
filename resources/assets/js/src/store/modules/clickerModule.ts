@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 
-import type {ClickMode, LinkId, LinkType, PostId, SubgraphId} from "@/src/@types/StoreTypes";
+import {ClickMode, type LinkId, type LinkType, type PostId, type SubgraphId} from "@/src/@types/StoreTypes";
 import {useDataStore} from "./dataModule";
 import {useSettingsStore} from "./settingsModule";
 
@@ -47,7 +47,7 @@ function isClickedPost(post: unknown): post is ClickedPost {
 export const useClickerStore = defineStore("clickerModule", {
     state: (): ClickerModuleState => ({
         shouldShowClickButtonMenu: false,
-        clickMode: "openPosts",
+        clickMode: ClickMode.OpenPosts,
         newLinkSource: null,
         newLinkTarget: null,
         newLinkType: "reply",
@@ -103,7 +103,7 @@ export const useClickerStore = defineStore("clickerModule", {
             const settingsStore = useSettingsStore();
 
             switch (this.clickMode) {
-                case "openPosts":
+                case ClickMode.OpenPosts:
                 default: {
                     dataStore.selectPostId({
                         id: post.id,
@@ -112,7 +112,7 @@ export const useClickerStore = defineStore("clickerModule", {
                     break;
                 }
 
-                case "addLink": {
+                case ClickMode.AddLink: {
                     if (this.newLinkSource == null) {
                         this.newLinkSource = post.id;
                         break;
@@ -132,7 +132,7 @@ export const useClickerStore = defineStore("clickerModule", {
                         subgraphIds: this.newLinkSubgraphIds,
                     });
 
-                    this.clickMode = "openPosts";
+                    this.clickMode = ClickMode.OpenPosts;
                     this.newLinkSource = null;
                     this.newLinkTarget = null;
                     this.newLinkSubgraphIds = [];
@@ -140,7 +140,7 @@ export const useClickerStore = defineStore("clickerModule", {
                     break;
                 }
 
-                case "changeLink": {
+                case ClickMode.ChangeLink: {
                     if (this.wantsToChangeSource) {
                         if (this.linkToEdit == null) {
                             return;
@@ -160,7 +160,7 @@ export const useClickerStore = defineStore("clickerModule", {
                         });
                         this.wantsToChangeTarget = false;
                     }
-                    this.clickMode = "openPosts";
+                    this.clickMode = ClickMode.OpenPosts;
                     this.linkToEdit = null;
                 }
             }
@@ -172,7 +172,7 @@ export const useClickerStore = defineStore("clickerModule", {
             }
 
             switch (this.clickMode) {
-                case "openPosts": {
+                case ClickMode.OpenPosts: {
                     const sourceCoordinates: [number, number] = [link.source.x, link.source.y];
                     const targetCoordinates: [number, number] = [link.target.x, link.target.y];
 
@@ -192,7 +192,7 @@ export const useClickerStore = defineStore("clickerModule", {
                     }
                     return;
                 }
-                case "changeLink": {
+                case ClickMode.ChangeLink: {
                     this.linkToEdit = link.id;
                     break;
                 }

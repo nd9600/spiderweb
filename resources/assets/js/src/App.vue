@@ -72,6 +72,13 @@ import LoadSave from "@/src/components/LoadSave.vue";
 import Settings from "@/src/components/Settings/Settings.vue";
 import {useRootStore, useSettingsStore} from "@/src/store";
 
+enum AppTab {
+    Viewer = "viewer",
+    Graphs = "graphs",
+    LoadSave = "load-save",
+    Settings = "settings",
+}
+
 export default defineComponent({
     name: "App",
     components: {
@@ -82,22 +89,22 @@ export default defineComponent({
     },
     data() {
         return {
-            currentTab: "viewer", // | viewer | graphs  | links | load-save | settings,
+            currentTab: AppTab.Viewer,
             tabs: [
                 {
-                    key: "viewer",
+                    key: AppTab.Viewer,
                     name: "Viewer",
                 },
                 {
-                    key: "graphs",
+                    key: AppTab.Graphs,
                     name: "Graphs",
                 },
                 {
-                    key: "load-save",
+                    key: AppTab.LoadSave,
                     name: "Load/save",
                 },
                 {
-                    key: "settings",
+                    key: AppTab.Settings,
                     name: "Settings",
                 }
             ]

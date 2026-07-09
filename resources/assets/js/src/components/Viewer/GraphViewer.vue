@@ -56,6 +56,7 @@ import type {D3ZoomEvent, ZoomBehavior} from "d3-zoom";
 import type {D3DragEvent, DragBehavior, SubjectPosition} from "d3-drag";
 import debounce from "lodash/debounce";
 
+import {ClickMode} from "@/src/@types/StoreTypes";
 import type {
     NodePosition,
     PostId,
@@ -320,8 +321,8 @@ export default defineComponent({
                 useClickerStore().setShouldShowClickButtonMenu(false);
             }
 
-            if (this.clickMode !== "openPosts") {
-                useClickerStore().setClickMode("openPosts");
+            if (this.clickMode !== ClickMode.OpenPosts) {
+                useClickerStore().setClickMode(ClickMode.OpenPosts);
             }
         },
         buildGraphData(): {nodes: GraphNode[]; links: GraphLink[]} {
