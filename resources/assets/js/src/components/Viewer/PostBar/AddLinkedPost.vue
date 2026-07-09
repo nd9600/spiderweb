@@ -65,8 +65,7 @@
 <script lang="ts">
 import {defineComponent, PropType} from "vue";
 import type {LinkType, NodePosition} from "@/src/@types/StoreTypes";
-import type Post from "@/src/store/classes/Post";
-import type {PostSerialised} from "@/src/store/classes/Post";
+import type {Post} from "@/src/store/models/Post";
 import PostMaker from "@/src/components/Posts/PostMaker.vue";
 import {useDataStore} from "@/src/store";
 
@@ -77,7 +76,7 @@ export default defineComponent({
     },
     props: {
         post: {
-            type: Object as PropType<PostSerialised>,
+            type: Object as PropType<Post>,
             required: true
         }
     },

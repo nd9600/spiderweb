@@ -6,12 +6,12 @@ import type {
     PostId,
     SubgraphId
 } from "@/src/@types/StoreTypes";
-import Link, {type LinkSerialised} from "@/src/store/classes/Link";
+import {createLink, type Link} from "@/src/store/models/Link";
 import {addPostToGraphState} from "./graphs";
 import {nextStringId} from "./shared";
 import {addPostToSubgraphState} from "./subgraphs";
 
-export type LinkWithSubgraphId = LinkSerialised & {
+export type LinkWithSubgraphId = Link & {
     subgraphId?: SubgraphId;
 };
 
@@ -133,13 +133,13 @@ export const linkActions = {
         addPostToGraphState(this, graph, target);
 
         const newLinkId = nextStringId(this.links);
-        this.links[newLinkId] = new Link(newLinkId, graph, source, target, type).serialise();
+        this.links[newLinkId] = createLink(newLinkId, graph, source, target, type);
 
         for (const subgraphId of subgraphIds) {
             addLinkToSubgraphState(this, newLinkId, subgraphId);
         }
     },
-    updateLink(link: LinkSerialised) {
+    updateLink(link: Link) {
         addPostToGraphState(this, link.graph, link.source);
         addPostToGraphState(this, link.graph, link.target);
         this.links[link.id] = link;

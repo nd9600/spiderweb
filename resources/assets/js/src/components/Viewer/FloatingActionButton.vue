@@ -114,7 +114,7 @@
 <script lang="ts">
 import {defineComponent} from "vue";
 import type {ClickMode, PostId} from "@/src/@types/StoreTypes";
-import type Post from "@/src/store/classes/Post";
+import type {Post} from "@/src/store/models/Post";
 import LinkEditor from "@/src/components/Links/LinkEditor.vue";
 import LinkAdder from "@/src/components/Links/LinkAdder.vue";
 import PostMaker from "@/src/components/Posts/PostMaker.vue";

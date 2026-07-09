@@ -158,7 +158,7 @@ import {defineComponent, PropType} from "vue";
 import type {PostId} from "@/src/@types/StoreTypes";
 import marked from "@/src/helpers/markedCustomised";
 
-import type {PostSerialised} from "@/src/store/classes/Post";
+import type {Post} from "@/src/store/models/Post";
 import PostEditor from "@/src/components/Posts/PostEditor.vue";
 import LinkedPosts from "./LinkedPosts.vue";
 import LinkedSubgraphs from "./LinkedSubgraphs.vue";
@@ -176,7 +176,7 @@ export default defineComponent({
     },
     props: {
         post: {
-            type: Object as PropType<PostSerialised>,
+            type: Object as PropType<Post>,
             required: true
         }
     },

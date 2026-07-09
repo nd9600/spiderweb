@@ -70,14 +70,14 @@
 import {defineComponent, PropType} from "vue";
 import marked from "@/src/helpers/markedCustomised";
 import type {LinkId} from "@/src/@types/StoreTypes";
-import type {PostSerialised} from "@/src/store/classes/Post";
+import type {Post} from "@/src/store/models/Post";
 import {useDataStore} from "@/src/store";
 
 export default defineComponent({
     name: "ExportedPost",
     props: {
         post: {
-            type: Object as PropType<PostSerialised>,
+            type: Object as PropType<Post>,
             required: true
         },
         linkIdsToExport: {

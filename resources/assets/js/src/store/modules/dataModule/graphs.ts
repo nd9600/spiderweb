@@ -7,9 +7,9 @@ import type {
     PostId,
     Zoom
 } from "@/src/@types/StoreTypes";
-import Graph, {type GraphSerialised} from "@/src/store/classes/Graph";
-import type {PostSerialised} from "@/src/store/classes/Post";
-import type {SubgraphSerialised} from "@/src/store/classes/Subgraph";
+import {createGraph, type Graph} from "@/src/store/models/Graph";
+import type {Post} from "@/src/store/models/Post";
+import type {Subgraph} from "@/src/store/models/Subgraph";
 import {nextStringId} from "./shared";
 
 export function graphState(): Pick<DataModuleState, "graphs" | "selectedGraphId" | "zoom"> {
@@ -41,7 +41,7 @@ export function addPostToGraphState(state: DataModuleState, graphId: GraphId, po
     graph.nodes.push(postId);
 }
 
-export function removePostPositionFromGraph(graph: GraphSerialised, postId: PostId): void {
+export function removePostPositionFromGraph(graph: Graph, postId: PostId): void {
     const nodePositions: NodePositionsMap = {};
     for (const [positionPostId, position] of Object.entries(graph.nodePositions)) {
         if (positionPostId !== postId) {
@@ -119,7 +119,7 @@ export const graphActions = {
         }
 
         const newGraphId = nextStringId(this.graphs);
-        this.graphs[newGraphId] = new Graph(newGraphId, newGraphName, [], {}, []).serialise();
+        this.graphs[newGraphId] = createGraph(newGraphId, newGraphName);
     },
     changeGraphName({graphId, newGraphName}: {graphId: GraphId; newGraphName: string}) {
         this.graphs[graphId].name = newGraphName;
@@ -165,7 +165,7 @@ export const graphActions = {
 } satisfies ThisType<DataModuleState>;
 
 export const graphGetters = {
-    subgraphsInSelectedGraph(store: DataModuleState): SubgraphSerialised[] {
+    subgraphsInSelectedGraph(store: DataModuleState): Subgraph[] {
         if (store.selectedGraphId == null || store.graphs[store.selectedGraphId] == null) {
             return [];
         }
@@ -175,7 +175,7 @@ export const graphGetters = {
     postIdsInSelectedSubgraphs(store: DataModuleState): PostId[] {
         return getPostIdsInSelectedSubgraphs(store);
     },
-    postsInSelectedSubgraphs(store: DataModuleState): PostSerialised[] {
+    postsInSelectedSubgraphs(store: DataModuleState): Post[] {
         return getPostIdsInSelectedSubgraphs(store)
             .map((id) => store.posts[id]);
     },

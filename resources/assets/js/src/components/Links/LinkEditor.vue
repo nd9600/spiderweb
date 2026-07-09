@@ -112,7 +112,7 @@
 <script lang="ts">
 import {defineComponent, PropType} from "vue";
 import type {LinkType, PostId, SubgraphId} from "@/src/@types/StoreTypes";
-import type {LinkSerialised} from "@/src/store/classes/Link";
+import type {Link} from "@/src/store/models/Link";
 import PostSearch from "@/src/components/Posts/PostSearch.vue";
 import {useClickerStore, useDataStore} from "@/src/store";
 
@@ -124,7 +124,7 @@ export default defineComponent({
     },
     props: {
         link: {
-            type: Object as PropType<LinkSerialised>,
+            type: Object as PropType<Link>,
             required: true,
         }
     },

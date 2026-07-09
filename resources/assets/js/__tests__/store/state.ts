@@ -1,6 +1,6 @@
-import type {OfflineStorageObjectSerialised} from "@/src/store/modules/rootStore";
+import type {OfflineStorageObject} from "@/src/store/modules/rootStore";
 
-const state: OfflineStorageObjectSerialised = {
+const state: OfflineStorageObject = {
     "dataModule": {
         "posts": {
             "1": {

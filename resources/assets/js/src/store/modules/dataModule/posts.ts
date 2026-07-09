@@ -4,7 +4,7 @@ import type {
     LinksMap,
     PostId
 } from "@/src/@types/StoreTypes";
-import Post, {type PostSerialised} from "@/src/store/classes/Post";
+import {createPost, type Post} from "@/src/store/models/Post";
 import {removePostPositionFromGraph} from "./graphs";
 import {removeLinkFromSubgraphs} from "./links";
 import {nextStringId} from "./shared";
@@ -118,8 +118,8 @@ export const postActions = {
     },
     makeNewPost({title, body, updatedAt, createdAt}: MakeNewPostPayload) {
         const newPostId = nextStringId(this.posts);
-        const newPost = new Post(newPostId, title, body, createdAt, updatedAt);
-        this.posts[newPostId] = newPost.serialise();
+        const newPost = createPost(newPostId, title, body, createdAt, updatedAt);
+        this.posts[newPostId] = newPost;
         return newPost;
     },
 } satisfies ThisType<DataModuleState>;
@@ -128,7 +128,7 @@ export const postGetters = {
     postIds(store: DataModuleState): PostId[] {
         return Object.keys(store.posts);
     },
-    unattachedPosts(store: DataModuleState): PostSerialised[] {
+    unattachedPosts(store: DataModuleState): Post[] {
         const attachedPostIds = new Set<PostId>();
         for (const graph of Object.values(store.graphs)) {
             graph.nodes.forEach((postId) => attachedPostIds.add(postId));

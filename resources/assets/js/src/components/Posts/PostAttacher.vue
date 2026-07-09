@@ -81,7 +81,7 @@
 </template>
 <script lang="ts">
 import {defineComponent, PropType} from "vue";
-import type {PostSerialised} from "@/src/store/classes/Post";
+import type {Post} from "@/src/store/models/Post";
 import {useDataStore} from "@/src/store";
 
 export default defineComponent({
@@ -89,7 +89,7 @@ export default defineComponent({
     emits: ["attachedPost"],
     props: {
         post: {
-            type: Object as PropType<PostSerialised>,
+            type: Object as PropType<Post>,
             required: true
         },
         initialShouldExpand: {

@@ -5,7 +5,6 @@ import {defineStore} from "pinia";
 import {STORAGE_KEY} from "@/src/components/constants";
 import firebaseDbFactory from "../firebaseDbFactory";
 import {useDataStore} from "./dataModule";
-import type {DataModuleStateSerialised} from "./dataModule";
 import {useFirebaseStore} from "./firebaseModule";
 import type {FirebaseModuleState} from "./firebaseModule";
 import {useSettingsStore} from "./settingsModule";
@@ -21,20 +20,14 @@ interface RootUiState {
     isRenderingGraph: boolean;
 }
 
-interface OfflineStorageObject {
+export interface OfflineStorageObject {
     dataModule: DataModuleState;
     settingsModule: SettingsModuleState;
     firebaseModule: FirebaseModuleState;
 }
 
-export interface OfflineStorageObjectSerialised {
-    dataModule: DataModuleStateSerialised;
-    settingsModule: SettingsModuleState;
-    firebaseModule: FirebaseModuleState;
-}
-
-export type ImportedStorageObject = Partial<OfflineStorageObjectSerialised> & {
-    postsModule?: DataModuleStateSerialised;
+export type ImportedStorageObject = Partial<OfflineStorageObject> & {
+    postsModule?: DataModuleState;
 };
 
 interface ImportSettingsPayload {

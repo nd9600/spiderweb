@@ -1,7 +1,7 @@
-import type {GraphSerialised} from "@/src/store/classes/Graph";
-import type {PostSerialised} from "@/src/store/classes/Post";
-import type {LinkSerialised} from "@/src/store/classes/Link";
-import type {SubgraphSerialised} from "@/src/store/classes/Subgraph";
+import type {Graph} from "@/src/store/models/Graph";
+import type {Post} from "@/src/store/models/Post";
+import type {Link} from "@/src/store/models/Link";
+import type {Subgraph} from "@/src/store/models/Subgraph";
 
 export type GraphId = string;
 export type PostId = string;
@@ -18,8 +18,8 @@ export type ClickMode =
     | "attachPostsToGraphs"
     | "searchForPosts";
 
-export type PostsMap = Record<PostId, PostSerialised>;
-export type LinksMap = Record<LinkId, LinkSerialised>;
+export type PostsMap = Record<PostId, Post>;
+export type LinksMap = Record<LinkId, Link>;
 export type NodePositionsMap = Record<PostId, NodePosition>;
 
 export interface Zoom {
@@ -34,10 +34,10 @@ export interface NodePosition {
 }
 
 export interface DataModuleState {
-    graphs: Record<GraphId, GraphSerialised>,
+    graphs: Record<GraphId, Graph>,
     posts: PostsMap,
     links: LinksMap,
-    subgraphs: Record<SubgraphId, SubgraphSerialised>,
+    subgraphs: Record<SubgraphId, Subgraph>,
 
     selectedPostIds: PostId[],
     selectedGraphId: Nullable<GraphId>,

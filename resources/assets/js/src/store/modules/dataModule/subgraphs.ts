@@ -5,7 +5,7 @@ import type {
     PostId,
     SubgraphId
 } from "@/src/@types/StoreTypes";
-import Subgraph from "@/src/store/classes/Subgraph";
+import {createSubgraph} from "@/src/store/models/Subgraph";
 import {addPostToGraphState} from "./graphs";
 import {nextStringId} from "./shared";
 
@@ -99,7 +99,7 @@ export const subgraphActions = {
         }
 
         const newSubgraphId = nextStringId(this.subgraphs);
-        this.subgraphs[newSubgraphId] = new Subgraph(newSubgraphId, newSubgraphName, [], []).serialise();
+        this.subgraphs[newSubgraphId] = createSubgraph(newSubgraphId, newSubgraphName);
         this.graphs[graphId].subgraphs.push(newSubgraphId);
     },
     changeSubgraphName({subgraphId, newSubgraphName}: {subgraphId: SubgraphId; newSubgraphName: string}) {

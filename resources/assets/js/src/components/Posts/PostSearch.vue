@@ -44,7 +44,7 @@
 
 <script lang="ts">
 import {defineComponent} from "vue";
-import type {PostSerialised} from "@/src/store/classes/Post";
+import type {Post} from "@/src/store/models/Post";
 import {useDataStore} from "@/src/store";
 export default defineComponent({
     name: "PostSearch",
@@ -53,7 +53,7 @@ export default defineComponent({
         return {
             searchTerm: "",
             isLoadingSearchResults: false,
-            searchResults: [] as PostSerialised[]
+            searchResults: [] as Post[]
         };
     },
     computed: {

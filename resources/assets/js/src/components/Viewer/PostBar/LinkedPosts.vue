@@ -97,14 +97,14 @@
 <script lang="ts">
 import {defineComponent, PropType} from "vue";
 import type {PostId} from "@/src/@types/StoreTypes";
-import type {PostSerialised} from "@/src/store/classes/Post";
+import type {Post} from "@/src/store/models/Post";
 import {useDataStore, useSettingsStore} from "@/src/store";
 
 export default defineComponent({
     name: "LinkedPosts",
     props: {
         post: {
-            type: Object as PropType<PostSerialised>,
+            type: Object as PropType<Post>,
             required: true
         }
     },

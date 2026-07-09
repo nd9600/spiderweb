@@ -62,14 +62,14 @@ import type {
     SubgraphId,
     Zoom,
 } from "@/src/@types/StoreTypes";
-import type {PostSerialised} from "@/src/store/classes/Post";
+import type {Post} from "@/src/store/models/Post";
 import type {LinkWithSubgraphId} from "@/src/store/modules/dataModule";
 import FloatingActionButton from "./FloatingActionButton.vue";
 import {HEIGHT, INITIAL_ZOOM, WIDTH} from "@/src/components/constants";
 import graphEventBus from "@/src/helpers/graphEventBus";
 import {useClickerStore, useDataStore, useRootStore} from "@/src/store";
 
-interface GraphNode extends PostSerialised, SimulationNodeDatum {}
+interface GraphNode extends Post, SimulationNodeDatum {}
 
 interface GraphLink extends Omit<LinkWithSubgraphId, "source" | "target">, SimulationLinkDatum<GraphNode> {}
 type GraphEndpoint = GraphLink["source"];

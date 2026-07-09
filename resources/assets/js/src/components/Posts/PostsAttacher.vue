@@ -40,7 +40,7 @@
 
 <script lang="ts">
 import {defineComponent} from "vue";
-import type {PostSerialised} from "@/src/store/classes/Post";
+import type {Post} from "@/src/store/models/Post";
 
 import PostAttacher from "./PostAttacher.vue";
 import PostSearch from "@/src/components/Posts/PostSearch.vue";
@@ -54,7 +54,7 @@ export default defineComponent({
     },
     data() {
         return {
-            postToAttach: null as PostSerialised | null
+            postToAttach: null as Post | null
         };
     },
     computed: {
@@ -63,7 +63,7 @@ export default defineComponent({
         }
     },
     methods: {
-        onPostClick(post: PostSerialised) {
+        onPostClick(post: Post) {
             if (
                 this.postToAttach === null
                 || this.postToAttach.id !== post.id

@@ -47,14 +47,14 @@
 <script lang="ts">
 import {defineComponent, PropType} from "vue";
 import {mapActions} from "pinia";
-import type {PostSerialised} from "@/src/store/classes/Post";
+import type {Post} from "@/src/store/models/Post";
 import {useDataStore} from "@/src/store";
 
 export default defineComponent({
     name: "PostEditor",
     props: {
         post: {
-            type: Object as PropType<PostSerialised>,
+            type: Object as PropType<Post>,
             required: true
         }
     },

@@ -86,7 +86,7 @@
 
 <script lang="ts">
 import {defineComponent} from "vue";
-import type Post from "@/src/store/classes/Post";
+import type {Post} from "@/src/store/models/Post";
 import {useDataStore} from "@/src/store";
 
 export default defineComponent({
