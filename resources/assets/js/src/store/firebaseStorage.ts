@@ -46,6 +46,7 @@ export async function readFirebaseStorage(config: FirebaseConfig): Promise<Nulla
         return null;
     }
 
+    // Existing users may still have the old whole-export JSON string at this path.
     if (typeof value === "string") {
         return value;
     }
@@ -54,6 +55,7 @@ export async function readFirebaseStorage(config: FirebaseConfig): Promise<Nulla
 }
 
 export async function writeFirebaseStorage(config: FirebaseConfig, dataModule: DataModuleState): Promise<void> {
+    // Full writes are only for manual save, initial seeding, and old-blob migration.
     await set(ref(firebaseDbFactory(config), STORAGE_KEY), {
         schemaVersion: STORAGE_SCHEMA_VERSION,
         updatedAt: serverTimestamp(),
@@ -62,6 +64,7 @@ export async function writeFirebaseStorage(config: FirebaseConfig, dataModule: D
 }
 
 export async function updateFirebaseStorage(config: FirebaseConfig, patch: FirebaseUpdatePatch): Promise<void> {
+    // Domain actions send child-path patches so Firebase can update one record or cascade atomically.
     await update(ref(firebaseDbFactory(config), STORAGE_KEY), {
         ...patch,
         updatedAt: serverTimestamp(),
@@ -73,8 +76,12 @@ export function subscribeToFirebaseDataModule(
     handlers: FirebaseDataModuleHandlers
 ): Unsubscribe {
     const db = firebaseDbFactory(config);
+    // Keep listeners at data branches instead of STORAGE_KEY root so a small child change does not reload
+    // the entire exported app state shape.
+    // A Firebase multi-path update can fire several of these handlers; each branch is validated independently.
     const unsubscribes = [
         onValue(ref(db, storagePath("dataModule/posts")), (snapshot) => {
+            // Firebase drops empty object paths, so every collection listener defaults missing paths to empty state.
             handlers.posts(postsSchema.parse(snapshot.val() ?? {}));
         }),
         onValue(ref(db, storagePath("dataModule/graphs")), (snapshot) => {
@@ -101,6 +108,7 @@ export function subscribeToFirebaseDataModule(
     ];
 
     return () => {
+        // Firebase returns one unsubscribe per listener; rootStore stores this combined cleanup callback.
         for (const unsubscribe of unsubscribes) {
             unsubscribe();
         }

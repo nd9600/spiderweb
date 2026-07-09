@@ -32,7 +32,12 @@ interface ImportSettingsPayload {
     shouldTakeDataFrom: Nullable<ShouldTakeDataFrom>;
 }
 
+// Imports and remote listener updates touch several stores at once. Track nested suppression so none of
+// those internal mutations trigger local autosave or Firebase patch writes while the batch is being applied.
 let autosaveSuppressionDepth = 0;
+
+// Firebase listeners live outside Pinia's lifecycle, so keep the unsubscribe callback here and replace it
+// whenever the app reloads data or changes Firebase config.
 let unsubscribeFromFirebase: Nullable<() => void> = null;
 
 export function isAutosaveSuppressed(): boolean {
@@ -54,6 +59,7 @@ const autosaveState = debounce(() => {
         return;
     }
 
+    // Pinia subscriptions keep the local/export backup current; Firebase writes are explicit domain patches now.
     useRootStore().saveStateToLocalStorage();
 }, 250);
 
@@ -62,6 +68,7 @@ function parseStorageString(storageString: string): ImportedStorageObject {
 }
 
 function stopFirebaseSync(): void {
+    // Only one active Firebase subscription set should exist; otherwise every remote update is applied more than once.
     if (unsubscribeFromFirebase == null) {
         return;
     }
@@ -146,6 +153,7 @@ export const useRootStore = defineStore("root", {
             }
 
             const remoteStorageMethod = localStorageObject.settingsModule?.remoteStorageMethod;
+            // Local storage still owns settings/Firebase config, even when the graph data is loaded from Firebase.
             await this.importState(localStorageObject);
 
             switch (remoteStorageMethod) {
@@ -206,11 +214,13 @@ export const useRootStore = defineStore("root", {
         async loadDataModuleFromFirebase(firebaseConfig: FirebaseConfig) {
             const firebaseStorageObject = await readFirebaseStorage(firebaseConfig);
             if (firebaseStorageObject == null) {
+                // First structured save for an empty Firebase database: seed it from the current local data.
                 await writeFirebaseStorage(firebaseConfig, useDataStore().$state);
                 return;
             }
 
             if (typeof firebaseStorageObject === "string") {
+                // Old Firebase storage was one JSON string at STORAGE_KEY. Load it once, then replace it with structured data.
                 const legacyStorageObject = parseStorageString(firebaseStorageObject);
                 await this.importData(legacyStorageObject);
                 await writeFirebaseStorage(firebaseConfig, useDataStore().$state);
@@ -220,6 +230,7 @@ export const useRootStore = defineStore("root", {
             await this.importDataModule(firebaseStorageObject.dataModule);
         },
         startFirebaseSync() {
+            // Restart from a clean subscription set because Firebase config/data source can change at runtime.
             stopFirebaseSync();
             const settingsStore = useSettingsStore();
             if (settingsStore.remoteStorageMethod !== "firebase") {
@@ -227,6 +238,8 @@ export const useRootStore = defineStore("root", {
             }
 
             const firebaseStore = useFirebaseStore();
+            // Each handler replaces one Pinia branch with the validated Firebase snapshot for that branch.
+            // runWithoutAutosave prevents those remote snapshots from being written straight back to Firebase.
             unsubscribeFromFirebase = subscribeToFirebaseDataModule(firebaseStore.firebaseConfig, {
                 posts(posts) {
                     runWithoutAutosave(() => {

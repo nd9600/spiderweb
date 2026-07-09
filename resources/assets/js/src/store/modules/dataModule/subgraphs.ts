@@ -27,6 +27,7 @@ export function addPostToSubgraphState(state: DataModuleState, subgraphId: Subgr
         return;
     }
 
+    // A post cannot be in a subgraph without also being in that subgraph's parent graph.
     addPostToGraphState(state, subgraph.graph, postId);
 
     if (!hasMembership(subgraph.nodes, postId)) {
@@ -40,6 +41,7 @@ function removePostFromSubgraphState(state: DataModuleState, subgraphId: Subgrap
         return;
     }
 
+    // Removing a post from a subgraph also removes subgraph-local links that depend on that post.
     for (const linkId of Object.keys(subgraph.links) as LinkId[]) {
         const link = state.links[linkId];
         if (link != null && (link.source === postId || link.target === postId)) {
@@ -149,6 +151,7 @@ export const subgraphActions = {
             return;
         }
 
+        // Build the Firebase patch before local mutation because local mutation deletes the affected link memberships.
         const patch: FirebaseUpdatePatch = {
             [`dataModule/subgraphs/${subgraphId}/nodes/${postId}`]: null,
         };

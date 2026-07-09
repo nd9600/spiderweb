@@ -70,6 +70,7 @@ export function getPostIdsInSelectedSubgraphs(state: DataModuleState): PostId[] 
 }
 
 function removeLinksFromGraphContainingPost(state: DataModuleState, graphId: GraphId, postId: PostId): void {
+    // A graph cannot keep links whose endpoint post has been removed from that graph.
     for (const link of Object.values(state.links)) {
         if (link.graph !== graphId || (link.source !== postId && link.target !== postId)) {
             continue;
@@ -89,6 +90,7 @@ function removePostFromGraphState(state: DataModuleState, graphId: GraphId, post
         return;
     }
 
+    // Removing a post from a graph also removes all graph-scoped state that refers to that post.
     removeLinksFromGraphContainingPost(state, graphId, postId);
 
     for (const subgraph of Object.values(state.subgraphs)) {
@@ -145,6 +147,7 @@ export const graphActions = {
             return;
         }
 
+        // Keep the local cascade and Firebase multi-path patch in lockstep.
         const patch: FirebaseUpdatePatch = {
             [`dataModule/graphs/${graphId}`]: null,
         };
@@ -194,6 +197,7 @@ export const graphActions = {
             return;
         }
 
+        // Build the Firebase cascade before mutating local state, while the affected links/subgraphs are still easy to find.
         const patch: FirebaseUpdatePatch = {
             [`dataModule/graphs/${graphId}/nodes/${postId}`]: null,
             [`dataModule/graphs/${graphId}/nodePositions/${postId}`]: null,

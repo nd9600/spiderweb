@@ -64,6 +64,7 @@ const legacyDataModuleStateSchema = z.object({
     selectedSubgraphIds: z.array(subgraphIdSchema).default([]),
     zoom: dataModuleZoomSchema,
 }).transform((legacyState): DataModuleState => {
+    // Old exports stored graph/subgraph memberships as arrays; current state uses maps for Firebase patches.
     const graphs: DataModuleState["graphs"] = {};
     for (const [graphId, graph] of Object.entries(legacyState.graphs)) {
         graphs[graphId] = {
@@ -76,6 +77,7 @@ const legacyDataModuleStateSchema = z.object({
 
     const firstGraphId = Object.keys(graphs)[0] ?? "1";
     const subgraphGraphIds: Record<string, string> = {};
+    // Older data stored subgraph ownership on graph.subgraphs instead of subgraph.graph.
     for (const graph of Object.values(legacyState.graphs)) {
         for (const subgraphId of graph.subgraphs) {
             subgraphGraphIds[subgraphId] = graph.id;
@@ -84,6 +86,7 @@ const legacyDataModuleStateSchema = z.object({
 
     const subgraphs: DataModuleState["subgraphs"] = {};
     for (const [subgraphId, subgraph] of Object.entries(legacyState.subgraphs ?? {})) {
+        // If ownership is missing, keep the import usable by attaching the subgraph to the selected/first graph.
         subgraphs[subgraphId] = {
             id: subgraph.id,
             graph: subgraph.graph ?? subgraphGraphIds[subgraphId] ?? legacyState.selectedGraphId ?? firstGraphId,

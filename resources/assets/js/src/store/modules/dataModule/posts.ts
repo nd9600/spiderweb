@@ -138,6 +138,7 @@ export const postActions = {
         });
     },
     deletePost({id}: {id: PostId}) {
+        // Firebase has no database-level cascade here; keep the explicit graph/link/subgraph cleanup in the domain action.
         const patch: FirebaseUpdatePatch = {
             [`dataModule/posts/${id}`]: null,
         };

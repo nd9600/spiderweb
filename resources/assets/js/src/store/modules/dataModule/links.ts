@@ -35,6 +35,7 @@ function addLinkToSubgraphState(state: DataModuleState, linkId: LinkId, subgraph
         return;
     }
 
+    // A subgraph link implies both endpoint posts are also visible in that subgraph.
     addPostToSubgraphState(state, subgraphId, link.source);
     addPostToSubgraphState(state, subgraphId, link.target);
 
@@ -44,6 +45,7 @@ function addLinkToSubgraphState(state: DataModuleState, linkId: LinkId, subgraph
 }
 
 function ensureLinkedPostsAreInContainingSubgraphs(state: DataModuleState, linkId: LinkId): void {
+    // Editing a link endpoint can introduce a new post that every containing subgraph must include.
     for (const subgraph of Object.values(state.subgraphs)) {
         if (hasMembership(subgraph.links, linkId)) {
             addLinkToSubgraphState(state, linkId, subgraph.id);
@@ -134,6 +136,7 @@ export const linkActions = {
         addPostToGraphState(this, graph, source);
         addPostToGraphState(this, graph, target);
 
+        // The patch mirrors every local side effect: graph membership, link creation, and optional subgraph membership.
         const patch: FirebaseUpdatePatch = {
             [`dataModule/graphs/${graph}/nodes/${source}`]: true,
             [`dataModule/graphs/${graph}/nodes/${target}`]: true,
@@ -158,6 +161,7 @@ export const linkActions = {
         addPostToGraphState(this, link.graph, link.target);
         this.links[link.id] = link;
         ensureLinkedPostsAreInContainingSubgraphs(this, link.id);
+        // Replacing a link can also add endpoint posts to its graph/subgraphs.
         const patch: FirebaseUpdatePatch = {
             [`dataModule/graphs/${link.graph}/nodes/${link.source}`]: true,
             [`dataModule/graphs/${link.graph}/nodes/${link.target}`]: true,
@@ -217,6 +221,7 @@ export const linkActions = {
             return;
         }
 
+        // First update local membership, then build a patch from the requested membership list.
         for (const subgraph of Object.values(this.subgraphs)) {
             if (subgraph.graph !== link.graph && !hasMembership(subgraph.links, linkId)) {
                 continue;

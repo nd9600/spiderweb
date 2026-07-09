@@ -2,6 +2,7 @@ export function newRecordId(): string {
     return crypto.randomUUID();
 }
 
+// Relationship fields are Firebase-friendly maps, not arrays, so individual memberships can be patched.
 export function membershipIds<Id extends string>(memberships: Record<Id, true>): Id[] {
     return Object.keys(memberships) as Id[];
 }
