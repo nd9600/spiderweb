@@ -11,8 +11,8 @@ beforeEach(() => {
 });
 
 test("deleting links removes them from subgraphs", () => {
-    expect(store.subgraphs["1"].links.length === 3).toBeTruthy();
+    expect(Object.keys(store.subgraphs["1"].links).length === 3).toBeTruthy();
     store.removeLink({id: "1"});
-    expect(store.subgraphs["1"].links.length === 2).toBeTruthy();
-    expect(store.subgraphs["1"].links.includes("1")).toBeFalsy();
+    expect(Object.keys(store.subgraphs["1"].links).length === 2).toBeTruthy();
+    expect(store.subgraphs["1"].links["1"]).toBeUndefined();
 });

@@ -16,8 +16,8 @@ test("deleting posts cascades through graph and subgraph state", () => {
     store.deletePost({id: "2"});
 
     expect(store.posts["2"]).toBeUndefined();
-    expect(store.graphs["1"].nodes.includes("2")).toBeFalsy();
-    expect(store.subgraphs["1"].nodes.includes("2")).toBeFalsy();
+    expect(store.graphs["1"].nodes["2"]).toBeUndefined();
+    expect(store.subgraphs["1"].nodes["2"]).toBeUndefined();
     expect(Object.keys(store.graphs["1"].nodePositions).length === 1).toBeTruthy();
     expect(store.graphs["1"].nodePositions["2"]).toBeUndefined();
     expect(Object.values(store.links).some((link) => link.source === "2" || link.target === "2")).toBeFalsy();

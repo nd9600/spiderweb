@@ -12,6 +12,12 @@ export const offlineStorageObjectSchema = z.object({
     firebaseModule: firebaseModuleStateSchema,
 });
 
+export const firebaseStorageObjectSchema = z.object({
+    schemaVersion: z.literal(STORAGE_SCHEMA_VERSION).default(STORAGE_SCHEMA_VERSION),
+    dataModule: dataModuleStateSchema,
+    updatedAt: z.unknown().optional(),
+});
+
 export const importedStorageObjectSchema = z.object({
     schemaVersion: z.number().optional().default(STORAGE_SCHEMA_VERSION),
     dataModule: importedDataModuleStateSchema.optional(),
@@ -29,15 +35,11 @@ export const importedStorageObjectSchema = z.object({
 );
 
 export type OfflineStorageObject = z.infer<typeof offlineStorageObjectSchema>;
+export type FirebaseStorageObject = z.infer<typeof firebaseStorageObjectSchema>;
 export type ImportedStorageObject = z.infer<typeof importedStorageObjectSchema>;
 
-export function parseImportedStorageObject(rawStorageObject: unknown): ImportedStorageObject {
-    const result = importedStorageObjectSchema.safeParse(rawStorageObject);
-    if (result.success) {
-        return result.data;
-    }
-
-    const message = result.error.issues
+function formatZodError(error: z.ZodError): string {
+    return error.issues
         .map((issue) => {
             const path = issue.path.length === 0
                 ? "root"
@@ -45,5 +47,22 @@ export function parseImportedStorageObject(rawStorageObject: unknown): ImportedS
             return `${path}: ${issue.message}`;
         })
         .join("\n");
-    throw new Error(message);
+}
+
+export function parseFirebaseStorageObject(rawStorageObject: unknown): FirebaseStorageObject {
+    const result = firebaseStorageObjectSchema.safeParse(rawStorageObject);
+    if (result.success) {
+        return result.data;
+    }
+
+    throw new Error(formatZodError(result.error));
+}
+
+export function parseImportedStorageObject(rawStorageObject: unknown): ImportedStorageObject {
+    const result = importedStorageObjectSchema.safeParse(rawStorageObject);
+    if (result.success) {
+        return result.data;
+    }
+
+    throw new Error(formatZodError(result.error));
 }

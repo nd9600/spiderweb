@@ -1,33 +1,38 @@
 import {z} from "zod";
 import {HEIGHT, INITIAL_ZOOM, WIDTH} from "@/src/components/constants";
-import {graphSchema} from "./Graph";
+import {graphSchema, importedPostMembershipMapSchema} from "./Graph";
 import {linkSchema} from "./Link";
 import {postSchema} from "./Post";
-import {subgraphSchema} from "./Subgraph";
+import {importedLinkMembershipMapSchema, subgraphSchema} from "./Subgraph";
 import {
     graphIdSchema,
-    linkIdSchema,
     nodePositionSchema,
     postIdSchema,
     subgraphIdSchema,
     zoomSchema,
 } from "./primitives";
 
-const defaultZoom = {
+export const defaultZoom = {
     x: WIDTH / 2,
     y: HEIGHT / 2,
     scale: INITIAL_ZOOM,
 };
+export const dataModuleZoomSchema = zoomSchema.default(defaultZoom);
+
+export const graphsSchema = z.record(z.string(), graphSchema).default({});
+export const postsSchema = z.record(z.string(), postSchema).default({});
+export const linksSchema = z.record(z.string(), linkSchema).default({});
+export const subgraphsSchema = z.record(z.string(), subgraphSchema).default({});
 
 export const dataModuleStateSchema = z.object({
-    graphs: z.record(z.string(), graphSchema),
-    posts: z.record(z.string(), postSchema),
-    links: z.record(z.string(), linkSchema),
-    subgraphs: z.record(z.string(), subgraphSchema).default({}),
+    graphs: graphsSchema,
+    posts: postsSchema,
+    links: linksSchema,
+    subgraphs: subgraphsSchema,
     selectedPostIds: z.array(postIdSchema).default([]),
     selectedGraphId: graphIdSchema.nullable().default("1"),
     selectedSubgraphIds: z.array(subgraphIdSchema).default([]),
-    zoom: zoomSchema.default(defaultZoom),
+    zoom: dataModuleZoomSchema,
 });
 
 export type DataModuleState = z.infer<typeof dataModuleStateSchema>;
@@ -35,16 +40,17 @@ export type DataModuleState = z.infer<typeof dataModuleStateSchema>;
 const legacyGraphSchema = z.object({
     id: graphIdSchema,
     name: z.string(),
-    nodes: z.array(postIdSchema).default([]),
+    nodes: importedPostMembershipMapSchema,
     nodePositions: z.record(z.string(), nodePositionSchema).default({}),
     subgraphs: z.array(subgraphIdSchema).default([]),
 });
 
 const legacySubgraphSchema = z.object({
     id: subgraphIdSchema,
+    graph: graphIdSchema.optional(),
     name: z.string(),
-    nodes: z.array(postIdSchema).default([]),
-    links: z.array(linkIdSchema).default([]),
+    nodes: importedPostMembershipMapSchema,
+    links: importedLinkMembershipMapSchema,
     colour: z.string().optional(),
 });
 
@@ -56,7 +62,7 @@ const legacyDataModuleStateSchema = z.object({
     selectedPostIds: z.array(postIdSchema).default([]),
     selectedGraphId: graphIdSchema.nullable().default("1"),
     selectedSubgraphIds: z.array(subgraphIdSchema).default([]),
-    zoom: zoomSchema.default(defaultZoom),
+    zoom: dataModuleZoomSchema,
 }).transform((legacyState): DataModuleState => {
     const graphs: DataModuleState["graphs"] = {};
     for (const [graphId, graph] of Object.entries(legacyState.graphs)) {
@@ -80,7 +86,7 @@ const legacyDataModuleStateSchema = z.object({
     for (const [subgraphId, subgraph] of Object.entries(legacyState.subgraphs ?? {})) {
         subgraphs[subgraphId] = {
             id: subgraph.id,
-            graph: subgraphGraphIds[subgraphId] ?? legacyState.selectedGraphId ?? firstGraphId,
+            graph: subgraph.graph ?? subgraphGraphIds[subgraphId] ?? legacyState.selectedGraphId ?? firstGraphId,
             name: subgraph.name,
             nodes: subgraph.nodes,
             links: subgraph.links,

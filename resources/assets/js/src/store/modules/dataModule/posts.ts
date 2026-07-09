@@ -5,9 +5,10 @@ import type {
     PostId
 } from "@/src/@types/StoreTypes";
 import {createPost, type Post} from "@/src/store/models/Post";
+import {writeFirebaseDataModulePatch, type FirebaseUpdatePatch} from "@/src/store/remoteSync";
 import {removePostPositionFromGraph} from "./graphs";
 import {removeLinkFromSubgraphs} from "./links";
-import {nextStringId} from "./shared";
+import {membershipIds, newRecordId, removeMembership} from "./shared";
 
 interface MakeNewPostPayload {
     title: string;
@@ -50,12 +51,12 @@ function deletePostState(state: DataModuleState, postId: PostId): void {
     removeLinksThatIncludePost(state, postId);
 
     for (const graph of Object.values(state.graphs)) {
-        graph.nodes = graph.nodes.filter((id) => id !== postId);
+        removeMembership(graph.nodes, postId);
         removePostPositionFromGraph(graph, postId);
     }
 
     for (const subgraph of Object.values(state.subgraphs)) {
-        subgraph.nodes = subgraph.nodes.filter((id) => id !== postId);
+        removeMembership(subgraph.nodes, postId);
     }
 
     delete state.posts[postId];
@@ -70,9 +71,15 @@ export const postActions = {
         } else {
             this.selectedPostIds = [id];
         }
+        writeFirebaseDataModulePatch({
+            "dataModule/selectedPostIds": this.selectedPostIds,
+        });
     },
     unselectPostId(id: PostId) {
         this.selectedPostIds = this.selectedPostIds.filter((selectedPostId) => selectedPostId !== id);
+        writeFirebaseDataModulePatch({
+            "dataModule/selectedPostIds": this.selectedPostIds,
+        });
     },
     togglePostId({id, canOpenMultiplePosts}: {id: PostId; canOpenMultiplePosts: boolean}) {
         if (this.selectedPostIds.includes(id)) {
@@ -82,6 +89,9 @@ export const postActions = {
         } else {
             this.selectedPostIds = [id];
         }
+        writeFirebaseDataModulePatch({
+            "dataModule/selectedPostIds": this.selectedPostIds,
+        });
     },
     movePostLeft(id: PostId) {
         const currentIndex = this.selectedPostIds.indexOf(id);
@@ -93,6 +103,9 @@ export const postActions = {
             ? this.selectedPostIds.length - 1
             : currentIndex - 1;
         this.selectedPostIds = arrayMove(this.selectedPostIds, currentIndex, newIndex);
+        writeFirebaseDataModulePatch({
+            "dataModule/selectedPostIds": this.selectedPostIds,
+        });
     },
     movePostRight(id: PostId) {
         const currentIndex = this.selectedPostIds.indexOf(id);
@@ -104,22 +117,63 @@ export const postActions = {
             ? 0
             : currentIndex + 1;
         this.selectedPostIds = arrayMove(this.selectedPostIds, currentIndex, newIndex);
+        writeFirebaseDataModulePatch({
+            "dataModule/selectedPostIds": this.selectedPostIds,
+        });
     },
     updatePostTitle({id, title, updatedAt}: {id: PostId; title: string; updatedAt: string}) {
         this.posts[id].title = title;
         this.posts[id].updatedAt = updatedAt;
+        writeFirebaseDataModulePatch({
+            [`dataModule/posts/${id}/title`]: title,
+            [`dataModule/posts/${id}/updatedAt`]: updatedAt,
+        });
     },
     updatePostBody({id, body, updatedAt}: {id: PostId; body: string; updatedAt: string}) {
         this.posts[id].body = body;
         this.posts[id].updatedAt = updatedAt;
+        writeFirebaseDataModulePatch({
+            [`dataModule/posts/${id}/body`]: body,
+            [`dataModule/posts/${id}/updatedAt`]: updatedAt,
+        });
     },
     deletePost({id}: {id: PostId}) {
+        const patch: FirebaseUpdatePatch = {
+            [`dataModule/posts/${id}`]: null,
+        };
+        const nextSelectedPostIds = this.selectedPostIds.filter((selectedPostId) => selectedPostId !== id);
+        if (nextSelectedPostIds.length !== this.selectedPostIds.length) {
+            patch["dataModule/selectedPostIds"] = nextSelectedPostIds;
+        }
+
+        for (const link of Object.values(this.links)) {
+            if (link.source === id || link.target === id) {
+                patch[`dataModule/links/${link.id}`] = null;
+                for (const subgraph of Object.values(this.subgraphs)) {
+                    patch[`dataModule/subgraphs/${subgraph.id}/links/${link.id}`] = null;
+                }
+            }
+        }
+
+        for (const graph of Object.values(this.graphs)) {
+            patch[`dataModule/graphs/${graph.id}/nodes/${id}`] = null;
+            patch[`dataModule/graphs/${graph.id}/nodePositions/${id}`] = null;
+        }
+
+        for (const subgraph of Object.values(this.subgraphs)) {
+            patch[`dataModule/subgraphs/${subgraph.id}/nodes/${id}`] = null;
+        }
+
         deletePostState(this, id);
+        writeFirebaseDataModulePatch(patch);
     },
     makeNewPost({title, body, updatedAt, createdAt}: MakeNewPostPayload) {
-        const newPostId = nextStringId(this.posts);
+        const newPostId = newRecordId();
         const newPost = createPost(newPostId, title, body, createdAt, updatedAt);
         this.posts[newPostId] = newPost;
+        writeFirebaseDataModulePatch({
+            [`dataModule/posts/${newPostId}`]: newPost,
+        });
         return newPost;
     },
 } satisfies ThisType<DataModuleState>;
@@ -131,7 +185,7 @@ export const postGetters = {
     unattachedPosts(store: DataModuleState): Post[] {
         const attachedPostIds = new Set<PostId>();
         for (const graph of Object.values(store.graphs)) {
-            graph.nodes.forEach((postId) => attachedPostIds.add(postId));
+            membershipIds(graph.nodes).forEach((postId) => attachedPostIds.add(postId));
         }
 
         return Object.keys(store.posts)

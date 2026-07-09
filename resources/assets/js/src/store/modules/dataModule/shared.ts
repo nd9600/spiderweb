@@ -1,7 +1,19 @@
-export function nextStringId(records: Record<string, unknown>): string {
-    const existingIds = Object.keys(records).map((id) => parseInt(id, 10));
-    const highestId = existingIds.length === 0
-        ? 0
-        : Math.max(...existingIds);
-    return String(highestId + 1);
+export function newRecordId(): string {
+    return crypto.randomUUID();
+}
+
+export function membershipIds<Id extends string>(memberships: Record<Id, true>): Id[] {
+    return Object.keys(memberships) as Id[];
+}
+
+export function hasMembership<Id extends string>(memberships: Record<Id, true>, id: Id): boolean {
+    return memberships[id] === true;
+}
+
+export function addMembership<Id extends string>(memberships: Record<Id, true>, id: Id): void {
+    memberships[id] = true;
+}
+
+export function removeMembership<Id extends string>(memberships: Record<Id, true>, id: Id): void {
+    delete memberships[id];
 }

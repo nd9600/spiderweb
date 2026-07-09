@@ -25,3 +25,11 @@ export type SubgraphId = z.infer<typeof subgraphIdSchema>;
 export type LinkType = z.infer<typeof linkTypeSchema>;
 export type NodePosition = z.infer<typeof nodePositionSchema>;
 export type Zoom = z.infer<typeof zoomSchema>;
+export type IdMembershipMap<Id extends string> = Record<Id, true>;
+
+export function idsToMembershipMap<Id extends string>(ids: Id[]): IdMembershipMap<Id> {
+    return ids.reduce<IdMembershipMap<Id>>((memberships, id) => {
+        memberships[id] = true;
+        return memberships;
+    }, {} as IdMembershipMap<Id>);
+}

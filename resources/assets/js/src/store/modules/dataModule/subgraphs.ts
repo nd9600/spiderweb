@@ -6,8 +6,9 @@ import type {
     SubgraphId
 } from "@/src/@types/StoreTypes";
 import {createSubgraph} from "@/src/store/models/Subgraph";
+import {writeFirebaseDataModulePatch, type FirebaseUpdatePatch} from "@/src/store/remoteSync";
 import {addPostToGraphState} from "./graphs";
-import {nextStringId} from "./shared";
+import {addMembership, hasMembership, newRecordId, removeMembership} from "./shared";
 
 export function subgraphState(): Pick<DataModuleState, "subgraphs" | "selectedSubgraphIds"> {
     return {
@@ -28,8 +29,8 @@ export function addPostToSubgraphState(state: DataModuleState, subgraphId: Subgr
 
     addPostToGraphState(state, subgraph.graph, postId);
 
-    if (!subgraph.nodes.includes(postId)) {
-        subgraph.nodes.push(postId);
+    if (!hasMembership(subgraph.nodes, postId)) {
+        addMembership(subgraph.nodes, postId);
     }
 }
 
@@ -39,11 +40,13 @@ function removePostFromSubgraphState(state: DataModuleState, subgraphId: Subgrap
         return;
     }
 
-    subgraph.links = subgraph.links.filter((linkId) => {
+    for (const linkId of Object.keys(subgraph.links) as LinkId[]) {
         const link = state.links[linkId];
-        return link == null || (link.source !== postId && link.target !== postId);
-    });
-    subgraph.nodes = subgraph.nodes.filter((id) => id !== postId);
+        if (link != null && (link.source === postId || link.target === postId)) {
+            removeMembership(subgraph.links, linkId);
+        }
+    }
+    removeMembership(subgraph.nodes, postId);
 }
 
 function stringToColour(str: string): string {
@@ -63,6 +66,9 @@ function stringToColour(str: string): string {
 export const subgraphActions = {
     setSelectedSubgraphIds(selectedSubgraphIds: SubgraphId[]) {
         this.selectedSubgraphIds = selectedSubgraphIds;
+        writeFirebaseDataModulePatch({
+            "dataModule/selectedSubgraphIds": selectedSubgraphIds,
+        });
     },
     selectAllSubgraphs() {
         if (this.selectedGraphId == null || this.graphs[this.selectedGraphId] == null) {
@@ -72,6 +78,9 @@ export const subgraphActions = {
                 .filter((subgraph) => subgraph.graph === this.selectedGraphId)
                 .map((subgraph) => subgraph.id);
         }
+        writeFirebaseDataModulePatch({
+            "dataModule/selectedSubgraphIds": this.selectedSubgraphIds,
+        });
     },
     toggleSubgraphId(subgraphId: SubgraphId) {
         if (this.selectedSubgraphIds.includes(subgraphId)) {
@@ -79,6 +88,9 @@ export const subgraphActions = {
         } else {
             this.selectedSubgraphIds.push(subgraphId);
         }
+        writeFirebaseDataModulePatch({
+            "dataModule/selectedSubgraphIds": this.selectedSubgraphIds,
+        });
     },
     makeNewSubgraph({graphId, newSubgraphName}: {graphId: GraphId; newSubgraphName: string}) {
         if (newSubgraphName.trim().length === 0) {
@@ -91,26 +103,63 @@ export const subgraphActions = {
             return;
         }
 
-        const newSubgraphId = nextStringId(this.subgraphs);
+        const newSubgraphId = newRecordId();
         this.subgraphs[newSubgraphId] = createSubgraph(newSubgraphId, graphId, newSubgraphName);
+        writeFirebaseDataModulePatch({
+            [`dataModule/subgraphs/${newSubgraphId}`]: this.subgraphs[newSubgraphId],
+        });
     },
     changeSubgraphName({subgraphId, newSubgraphName}: {subgraphId: SubgraphId; newSubgraphName: string}) {
         this.subgraphs[subgraphId].name = newSubgraphName;
+        writeFirebaseDataModulePatch({
+            [`dataModule/subgraphs/${subgraphId}/name`]: newSubgraphName,
+        });
     },
     changeSubgraphColour({subgraphId, colour}: {subgraphId: SubgraphId; colour: string}) {
         this.subgraphs[subgraphId].colour = colour;
+        writeFirebaseDataModulePatch({
+            [`dataModule/subgraphs/${subgraphId}/colour`]: colour,
+        });
     },
     removeSubgraph(subgraphId: SubgraphId) {
         this.selectedSubgraphIds = this.selectedSubgraphIds
             .filter((selectedSubgraphId) => selectedSubgraphId !== subgraphId);
 
         delete this.subgraphs[subgraphId];
+        writeFirebaseDataModulePatch({
+            "dataModule/selectedSubgraphIds": this.selectedSubgraphIds,
+            [`dataModule/subgraphs/${subgraphId}`]: null,
+        });
     },
     addPostToSubgraph({subgraphId, postId}: {subgraphId: SubgraphId; postId: PostId}) {
+        const subgraph = this.subgraphs[subgraphId];
+        if (subgraph == null) {
+            return;
+        }
+
         addPostToSubgraphState(this, subgraphId, postId);
+        writeFirebaseDataModulePatch({
+            [`dataModule/graphs/${subgraph.graph}/nodes/${postId}`]: true,
+            [`dataModule/subgraphs/${subgraphId}/nodes/${postId}`]: true,
+        });
     },
     removePostFromSubgraph({subgraphId, postId}: {subgraphId: SubgraphId; postId: PostId}) {
+        const subgraph = this.subgraphs[subgraphId];
+        if (subgraph == null) {
+            return;
+        }
+
+        const patch: FirebaseUpdatePatch = {
+            [`dataModule/subgraphs/${subgraphId}/nodes/${postId}`]: null,
+        };
+        for (const linkId of Object.keys(subgraph.links) as LinkId[]) {
+            const link = this.links[linkId];
+            if (link != null && (link.source === postId || link.target === postId)) {
+                patch[`dataModule/subgraphs/${subgraphId}/links/${linkId}`] = null;
+            }
+        }
         removePostFromSubgraphState(this, subgraphId, postId);
+        writeFirebaseDataModulePatch(patch);
     },
 } satisfies ThisType<DataModuleState>;
 
@@ -120,7 +169,7 @@ export const subgraphGetters = {
             const linkedSubgraphs: SubgraphId[] = [];
 
             for (const subgraph of Object.values(store.subgraphs)) {
-                if (subgraph.nodes.includes(postId)) {
+                if (hasMembership(subgraph.nodes, postId)) {
                     linkedSubgraphs.push(subgraph.id);
                 }
             }
@@ -133,7 +182,7 @@ export const subgraphGetters = {
             const subgraphsLinkIsIn: SubgraphId[] = [];
 
             for (const subgraph of Object.values(store.subgraphs)) {
-                if (subgraph.links.includes(linkId)) {
+                if (hasMembership(subgraph.links, linkId)) {
                     subgraphsLinkIsIn.push(subgraph.id);
                 }
             }

@@ -1,19 +1,23 @@
 import debounce from "lodash/debounce";
-import {get, ref, set} from "firebase/database";
 import {defineStore} from "pinia";
 
-import {STORAGE_KEY} from "@/src/components/constants";
-import firebaseDbFactory from "../firebaseDbFactory";
 import {
     parseImportedStorageObject,
     STORAGE_SCHEMA_VERSION,
     type ImportedStorageObject,
     type OfflineStorageObject
 } from "../storage";
+import {
+    readFirebaseStorage,
+    subscribeToFirebaseDataModule,
+    writeFirebaseStorage,
+} from "../firebaseStorage";
+import {runWithoutFirebaseWrites} from "../remoteSync";
 import {useDataStore} from "./dataModule";
 import {useFirebaseStore} from "./firebaseModule";
 import {useSettingsStore} from "./settingsModule";
-import type {ShouldTakeDataFrom} from "@/src/@types/StoreTypes";
+import type {DataModuleState, FirebaseConfig, ShouldTakeDataFrom} from "@/src/@types/StoreTypes";
+import {STORAGE_KEY} from "@/src/components/constants";
 
 export type {ImportedStorageObject, OfflineStorageObject};
 
@@ -29,6 +33,7 @@ interface ImportSettingsPayload {
 }
 
 let autosaveSuppressionDepth = 0;
+let unsubscribeFromFirebase: Nullable<() => void> = null;
 
 export function isAutosaveSuppressed(): boolean {
     return autosaveSuppressionDepth > 0;
@@ -37,29 +42,11 @@ export function isAutosaveSuppressed(): boolean {
 export function runWithoutAutosave<T>(callback: () => T): T {
     autosaveSuppressionDepth += 1;
     try {
-        return callback();
+        return runWithoutFirebaseWrites(callback);
     } finally {
         autosaveSuppressionDepth -= 1;
     }
 }
-
-const saveToFirebase = debounce(
-    (stringifiedStorage: string) => {
-        const settingsStore = useSettingsStore();
-        if (settingsStore.remoteStorageMethod !== "firebase") {
-            return;
-        }
-
-        const firebaseStore = useFirebaseStore();
-        const firebaseDB = firebaseDbFactory(firebaseStore.firebaseConfig);
-        void set(ref(firebaseDB, STORAGE_KEY), stringifiedStorage);
-    },
-    250,
-    {
-        leading: false,
-        trailing: true,
-    }
-);
 
 const autosaveState = debounce(() => {
     const settingsStore = useSettingsStore();
@@ -67,11 +54,20 @@ const autosaveState = debounce(() => {
         return;
     }
 
-    void useRootStore().saveStateToStorage();
+    useRootStore().saveStateToLocalStorage();
 }, 250);
 
 function parseStorageString(storageString: string): ImportedStorageObject {
     return parseImportedStorageObject(JSON.parse(storageString));
+}
+
+function stopFirebaseSync(): void {
+    if (unsubscribeFromFirebase == null) {
+        return;
+    }
+
+    unsubscribeFromFirebase();
+    unsubscribeFromFirebase = null;
 }
 
 export const useRootStore = defineStore("root", {
@@ -116,11 +112,23 @@ export const useRootStore = defineStore("root", {
             localStorage.setItem(STORAGE_KEY, stringifiedStorage);
             return stringifiedStorage;
         },
-        saveStateToStorage() {
-            const stringifiedStorage = this.saveStateToLocalStorage();
-            saveToFirebase(stringifiedStorage);
+        async saveStateToStorage() {
+            this.saveStateToLocalStorage();
+            await this.saveStateToFirebase();
+        },
+        async saveStateToFirebase() {
+            const settingsStore = useSettingsStore();
+            if (settingsStore.remoteStorageMethod !== "firebase") {
+                stopFirebaseSync();
+                return;
+            }
+
+            const firebaseStore = useFirebaseStore();
+            await writeFirebaseStorage(firebaseStore.firebaseConfig, useDataStore().$state);
+            this.startFirebaseSync();
         },
         async loadStateFromStorage() {
+            stopFirebaseSync();
             const localStorageItem = localStorage.getItem(STORAGE_KEY);
             if (localStorageItem === null) {
                 this.setLoadingApp(false);
@@ -138,43 +146,19 @@ export const useRootStore = defineStore("root", {
             }
 
             const remoteStorageMethod = localStorageObject.settingsModule?.remoteStorageMethod;
+            await this.importState(localStorageObject);
 
             switch (remoteStorageMethod) {
                 case "firebase": {
                     try {
-                        let loadedDataSuccesfully = false;
                         const firebaseConfig = localStorageObject.firebaseModule?.firebaseConfig;
                         if (firebaseConfig == null) {
                             throw new Error("Firebase config missing");
                         }
 
-                        const firebaseDB = firebaseDbFactory(firebaseConfig);
-                        get(ref(firebaseDB, STORAGE_KEY))
-                            .then((snapshot) => {
-                                const value = snapshot.val() as Nullable<string>;
-                                if (value == null) {
-                                    this.setFailedToLoadData(true);
-                                    return;
-                                }
-
-                                const firebaseStorageObject = parseStorageString(value);
-                                void this.importState(firebaseStorageObject);
-                                loadedDataSuccesfully = true;
-                                this.setLoadingApp(false);
-                            })
-                            .catch((error: unknown) => {
-                                console.log(error);
-                                alert("There was an error loading the state from Firebase, please refresh the page/change your Firebase config in 'settings', and try again");
-                            });
-
-                        setTimeout(
-                            () => {
-                                if (!loadedDataSuccesfully) {
-                                    this.setFailedToLoadData(true);
-                                }
-                            },
-                            10000
-                        );
+                        await this.loadDataModuleFromFirebase(firebaseConfig);
+                        this.startFirebaseSync();
+                        this.setLoadingApp(false);
                     } catch (error) {
                         useSettingsStore().remoteStorageMethod = "none";
                         this.setLoadingApp(false);
@@ -184,7 +168,7 @@ export const useRootStore = defineStore("root", {
                 }
                 case "none":
                 default: {
-                    await this.importState(localStorageObject);
+                    stopFirebaseSync();
                     this.setLoadingApp(false);
                     break;
                 }
@@ -206,10 +190,8 @@ export const useRootStore = defineStore("root", {
                     this.setLoadingApp(true);
                     try {
                         const firebaseStore = useFirebaseStore();
-                        const firebaseDB = firebaseDbFactory(firebaseStore.firebaseConfig);
-                        const firebaseSnapshot = await get(ref(firebaseDB, STORAGE_KEY));
-                        const firebaseStorageObject = parseStorageString(firebaseSnapshot.val() as string);
-                        await this.importData(firebaseStorageObject);
+                        await this.loadDataModuleFromFirebase(firebaseStore.firebaseConfig);
+                        this.startFirebaseSync();
                     } catch (error) {
                         console.log(error);
                         alert("There was an error loading the data from Firebase, please refresh the page/change your Firebase config in 'settings', and try again");
@@ -220,6 +202,73 @@ export const useRootStore = defineStore("root", {
                 default:
                     break;
             }
+        },
+        async loadDataModuleFromFirebase(firebaseConfig: FirebaseConfig) {
+            const firebaseStorageObject = await readFirebaseStorage(firebaseConfig);
+            if (firebaseStorageObject == null) {
+                await writeFirebaseStorage(firebaseConfig, useDataStore().$state);
+                return;
+            }
+
+            if (typeof firebaseStorageObject === "string") {
+                const legacyStorageObject = parseStorageString(firebaseStorageObject);
+                await this.importData(legacyStorageObject);
+                await writeFirebaseStorage(firebaseConfig, useDataStore().$state);
+                return;
+            }
+
+            await this.importDataModule(firebaseStorageObject.dataModule);
+        },
+        startFirebaseSync() {
+            stopFirebaseSync();
+            const settingsStore = useSettingsStore();
+            if (settingsStore.remoteStorageMethod !== "firebase") {
+                return;
+            }
+
+            const firebaseStore = useFirebaseStore();
+            unsubscribeFromFirebase = subscribeToFirebaseDataModule(firebaseStore.firebaseConfig, {
+                posts(posts) {
+                    runWithoutAutosave(() => {
+                        useDataStore().posts = posts;
+                    });
+                },
+                graphs(graphs) {
+                    runWithoutAutosave(() => {
+                        useDataStore().graphs = graphs;
+                    });
+                },
+                links(links) {
+                    runWithoutAutosave(() => {
+                        useDataStore().links = links;
+                    });
+                },
+                subgraphs(subgraphs) {
+                    runWithoutAutosave(() => {
+                        useDataStore().subgraphs = subgraphs;
+                    });
+                },
+                selectedPostIds(selectedPostIds) {
+                    runWithoutAutosave(() => {
+                        useDataStore().selectedPostIds = selectedPostIds;
+                    });
+                },
+                selectedGraphId(selectedGraphId) {
+                    runWithoutAutosave(() => {
+                        useDataStore().selectedGraphId = selectedGraphId;
+                    });
+                },
+                selectedSubgraphIds(selectedSubgraphIds) {
+                    runWithoutAutosave(() => {
+                        useDataStore().selectedSubgraphIds = selectedSubgraphIds;
+                    });
+                },
+                zoom(zoom) {
+                    runWithoutAutosave(() => {
+                        useDataStore().zoom = zoom;
+                    });
+                },
+            });
         },
         async importState(storageObject: ImportedStorageObject) {
             const dataStore = useDataStore();
@@ -242,10 +291,13 @@ export const useRootStore = defineStore("root", {
         async importData(storageObject: ImportedStorageObject) {
             const dataModule = storageObject.dataModule ?? storageObject.postsModule;
             if (dataModule != null) {
-                runWithoutAutosave(() => {
-                    useDataStore().setState(dataModule);
-                });
+                await this.importDataModule(dataModule);
             }
+        },
+        async importDataModule(dataModule: DataModuleState) {
+            runWithoutAutosave(() => {
+                useDataStore().setState(dataModule);
+            });
         },
         async importSettings({storageObject, shouldTakeDataFrom}: ImportSettingsPayload) {
             const settingsStore = useSettingsStore();
@@ -263,6 +315,10 @@ export const useRootStore = defineStore("root", {
 
             if (isStorageMethodChanging) {
                 await this.loadDataFrom(shouldTakeDataFrom);
+            }
+
+            if (settingsStore.remoteStorageMethod !== "firebase") {
+                stopFirebaseSync();
             }
         }
     }

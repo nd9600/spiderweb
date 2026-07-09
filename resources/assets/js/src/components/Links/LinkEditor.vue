@@ -147,7 +147,7 @@ export default defineComponent({
         subgraphsLinkIsIn: {
             get() {
                 return this.subgraphs
-                    .filter((subgraph) => subgraph.links.includes(this.link.id))
+                    .filter((subgraph) => subgraph.links[this.link.id] === true)
                     .map((subgraph) => subgraph.id);
             },
             set(subgraphsLinkIsIn: SubgraphId[]) {

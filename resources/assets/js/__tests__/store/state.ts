@@ -67,13 +67,13 @@ const state: OfflineStorageObject = {
             "1": {
                 "id": "1",
                 "name": "default",
-                "nodes": [
-                    "1",
-                    "2",
-                    "4",
-                    "7",
-                    "3"
-                ],
+                "nodes": {
+                    "1": true,
+                    "2": true,
+                    "4": true,
+                    "7": true,
+                    "3": true
+                },
                 "nodePositions": {
                     "2": {
                         x: 1,
@@ -91,36 +91,44 @@ const state: OfflineStorageObject = {
                 "id": "1",
                 "graph": "1",
                 "name": "default",
-                "nodes": [
-                    "1",
-                    "2",
-                    "4",
-                    "7"
-                ],
+                "nodes": {
+                    "1": true,
+                    "2": true,
+                    "4": true,
+                    "7": true
+                },
                 "colour": "black",
-                "links": ["1", "2", "3"]
+                "links": {
+                    "1": true,
+                    "2": true,
+                    "3": true
+                }
             },
             "2": {
                 "id": "2",
                 "graph": "1",
                 "name": "foo",
-                "nodes": [
-                    "3"
-                ],
-                "links": []
+                "nodes": {
+                    "3": true
+                },
+                "links": {}
             },
             "3": {
                 "id": "3",
                 "graph": "1",
                 "name": "default",
-                "nodes": [
-                    "1",
-                    "2",
-                    "4",
-                    "7"
-                ],
+                "nodes": {
+                    "1": true,
+                    "2": true,
+                    "4": true,
+                    "7": true
+                },
                 "colour": "black",
-                "links": ["1", "2", "3"]
+                "links": {
+                    "1": true,
+                    "2": true,
+                    "3": true
+                }
             },
         },
         "selectedPostIds": [

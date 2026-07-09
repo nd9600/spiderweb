@@ -20,7 +20,6 @@ function initialDataModuleState(): DataModuleState {
 function setDataModuleState(state: DataModuleState, newState: DataModuleState): void {
     if (
         Object.keys(newState).length === 0
-        || Object.keys(newState.posts).length === 0
     ) {
         return;
     }

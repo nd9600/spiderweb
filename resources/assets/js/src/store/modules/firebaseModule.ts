@@ -28,6 +28,7 @@ export const useFirebaseStore = defineStore("firebaseModule", {
             }
 
             this.firebaseConfig = firebaseConfig;
+            await useRootStore().saveStateToLocalStorage();
             await useRootStore().loadStateFromStorage();
         },
     },

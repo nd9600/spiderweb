@@ -50,7 +50,7 @@ export const useSettingsStore = defineStore("settingsModule", {
                 await useRootStore().loadDataFrom(shouldTakeDataFrom);
             }
 
-            await useRootStore().saveStateToLocalStorage();
+            await useRootStore().saveStateToStorage();
         },
         setCanOpenMultiplePosts(canOpenMultiplePosts: boolean) {
             this.canOpenMultiplePosts = canOpenMultiplePosts;

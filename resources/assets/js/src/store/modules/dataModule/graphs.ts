@@ -10,7 +10,8 @@ import type {
 import {createGraph, type Graph} from "@/src/store/models/Graph";
 import type {Post} from "@/src/store/models/Post";
 import type {Subgraph} from "@/src/store/models/Subgraph";
-import {nextStringId} from "./shared";
+import {writeFirebaseDataModulePatch, type FirebaseUpdatePatch} from "@/src/store/remoteSync";
+import {addMembership, hasMembership, membershipIds, newRecordId, removeMembership} from "./shared";
 
 export function graphState(): Pick<DataModuleState, "graphs" | "selectedGraphId" | "zoom"> {
     return {
@@ -18,7 +19,7 @@ export function graphState(): Pick<DataModuleState, "graphs" | "selectedGraphId"
             "1": {
                 id: "1",
                 name: "default",
-                nodes: [],
+                nodes: {},
                 nodePositions: {},
             },
         },
@@ -33,11 +34,11 @@ export function graphState(): Pick<DataModuleState, "graphs" | "selectedGraphId"
 
 export function addPostToGraphState(state: DataModuleState, graphId: GraphId, postId: PostId): void {
     const graph = state.graphs[graphId];
-    if (graph == null || graph.nodes.includes(postId)) {
+    if (graph == null || hasMembership(graph.nodes, postId)) {
         return;
     }
 
-    graph.nodes.push(postId);
+    addMembership(graph.nodes, postId);
 }
 
 export function removePostPositionFromGraph(graph: Graph, postId: PostId): void {
@@ -56,10 +57,13 @@ export function getPostIdsInSelectedSubgraphs(state: DataModuleState): PostId[] 
 
     if (state.selectedSubgraphIds.length > 0) {
         for (const selectedSubgraphId of state.selectedSubgraphIds) {
-            postIds = postIds.concat(state.subgraphs[selectedSubgraphId].nodes);
+            const subgraph = state.subgraphs[selectedSubgraphId];
+            if (subgraph != null) {
+                postIds = postIds.concat(membershipIds(subgraph.nodes));
+            }
         }
     } else if (state.selectedGraphId != null && state.graphs[state.selectedGraphId] != null) {
-        postIds = state.graphs[state.selectedGraphId].nodes;
+        postIds = membershipIds(state.graphs[state.selectedGraphId].nodes);
     }
 
     return [...new Set(postIds.filter((id): id is PostId => id != null))];
@@ -72,7 +76,7 @@ function removeLinksFromGraphContainingPost(state: DataModuleState, graphId: Gra
         }
 
         for (const subgraph of Object.values(state.subgraphs)) {
-            subgraph.links = subgraph.links.filter((id) => id !== link.id);
+            removeMembership(subgraph.links, link.id);
         }
 
         delete state.links[link.id];
@@ -89,21 +93,28 @@ function removePostFromGraphState(state: DataModuleState, graphId: GraphId, post
 
     for (const subgraph of Object.values(state.subgraphs)) {
         if (subgraph.graph === graphId) {
-            subgraph.nodes = subgraph.nodes.filter((id) => id !== postId);
+            removeMembership(subgraph.nodes, postId);
         }
     }
 
     removePostPositionFromGraph(graph, postId);
-    graph.nodes = graph.nodes.filter((id) => id !== postId);
+    removeMembership(graph.nodes, postId);
 }
 
 export const graphActions = {
     setSelectedGraphId(selectedGraphId: GraphId) {
         this.selectedSubgraphIds = [];
         this.selectedGraphId = selectedGraphId;
+        writeFirebaseDataModulePatch({
+            "dataModule/selectedGraphId": selectedGraphId,
+            "dataModule/selectedSubgraphIds": [],
+        });
     },
     setZoom(zoom: Zoom) {
         this.zoom = zoom;
+        writeFirebaseDataModulePatch({
+            "dataModule/zoom": zoom,
+        });
     },
     makeNewGraph(newGraphName: string) {
         if (newGraphName.trim().length === 0) {
@@ -116,11 +127,17 @@ export const graphActions = {
             return;
         }
 
-        const newGraphId = nextStringId(this.graphs);
+        const newGraphId = newRecordId();
         this.graphs[newGraphId] = createGraph(newGraphId, newGraphName);
+        writeFirebaseDataModulePatch({
+            [`dataModule/graphs/${newGraphId}`]: this.graphs[newGraphId],
+        });
     },
     changeGraphName({graphId, newGraphName}: {graphId: GraphId; newGraphName: string}) {
         this.graphs[graphId].name = newGraphName;
+        writeFirebaseDataModulePatch({
+            [`dataModule/graphs/${graphId}/name`]: newGraphName,
+        });
     },
     removeGraph(graphId: GraphId) {
         const graph = this.graphs[graphId];
@@ -128,8 +145,13 @@ export const graphActions = {
             return;
         }
 
+        const patch: FirebaseUpdatePatch = {
+            [`dataModule/graphs/${graphId}`]: null,
+        };
+
         if (this.selectedGraphId === graphId) {
             this.selectedGraphId = null;
+            patch["dataModule/selectedGraphId"] = null;
         }
 
         const graphSubgraphIds = Object.values(this.subgraphs)
@@ -138,24 +160,66 @@ export const graphActions = {
 
         this.selectedSubgraphIds = this.selectedSubgraphIds
             .filter((selectedSubgraphId) => !graphSubgraphIds.includes(selectedSubgraphId));
+        patch["dataModule/selectedSubgraphIds"] = this.selectedSubgraphIds;
 
         for (const subgraphId of graphSubgraphIds) {
             delete this.subgraphs[subgraphId];
+            patch[`dataModule/subgraphs/${subgraphId}`] = null;
         }
 
         for (const link of Object.values(this.links)) {
             if (link.graph === graphId) {
                 delete this.links[link.id];
+                patch[`dataModule/links/${link.id}`] = null;
             }
         }
 
         delete this.graphs[graphId];
+        writeFirebaseDataModulePatch(patch);
     },
     addPostToGraph({graphId, postId}: {graphId: GraphId; postId: PostId}) {
+        const graph = this.graphs[graphId];
+        if (graph == null || hasMembership(graph.nodes, postId)) {
+            return;
+        }
+
         addPostToGraphState(this, graphId, postId);
+        writeFirebaseDataModulePatch({
+            [`dataModule/graphs/${graphId}/nodes/${postId}`]: true,
+        });
     },
     removePostFromGraph({graphId, postId}: {graphId: GraphId; postId: PostId}) {
+        const graph = this.graphs[graphId];
+        if (graph == null) {
+            return;
+        }
+
+        const patch: FirebaseUpdatePatch = {
+            [`dataModule/graphs/${graphId}/nodes/${postId}`]: null,
+            [`dataModule/graphs/${graphId}/nodePositions/${postId}`]: null,
+        };
+
+        for (const link of Object.values(this.links)) {
+            if (link.graph !== graphId || (link.source !== postId && link.target !== postId)) {
+                continue;
+            }
+
+            patch[`dataModule/links/${link.id}`] = null;
+            for (const subgraph of Object.values(this.subgraphs)) {
+                if (hasMembership(subgraph.links, link.id)) {
+                    patch[`dataModule/subgraphs/${subgraph.id}/links/${link.id}`] = null;
+                }
+            }
+        }
+
+        for (const subgraph of Object.values(this.subgraphs)) {
+            if (subgraph.graph === graphId) {
+                patch[`dataModule/subgraphs/${subgraph.id}/nodes/${postId}`] = null;
+            }
+        }
+
         removePostFromGraphState(this, graphId, postId);
+        writeFirebaseDataModulePatch(patch);
     },
     setPostPosition({postId, position}: {postId: PostId; position: NodePosition}) {
         if (this.selectedGraphId == null) {
@@ -163,6 +227,9 @@ export const graphActions = {
         }
 
         this.graphs[this.selectedGraphId].nodePositions[postId] = position;
+        writeFirebaseDataModulePatch({
+            [`dataModule/graphs/${this.selectedGraphId}/nodePositions/${postId}`]: position,
+        });
     },
 } satisfies ThisType<DataModuleState>;
 

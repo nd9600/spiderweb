@@ -30,6 +30,6 @@ test("removing posts from a graph removes their links from a subgraph too", () =
     expect(Object.keys(store.subgraphs["1"].links).length).toEqual(3);
     store.removePostFromGraph({graphId: "1", postId: "1"});
     expect(Object.keys(store.subgraphs["1"].links).length).toEqual(2);
-    expect(store.subgraphs["1"].links.includes("1")).toBeFalsy();
-    expect(store.subgraphs["1"].nodes.includes("1")).toBeFalsy();
+    expect(store.subgraphs["1"].links["1"]).toBeUndefined();
+    expect(store.subgraphs["1"].nodes["1"]).toBeUndefined();
 });

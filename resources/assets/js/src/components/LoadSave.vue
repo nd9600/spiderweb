@@ -105,7 +105,7 @@
             "1": {
                 "id": "1",
                 "name": "default",
-                "nodes": [],
+                "nodes": {},
                 "nodePositions": {}
             }
         },
@@ -114,8 +114,8 @@
                 "id": "1",
                 "graph": "1",
                 "name": "default",
-                "nodes": [],
-                "links": [],
+                "nodes": {},
+                "links": {},
                 "colour": "#000000"
             }
         },

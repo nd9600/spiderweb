@@ -116,10 +116,9 @@ export default defineComponent({
         },
 
         subgraphsNotAlreadyAttachedTo() {
-            const subgraphsAlreadyAttachedTo = this.linkedSubgraphs(this.post.id)
-                .map((id: string) => parseInt(id, 10));
+            const subgraphsAlreadyAttachedTo = new Set(this.linkedSubgraphs(this.post.id));
             return this.subgraphsInSelectedGraph
-                .filter((subgraph) => !subgraphsAlreadyAttachedTo.includes(Number(subgraph.id)));
+                .filter((subgraph) => !subgraphsAlreadyAttachedTo.has(subgraph.id));
         }
     },
     created() {
