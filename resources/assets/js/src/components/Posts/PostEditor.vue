@@ -14,12 +14,12 @@
                 v-if="showTitleInput"
                 ref="inputTitle"
                 :value="title"
-                @input="onTitleInput"
                 class="p-2 rounded border text-gray-800 placeholder-gray-600"
                 type="text"
                 placeholder="On the Origin of Species"
                 minlength="0"
                 maxlength="1000"
+                @input="onTitleInput"
             >
         </label>
 
@@ -27,9 +27,9 @@
             <span class="font-bold">Body</span>
             <textarea
                 :value="body"
-                @input="onBodyInput"
                 class="p-2 h-64 rounded border text-gray-800 placeholder-gray-600 resize-y"
                 placeholder="you can type Markdown here"
+                @input="onBodyInput"
             />
         </label>
 

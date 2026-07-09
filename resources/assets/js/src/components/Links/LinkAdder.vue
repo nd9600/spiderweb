@@ -16,18 +16,18 @@
                     link
                 </option>
             </select>
-            <template v-if="Object.keys(subgraphs).length > 0">
+            <template v-if="subgraphs.length > 0">
                 in the subgraphs ({{ newLinkSubgraphIds.length }})
                 <select
                     v-model="newLinkSubgraphIds"
                     class="select select--secondary max-w-full"
-                    :size="Math.min(Object.keys(subgraphs).length, 3)"
+                    :size="Math.min(subgraphs.length, 3)"
                     multiple
                 >
                     <option
-                        v-for="(subgraph, id) in subgraphs"
-                        :key="id"
-                        :value="id"
+                        v-for="subgraph in subgraphs"
+                        :key="subgraph.id"
+                        :value="subgraph.id"
                         class="truncate"
                     >
                         {{ subgraph.name }}
@@ -49,7 +49,7 @@
 
             <PostSearch
                 class="ml-2"
-                @clickedOnResult="handlePostClick($event)"
+                @clicked-on-result="handlePostClick($event)"
             />
 
             <div class="my-2 flex justify-between">
@@ -90,7 +90,7 @@ export default defineComponent({
     },
     computed: {
         subgraphs() {
-            return useDataStore().subgraphs;
+            return useDataStore().subgraphsInSelectedGraph;
         },
         selectedSubgraphIds() {
             return useDataStore().selectedSubgraphIds;

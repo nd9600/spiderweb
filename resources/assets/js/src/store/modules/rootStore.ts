@@ -4,31 +4,24 @@ import {defineStore} from "pinia";
 
 import {STORAGE_KEY} from "@/src/components/constants";
 import firebaseDbFactory from "../firebaseDbFactory";
+import {
+    parseImportedStorageObject,
+    STORAGE_SCHEMA_VERSION,
+    type ImportedStorageObject,
+    type OfflineStorageObject
+} from "../storage";
 import {useDataStore} from "./dataModule";
 import {useFirebaseStore} from "./firebaseModule";
-import type {FirebaseModuleState} from "./firebaseModule";
 import {useSettingsStore} from "./settingsModule";
-import type {SettingsModuleState} from "./settingsModule";
-import type {
-    DataModuleState,
-    ShouldTakeDataFrom
-} from "@/src/@types/StoreTypes";
+import type {ShouldTakeDataFrom} from "@/src/@types/StoreTypes";
+
+export type {ImportedStorageObject, OfflineStorageObject};
 
 interface RootUiState {
     loadingApp: boolean;
     failedToLoadData: boolean;
     isRenderingGraph: boolean;
 }
-
-export interface OfflineStorageObject {
-    dataModule: DataModuleState;
-    settingsModule: SettingsModuleState;
-    firebaseModule: FirebaseModuleState;
-}
-
-export type ImportedStorageObject = Partial<OfflineStorageObject> & {
-    postsModule?: DataModuleState;
-};
 
 interface ImportSettingsPayload {
     storageObject: ImportedStorageObject;
@@ -77,6 +70,10 @@ const autosaveState = debounce(() => {
     void useRootStore().saveStateToStorage();
 }, 250);
 
+function parseStorageString(storageString: string): ImportedStorageObject {
+    return parseImportedStorageObject(JSON.parse(storageString));
+}
+
 export const useRootStore = defineStore("root", {
     state: (): RootUiState => ({
         loadingApp: true,
@@ -90,6 +87,7 @@ export const useRootStore = defineStore("root", {
             const firebaseStore = useFirebaseStore();
 
             return {
+                schemaVersion: STORAGE_SCHEMA_VERSION,
                 dataModule: dataStore.$state,
                 settingsModule: settingsStore.$state,
                 firebaseModule: firebaseStore.$state,
@@ -129,7 +127,16 @@ export const useRootStore = defineStore("root", {
                 return;
             }
 
-            const localStorageObject = JSON.parse(localStorageItem) as ImportedStorageObject;
+            let localStorageObject: ImportedStorageObject;
+            try {
+                localStorageObject = parseStorageString(localStorageItem);
+            } catch (error) {
+                console.log(error);
+                this.setFailedToLoadData(true);
+                this.setLoadingApp(false);
+                return;
+            }
+
             const remoteStorageMethod = localStorageObject.settingsModule?.remoteStorageMethod;
 
             switch (remoteStorageMethod) {
@@ -150,14 +157,10 @@ export const useRootStore = defineStore("root", {
                                     return;
                                 }
 
-                                const firebaseStorageObject = JSON.parse(value) as Nullable<ImportedStorageObject>;
-                                if (firebaseStorageObject != null) {
-                                    void this.importState(firebaseStorageObject);
-                                    loadedDataSuccesfully = true;
-                                    this.setLoadingApp(false);
-                                } else {
-                                    this.setFailedToLoadData(true);
-                                }
+                                const firebaseStorageObject = parseStorageString(value);
+                                void this.importState(firebaseStorageObject);
+                                loadedDataSuccesfully = true;
+                                this.setLoadingApp(false);
                             })
                             .catch((error: unknown) => {
                                 console.log(error);
@@ -195,7 +198,7 @@ export const useRootStore = defineStore("root", {
                         return;
                     }
 
-                    const localStorageObject = JSON.parse(localStorageItem) as ImportedStorageObject;
+                    const localStorageObject = parseStorageString(localStorageItem);
                     await this.importData(localStorageObject);
                     break;
                 }
@@ -205,7 +208,7 @@ export const useRootStore = defineStore("root", {
                         const firebaseStore = useFirebaseStore();
                         const firebaseDB = firebaseDbFactory(firebaseStore.firebaseConfig);
                         const firebaseSnapshot = await get(ref(firebaseDB, STORAGE_KEY));
-                        const firebaseStorageObject = JSON.parse(firebaseSnapshot.val() as string) as ImportedStorageObject;
+                        const firebaseStorageObject = parseStorageString(firebaseSnapshot.val() as string);
                         await this.importData(firebaseStorageObject);
                     } catch (error) {
                         console.log(error);
@@ -237,7 +240,7 @@ export const useRootStore = defineStore("root", {
             });
         },
         async importData(storageObject: ImportedStorageObject) {
-            const dataModule = storageObject.dataModule;
+            const dataModule = storageObject.dataModule ?? storageObject.postsModule;
             if (dataModule != null) {
                 runWithoutAutosave(() => {
                     useDataStore().setState(dataModule);

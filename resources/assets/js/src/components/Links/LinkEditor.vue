@@ -17,18 +17,18 @@
                 </option>
             </select>
         </label>
-        <label v-if="Object.keys(subgraphs).length > 0">
+        <label v-if="subgraphs.length > 0">
             in the subgraphs ({{ subgraphsLinkIsIn.length }})
             <select
                 v-model="subgraphsLinkIsIn"
                 class="select select--secondary mb-2"
                 multiple
-                :size="Math.min(Object.keys(subgraphs).length, 3)"
+                :size="Math.min(subgraphs.length, 3)"
             >
                 <option
-                    v-for="(subgraph, id) in subgraphs"
-                    :key="id"
-                    :value="id"
+                    v-for="subgraph in subgraphs"
+                    :key="subgraph.id"
+                    :value="subgraph.id"
                 >
                     {{ subgraph.name }}
                 </option>
@@ -137,7 +137,8 @@ export default defineComponent({
     },
     computed: {
         subgraphs() {
-            return useDataStore().subgraphs;
+            return Object.values(useDataStore().subgraphs)
+                .filter((subgraph) => subgraph.graph === this.link.graph);
         },
         titleOrBody() {
             return (postId: string) => useDataStore().titleOrBody(postId);
@@ -145,7 +146,7 @@ export default defineComponent({
 
         subgraphsLinkIsIn: {
             get() {
-                return Object.values(useDataStore().subgraphs)
+                return this.subgraphs
                     .filter((subgraph) => subgraph.links.includes(this.link.id))
                     .map((subgraph) => subgraph.id);
             },

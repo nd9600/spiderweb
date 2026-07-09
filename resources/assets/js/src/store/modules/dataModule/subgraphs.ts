@@ -17,13 +17,7 @@ export function subgraphState(): Pick<DataModuleState, "subgraphs" | "selectedSu
 }
 
 export function getSubgraphGraphId(state: DataModuleState, subgraphId: SubgraphId): Nullable<GraphId> {
-    for (const graph of Object.values(state.graphs)) {
-        if (graph.subgraphs.includes(subgraphId)) {
-            return graph.id;
-        }
-    }
-
-    return null;
+    return state.subgraphs[subgraphId]?.graph ?? null;
 }
 
 export function addPostToSubgraphState(state: DataModuleState, subgraphId: SubgraphId, postId: PostId): void {
@@ -32,10 +26,7 @@ export function addPostToSubgraphState(state: DataModuleState, subgraphId: Subgr
         return;
     }
 
-    const graphId = getSubgraphGraphId(state, subgraphId) ?? state.selectedGraphId;
-    if (graphId != null) {
-        addPostToGraphState(state, graphId, postId);
-    }
+    addPostToGraphState(state, subgraph.graph, postId);
 
     if (!subgraph.nodes.includes(postId)) {
         subgraph.nodes.push(postId);
@@ -77,7 +68,9 @@ export const subgraphActions = {
         if (this.selectedGraphId == null || this.graphs[this.selectedGraphId] == null) {
             this.selectedSubgraphIds = [];
         } else {
-            this.selectedSubgraphIds = this.graphs[this.selectedGraphId].subgraphs;
+            this.selectedSubgraphIds = Object.values(this.subgraphs)
+                .filter((subgraph) => subgraph.graph === this.selectedGraphId)
+                .map((subgraph) => subgraph.id);
         }
     },
     toggleSubgraphId(subgraphId: SubgraphId) {
@@ -99,8 +92,7 @@ export const subgraphActions = {
         }
 
         const newSubgraphId = nextStringId(this.subgraphs);
-        this.subgraphs[newSubgraphId] = createSubgraph(newSubgraphId, newSubgraphName);
-        this.graphs[graphId].subgraphs.push(newSubgraphId);
+        this.subgraphs[newSubgraphId] = createSubgraph(newSubgraphId, graphId, newSubgraphName);
     },
     changeSubgraphName({subgraphId, newSubgraphName}: {subgraphId: SubgraphId; newSubgraphName: string}) {
         this.subgraphs[subgraphId].name = newSubgraphName;
@@ -111,12 +103,6 @@ export const subgraphActions = {
     removeSubgraph(subgraphId: SubgraphId) {
         this.selectedSubgraphIds = this.selectedSubgraphIds
             .filter((selectedSubgraphId) => selectedSubgraphId !== subgraphId);
-
-        const graphId = getSubgraphGraphId(this, subgraphId);
-        if (graphId != null) {
-            this.graphs[graphId].subgraphs = this.graphs[graphId].subgraphs
-                .filter((id) => id !== subgraphId);
-        }
 
         delete this.subgraphs[subgraphId];
     },

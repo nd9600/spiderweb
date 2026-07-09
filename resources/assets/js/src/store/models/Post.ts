@@ -1,12 +1,15 @@
-import type {PostId} from "@/src/@types/StoreTypes";
+import {z} from "zod";
+import {postIdSchema, type PostId} from "./primitives";
 
-export interface Post {
-    id: PostId;
-    title: string;
-    body: string;
-    createdAt: string;
-    updatedAt: string;
-}
+export const postSchema = z.object({
+    id: postIdSchema,
+    title: z.string(),
+    body: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+});
+
+export type Post = z.infer<typeof postSchema>;
 
 export function createPost(
     id: PostId,

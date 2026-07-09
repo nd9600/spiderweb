@@ -30,7 +30,7 @@ export function removeLinkFromSubgraphs(state: DataModuleState, linkId: LinkId):
 function addLinkToSubgraphState(state: DataModuleState, linkId: LinkId, subgraphId: SubgraphId): void {
     const link = state.links[linkId];
     const subgraph = state.subgraphs[subgraphId];
-    if (link == null || subgraph == null) {
+    if (link == null || subgraph == null || subgraph.graph !== link.graph) {
         return;
     }
 
@@ -166,15 +166,23 @@ export const linkActions = {
         ensureLinkedPostsAreInContainingSubgraphs(this, id);
     },
     setSubgraphsLinkIsIn({linkId, subgraphsLinkIsIn}: {linkId: LinkId; subgraphsLinkIsIn: SubgraphId[]}) {
-        for (const subgraphId of Object.keys(this.subgraphs)) {
-            const subgraph = this.subgraphs[subgraphId];
+        const link = this.links[linkId];
+        if (link == null) {
+            return;
+        }
+
+        for (const subgraph of Object.values(this.subgraphs)) {
+            if (subgraph.graph !== link.graph && !subgraph.links.includes(linkId)) {
+                continue;
+            }
+
             const alreadyInSubgraph = subgraph.links.includes(linkId);
-            const shouldBeInSubgraph = subgraphsLinkIsIn.includes(subgraphId);
+            const shouldBeInSubgraph = subgraphsLinkIsIn.includes(subgraph.id);
 
             if (alreadyInSubgraph && !shouldBeInSubgraph) {
                 subgraph.links = subgraph.links.filter((id) => id !== linkId);
             } else if (!alreadyInSubgraph && shouldBeInSubgraph) {
-                addLinkToSubgraphState(this, linkId, subgraphId);
+                addLinkToSubgraphState(this, linkId, subgraph.id);
             }
         }
     },

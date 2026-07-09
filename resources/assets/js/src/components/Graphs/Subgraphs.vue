@@ -46,7 +46,7 @@ import SubgraphEditor from "./SubgraphEditor.vue";
 import {useDataStore} from "@/src/store";
 
 export default defineComponent({
-    name: "Subgraphs",
+    name: "GraphSubgraphs",
     components: {SubgraphEditor},
     props: {
         graphId: {
@@ -68,8 +68,8 @@ export default defineComponent({
         },
 
         subgraphsInGraph() {
-            return this.graphs[this.graphId].subgraphs
-                .map(id => this.subgraphs[id]);
+            return Object.values(this.subgraphs)
+                .filter((subgraph) => subgraph.graph === this.graphId);
         }
     },
     methods: {

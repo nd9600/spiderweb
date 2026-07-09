@@ -1,21 +1,12 @@
 import {defineStore} from "pinia";
 
-import type {FirebaseConfig} from "@/src/@types/StoreTypes";
+import {
+    defaultFirebaseConfig,
+    firebaseModuleStateSchema,
+    type FirebaseConfig,
+    type FirebaseModuleState
+} from "@/src/store/models/Firebase";
 import {useRootStore} from "./rootStore";
-
-export interface FirebaseModuleState {
-    firebaseConfig: FirebaseConfig;
-}
-
-export const defaultFirebaseConfig: FirebaseConfig = {
-    apiKey: "",
-    authDomain: "xxx.firebaseapp.com",
-    databaseURL: "https://xxx.firebaseio.com",
-    projectId: "xxx",
-    storageBucket: "xxx.appspot.com",
-    messagingSenderId: "123",
-    appId: "456",
-};
 
 export const useFirebaseStore = defineStore("firebaseModule", {
     state: (): FirebaseModuleState => ({
@@ -29,7 +20,7 @@ export const useFirebaseStore = defineStore("firebaseModule", {
                 return;
             }
 
-            this.firebaseConfig = newState.firebaseConfig || defaultFirebaseConfig;
+            this.firebaseConfig = firebaseModuleStateSchema.parse(newState).firebaseConfig;
         },
         async setFirebaseConfig(firebaseConfig: FirebaseConfig) {
             if (firebaseConfig.apiKey === "") {

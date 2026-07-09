@@ -20,7 +20,6 @@ export function graphState(): Pick<DataModuleState, "graphs" | "selectedGraphId"
                 name: "default",
                 nodes: [],
                 nodePositions: {},
-                subgraphs: [],
             },
         },
         selectedGraphId: "1",
@@ -88,9 +87,8 @@ function removePostFromGraphState(state: DataModuleState, graphId: GraphId, post
 
     removeLinksFromGraphContainingPost(state, graphId, postId);
 
-    for (const subgraphId of graph.subgraphs) {
-        const subgraph = state.subgraphs[subgraphId];
-        if (subgraph != null) {
+    for (const subgraph of Object.values(state.subgraphs)) {
+        if (subgraph.graph === graphId) {
             subgraph.nodes = subgraph.nodes.filter((id) => id !== postId);
         }
     }
@@ -134,10 +132,14 @@ export const graphActions = {
             this.selectedGraphId = null;
         }
 
-        this.selectedSubgraphIds = this.selectedSubgraphIds
-            .filter((selectedSubgraphId) => !graph.subgraphs.includes(selectedSubgraphId));
+        const graphSubgraphIds = Object.values(this.subgraphs)
+            .filter((subgraph) => subgraph.graph === graphId)
+            .map((subgraph) => subgraph.id);
 
-        for (const subgraphId of graph.subgraphs) {
+        this.selectedSubgraphIds = this.selectedSubgraphIds
+            .filter((selectedSubgraphId) => !graphSubgraphIds.includes(selectedSubgraphId));
+
+        for (const subgraphId of graphSubgraphIds) {
             delete this.subgraphs[subgraphId];
         }
 
@@ -170,7 +172,8 @@ export const graphGetters = {
             return [];
         }
 
-        return store.graphs[store.selectedGraphId].subgraphs.map((id) => store.subgraphs[id]);
+        return Object.values(store.subgraphs)
+            .filter((subgraph) => subgraph.graph === store.selectedGraphId);
     },
     postIdsInSelectedSubgraphs(store: DataModuleState): PostId[] {
         return getPostIdsInSelectedSubgraphs(store);

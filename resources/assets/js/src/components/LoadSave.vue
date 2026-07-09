@@ -97,20 +97,22 @@
                         class="overflow-y-auto"
                         style="max-height: 33vh"
                     ><code>{
+    "schemaVersion": 2,
     "dataModule": {
         "posts": {},
         "links": {},
         "graphs": {
             "1": {
-                "id": 1,
+                "id": "1",
                 "name": "default",
                 "nodes": [],
-                "subgraphs": []
+                "nodePositions": {}
             }
         },
         "subgraphs": {
             "1": {
-                "id": 1,
+                "id": "1",
+                "graph": "1",
                 "name": "default",
                 "nodes": [],
                 "links": [],
@@ -118,8 +120,13 @@
             }
         },
         "selectedPostIds": [],
-        "selectedGraphId": 1,
-        "selectedSubgraphIds": []
+        "selectedGraphId": "1",
+        "selectedSubgraphIds": [],
+        "zoom": {
+            "x": 200,
+            "y": 100,
+            "scale": 0.5
+        }
     },
     "settingsModule": {
         "shouldAutosave": true,
@@ -175,17 +182,9 @@
 <script lang="ts">
 import {defineComponent} from "vue";
 import type {ShouldTakeDataFrom} from "@/src/@types/StoreTypes";
-import type {ImportedStorageObject} from "@/src/store/modules/rootStore";
 import BlogpostExporter from "@/src/components/BlogpostExporter/BlogpostExporter.vue";
 import {useRootStore, useSettingsStore} from "@/src/store";
-
-function isImportedStorageObject(value: unknown): value is Required<ImportedStorageObject> {
-    return typeof value === "object"
-        && value !== null
-        && "dataModule" in value
-        && "settingsModule" in value
-        && "firebaseModule" in value;
-}
+import {parseImportedStorageObject} from "@/src/store/storage";
 
 export default defineComponent({
     name: "LoadSave",
@@ -264,9 +263,11 @@ export default defineComponent({
             }
 
             const stateString = await this.fileToImport.text();
-            const parsedState = JSON.parse(stateString) as unknown;
-
-            if (!isImportedStorageObject(parsedState)) {
+            let parsedState;
+            try {
+                parsedState = parseImportedStorageObject(JSON.parse(stateString));
+            } catch (error) {
+                console.log(error);
                 alert("Imported file isn't valid");
                 return;
             }
@@ -275,7 +276,7 @@ export default defineComponent({
                 await useRootStore().importData(parsedState);
             }
 
-            const willStartSyncingWithFirebaseAfterImport = parsedState.settingsModule.remoteStorageMethod && parsedState.settingsModule.remoteStorageMethod === "firebase";
+            const willStartSyncingWithFirebaseAfterImport = parsedState.settingsModule?.remoteStorageMethod === "firebase";
             if (this.shouldImportSettings) {
                 if (
                     this.shouldShowTakeDataFromSelect

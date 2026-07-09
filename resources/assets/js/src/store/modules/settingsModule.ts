@@ -2,16 +2,8 @@ import {defineStore} from "pinia";
 
 import type {RemoteStorageMethod, ShouldTakeDataFrom} from "@/src/@types/StoreTypes";
 import {isInteger} from "@/src/helpers/numberHelpers";
+import {settingsModuleStateSchema, type SettingsModuleState} from "@/src/store/models/Settings";
 import {runWithoutAutosave, useRootStore} from "./rootStore";
-
-export interface SettingsModuleState {
-    shouldAutosave: boolean;
-    remoteStorageMethod: RemoteStorageMethod;
-    canOpenMultiplePosts: boolean;
-    graphHeight: number;
-    postBarHeight: number;
-    postWidth: number;
-}
 
 interface SetRemoteStorageMethodPayload {
     remoteStorageMethod: RemoteStorageMethod;
@@ -37,12 +29,13 @@ export const useSettingsStore = defineStore("settingsModule", {
                 return;
             }
 
-            this.shouldAutosave = newState.shouldAutosave ?? true;
-            this.canOpenMultiplePosts = newState.canOpenMultiplePosts ?? true;
-            this.remoteStorageMethod = newState.remoteStorageMethod || "none";
-            this.graphHeight = newState.graphHeight || 66;
-            this.postBarHeight = newState.postBarHeight || 66;
-            this.postWidth = newState.postWidth || 50;
+            const settings = settingsModuleStateSchema.parse(newState);
+            this.shouldAutosave = settings.shouldAutosave;
+            this.canOpenMultiplePosts = settings.canOpenMultiplePosts;
+            this.remoteStorageMethod = settings.remoteStorageMethod;
+            this.graphHeight = settings.graphHeight;
+            this.postBarHeight = settings.postBarHeight;
+            this.postWidth = settings.postWidth;
         },
         setShouldAutosave(shouldAutosave: boolean) {
             this.shouldAutosave = shouldAutosave;

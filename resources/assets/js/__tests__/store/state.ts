@@ -1,6 +1,7 @@
 import type {OfflineStorageObject} from "@/src/store/modules/rootStore";
 
 const state: OfflineStorageObject = {
+    "schemaVersion": 2,
     "dataModule": {
         "posts": {
             "1": {
@@ -83,12 +84,12 @@ const state: OfflineStorageObject = {
                         y: 3
                     }
                 },
-                "subgraphs": ["1", "2", "3"]
             }
         },
         "subgraphs": {
             "1": {
                 "id": "1",
+                "graph": "1",
                 "name": "default",
                 "nodes": [
                     "1",
@@ -101,6 +102,7 @@ const state: OfflineStorageObject = {
             },
             "2": {
                 "id": "2",
+                "graph": "1",
                 "name": "foo",
                 "nodes": [
                     "3"
@@ -108,7 +110,8 @@ const state: OfflineStorageObject = {
                 "links": []
             },
             "3": {
-                "id": "1",
+                "id": "3",
+                "graph": "1",
                 "name": "default",
                 "nodes": [
                     "1",
