@@ -13,21 +13,4 @@ function isInteger(n: number | string): boolean {
     return Number.isInteger(n) || (typeof n === "string" && isIntegerString(n));
 }
 
-function isNumber(n: number | string): boolean {
-    const isString = typeof n === "string";
-    if (isString) {
-        const stringEndsInDot = RegExp(/^.*\.$/).test(n);
-        if (stringEndsInDot) {
-            return false;
-        }
-    }
-
-    const parsedNumber = Number(n);
-    return !Number.isNaN(parsedNumber) && Number.isFinite(parsedNumber);
-}
-
-const isFloat = (n: unknown): boolean => {
-    return Number(n) === n && n % 1 !== 0;
-};
-
-export {isIntegerString, isInteger, isNumber, isFloat};
+export {isIntegerString, isInteger};

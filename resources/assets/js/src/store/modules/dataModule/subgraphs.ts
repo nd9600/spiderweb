@@ -6,9 +6,8 @@ import type {
     SubgraphId
 } from "@/src/@types/StoreTypes";
 import {createSubgraph, type Subgraph} from "@/src/store/models/Subgraph";
-import {writeFirebaseDataModulePatch, type FirebaseUpdatePatch} from "@/src/store/remoteSync";
-import {addPostToGraphState} from "./graphs";
-import {addMembership, hasMembership, membershipIds, newRecordId, removeMembership} from "./shared";
+import {createDataModulePatch} from "./commit";
+import {membershipIds, newRecordId} from "./shared";
 
 export type SubgraphIdsByPostId = Partial<Record<PostId, SubgraphId[]>>;
 export type SubgraphIdsByLinkId = Partial<Record<LinkId, SubgraphId[]>>;
@@ -17,20 +16,6 @@ export interface SubgraphIndexes {
     subgraphsByGraphId: SubgraphsByGraphId;
     subgraphIdsByPostId: SubgraphIdsByPostId;
     subgraphIdsByLinkId: SubgraphIdsByLinkId;
-}
-
-export function addPostToSubgraphState(state: DataModuleState, subgraphId: SubgraphId, postId: PostId): void {
-    const subgraph = state.subgraphs[subgraphId];
-    if (subgraph == null) {
-        return;
-    }
-
-    // A post cannot be in a subgraph without also being in that subgraph's parent graph.
-    addPostToGraphState(state, subgraph.graph, postId);
-
-    if (!hasMembership(subgraph.nodes, postId)) {
-        addMembership(subgraph.nodes, postId);
-    }
 }
 
 function stringToColour(str: string): string {
@@ -90,32 +75,33 @@ export default {
     },
     actions: {
         setSelectedSubgraphIds(selectedSubgraphIds: SubgraphId[]) {
-            this.selectedSubgraphIds = selectedSubgraphIds;
-            writeFirebaseDataModulePatch({
-                "dataModule/selectedSubgraphIds": selectedSubgraphIds,
-            });
+            return createDataModulePatch(this)
+                .setSelectedSubgraphIds(selectedSubgraphIds)
+                .commit();
         },
         selectAllSubgraphs() {
+            let selectedSubgraphIds: SubgraphId[];
             if (this.selectedGraphId == null || this.graphs[this.selectedGraphId] == null) {
-                this.selectedSubgraphIds = [];
+                selectedSubgraphIds = [];
             } else {
-                this.selectedSubgraphIds = Object.values(this.subgraphs)
+                selectedSubgraphIds = Object.values(this.subgraphs)
                     .filter((subgraph) => subgraph.graph === this.selectedGraphId)
                     .map((subgraph) => subgraph.id);
             }
-            writeFirebaseDataModulePatch({
-                "dataModule/selectedSubgraphIds": this.selectedSubgraphIds,
-            });
+            return createDataModulePatch(this)
+                .setSelectedSubgraphIds(selectedSubgraphIds)
+                .commit();
         },
         toggleSubgraphId(subgraphId: SubgraphId) {
+            let selectedSubgraphIds: SubgraphId[];
             if (this.selectedSubgraphIds.includes(subgraphId)) {
-                this.selectedSubgraphIds = this.selectedSubgraphIds.filter((selectedSubgraphId) => selectedSubgraphId !== subgraphId);
+                selectedSubgraphIds = this.selectedSubgraphIds.filter((selectedSubgraphId) => selectedSubgraphId !== subgraphId);
             } else {
-                this.selectedSubgraphIds.push(subgraphId);
+                selectedSubgraphIds = [...this.selectedSubgraphIds, subgraphId];
             }
-            writeFirebaseDataModulePatch({
-                "dataModule/selectedSubgraphIds": this.selectedSubgraphIds,
-            });
+            return createDataModulePatch(this)
+                .setSelectedSubgraphIds(selectedSubgraphIds)
+                .commit();
         },
         makeNewSubgraph({graphId, newSubgraphName}: {graphId: GraphId; newSubgraphName: string}) {
             if (newSubgraphName.trim().length === 0) {
@@ -129,32 +115,25 @@ export default {
             }
 
             const newSubgraphId = newRecordId();
-            this.subgraphs[newSubgraphId] = createSubgraph(newSubgraphId, graphId, newSubgraphName);
-            writeFirebaseDataModulePatch({
-                [`dataModule/subgraphs/${newSubgraphId}`]: this.subgraphs[newSubgraphId],
-            });
+            return createDataModulePatch(this)
+                .setSubgraph(createSubgraph(newSubgraphId, graphId, newSubgraphName))
+                .commit();
         },
         changeSubgraphName({subgraphId, newSubgraphName}: {subgraphId: SubgraphId; newSubgraphName: string}) {
-            this.subgraphs[subgraphId].name = newSubgraphName;
-            writeFirebaseDataModulePatch({
-                [`dataModule/subgraphs/${subgraphId}/name`]: newSubgraphName,
-            });
+            return createDataModulePatch(this)
+                .setSubgraphName(subgraphId, newSubgraphName)
+                .commit();
         },
         changeSubgraphColour({subgraphId, colour}: {subgraphId: SubgraphId; colour: string}) {
-            this.subgraphs[subgraphId].colour = colour;
-            writeFirebaseDataModulePatch({
-                [`dataModule/subgraphs/${subgraphId}/colour`]: colour,
-            });
+            return createDataModulePatch(this)
+                .setSubgraphColour(subgraphId, colour)
+                .commit();
         },
         removeSubgraph(subgraphId: SubgraphId) {
-            this.selectedSubgraphIds = this.selectedSubgraphIds
-                .filter((selectedSubgraphId) => selectedSubgraphId !== subgraphId);
-
-            delete this.subgraphs[subgraphId];
-            writeFirebaseDataModulePatch({
-                "dataModule/selectedSubgraphIds": this.selectedSubgraphIds,
-                [`dataModule/subgraphs/${subgraphId}`]: null,
-            });
+            return createDataModulePatch(this)
+                .setSelectedSubgraphIds(this.selectedSubgraphIds.filter((selectedSubgraphId) => selectedSubgraphId !== subgraphId))
+                .deleteSubgraph(subgraphId)
+                .commit();
         },
         addPostToSubgraph({subgraphId, postId}: {subgraphId: SubgraphId; postId: PostId}) {
             const subgraph = this.subgraphs[subgraphId];
@@ -162,11 +141,10 @@ export default {
                 return;
             }
 
-            addPostToSubgraphState(this, subgraphId, postId);
-            writeFirebaseDataModulePatch({
-                [`dataModule/graphs/${subgraph.graph}/nodes/${postId}`]: true,
-                [`dataModule/subgraphs/${subgraphId}/nodes/${postId}`]: true,
-            });
+            return createDataModulePatch(this)
+                .addPostToGraph(subgraph.graph, postId)
+                .addPostToSubgraph(subgraphId, postId)
+                .commit();
         },
         removePostFromSubgraph({subgraphId, postId}: {subgraphId: SubgraphId; postId: PostId}) {
             const subgraph = this.subgraphs[subgraphId];
@@ -174,25 +152,16 @@ export default {
                 return;
             }
 
-            // Build the Firebase patch before local mutation because local mutation deletes the affected link memberships.
-            const patch: FirebaseUpdatePatch = {
-                [`dataModule/subgraphs/${subgraphId}/nodes/${postId}`]: null,
-            };
+            const patch = createDataModulePatch(this)
+                .removePostFromSubgraph(subgraphId, postId);
             for (const linkId of Object.keys(subgraph.links) as LinkId[]) {
                 const link = this.links[linkId];
                 if (link != null && (link.source === postId || link.target === postId)) {
-                    patch[`dataModule/subgraphs/${subgraphId}/links/${linkId}`] = null;
+                    patch.removeLinkFromSubgraph(subgraphId, linkId);
                 }
             }
-            // Removing a post from a subgraph also removes subgraph-local links that depend on that post.
-            for (const linkId of Object.keys(subgraph.links) as LinkId[]) {
-                const link = this.links[linkId];
-                if (link != null && (link.source === postId || link.target === postId)) {
-                    removeMembership(subgraph.links, linkId);
-                }
-            }
-            removeMembership(subgraph.nodes, postId);
-            writeFirebaseDataModulePatch(patch);
+
+            return patch.commit();
         },
     } satisfies ThisType<DataModuleState>,
 };

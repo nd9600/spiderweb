@@ -1,10 +1,10 @@
 <template>
-    <section>
+    <section ref="postBarElement">
         <div
             id="postBar"
             class="postBar"
         >
-            <PostBarScrollButtons />
+            <PostBarScrollButtons @scrollToTop="emit('scrollToTop')" />
             <div
                 id="postsContainer"
                 class="w-full flex items-start overflow-x-auto"
@@ -27,6 +27,7 @@
 
 <script setup lang="ts">
 ///// imports /////
+import {useTemplateRef} from "vue";
 import type {PostId} from "@/src/@types/StoreTypes";
 import Post from "./Post.vue";
 import PostBarScrollButtons from "./PostBarScrollButtons.vue";
@@ -40,10 +41,25 @@ const emit = defineEmits<{
     focusPost: [postId: PostId];
     highlightPost: [postId: PostId];
     unhighlightPost: [postId: PostId];
+    scrollToTop: [];
 }>();
 
 ///// refs and variables /////
 const dataStore = useDataStore();
+const postBarElement = useTemplateRef<HTMLElement>("postBarElement");
+
+///// functions /////
+function scrollToPostBar(): void {
+    if (postBarElement.value == null) {
+        return;
+    }
+
+    window.scrollBy(0, postBarElement.value.getBoundingClientRect().top - 5);
+}
+
+defineExpose({
+    scrollToPostBar,
+});
 </script>
 
 <style>

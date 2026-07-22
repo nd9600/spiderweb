@@ -7,45 +7,12 @@ import type {
     SubgraphId
 } from "@/src/@types/StoreTypes";
 import {createLink, type Link} from "@/src/store/models/Link";
-import {writeFirebaseDataModulePatch, type FirebaseUpdatePatch} from "@/src/store/remoteSync";
-import {addPostToGraphState} from "./graphs";
-import {addMembership, hasMembership, membershipIds, newRecordId, removeMembership} from "./shared";
-import {addPostToSubgraphState} from "./subgraphs";
+import {createDataModulePatch} from "./commit";
+import {hasMembership, membershipIds, newRecordId} from "./shared";
 
 export type LinkWithSubgraphId = Link & {
     subgraphId?: SubgraphId;
 };
-
-export function removeLinkFromSubgraphs(state: DataModuleState, linkId: LinkId): void {
-    for (const subgraph of Object.values(state.subgraphs)) {
-        removeMembership(subgraph.links, linkId);
-    }
-}
-
-function addLinkToSubgraphState(state: DataModuleState, linkId: LinkId, subgraphId: SubgraphId): void {
-    const link = state.links[linkId];
-    const subgraph = state.subgraphs[subgraphId];
-    if (link == null || subgraph == null || subgraph.graph !== link.graph) {
-        return;
-    }
-
-    // A subgraph link implies both endpoint posts are also visible in that subgraph.
-    addPostToSubgraphState(state, subgraphId, link.source);
-    addPostToSubgraphState(state, subgraphId, link.target);
-
-    if (!hasMembership(subgraph.links, linkId)) {
-        addMembership(subgraph.links, linkId);
-    }
-}
-
-function ensureLinkedPostsAreInContainingSubgraphs(state: DataModuleState, linkId: LinkId): void {
-    // Editing a link endpoint can introduce a new post that every containing subgraph must include.
-    for (const subgraph of Object.values(state.subgraphs)) {
-        if (hasMembership(subgraph.links, linkId)) {
-            addLinkToSubgraphState(state, linkId, subgraph.id);
-        }
-    }
-}
 
 export default {
     state(): Pick<DataModuleState, "links"> {
@@ -120,47 +87,38 @@ export default {
                 return;
             }
 
-            addPostToGraphState(this, graph, source);
-            addPostToGraphState(this, graph, target);
-
-            // The patch mirrors every local side effect: graph membership, link creation, and optional subgraph membership.
-            const patch: FirebaseUpdatePatch = {
-                [`dataModule/graphs/${graph}/nodes/${source}`]: true,
-                [`dataModule/graphs/${graph}/nodes/${target}`]: true,
-            };
-
             const newLinkId = newRecordId();
-            this.links[newLinkId] = createLink(newLinkId, graph, source, target, type);
-            patch[`dataModule/links/${newLinkId}`] = this.links[newLinkId];
+            const newLink = createLink(newLinkId, graph, source, target, type);
+            const patch = createDataModulePatch(this)
+                .addPostToGraph(graph, source)
+                .addPostToGraph(graph, target)
+                .setLink(newLink);
 
             for (const subgraphId of subgraphIds) {
-                addLinkToSubgraphState(this, newLinkId, subgraphId);
                 if (this.subgraphs[subgraphId]?.graph === graph) {
-                    patch[`dataModule/subgraphs/${subgraphId}/nodes/${source}`] = true;
-                    patch[`dataModule/subgraphs/${subgraphId}/nodes/${target}`] = true;
-                    patch[`dataModule/subgraphs/${subgraphId}/links/${newLinkId}`] = true;
+                    patch
+                        .addPostToSubgraph(subgraphId, source)
+                        .addPostToSubgraph(subgraphId, target)
+                        .addLinkToSubgraph(subgraphId, newLinkId);
                 }
             }
-            writeFirebaseDataModulePatch(patch);
+
+            return patch.commit();
         },
         updateLink(link: Link) {
-            addPostToGraphState(this, link.graph, link.source);
-            addPostToGraphState(this, link.graph, link.target);
-            this.links[link.id] = link;
-            ensureLinkedPostsAreInContainingSubgraphs(this, link.id);
-            // Replacing a link can also add endpoint posts to its graph/subgraphs.
-            const patch: FirebaseUpdatePatch = {
-                [`dataModule/graphs/${link.graph}/nodes/${link.source}`]: true,
-                [`dataModule/graphs/${link.graph}/nodes/${link.target}`]: true,
-                [`dataModule/links/${link.id}`]: link,
-            };
+            const patch = createDataModulePatch(this)
+                .addPostToGraph(link.graph, link.source)
+                .addPostToGraph(link.graph, link.target)
+                .setLink(link);
             for (const subgraph of Object.values(this.subgraphs)) {
                 if (hasMembership(subgraph.links, link.id) && subgraph.graph === link.graph) {
-                    patch[`dataModule/subgraphs/${subgraph.id}/nodes/${link.source}`] = true;
-                    patch[`dataModule/subgraphs/${subgraph.id}/nodes/${link.target}`] = true;
+                    patch
+                        .addPostToSubgraph(subgraph.id, link.source)
+                        .addPostToSubgraph(subgraph.id, link.target);
                 }
             }
-            writeFirebaseDataModulePatch(patch);
+
+            return patch.commit();
         },
         changeLinkSource({id, source}: {id: LinkId; source: PostId}) {
             const link = this.links[id];
@@ -168,19 +126,16 @@ export default {
                 return;
             }
 
-            addPostToGraphState(this, link.graph, source);
-            link.source = source;
-            ensureLinkedPostsAreInContainingSubgraphs(this, id);
-            const patch: FirebaseUpdatePatch = {
-                [`dataModule/graphs/${link.graph}/nodes/${source}`]: true,
-                [`dataModule/links/${id}/source`]: source,
-            };
+            const patch = createDataModulePatch(this)
+                .addPostToGraph(link.graph, source)
+                .setLinkSource(id, source);
             for (const subgraph of Object.values(this.subgraphs)) {
                 if (hasMembership(subgraph.links, id) && subgraph.graph === link.graph) {
-                    patch[`dataModule/subgraphs/${subgraph.id}/nodes/${source}`] = true;
+                    patch.addPostToSubgraph(subgraph.id, source);
                 }
             }
-            writeFirebaseDataModulePatch(patch);
+
+            return patch.commit();
         },
         changeLinkTarget({id, target}: {id: LinkId; target: PostId}) {
             const link = this.links[id];
@@ -188,19 +143,16 @@ export default {
                 return;
             }
 
-            addPostToGraphState(this, link.graph, target);
-            link.target = target;
-            ensureLinkedPostsAreInContainingSubgraphs(this, id);
-            const patch: FirebaseUpdatePatch = {
-                [`dataModule/graphs/${link.graph}/nodes/${target}`]: true,
-                [`dataModule/links/${id}/target`]: target,
-            };
+            const patch = createDataModulePatch(this)
+                .addPostToGraph(link.graph, target)
+                .setLinkTarget(id, target);
             for (const subgraph of Object.values(this.subgraphs)) {
                 if (hasMembership(subgraph.links, id) && subgraph.graph === link.graph) {
-                    patch[`dataModule/subgraphs/${subgraph.id}/nodes/${target}`] = true;
+                    patch.addPostToSubgraph(subgraph.id, target);
                 }
             }
-            writeFirebaseDataModulePatch(patch);
+
+            return patch.commit();
         },
         setSubgraphsLinkIsIn({linkId, subgraphsLinkIsIn}: {linkId: LinkId; subgraphsLinkIsIn: SubgraphId[]}) {
             const link = this.links[linkId];
@@ -208,49 +160,36 @@ export default {
                 return;
             }
 
-            // First update local membership, then build a patch from the requested membership list.
-            for (const subgraph of Object.values(this.subgraphs)) {
-                if (subgraph.graph !== link.graph && !hasMembership(subgraph.links, linkId)) {
-                    continue;
-                }
-
-                const alreadyInSubgraph = hasMembership(subgraph.links, linkId);
-                const shouldBeInSubgraph = subgraphsLinkIsIn.includes(subgraph.id);
-
-                if (alreadyInSubgraph && !shouldBeInSubgraph) {
-                    removeMembership(subgraph.links, linkId);
-                } else if (!alreadyInSubgraph && shouldBeInSubgraph) {
-                    addLinkToSubgraphState(this, linkId, subgraph.id);
-                }
-            }
-            const patch: FirebaseUpdatePatch = {};
+            const patch = createDataModulePatch(this);
             for (const subgraph of Object.values(this.subgraphs)) {
                 if (subgraph.graph !== link.graph && !hasMembership(subgraph.links, linkId)) {
                     continue;
                 }
 
                 if (subgraphsLinkIsIn.includes(subgraph.id)) {
-                    patch[`dataModule/subgraphs/${subgraph.id}/nodes/${link.source}`] = true;
-                    patch[`dataModule/subgraphs/${subgraph.id}/nodes/${link.target}`] = true;
-                    patch[`dataModule/subgraphs/${subgraph.id}/links/${linkId}`] = true;
+                    if (subgraph.graph === link.graph) {
+                        patch
+                            .addPostToSubgraph(subgraph.id, link.source)
+                            .addPostToSubgraph(subgraph.id, link.target)
+                            .addLinkToSubgraph(subgraph.id, linkId);
+                    }
                 } else {
-                    patch[`dataModule/subgraphs/${subgraph.id}/links/${linkId}`] = null;
+                    patch.removeLinkFromSubgraph(subgraph.id, linkId);
                 }
             }
-            writeFirebaseDataModulePatch(patch);
+
+            return patch.commit();
         },
         removeLink({id}: {id: LinkId}) {
-            const patch: FirebaseUpdatePatch = {
-                [`dataModule/links/${id}`]: null,
-            };
+            const patch = createDataModulePatch(this)
+                .deleteLink(id);
             for (const subgraph of Object.values(this.subgraphs)) {
                 if (hasMembership(subgraph.links, id)) {
-                    patch[`dataModule/subgraphs/${subgraph.id}/links/${id}`] = null;
+                    patch.removeLinkFromSubgraph(subgraph.id, id);
                 }
             }
-            removeLinkFromSubgraphs(this, id);
-            delete this.links[id];
-            writeFirebaseDataModulePatch(patch);
+
+            return patch.commit();
         },
     } satisfies ThisType<DataModuleState>,
 };

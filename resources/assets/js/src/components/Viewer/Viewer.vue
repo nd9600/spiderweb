@@ -5,6 +5,7 @@
                 <div class="flex flex-col">
                     <button
                         id="scrollToPostBarButton"
+                        ref="scrollToPostBarButton"
                         class="btn btn--secondary"
                         type="button"
                         title="scroll to the posts"
@@ -137,12 +138,14 @@
                 }"
             />
             <PostBar
+                ref="postBar"
                 :style="{
                     'min-height': settingsStore.postBarHeight + 'vh'
                 }"
                 @focusPost="focusPost"
                 @highlightPost="highlightPost"
                 @unhighlightPost="unhighlightPost"
+                @scrollToTop="scrollToTopControls"
             />
         </div>
     </div>
@@ -167,6 +170,8 @@ const rootStore = useRootStore();
 const settingsStore = useSettingsStore();
 const dataStore = useDataStore();
 const graphViewer = useTemplateRef<InstanceType<typeof GraphViewer>>("graphViewer");
+const postBar = useTemplateRef<InstanceType<typeof PostBar>>("postBar");
+const scrollToPostBarButton = useTemplateRef<HTMLButtonElement>("scrollToPostBarButton");
 const storedData = localStorage.getItem(STORAGE_KEY);
 const localStorageSize = storedData != null
     ? Number((storedData.length / (1000 ** 2)).toFixed(2))
@@ -228,11 +233,14 @@ function unhighlightPost(postId: PostId): void {
 }
 
 function scrollToPostBar(): void {
-    const postBar = document.getElementById("postBar");
-    if (postBar == null) {
+    postBar.value?.scrollToPostBar();
+}
+
+function scrollToTopControls(): void {
+    if (scrollToPostBarButton.value == null) {
         return;
     }
 
-    window.scrollBy(0, postBar.getBoundingClientRect().top - 5);
+    window.scrollBy(0, scrollToPostBarButton.value.getBoundingClientRect().top - 5);
 }
 </script>

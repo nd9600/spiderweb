@@ -12,7 +12,7 @@ import {
     subscribeToFirebaseDataModule,
     writeFirebaseStorage,
 } from "../firebaseStorage";
-import {runWithoutFirebaseWrites} from "../remoteSync";
+import {useDataModuleSyncStore} from "../dataModuleSync";
 import {useDataStore} from "./dataModule";
 import {useFirebaseStore} from "./firebaseModule";
 import {useSettingsStore} from "./settingsModule";
@@ -47,7 +47,7 @@ export function isAutosaveSuppressed(): boolean {
 export function runWithoutAutosave<T>(callback: () => T): T {
     autosaveSuppressionDepth += 1;
     try {
-        return runWithoutFirebaseWrites(callback);
+        return useDataModuleSyncStore().runWithoutRemoteWrites(callback);
     } finally {
         autosaveSuppressionDepth -= 1;
     }

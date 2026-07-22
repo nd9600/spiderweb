@@ -20,7 +20,7 @@ import {
     STORAGE_SCHEMA_VERSION,
     type FirebaseStorageObject,
 } from "./storage";
-import type {FirebaseUpdatePatch} from "./remoteSync";
+import type {FirebaseUpdatePatch} from "./dataModulePatch";
 
 export type FirebaseDataModuleHandlers = {
     posts(posts: DataModuleState["posts"]): void;
