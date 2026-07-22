@@ -44,6 +44,26 @@ export default defineConfig(({mode}) => ({
             output: {
                 entryFileNames: "assets/js/[name]-[hash].js",
                 chunkFileNames: "assets/js/[name]-[hash].js",
+                codeSplitting: {
+                    groups: [
+                        {
+                            name: "firebase",
+                            test: /node_modules[\\/](?:@firebase|firebase)[\\/]/,
+                        },
+                        {
+                            name: "d3",
+                            test: /node_modules[\\/](?:d3|d3-[^\\/]+)[\\/]/,
+                        },
+                        {
+                            name: "vue-vendor",
+                            test: /node_modules[\\/](?:@vue|vue|pinia)[\\/]/,
+                        },
+                        {
+                            name: "vendor",
+                            test: /node_modules[\\/]/,
+                        },
+                    ],
+                },
                 assetFileNames(assetInfo) {
                     return `${getAssetSubdirectory(assetInfo.name)}/[name]-[hash][extname]`;
                 }

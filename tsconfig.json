@@ -15,7 +15,7 @@
 //        "strictPropertyInitialization": true,
 
         "allowSyntheticDefaultImports": true,
-        "module": "es2015",
+        "module": "esnext",
         "moduleResolution": "bundler",
         "target": "es6",
         "lib": ["es2017", "dom"],
