@@ -98,7 +98,7 @@ export default defineComponent({
             return useDataStore().zoom;
         },
         titleOrBody() {
-            return (postId: string) => useDataStore().titleOrBody(postId);
+            return useDataStore().titleOrBody;
         },
         subgraphsInSelectedGraph() {
             return useDataStore().subgraphsInSelectedGraph;

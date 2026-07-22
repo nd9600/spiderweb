@@ -16,7 +16,7 @@
                         class="btn btn--secondary mt-2"
                         type="button"
                         title="zoom out"
-                        @click.stop="emitZoomOut"
+                        @click.stop="zoomOut"
                     >
                         -
                     </button>
@@ -27,7 +27,7 @@
                             class="btn btn--secondary"
                             type="button"
                             title="refresh the graph"
-                            @click.stop="emitRefreshGraph"
+                            @click.stop="refreshGraph"
                         >
                             ⟳
                         </button>
@@ -42,7 +42,7 @@
                         class="btn btn--secondary mt-2"
                         type="button"
                         title="zoom in"
-                        @click.stop="emitZoomIn"
+                        @click.stop="zoomIn"
                     >
                         +
                     </button>
@@ -131,6 +131,7 @@
         </div>
         <div class="flex flex-col">
             <GraphViewer
+                ref="graphViewer"
                 :style="{
                     'min-height': graphHeight + 'vh'
                 }"
@@ -139,6 +140,9 @@
                 :style="{
                     'min-height': postBarHeight + 'vh'
                 }"
+                @focusPost="focusPost"
+                @highlightPost="highlightPost"
+                @unhighlightPost="unhighlightPost"
             />
         </div>
     </div>
@@ -146,12 +150,11 @@
 
 <script lang="ts">
 import {defineComponent} from "vue";
-import type {GraphId, SubgraphId} from "@/src/@types/StoreTypes";
+import type {GraphId, PostId, SubgraphId} from "@/src/@types/StoreTypes";
 import GraphViewer from "./GraphViewer.vue";
 import PostBar from "./PostBar/PostBar.vue";
 
 import {STORAGE_KEY} from "@/src/components/constants";
-import graphEventBus from "@/src/helpers/graphEventBus";
 import {useDataStore, useRootStore, useSettingsStore} from "@/src/store";
 
 export default defineComponent({
@@ -206,14 +209,26 @@ export default defineComponent({
         }
     },
     methods: {
-        emitRefreshGraph() {
-            graphEventBus.emit("refreshGraph");
+        getGraphViewer(): InstanceType<typeof GraphViewer> | null {
+            return this.$refs.graphViewer as InstanceType<typeof GraphViewer> | null;
         },
-        emitZoomIn() {
-            graphEventBus.emit("zoomIn");
+        refreshGraph() {
+            this.getGraphViewer()?.refreshGraph();
         },
-        emitZoomOut() {
-            graphEventBus.emit("zoomOut");
+        zoomIn() {
+            this.getGraphViewer()?.zoomIn();
+        },
+        zoomOut() {
+            this.getGraphViewer()?.zoomOut();
+        },
+        focusPost(postId: PostId) {
+            this.getGraphViewer()?.focusPost(postId);
+        },
+        highlightPost(postId: PostId) {
+            this.getGraphViewer()?.highlightPost(postId);
+        },
+        unhighlightPost(postId: PostId) {
+            this.getGraphViewer()?.unhighlightPost(postId);
         },
         scrollToPostBar() {
             const postBar = document.getElementById("postBar");

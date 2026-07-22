@@ -15,6 +15,9 @@
                     :key="selectedPostId"
                     class="m-2 p-2"
                     :post="posts[selectedPostId]"
+                    @focusPost="$emit('focusPost', $event)"
+                    @highlightPost="$emit('highlightPost', $event)"
+                    @unhighlightPost="$emit('unhighlightPost', $event)"
                 >
                 </post>
             </div>
@@ -36,6 +39,7 @@ export default defineComponent({
         Post,
         PostBarScrollButtons
     },
+    emits: ["focusPost", "highlightPost", "unhighlightPost"],
     computed: {
         ...mapState(useDataStore, ["posts", "selectedPostIds"]),
     },

@@ -46,7 +46,7 @@ import GraphEditor from "./GraphEditor.vue";
 import {useDataStore} from "@/src/store";
 
 export default defineComponent({
-    name: "Graphs",
+    name: "TheGraphs",
     components: {GraphEditor},
     data() {
         return {

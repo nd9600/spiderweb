@@ -264,7 +264,7 @@ function parseFirebaseConfig(configString: string): Nullable<FirebaseConfig> {
 }
 
 export default defineComponent({
-    name: "Settings",
+    name: "AppSettings",
     data() {
         return {
             remoteStorageMethodInComponent: "none" as RemoteStorageMethod,

@@ -112,7 +112,7 @@ export default defineComponent({
             return useDataStore().subgraphsInSelectedGraph;
         },
         linkedSubgraphs() {
-            return (postId: string) => useDataStore().linkedSubgraphs(postId);
+            return useDataStore().linkedSubgraphs;
         },
 
         subgraphsNotAlreadyAttachedTo() {

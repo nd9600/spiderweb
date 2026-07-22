@@ -8,6 +8,7 @@ export default [
         ignores: [
             "dist/**",
             "node_modules/**",
+            "public/assets/**",
             "vendor/**"
         ]
     },

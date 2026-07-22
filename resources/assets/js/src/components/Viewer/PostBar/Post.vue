@@ -163,7 +163,6 @@ import PostEditor from "@/src/components/Posts/PostEditor.vue";
 import LinkedPosts from "./LinkedPosts.vue";
 import LinkedSubgraphs from "./LinkedSubgraphs.vue";
 import AddLinkedPost from "./AddLinkedPost.vue";
-import graphEventBus from "@/src/helpers/graphEventBus";
 import {useDataStore, useSettingsStore} from "@/src/store";
 
 export default defineComponent({
@@ -180,6 +179,7 @@ export default defineComponent({
             required: true
         }
     },
+    emits: ["focusPost", "highlightPost", "unhighlightPost"],
     data() {
         return {
             showPostEditor: false,
@@ -197,10 +197,10 @@ export default defineComponent({
             return useDataStore().postIdsInSelectedSubgraphs;
         },
         postIdsThatLinkToPost() {
-            return (postId: string) => useDataStore().postIdsThatLinkToPost(postId);
+            return useDataStore().postIdsThatLinkToPost;
         },
         linkedSubgraphs() {
-            return (postId: string) => useDataStore().linkedSubgraphs(postId);
+            return useDataStore().linkedSubgraphs;
         },
 
         linkedPosts() {
@@ -241,13 +241,13 @@ export default defineComponent({
             useDataStore().movePostRight(postId);
         },
         emitFocusOnPost(postId: PostId) {
-            graphEventBus.emit("focusOnPost", postId);
+            this.$emit("focusPost", postId);
         },
         emitHighlightPost(postId: PostId) {
-            graphEventBus.emit("highlightPost", postId);
+            this.$emit("highlightPost", postId);
         },
         emitUnhighlightPost(postId: PostId) {
-            graphEventBus.emit("unhighlightPost", postId);
+            this.$emit("unhighlightPost", postId);
         },
         toggleBottomTab(tab: string) {
             this.bottomTab = this.bottomTab === tab

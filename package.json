@@ -10,7 +10,8 @@
     "production": "npm run build",
     "preview": "vite preview",
     "test": "vitest run",
-    "typecheck": "vue-tsc --noEmit"
+    "typecheck": "vue-tsc --noEmit",
+    "lint": "eslint"
   },
   "browserslist": [
     "last 2 Chrome major versions",

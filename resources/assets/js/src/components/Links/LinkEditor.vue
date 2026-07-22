@@ -141,7 +141,7 @@ export default defineComponent({
                 .filter((subgraph) => subgraph.graph === this.link.graph);
         },
         titleOrBody() {
-            return (postId: string) => useDataStore().titleOrBody(postId);
+            return useDataStore().titleOrBody;
         },
 
         subgraphsLinkIsIn: {

@@ -96,7 +96,7 @@ export default defineComponent({
             return useDataStore().selectedSubgraphIds;
         },
         titleOrBody() {
-            return (postId: string) => useDataStore().titleOrBody(postId);
+            return useDataStore().titleOrBody;
         },
         newLinkSource() {
             return useClickerStore().newLinkSource;

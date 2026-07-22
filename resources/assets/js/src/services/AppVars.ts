@@ -1,5 +1,3 @@
-type AppVars = Record<string, unknown>;
-
 const appVarsElement = document.getElementById("appVars");
 if (appVarsElement === null) {
     throw new Error("no #appVars element on the page.");
@@ -9,6 +7,6 @@ if (rawAppVars == null) {
     throw new Error("no data-app-vars attribute on #appVars.");
 }
 
-const AppVars: AppVars = JSON.parse(rawAppVars);
+const appVars: Record<string, unknown> = JSON.parse(rawAppVars);
 
-export default AppVars;
+export default appVars;

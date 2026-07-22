@@ -87,10 +87,10 @@ export default defineComponent({
     },
     computed: {
         titleOrBody() {
-            return (postId: string) => useDataStore().titleOrBody(postId);
+            return useDataStore().titleOrBody;
         },
         postIdsThatLinkToPost() {
-            return (postId: string) => useDataStore().postIdsThatLinkToPost(postId);
+            return useDataStore().postIdsThatLinkToPost;
         },
 
         linkedPosts() {

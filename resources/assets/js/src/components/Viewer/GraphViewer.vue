@@ -4,7 +4,7 @@
             id="graphSvg"
             ref="svgElement"
             class="w-full cursor-move border bg-white"
-            @click="onSvgClick"
+            @click="renderer.handleSvgClick"
         >
             <defs>
                 <marker
@@ -54,86 +54,43 @@
 </template>
 
 <script setup lang="ts">
-import {computed, nextTick, onMounted, ref, watch} from "vue";
+///// imports /////
+import {nextTick, onMounted, ref, useTemplateRef, watch} from "vue";
 import debounce from "lodash/debounce";
 
-import {ClickMode, type NodePosition, type PostId} from "@/src/@types/StoreTypes";
-import {useClickerStore, useDataStore, useRootStore} from "@/src/store";
+import {useRootStore} from "@/src/store";
 import FloatingActionButton from "./FloatingActionButton.vue";
-import {buildGraphData} from "./graph/graphData";
-import {useGraphEventBus} from "./graph/useGraphEventBus";
-import {useGraphScene} from "./graph/useGraphScene";
-import {useGraphZoom} from "./graph/useGraphZoom";
+import {useGraphRenderer} from "./graph/useGraphRenderer";
+import {useVisibleGraph} from "./graph/useVisibleGraph";
 
 defineOptions({
     name: "GraphViewer",
 });
 
-const dataStore = useDataStore();
-const clickerStore = useClickerStore();
+///// refs and variables /////
 const rootStore = useRootStore();
+const {
+    selectedGraphId,
+    storedZoom,
+    visibleGraph,
+    renderDependencies,
+} = useVisibleGraph();
 
-const svgElement = ref<SVGSVGElement | null>(null);
-const rootElement = ref<SVGGElement | null>(null);
-const linksElement = ref<SVGGElement | null>(null);
-const nodesElement = ref<SVGGElement | null>(null);
+const svgElement = useTemplateRef<SVGSVGElement>("svgElement");
+const rootElement = useTemplateRef<SVGGElement>("rootElement");
+const linksElement = useTemplateRef<SVGGElement>("linksElement");
+const nodesElement = useTemplateRef<SVGGElement>("nodesElement");
 
-const originalLinkStroke = 20;
-const linkStroke = ref(originalLinkStroke);
 const shouldResetZooming = ref(false);
 
-const selectedGraphId = computed(() => dataStore.selectedGraphId);
-const selectedSubgraphIds = computed(() => dataStore.selectedSubgraphIds);
-const postsInSelectedSubgraphs = computed(() => dataStore.postsInSelectedSubgraphs);
-const linksInSelectedSubgraphs = computed(() => dataStore.linksInSelectedSubgraphs);
-const nodePositions = computed<Record<PostId, NodePosition>>(() => {
-    const graphId = selectedGraphId.value;
-    return graphId == null
-        ? {}
-        : dataStore.graphs[graphId]?.nodePositions ?? {};
-});
-
-function isPhone(): boolean {
-    const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-    return viewportWidth <= 576;
-}
-
-let graphZoomControls: Nullable<ReturnType<typeof useGraphZoom>> = null;
-function focusOnPost(postId: PostId, speed = 1): void {
-    graphZoomControls?.focusOnPost(postId, speed);
-}
-
-const graphScene = useGraphScene({
+const renderer = useGraphRenderer({
     svgElement,
     rootElement,
     linksElement,
     nodesElement,
-    getLinkStroke: () => linkStroke.value,
-    getSubgraphColour: (subgraphId) => dataStore.subgraphColour(subgraphId),
-    getTitleOrBody: (postId) => dataStore.titleOrBody(postId),
-    isNeighbour: (postAId, postBId) => dataStore.isNeighbour(postAId, postBId),
-    focusOnPost,
-    onLinkClick: (payload) => clickerStore.handleLinkClick(payload),
-    onPostClick: (post) => {
-        void clickerStore.handlePostClick(post);
-    },
-    onPostPositioned: (postId, position) => {
-        dataStore.setPostPosition({postId, position});
-    },
 });
 
-const graphZoom = useGraphZoom({
-    svg: graphScene.svg,
-    rootG: graphScene.rootG,
-    linkStroke,
-    originalLinkStroke,
-    getNodesWithCoordinates: graphScene.getNodesWithCoordinates,
-    setNodeRadius: graphScene.setNodeRadius,
-    saveZoom: (zoom) => dataStore.setZoom(zoom),
-    isPhone,
-});
-graphZoomControls = graphZoom;
-
+///// functions /////
 function maybeResetZoom(): void {
     if (!shouldResetZooming.value) {
         return;
@@ -141,19 +98,14 @@ function maybeResetZoom(): void {
 
     shouldResetZooming.value = false;
     void nextTick(() => {
-        graphZoom.resetZoomToCenter();
+        renderer.resetZoom();
     });
 }
 
 function renderGraph(): void {
     rootStore.setIsRenderingGraph(true);
     try {
-        const graphData = buildGraphData(
-            postsInSelectedSubgraphs.value,
-            linksInSelectedSubgraphs.value,
-            nodePositions.value
-        );
-        const didRender = graphScene.renderGraph(graphData);
+        const didRender = renderer.render(visibleGraph.value);
         if (didRender) {
             maybeResetZoom();
         }
@@ -173,58 +125,39 @@ const debouncedRenderGraph = debounce(
     }
 );
 
+function refreshGraph(): void {
+    debouncedRenderGraph();
+}
+
+defineExpose({
+    focusPost: renderer.focusPost,
+    highlightPost: renderer.highlightPost,
+    unhighlightPost: renderer.unhighlightPost,
+    zoomIn: renderer.zoomIn,
+    zoomOut: renderer.zoomOut,
+    refreshGraph,
+});
+
+///// watchers /////
 watch(selectedGraphId, () => {
     shouldResetZooming.value = true;
+});
+
+watch(renderDependencies, () => {
     debouncedRenderGraph();
 });
 
-watch([
-    selectedSubgraphIds,
-    postsInSelectedSubgraphs,
-    linksInSelectedSubgraphs,
-], () => {
-    debouncedRenderGraph();
-});
-
+///// lifecycle /////
 onMounted(() => {
-    if (!graphScene.initializeScene()) {
+    if (!renderer.mount()) {
         return;
     }
 
-    graphZoom.setupZooming();
-    graphZoom.applyStoredZoom(dataStore.zoom);
+    renderer.setZoom(storedZoom.value);
     void nextTick(() => {
-        debouncedRenderGraph();
+        refreshGraph();
     });
 });
-
-useGraphEventBus({
-    focusOnPost: (postId) => {
-        graphZoom.focusOnPost(postId);
-    },
-    highlightPost: graphScene.highlightPost,
-    unhighlightPost: graphScene.unhighlightPost,
-    refreshGraph: () => {
-        debouncedRenderGraph();
-    },
-    zoomIn: graphZoom.zoomIn,
-    zoomOut: graphZoom.zoomOut,
-});
-
-function onSvgClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement | null;
-    if (target?.id !== "graphSvg") {
-        return;
-    }
-
-    if (clickerStore.shouldShowClickButtonMenu) {
-        clickerStore.setShouldShowClickButtonMenu(false);
-    }
-
-    if (clickerStore.clickMode !== ClickMode.OpenPosts) {
-        clickerStore.setClickMode(ClickMode.OpenPosts);
-    }
-}
 </script>
 
 <style>

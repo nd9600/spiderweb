@@ -42,7 +42,7 @@ export default defineComponent({
             return useDataStore().subgraphs;
         },
         linkedSubgraphs() {
-            return (postId: string) => useDataStore().linkedSubgraphs(postId);
+            return useDataStore().linkedSubgraphs;
         },
     },
     methods: {
