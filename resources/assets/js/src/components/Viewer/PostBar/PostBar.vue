@@ -9,41 +9,41 @@
                 id="postsContainer"
                 class="w-full flex items-start overflow-x-auto"
             >
-                <post
-                    v-for="(selectedPostId, i) in selectedPostIds"
+                <Post
+                    v-for="(selectedPostId, i) in dataStore.selectedPostIds"
                     :id="`post-${i}`"
                     :key="selectedPostId"
                     class="m-2 p-2"
-                    :post="posts[selectedPostId]"
-                    @focusPost="$emit('focusPost', $event)"
-                    @highlightPost="$emit('highlightPost', $event)"
-                    @unhighlightPost="$emit('unhighlightPost', $event)"
+                    :post="dataStore.posts[selectedPostId]"
+                    @focusPost="emit('focusPost', $event)"
+                    @highlightPost="emit('highlightPost', $event)"
+                    @unhighlightPost="emit('unhighlightPost', $event)"
                 >
-                </post>
+                </Post>
             </div>
         </div>
     </section>
 </template>
 
-<script lang="ts">
-import {defineComponent} from "vue";
-import {mapState} from "pinia";
-
+<script setup lang="ts">
+///// imports /////
+import type {PostId} from "@/src/@types/StoreTypes";
 import Post from "./Post.vue";
 import PostBarScrollButtons from "./PostBarScrollButtons.vue";
 import {useDataStore} from "@/src/store";
 
-export default defineComponent({
+defineOptions({
     name: "PostBar",
-    components: {
-        Post,
-        PostBarScrollButtons
-    },
-    emits: ["focusPost", "highlightPost", "unhighlightPost"],
-    computed: {
-        ...mapState(useDataStore, ["posts", "selectedPostIds"]),
-    },
 });
+
+const emit = defineEmits<{
+    focusPost: [postId: PostId];
+    highlightPost: [postId: PostId];
+    unhighlightPost: [postId: PostId];
+}>();
+
+///// refs and variables /////
+const dataStore = useDataStore();
 </script>
 
 <style>

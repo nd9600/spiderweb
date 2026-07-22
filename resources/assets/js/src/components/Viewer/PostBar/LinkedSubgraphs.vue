@@ -5,17 +5,17 @@
                 Subgraphs that include this post
             </h4>
             <a
-                v-for="subgraphId in linkedSubgraphs(post.id)"
+                v-for="subgraphId in dataStore.linkedSubgraphs(post.id)"
                 :key="subgraphId"
                 class="link block mb-2 text-xs md:text-base"
                 title="show/hide this graph"
-                @click="toggleSubgraphId(subgraphId)"
+                @click="dataStore.toggleSubgraphId(subgraphId)"
             >
-                {{ subgraphs[subgraphId].name }}
+                {{ dataStore.subgraphs[subgraphId].name }}
 
                 <button
                     class="ml-8 py-1 px-2 text-xs btn btn--secondary"
-                    @click.stop="removePostFromSubgraph({subgraphId, postId: post.id})"
+                    @click.stop="dataStore.removePostFromSubgraph({subgraphId, postId: post.id})"
                 >
                     remove from subgraph
                 </button>
@@ -24,34 +24,19 @@
     </section>
 </template>
 
-<script lang="ts">
-import {defineComponent, PropType} from "vue";
+<script setup lang="ts">
+///// imports /////
 import type {Post} from "@/src/store/models/Post";
 import {useDataStore} from "@/src/store";
 
-export default defineComponent({
+defineOptions({
     name: "LinkedSubgraphs",
-    props: {
-        post: {
-            type: Object as PropType<Post>,
-            required: true
-        }
-    },
-    computed: {
-        subgraphs() {
-            return useDataStore().subgraphs;
-        },
-        linkedSubgraphs() {
-            return useDataStore().linkedSubgraphs;
-        },
-    },
-    methods: {
-        toggleSubgraphId(subgraphId: string) {
-            useDataStore().toggleSubgraphId(subgraphId);
-        },
-        removePostFromSubgraph(payload: {subgraphId: string; postId: string}) {
-            useDataStore().removePostFromSubgraph(payload);
-        },
-    }
 });
+
+defineProps<{
+    post: Post;
+}>();
+
+///// refs and variables /////
+const dataStore = useDataStore();
 </script>

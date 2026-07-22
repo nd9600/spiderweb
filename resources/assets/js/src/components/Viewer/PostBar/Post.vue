@@ -18,9 +18,9 @@
                             class="focusButton mr-2"
                             type="button"
                             title="focus on this post in the viewer above"
-                            @click="emitFocusOnPost(post.id)"
-                            @mouseover="emitHighlightPost(post.id)"
-                            @mouseout="emitUnhighlightPost(post.id)"
+                            @click="emit('focusPost', post.id)"
+                            @mouseover="emit('highlightPost', post.id)"
+                            @mouseout="emit('unhighlightPost', post.id)"
                         >
                             <span class="text-base">&#128269;</span>
                         </button>{{ post.title }}
@@ -53,7 +53,7 @@
                     <button
                         type="button"
                         class="opacity-25 hover:opacity-100 transition-150"
-                        @click="unselectPostId(post.id)"
+                        @click="dataStore.unselectPostId(post.id)"
                     >
                         <svg
                             width="18"
@@ -75,9 +75,9 @@
                     class="focusButton mr-2 float-left"
                     type="button"
                     title="focus on this post in the viewer above"
-                    @click="emitFocusOnPost(post.id)"
-                    @mouseover="emitHighlightPost(post.id)"
-                    @mouseout="emitUnhighlightPost(post.id)"
+                    @click="emit('focusPost', post.id)"
+                    @mouseover="emit('highlightPost', post.id)"
+                    @mouseout="emit('unhighlightPost', post.id)"
                 >
                     <span class="text-base">&#128269;</span>
                 </button>
@@ -94,11 +94,11 @@
         <div class="flex justify-between">
             <span>
                 <button
-                    v-if="selectedPostIds.length > 1"
+                    v-if="dataStore.selectedPostIds.length > 1"
                     class="bottomLink bottomLink--unselected"
                     type="button"
                     title="move this post left"
-                    @click="movePostLeft(post.id)"
+                    @click="dataStore.movePostLeft(post.id)"
                 >
                     <span class="text-2xl">⇐</span>
                 </button>
@@ -134,27 +134,28 @@
                     <span class="text-3xl">+</span>
                 </button>
                 <button
-                    v-if="selectedPostIds.length > 1"
+                    v-if="dataStore.selectedPostIds.length > 1"
                     class="bottomLink bottomLink--unselected"
                     type="button"
                     title="move this post right"
-                    @click="movePostRight(post.id)"
+                    @click="dataStore.movePostRight(post.id)"
                 >
                     <span class="text-2xl">⇒</span>
                 </button>
             </span>
         </div>
         <component
-            :is="bottomTab"
-            v-if="bottomTab !== ''"
+            :is="bottomTabComponent"
+            v-if="bottomTabComponent != null"
             :post="post"
             class="pt-5"
         />
     </section>
 </template>
 
-<script lang="ts">
-import {defineComponent, PropType} from "vue";
+<script setup lang="ts">
+///// imports /////
+import {computed, ref} from "vue";
 import type {PostId} from "@/src/@types/StoreTypes";
 import marked from "@/src/helpers/markedCustomised";
 
@@ -165,97 +166,61 @@ import LinkedSubgraphs from "./LinkedSubgraphs.vue";
 import AddLinkedPost from "./AddLinkedPost.vue";
 import {useDataStore, useSettingsStore} from "@/src/store";
 
-export default defineComponent({
+defineOptions({
     name: "PostBarPost",
-    components: {
-        PostEditor,
-        LinkedPosts,
-        LinkedSubgraphs,
-        AddLinkedPost,
-    },
-    props: {
-        post: {
-            type: Object as PropType<Post>,
-            required: true
-        }
-    },
-    emits: ["focusPost", "highlightPost", "unhighlightPost"],
-    data() {
-        return {
-            showPostEditor: false,
-            bottomTab: "" // linked-posts | linked-subgraphs | add-linked-post
-        };
-    },
-    computed: {
-        postWidth() {
-            return useSettingsStore().postWidth;
-        },
-        selectedPostIds() {
-            return useDataStore().selectedPostIds;
-        },
-        postIdsInSelectedSubgraphs() {
-            return useDataStore().postIdsInSelectedSubgraphs;
-        },
-        postIdsThatLinkToPost() {
-            return useDataStore().postIdsThatLinkToPost;
-        },
-        linkedSubgraphs() {
-            return useDataStore().linkedSubgraphs;
-        },
+});
 
-        linkedPosts() {
-            return this.postIdsThatLinkToPost(this.post.id);
-        },
-        linkedSubgraphIds() {
-            return this.linkedSubgraphs(this.post.id);
-        },
+type BottomTab = "" | "linked-posts" | "linked-subgraphs" | "add-linked-post";
 
-        hasLinkedPosts() {
-            return Object.keys(this.linkedPosts.to).length > 0
-                || Object.keys(this.linkedPosts.from).length > 0;
-        },
-        isPartOfASubgraph() {
-            return this.linkedSubgraphIds.length > 0;
-        },
-        isVisibleInGraph() {
-            return this.postIdsInSelectedSubgraphs.includes(this.post.id);
-        },
+const props = defineProps<{
+    post: Post;
+}>();
 
-        minPostWidth() {
-            // this means if only 2 posts are open, each will be at least 46% wide
-            //                    3 posts are open, each will be at least 30% wide, ...
-            // without this, one post could be 70%, the other 30%, which looks really bad
-            const numberOfPostsCurrentlySelected = this.selectedPostIds.length;
-            return Math.max(this.postWidth, Math.floor(92 / numberOfPostsCurrentlySelected));
-        }
-    },
-    methods: {
-        marked,
-        unselectPostId(postId: PostId) {
-            useDataStore().unselectPostId(postId);
-        },
-        movePostLeft(postId: PostId) {
-            useDataStore().movePostLeft(postId);
-        },
-        movePostRight(postId: PostId) {
-            useDataStore().movePostRight(postId);
-        },
-        emitFocusOnPost(postId: PostId) {
-            this.$emit("focusPost", postId);
-        },
-        emitHighlightPost(postId: PostId) {
-            this.$emit("highlightPost", postId);
-        },
-        emitUnhighlightPost(postId: PostId) {
-            this.$emit("unhighlightPost", postId);
-        },
-        toggleBottomTab(tab: string) {
-            this.bottomTab = this.bottomTab === tab
-                ? ""
-                : tab;
-        }
+const emit = defineEmits<{
+    focusPost: [postId: PostId];
+    highlightPost: [postId: PostId];
+    unhighlightPost: [postId: PostId];
+}>();
+
+///// refs and variables /////
+const dataStore = useDataStore();
+const settingsStore = useSettingsStore();
+const showPostEditor = ref(false);
+const bottomTab = ref<BottomTab>("");
+
+///// computed /////
+const linkedPosts = computed(() => dataStore.postIdsThatLinkToPost(props.post.id));
+const linkedSubgraphIds = computed(() => dataStore.linkedSubgraphs(props.post.id));
+const hasLinkedPosts = computed(() => Object.keys(linkedPosts.value.to).length > 0
+    || Object.keys(linkedPosts.value.from).length > 0);
+const isPartOfASubgraph = computed(() => linkedSubgraphIds.value.length > 0);
+const isVisibleInGraph = computed(() => dataStore.postIdsInSelectedSubgraphs.includes(props.post.id));
+const minPostWidth = computed(() => {
+    // this means if only 2 posts are open, each will be at least 46% wide
+    //                    3 posts are open, each will be at least 30% wide, ...
+    // without this, one post could be 70%, the other 30%, which looks really bad
+    const numberOfPostsCurrentlySelected = dataStore.selectedPostIds.length;
+    return Math.max(settingsStore.postWidth, Math.floor(92 / numberOfPostsCurrentlySelected));
+});
+const bottomTabComponent = computed(() => {
+    switch (bottomTab.value) {
+        case "linked-posts":
+            return LinkedPosts;
+        case "linked-subgraphs":
+            return LinkedSubgraphs;
+        case "add-linked-post":
+            return AddLinkedPost;
+        default:
+            return null;
     }
 });
+
+///// functions /////
+function toggleBottomTab(tab: BottomTab): void {
+    bottomTab.value = bottomTab.value === tab
+        ? ""
+        : tab;
+}
 </script>
 
 <style scoped>

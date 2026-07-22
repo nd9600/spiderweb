@@ -9,7 +9,7 @@
         </button>
         <div
             :style="{
-                'max-height': graphHeight + 'vh'
+                'max-height': settingsStore.graphHeight + 'vh'
             }"
             class="clicker__container text-xs md:text-base"
         >
@@ -20,17 +20,17 @@
                 <button
                     type="button"
                     class="btn btn--secondary"
-                    @click="clickMode = ClickMode.OpenPosts"
+                    @click="clickerStore.setClickMode(ClickMode.OpenPosts)"
                 >
                     Back
                 </button>
 
                 <hr class="my-2">
 
-                <LinkAdder v-if="clickMode === ClickMode.AddLink"/>
-                <template v-else-if="clickMode === ClickMode.ChangeLink">
+                <LinkAdder v-if="clickerStore.clickMode === ClickMode.AddLink"/>
+                <template v-else-if="clickerStore.clickMode === ClickMode.ChangeLink">
                     <sub
-                        v-if="linkToEdit === null"
+                        v-if="clickerStore.linkToEdit === null"
                         class="text-xs text-gray-500"
                     >
                         click on a link to change it
@@ -42,17 +42,17 @@
                     />
                 </template>
                 <PostMaker
-                    v-else-if="clickMode === ClickMode.AddPost"
+                    v-else-if="clickerStore.clickMode === ClickMode.AddPost"
                     @madePost="madePost"
                 />
-                <PostsAttacher v-else-if="clickMode === ClickMode.AttachPostsToGraphs" />
+                <PostsAttacher v-else-if="clickerStore.clickMode === ClickMode.AttachPostsToGraphs" />
                 <PostSearch
-                    v-else-if="clickMode === ClickMode.SearchForPosts"
+                    v-else-if="clickerStore.clickMode === ClickMode.SearchForPosts"
                     @clickedOnResult="selectPost($event)"
                 />
             </div>
             <div
-                v-else-if="shouldShowClickButtonMenu"
+                v-else-if="clickerStore.shouldShowClickButtonMenu"
                 class="clicker__actionButtons"
             >
                 <button
@@ -111,8 +111,9 @@
         </div>
     </div>
 </template>
-<script lang="ts">
-import {defineComponent} from "vue";
+<script setup lang="ts">
+///// imports /////
+import {computed, watch} from "vue";
 import {ClickMode, type PostId} from "@/src/@types/StoreTypes";
 import type {Post} from "@/src/store/models/Post";
 import LinkEditor from "@/src/components/Links/LinkEditor.vue";
@@ -122,123 +123,82 @@ import PostsAttacher from "@/src/components/Posts/PostsAttacher.vue";
 import PostSearch from "@/src/components/Posts/PostSearch.vue";
 import {useClickerStore, useDataStore, useSettingsStore} from "@/src/store";
 
-export default defineComponent({
+defineOptions({
     name: "FloatingActionButton",
-    components: {
-        LinkEditor,
-        LinkAdder,
-        PostMaker,
-        PostsAttacher,
-        PostSearch
-    },
-    data() {
-        return {
-            ClickMode,
-        };
-    },
-    computed: {
-        graphHeight() {
-            return useSettingsStore().graphHeight;
-        },
-        canOpenMultiplePosts() {
-            return useSettingsStore().canOpenMultiplePosts;
-        },
-        links() {
-            return useDataStore().links;
-        },
-        linkBeingEdited() {
-            return this.linkToEdit == null
-                ? null
-                : (this.links[this.linkToEdit] ?? null);
-        },
-        zoom() {
-            return useDataStore().zoom;
-        },
-        linkToEdit() {
-            return useClickerStore().linkToEdit;
-        },
+});
 
-        shouldShowClickButtonMenu: {
-            get() {
-                return useClickerStore().shouldShowClickButtonMenu;
-            },
-            set(shouldShowClickButtonMenu: boolean) {
-                useClickerStore().setShouldShowClickButtonMenu(shouldShowClickButtonMenu);
-            }
-        },
-        clickMode: {
-            get() {
-                return useClickerStore().clickMode;
-            },
-            set(clickMode: ClickMode) {
-                useClickerStore().setClickMode(clickMode);
-            }
-        },
+///// refs and variables /////
+const settingsStore = useSettingsStore();
+const dataStore = useDataStore();
+const clickerStore = useClickerStore();
 
-        shouldShowContextMenu() {
-            return this.clickMode !== ClickMode.OpenPosts;
-        }
-    },
-    watch: {
-        clickMode(newClickMode: ClickMode, previousClickMode: ClickMode) {
-            const rootElement = document.documentElement;
-            const currentStrokeWidth = rootElement.style.getPropertyValue("--link-stroke-width");
-            const strokeWidthMatch = currentStrokeWidth.match(/^(\d+)px$/);
-            if (strokeWidthMatch == null) {
-                return;
-            }
+///// computed /////
+const linkBeingEdited = computed(() => clickerStore.linkToEdit == null
+    ? null
+    : (dataStore.links[clickerStore.linkToEdit] ?? null));
 
-            const currentStrokeWidthPixels = parseInt(strokeWidthMatch[1], 10);
-            if (newClickMode === ClickMode.ChangeLink) {
-                rootElement.style.setProperty("--link-stroke-width", `${currentStrokeWidthPixels * 2}px`);
-            } else if (previousClickMode === ClickMode.ChangeLink) {
-                rootElement.style.setProperty("--link-stroke-width", `${currentStrokeWidthPixels / 2}px`);
-            }
-        }
-    },
-    methods: {
-        toggleClickButtonMenu() {
-            const menuWasPreviouslyShown = this.shouldShowClickButtonMenu;
-            this.shouldShowClickButtonMenu = !this.shouldShowClickButtonMenu;
+const shouldShowContextMenu = computed(() => clickerStore.clickMode !== ClickMode.OpenPosts);
 
-            if (!menuWasPreviouslyShown) {
-                this.clickMode = ClickMode.OpenPosts;
-            }
-        },
+///// functions /////
+function toggleClickButtonMenu(): void {
+    const menuWasPreviouslyShown = clickerStore.shouldShowClickButtonMenu;
+    clickerStore.setShouldShowClickButtonMenu(!clickerStore.shouldShowClickButtonMenu);
 
-        toggleClickMode(clickMode: ClickMode) {
-            const previousClickMode = this.clickMode;
-            this.clickMode = (previousClickMode === clickMode) // clicking on the existing button means you want to close the open dialog
-                ? ClickMode.OpenPosts
-                : clickMode;
-        },
+    if (!menuWasPreviouslyShown) {
+        clickerStore.setClickMode(ClickMode.OpenPosts);
+    }
+}
 
-        madePost(newPost: Post) {
-            const positionOfNewPost = {
-                x: (Math.abs(this.zoom.x) * (1 / this.zoom.scale)) + 100,
-                y: (Math.abs(this.zoom.y) * (1 / this.zoom.scale)) + 150
-            };
-            useDataStore().setPostPosition({
-                postId: newPost.id,
-                position: positionOfNewPost
-            });
+function toggleClickMode(clickMode: ClickMode): void {
+    const previousClickMode = clickerStore.clickMode;
+    clickerStore.setClickMode(
+        previousClickMode === clickMode
+            ? ClickMode.OpenPosts
+            : clickMode
+    );
+}
 
-            this.toggleClickMode(ClickMode.OpenPosts);
-            this.shouldShowClickButtonMenu = false;
-        },
+function madePost(newPost: Post): void {
+    const positionOfNewPost = {
+        x: (Math.abs(dataStore.zoom.x) * (1 / dataStore.zoom.scale)) + 100,
+        y: (Math.abs(dataStore.zoom.y) * (1 / dataStore.zoom.scale)) + 150
+    };
+    dataStore.setPostPosition({
+        postId: newPost.id,
+        position: positionOfNewPost
+    });
 
-        selectPost(post: {id: PostId}) {
-            useDataStore().selectPostId({
-                id: post.id,
-                canOpenMultiplePosts: this.canOpenMultiplePosts
-            });
-            this.shouldShowClickButtonMenu = false;
-        },
+    toggleClickMode(ClickMode.OpenPosts);
+    clickerStore.setShouldShowClickButtonMenu(false);
+}
 
-        onRemovedLink() {
-            useClickerStore().setLinkToEdit(null);
-            this.clickMode = ClickMode.OpenPosts;
-        }
+function selectPost(post: {id: PostId}): void {
+    dataStore.selectPostId({
+        id: post.id,
+        canOpenMultiplePosts: settingsStore.canOpenMultiplePosts
+    });
+    clickerStore.setShouldShowClickButtonMenu(false);
+}
+
+function onRemovedLink(): void {
+    clickerStore.linkToEdit = null;
+    clickerStore.setClickMode(ClickMode.OpenPosts);
+}
+
+///// watchers /////
+watch(() => clickerStore.clickMode, (newClickMode: ClickMode, previousClickMode: ClickMode) => {
+    const rootElement = document.documentElement;
+    const currentStrokeWidth = rootElement.style.getPropertyValue("--link-stroke-width");
+    const strokeWidthMatch = currentStrokeWidth.match(/^(\d+)px$/);
+    if (strokeWidthMatch == null) {
+        return;
+    }
+
+    const currentStrokeWidthPixels = parseInt(strokeWidthMatch[1], 10);
+    if (newClickMode === ClickMode.ChangeLink) {
+        rootElement.style.setProperty("--link-stroke-width", `${currentStrokeWidthPixels * 2}px`);
+    } else if (previousClickMode === ClickMode.ChangeLink) {
+        rootElement.style.setProperty("--link-stroke-width", `${currentStrokeWidthPixels / 2}px`);
     }
 });
 </script>

@@ -7,7 +7,7 @@
             <button
                 v-if="graphId !== '1'"
                 class="py-1 px-2 btn btn--secondary"
-                @click="removeGraph(graphId)"
+                @click="dataStore.removeGraph(graphId)"
             >
                 Remove
             </button>
@@ -38,52 +38,37 @@
     </div>
 </template>
 
-<script lang="ts">
-import {defineComponent} from "vue";
+<script setup lang="ts">
+///// imports /////
+import {computed, ref} from "vue";
 import Subgraphs from "./Subgraphs.vue";
 import {useDataStore} from "@/src/store";
 
-export default defineComponent({
+defineOptions({
     name: "GraphEditor",
-    components: {
-        Subgraphs
-    },
-    props: {
-        graphId: {
-            type: String,
-            required: true
-        },
-    },
-    data() {
-        return {
-            postIdToAddToGraph: null,
-            newGraphName: ""
-        };
-    },
-    computed: {
-        graphs() {
-            return useDataStore().graphs;
-        },
-
-        graph() {
-            return this.graphs[this.graphId];
-        },
-    },
-    methods: {
-        changeGraphNameLocal() {
-            if (this.newGraphName.trim().length === 0) {
-                return;
-            }
-
-            useDataStore().changeGraphName({
-                graphId: this.graphId,
-                newGraphName: this.newGraphName
-            });
-            this.newGraphName = "";
-        },
-        removeGraph(graphId: string) {
-            useDataStore().removeGraph(graphId);
-        },
-    }
 });
+
+const props = defineProps<{
+    graphId: string;
+}>();
+
+///// refs and variables /////
+const dataStore = useDataStore();
+const newGraphName = ref("");
+
+///// computed /////
+const graph = computed(() => dataStore.graphs[props.graphId]);
+
+///// functions /////
+function changeGraphNameLocal(): void {
+    if (newGraphName.value.trim().length === 0) {
+        return;
+    }
+
+    dataStore.changeGraphName({
+        graphId: props.graphId,
+        newGraphName: newGraphName.value
+    });
+    newGraphName.value = "";
+}
 </script>

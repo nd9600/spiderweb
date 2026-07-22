@@ -9,7 +9,7 @@
             </h3>
             <button
                 class="py-1 px-2 btn btn--secondary"
-                @click="removeSubgraph(subgraphId)"
+                @click="dataStore.removeSubgraph(subgraphId)"
             >
                 Remove
             </button>
@@ -41,7 +41,7 @@
                 <button
                     class="py-1 px-2 btn btn--secondary"
                     :disabled="newSubgraphColour === subgraph.colour"
-                    @click="changeSubgraphColour({subgraphId, colour: newSubgraphColour})"
+                    @click="dataStore.changeSubgraphColour({subgraphId, colour: newSubgraphColour})"
                 >
                     Change subgraph colour
                 </button>
@@ -50,55 +50,42 @@
     </div>
 </template>
 
-<script lang="ts">
-import {defineComponent} from "vue";
+<script setup lang="ts">
+///// imports /////
+import {computed, onMounted, ref} from "vue";
 import {useDataStore} from "@/src/store";
 
-export default defineComponent({
+defineOptions({
     name: "SubgraphEditor",
-    props: {
-        subgraphId: {
-            type: String,
-            required: true
-        },
-    },
-    data() {
-        return {
-            postIdToAddToGraph: null,
-            newSubgraphName: "",
-            newSubgraphColour: "#000000"
-        };
-    },
-    computed: {
-        subgraphs() {
-            return useDataStore().subgraphs;
-        },
+});
 
-        subgraph() {
-            return this.subgraphs[this.subgraphId];
-        }
-    },
-    mounted() {
-        this.newSubgraphColour = this.subgraph.colour || "#000000";
-    },
-    methods: {
-        changeSubgraphNameLocal() {
-            if (this.newSubgraphName.trim().length === 0) {
-                return;
-            }
+const props = defineProps<{
+    subgraphId: string;
+}>();
 
-            useDataStore().changeSubgraphName({
-                subgraphId: this.subgraphId,
-                newSubgraphName: this.newSubgraphName
-            });
-            this.newSubgraphName = "";
-        },
-        changeSubgraphColour(payload: {subgraphId: string; colour: string}) {
-            useDataStore().changeSubgraphColour(payload);
-        },
-        removeSubgraph(subgraphId: string) {
-            useDataStore().removeSubgraph(subgraphId);
-        }
+///// refs and variables /////
+const dataStore = useDataStore();
+const newSubgraphName = ref("");
+const newSubgraphColour = ref("#000000");
+
+///// computed /////
+const subgraph = computed(() => dataStore.subgraphs[props.subgraphId]);
+
+///// functions /////
+function changeSubgraphNameLocal(): void {
+    if (newSubgraphName.value.trim().length === 0) {
+        return;
     }
+
+    dataStore.changeSubgraphName({
+        subgraphId: props.subgraphId,
+        newSubgraphName: newSubgraphName.value
+    });
+    newSubgraphName.value = "";
+}
+
+///// lifecycle /////
+onMounted(() => {
+    newSubgraphColour.value = subgraph.value.colour || "#000000";
 });
 </script>

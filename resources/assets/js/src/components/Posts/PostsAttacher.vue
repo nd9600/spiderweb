@@ -1,7 +1,7 @@
 <template>
     <div>
         <section
-            v-if="unattachedPosts.length > 0"
+            v-if="dataStore.unattachedPosts.length > 0"
             class="w-full mb-4 border-b border-red-500"
         >
             <h4 class="h h--4">
@@ -9,7 +9,7 @@
             </h4>
 
             <PostAttacher
-                v-for="post in unattachedPosts"
+                v-for="post in dataStore.unattachedPosts"
                 :key="post.id"
                 :post="post"
             />
@@ -38,41 +38,32 @@
     </div>
 </template>
 
-<script lang="ts">
-import {defineComponent} from "vue";
+<script setup lang="ts">
+///// imports /////
+import {ref} from "vue";
 import type {Post} from "@/src/store/models/Post";
 
 import PostAttacher from "./PostAttacher.vue";
 import PostSearch from "@/src/components/Posts/PostSearch.vue";
 import {useDataStore} from "@/src/store";
 
-export default defineComponent({
+defineOptions({
     name: "PostsAttacher",
-    components: {
-        PostAttacher,
-        PostSearch
-    },
-    data() {
-        return {
-            postToAttach: null as Post | null
-        };
-    },
-    computed: {
-        unattachedPosts() {
-            return useDataStore().unattachedPosts;
-        }
-    },
-    methods: {
-        onPostClick(post: Post) {
-            if (
-                this.postToAttach === null
-                || this.postToAttach.id !== post.id
-            ) {
-                this.postToAttach = post;
-            } else {
-                this.postToAttach = null;
-            }
-        }
-    }
 });
+
+///// refs and variables /////
+const dataStore = useDataStore();
+const postToAttach = ref<Post | null>(null);
+
+///// functions /////
+function onPostClick(post: Post): void {
+    if (
+        postToAttach.value === null
+        || postToAttach.value.id !== post.id
+    ) {
+        postToAttach.value = post;
+    } else {
+        postToAttach.value = null;
+    }
+}
 </script>

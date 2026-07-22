@@ -31,7 +31,7 @@
             </h2>
 
             <GraphEditor
-                v-for="(graph, graphId) in graphs"
+                v-for="(graph, graphId) in dataStore.graphs"
                 :key="graphId"
                 :graphId="graphId"
                 class="m-4 p-4 border border-gray-500"
@@ -40,29 +40,23 @@
     </div>
 </template>
 
-<script lang="ts">
-import {defineComponent} from "vue";
+<script setup lang="ts">
+///// imports /////
+import {ref} from "vue";
 import GraphEditor from "./GraphEditor.vue";
 import {useDataStore} from "@/src/store";
 
-export default defineComponent({
+defineOptions({
     name: "TheGraphs",
-    components: {GraphEditor},
-    data() {
-        return {
-            newGraphName: "",
-        };
-    },
-    computed: {
-        graphs() {
-            return useDataStore().graphs;
-        },
-    },
-    methods: {
-        makeNewGraphLocal() {
-            useDataStore().makeNewGraph(this.newGraphName);
-            this.newGraphName = "";
-        }
-    }
 });
+
+///// refs and variables /////
+const dataStore = useDataStore();
+const newGraphName = ref("");
+
+///// functions /////
+function makeNewGraphLocal(): void {
+    dataStore.makeNewGraph(newGraphName.value);
+    newGraphName.value = "";
+}
 </script>

@@ -3,7 +3,7 @@
         <label class="mb-4">
             The new link will be a
             <select
-                v-model="newLinkType"
+                v-model="clickerStore.newLinkType"
                 class="select select--secondary mb-2"
             >
                 <option value="reply">
@@ -16,16 +16,16 @@
                     link
                 </option>
             </select>
-            <template v-if="subgraphs.length > 0">
-                in the subgraphs ({{ newLinkSubgraphIds.length }})
+            <template v-if="dataStore.subgraphsInSelectedGraph.length > 0">
+                in the subgraphs ({{ clickerStore.newLinkSubgraphIds.length }})
                 <select
-                    v-model="newLinkSubgraphIds"
+                    v-model="clickerStore.newLinkSubgraphIds"
                     class="select select--secondary max-w-full"
-                    :size="Math.min(subgraphs.length, 3)"
+                    :size="Math.min(dataStore.subgraphsInSelectedGraph.length, 3)"
                     multiple
                 >
                     <option
-                        v-for="subgraph in subgraphs"
+                        v-for="subgraph in dataStore.subgraphsInSelectedGraph"
                         :key="subgraph.id"
                         :value="subgraph.id"
                         class="truncate"
@@ -37,19 +37,19 @@
         </label>
 
         <label
-            v-if="newLinkSource"
+            v-if="clickerStore.newLinkSource != null"
             class="mt-4 pt-4 block"
             style="border-top: 1px solid var(--red)"
         >
             It'll be from
             <span class="inline-block">
-                <span class="text-red">{{ titleOrBody(newLinkSource) }}</span>
+                <span class="text-red">{{ dataStore.titleOrBody(clickerStore.newLinkSource) }}</span>
                 →
             </span>
 
             <PostSearch
                 class="ml-2"
-                @clicked-on-result="handlePostClick($event)"
+                @clickedOnResult="clickerStore.handlePostClick($event)"
             />
 
             <div class="my-2 flex justify-between">
@@ -60,9 +60,9 @@
                 <button
                     class="btn btn--secondary"
                     type="button"
-                    :disabled="newLinkSource == null"
+                    :disabled="clickerStore.newLinkSource == null"
                     title="remove this source"
-                    @click="setNewLinkSource(null)"
+                    @click="clickerStore.newLinkSource = null"
                 >
                     x
                 </button>
@@ -77,59 +77,16 @@
     </div>
 </template>
 
-<script lang="ts">
-import {defineComponent} from "vue";
-import type {LinkType, PostId, SubgraphId} from "@/src/@types/StoreTypes";
+<script setup lang="ts">
+///// imports /////
 import PostSearch from "@/src/components/Posts/PostSearch.vue";
 import {useClickerStore, useDataStore} from "@/src/store";
 
-export default defineComponent({
+defineOptions({
     name: "LinkAdder",
-    components: {
-        PostSearch
-    },
-    computed: {
-        subgraphs() {
-            return useDataStore().subgraphsInSelectedGraph;
-        },
-        selectedSubgraphIds() {
-            return useDataStore().selectedSubgraphIds;
-        },
-        titleOrBody() {
-            return useDataStore().titleOrBody;
-        },
-        newLinkSource() {
-            return useClickerStore().newLinkSource;
-        },
-
-        newLinkSubgraphIds: {
-            get() {
-                return useClickerStore().newLinkSubgraphIds;
-            },
-            set(newLinkSubgraphIds: SubgraphId[]) {
-                useClickerStore().setNewLinkSubgraphIds(newLinkSubgraphIds);
-            }
-        },
-
-        newLinkType: {
-            get() {
-                return useClickerStore().newLinkType;
-            },
-            set(newLinkType: LinkType) {
-                useClickerStore().setNewLinkType(newLinkType);
-            }
-        },
-    },
-    created() {
-        this.newLinkSubgraphIds = this.selectedSubgraphIds;
-    },
-    methods: {
-        setNewLinkSource(postId: Nullable<PostId>) {
-            useClickerStore().setNewLinkSource(postId);
-        },
-        handlePostClick(post: {id: PostId}) {
-            void useClickerStore().handlePostClick(post);
-        },
-    }
 });
+
+///// refs and variables /////
+const dataStore = useDataStore();
+const clickerStore = useClickerStore();
 </script>

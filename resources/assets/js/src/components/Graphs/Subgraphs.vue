@@ -40,46 +40,34 @@
     </div>
 </template>
 
-<script lang="ts">
-import {defineComponent} from "vue";
+<script setup lang="ts">
+///// imports /////
+import {computed, ref} from "vue";
 import SubgraphEditor from "./SubgraphEditor.vue";
 import {useDataStore} from "@/src/store";
 
-export default defineComponent({
+defineOptions({
     name: "GraphSubgraphs",
-    components: {SubgraphEditor},
-    props: {
-        graphId: {
-            type: String,
-            required: true
-        },
-    },
-    data() {
-        return {
-            newSubgraphName: "",
-        };
-    },
-    computed: {
-        graphs() {
-            return useDataStore().graphs;
-        },
-        subgraphs() {
-            return useDataStore().subgraphs;
-        },
-
-        subgraphsInGraph() {
-            return Object.values(this.subgraphs)
-                .filter((subgraph) => subgraph.graph === this.graphId);
-        }
-    },
-    methods: {
-        makeNewSubgraphLocal() {
-            useDataStore().makeNewSubgraph({
-                graphId: this.graphId,
-                newSubgraphName: this.newSubgraphName
-            });
-            this.newSubgraphName = "";
-        }
-    }
 });
+
+const props = defineProps<{
+    graphId: string;
+}>();
+
+///// refs and variables /////
+const dataStore = useDataStore();
+const newSubgraphName = ref("");
+
+///// computed /////
+const subgraphsInGraph = computed(() => Object.values(dataStore.subgraphs)
+    .filter((subgraph) => subgraph.graph === props.graphId));
+
+///// functions /////
+function makeNewSubgraphLocal(): void {
+    dataStore.makeNewSubgraph({
+        graphId: props.graphId,
+        newSubgraphName: newSubgraphName.value
+    });
+    newSubgraphName.value = "";
+}
 </script>

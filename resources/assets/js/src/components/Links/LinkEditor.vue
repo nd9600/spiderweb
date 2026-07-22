@@ -38,19 +38,19 @@
         <p class="mt-2 mb-6">
             from
             <span
-                v-if="!wantsToChangeSource"
+                v-if="!clickerStore.wantsToChangeSource"
                 class="text-red"
             >
-                {{ titleOrBody(source) }}
+                {{ dataStore.titleOrBody(source) }}
             </span>
             <PostSearch
                 v-else
                 class="ml-2"
                 @clickedOnResult="onPostClick('source', $event)"
             />
-            <span :class="wantsToChangeSource ? 'block' : ''">
+            <span :class="clickerStore.wantsToChangeSource ? 'block' : ''">
                 <sub
-                    v-if="wantsToChangeSource"
+                    v-if="clickerStore.wantsToChangeSource"
                     class="my-2 text-xs text-gray-500"
                 >
                     search for a post's title/body, or click on a post
@@ -59,9 +59,9 @@
                 <button
                     class="btn btn--secondary mt-2 ml-4"
                     type="button"
-                    @click="wantsToChangeSource = !wantsToChangeSource"
+                    @click="clickerStore.wantsToChangeSource = !clickerStore.wantsToChangeSource"
                 >
-                    {{ wantsToChangeSource ? "Cancel" : "Change" }}
+                    {{ clickerStore.wantsToChangeSource ? "Cancel" : "Change" }}
                 </button>
             </span>
         </p>
@@ -71,10 +71,10 @@
         <p class="mt-6 mb-10">
             to
             <span
-                v-if="!wantsToChangeTarget"
+                v-if="!clickerStore.wantsToChangeTarget"
                 class="text-red"
             >
-                {{ titleOrBody(target) }}
+                {{ dataStore.titleOrBody(target) }}
             </span>
             <PostSearch
                 v-else
@@ -82,9 +82,9 @@
                 @clickedOnResult="onPostClick('target', $event)"
             />
 
-            <span :class="wantsToChangeTarget ? 'block' : ''">
+            <span :class="clickerStore.wantsToChangeTarget ? 'block' : ''">
                 <sub
-                    v-if="wantsToChangeTarget"
+                    v-if="clickerStore.wantsToChangeTarget"
                     class="my-2 text-xs text-gray-500"
                 >
                     search for a post's title/body, or click on a post
@@ -93,9 +93,9 @@
                 <button
                     class="btn btn--secondary mt-2 ml-4"
                     type="button"
-                    @click="wantsToChangeTarget = !wantsToChangeTarget"
+                    @click="clickerStore.wantsToChangeTarget = !clickerStore.wantsToChangeTarget"
                 >
-                    {{ wantsToChangeTarget ? "Cancel" : "Change" }}
+                    {{ clickerStore.wantsToChangeTarget ? "Cancel" : "Change" }}
                 </button>
             </span>
         </p>
@@ -109,109 +109,80 @@
     </div>
 </template>
 
-<script lang="ts">
-import {defineComponent, PropType} from "vue";
-import type {LinkType, PostId, SubgraphId} from "@/src/@types/StoreTypes";
+<script setup lang="ts">
+///// imports /////
+import {computed, ref, watch} from "vue";
+import type {LinkId, LinkType, PostId, SubgraphId} from "@/src/@types/StoreTypes";
 import type {Link} from "@/src/store/models/Link";
 import PostSearch from "@/src/components/Posts/PostSearch.vue";
 import {useClickerStore, useDataStore} from "@/src/store";
 
-export default defineComponent({
+defineOptions({
     name: "LinkEditor",
-    emits: ["updatedLink", "removedLink"],
-    components: {
-        PostSearch
-    },
-    props: {
-        link: {
-            type: Object as PropType<Link>,
-            required: true,
-        }
-    },
-    data() {
-        return {
-            source: this.link.source as PostId,
-            target: this.link.target as PostId,
-            type: this.link.type as LinkType,
-        };
-    },
-    computed: {
-        subgraphs() {
-            return Object.values(useDataStore().subgraphs)
-                .filter((subgraph) => subgraph.graph === this.link.graph);
-        },
-        titleOrBody() {
-            return useDataStore().titleOrBody;
-        },
+});
 
-        subgraphsLinkIsIn: {
-            get() {
-                return this.subgraphs
-                    .filter((subgraph) => subgraph.links[this.link.id] === true)
-                    .map((subgraph) => subgraph.id);
-            },
-            set(subgraphsLinkIsIn: SubgraphId[]) {
-                useDataStore().setSubgraphsLinkIsIn({linkId: this.link.id, subgraphsLinkIsIn});
-            }
-        },
+const props = defineProps<{
+    link: Link;
+}>();
 
-        wantsToChangeSource: {
-            get() {
-                return useClickerStore().wantsToChangeSource;
-            },
-            set(wantsToChangeSource: boolean) {
-                useClickerStore().setWantsToChangeSource(wantsToChangeSource);
-            }
-        },
-        wantsToChangeTarget: {
-            get() {
-                return useClickerStore().wantsToChangeTarget;
-            },
-            set(wantsToChangeTarget: boolean) {
-                useClickerStore().setWantsToChangeTarget(wantsToChangeTarget);
-            }
-        }
-    },
-    watch: {
-        // fixme: fix this bug
-        // link(link) {
-        //     this.graphId = link.graph;
-        //     this.source = link.source;
-        //     this.target = link.target;
-        //     this.type = link.type;
-        // },
-        "subgraphId": "updateLinkLocal",
-        "source": "updateLinkLocal",
-        "target": "updateLinkLocal",
-        "type": "updateLinkLocal",
-    },
-    methods: {
-        onPostClick(sourceOrTarget: "source" | "target", post: {id: PostId}) {
-            if (sourceOrTarget === "source") {
-                this.source = post.id;
-                this.wantsToChangeSource = false;
-            } else {
-                this.target = post.id;
-                this.wantsToChangeTarget = false;
-            }
-        },
+const emit = defineEmits<{
+    updatedLink: [linkId: LinkId];
+    removedLink: [linkId: LinkId];
+}>();
 
-        updateLinkLocal() {
-            useDataStore().updateLink({
-                id: this.link.id,
-                graph: this.link.graph,
-                source: this.source,
-                target: this.target,
-                type: this.type
-            });
-            this.$emit("updatedLink", this.link.id);
-        },
-        removeLinkLocal() {
-            useDataStore().removeLink({
-                id: this.link.id,
-            });
-            this.$emit("removedLink", this.link.id);
-        }
+///// refs and variables /////
+const dataStore = useDataStore();
+const clickerStore = useClickerStore();
+const source = ref<PostId>(props.link.source);
+const target = ref<PostId>(props.link.target);
+const type = ref<LinkType>(props.link.type);
+
+///// computed /////
+const subgraphs = computed(() => Object.values(dataStore.subgraphs)
+    .filter((subgraph) => subgraph.graph === props.link.graph));
+
+const subgraphsLinkIsIn = computed<SubgraphId[]>({
+    get() {
+        return subgraphs.value
+            .filter((subgraph) => subgraph.links[props.link.id] === true)
+            .map((subgraph) => subgraph.id);
+    },
+    set(subgraphsLinkIsIn) {
+        dataStore.setSubgraphsLinkIsIn({linkId: props.link.id, subgraphsLinkIsIn});
     }
+});
+
+///// functions /////
+function onPostClick(sourceOrTarget: "source" | "target", post: {id: PostId}): void {
+    if (sourceOrTarget === "source") {
+        source.value = post.id;
+        clickerStore.wantsToChangeSource = false;
+    } else {
+        target.value = post.id;
+        clickerStore.wantsToChangeTarget = false;
+    }
+}
+
+function updateLinkLocal(): void {
+    dataStore.updateLink({
+        id: props.link.id,
+        graph: props.link.graph,
+        source: source.value,
+        target: target.value,
+        type: type.value
+    });
+    emit("updatedLink", props.link.id);
+}
+
+function removeLinkLocal(): void {
+    dataStore.removeLink({
+        id: props.link.id,
+    });
+    emit("removedLink", props.link.id);
+}
+
+///// watchers /////
+watch([source, target, type], () => {
+    updateLinkLocal();
 });
 </script>

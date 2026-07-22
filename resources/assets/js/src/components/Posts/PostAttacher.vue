@@ -21,7 +21,7 @@
         </div>
         <template v-if="shouldExpand">
             <label
-                v-if="selectedGraphId !== null"
+                v-if="dataStore.selectedGraphId !== null"
                 class="mb-2 text-xs"
             >
                 <span>I </span>
@@ -41,11 +41,11 @@
             <label class="mt-2 pl-4 flex flex-col items-start text-xs">
                 <template v-if="subgraphsNotAlreadyAttachedTo.length > 0">
                     <select
-                        v-if="subgraphsInSelectedGraph.length > 1"
+                        v-if="dataStore.subgraphsInSelectedGraph.length > 1"
                         v-model="subgraphIdsToAttachPostTo"
                         class="select select--secondary"
                         multiple
-                        :size="Math.min(subgraphsInSelectedGraph.length, 3)"
+                        :size="Math.min(dataStore.subgraphsInSelectedGraph.length, 3)"
                     >
                         <option
                             v-for="subgraph in subgraphsNotAlreadyAttachedTo"
@@ -59,11 +59,11 @@
                         v-else
                         class="block text-xs text-gray-500"
                     >
-                        you can only attach the post to the subgraph '{{ subgraphsInSelectedGraph[0].name }}'
+                        you can only attach the post to the subgraph '{{ dataStore.subgraphsInSelectedGraph[0].name }}'
                     </span>
                 </template>
                 <span
-                    v-else-if="subgraphsInSelectedGraph.length > 0"
+                    v-else-if="dataStore.subgraphsInSelectedGraph.length > 0"
                     class="block text-xs text-gray-500"
                 >
                     this post is already attached to all the subgraphs
@@ -79,73 +79,64 @@
         </template>
     </div>
 </template>
-<script lang="ts">
-import {defineComponent, PropType} from "vue";
+<script setup lang="ts">
+///// imports /////
+import {computed, onMounted, ref} from "vue";
 import type {Post} from "@/src/store/models/Post";
 import {useDataStore} from "@/src/store";
 
-export default defineComponent({
+defineOptions({
     name: "PostAttacher",
-    emits: ["attachedPost"],
-    props: {
-        post: {
-            type: Object as PropType<Post>,
-            required: true
-        },
-        initialShouldExpand: {
-            type: Boolean,
-            default: false,
-        }
-    },
-    data() {
-        return {
-            shouldExpand: this.initialShouldExpand,
-            shouldAttachPostToGraph: true,
-            subgraphIdsToAttachPostTo: [] as string[]
-        };
-    },
-    computed: {
-        selectedGraphId() {
-            return useDataStore().selectedGraphId;
-        },
-        subgraphsInSelectedGraph() {
-            return useDataStore().subgraphsInSelectedGraph;
-        },
-        linkedSubgraphs() {
-            return useDataStore().linkedSubgraphs;
-        },
+});
 
-        subgraphsNotAlreadyAttachedTo() {
-            const subgraphsAlreadyAttachedTo = new Set(this.linkedSubgraphs(this.post.id));
-            return this.subgraphsInSelectedGraph
-                .filter((subgraph) => !subgraphsAlreadyAttachedTo.has(subgraph.id));
-        }
-    },
-    created() {
-        if (this.subgraphsInSelectedGraph.length === 1) {
-            this.subgraphIdsToAttachPostTo = [this.subgraphsInSelectedGraph[0].id];
-        }
-    },
-    methods: {
-        attachPost() {
-            const dataStore = useDataStore();
-            if (this.shouldAttachPostToGraph && this.selectedGraphId != null) {
-                dataStore.addPostToGraph({
-                    graphId: this.selectedGraphId,
-                    postId: this.post.id
-                });
-            }
+const props = withDefaults(defineProps<{
+    post: Post;
+    initialShouldExpand?: boolean;
+}>(), {
+    initialShouldExpand: false,
+});
 
-            if (this.subgraphIdsToAttachPostTo.length > 0) {
-                for (const subgraphId of this.subgraphIdsToAttachPostTo) {
-                    dataStore.addPostToSubgraph({
-                        subgraphId,
-                        postId: this.post.id
-                    });
-                }
-                this.$emit("attachedPost", this.subgraphIdsToAttachPostTo);
-            }
+const emit = defineEmits<{
+    attachedPost: [subgraphIds: string[]];
+}>();
+
+///// refs and variables /////
+const dataStore = useDataStore();
+const shouldExpand = ref(props.initialShouldExpand);
+const shouldAttachPostToGraph = ref(true);
+const subgraphIdsToAttachPostTo = ref<string[]>([]);
+
+///// computed /////
+const subgraphsNotAlreadyAttachedTo = computed(() => {
+    const subgraphsAlreadyAttachedTo = new Set(dataStore.linkedSubgraphs(props.post.id));
+    return dataStore.subgraphsInSelectedGraph
+        .filter((subgraph) => !subgraphsAlreadyAttachedTo.has(subgraph.id));
+});
+
+///// functions /////
+function attachPost(): void {
+    if (shouldAttachPostToGraph.value && dataStore.selectedGraphId != null) {
+        dataStore.addPostToGraph({
+            graphId: dataStore.selectedGraphId,
+            postId: props.post.id
+        });
+    }
+
+    if (subgraphIdsToAttachPostTo.value.length > 0) {
+        for (const subgraphId of subgraphIdsToAttachPostTo.value) {
+            dataStore.addPostToSubgraph({
+                subgraphId,
+                postId: props.post.id
+            });
         }
+        emit("attachedPost", subgraphIdsToAttachPostTo.value);
+    }
+}
+
+///// lifecycle /////
+onMounted(() => {
+    if (dataStore.subgraphsInSelectedGraph.length === 1) {
+        subgraphIdsToAttachPostTo.value = [dataStore.subgraphsInSelectedGraph[0].id];
     }
 });
 </script>

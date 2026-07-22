@@ -1,7 +1,7 @@
 <template>
     <section>
         <label class="mb-3 block">
-            {{ titleOrBody(post.id) }}
+            {{ dataStore.titleOrBody(post.id) }}
             <button
                 class="mx-4 link"
                 type="button"
@@ -31,7 +31,7 @@
         </label>
 
         <label
-            v-if="subgraphsInSelectedGraph.length > 0"
+            v-if="dataStore.subgraphsInSelectedGraph.length > 0"
             class="mb-2 flex flex-col items-start text-xs"
         >
             <span>I want to attach the post to these subgraphs ({{ subgraphIdsToAttachPostTo.length }}):</span>
@@ -39,10 +39,10 @@
                 v-model="subgraphIdsToAttachPostTo"
                 class="select select--secondary"
                 multiple
-                :size="Math.min(subgraphsInSelectedGraph.length, 3)"
+                :size="Math.min(dataStore.subgraphsInSelectedGraph.length, 3)"
             >
                 <option
-                    v-for="subgraph in subgraphsInSelectedGraph"
+                    v-for="subgraph in dataStore.subgraphsInSelectedGraph"
                     :key="subgraph.id"
                     :value="subgraph.id"
                 >
@@ -62,114 +62,88 @@
         />
     </section>
 </template>
-<script lang="ts">
-import {defineComponent, PropType} from "vue";
+<script setup lang="ts">
+///// imports /////
+import {computed, ref} from "vue";
 import type {LinkType, NodePosition} from "@/src/@types/StoreTypes";
 import type {Post} from "@/src/store/models/Post";
 import PostMaker from "@/src/components/Posts/PostMaker.vue";
 import {useDataStore} from "@/src/store";
 
-export default defineComponent({
+defineOptions({
     name: "AddLinkedPost",
-    components: {
-        PostMaker
-    },
-    props: {
-        post: {
-            type: Object as PropType<Post>,
-            required: true
-        }
-    },
-    data() {
-        return {
-            fromOrToNewPost: "to" as "from" | "to",
-            linkType: "reply" as LinkType,
-            subgraphIdsToAttachPostTo: [] as string[]
+});
+
+const props = defineProps<{
+    post: Post;
+}>();
+
+///// refs and variables /////
+const dataStore = useDataStore();
+const fromOrToNewPost = ref<"from" | "to">("to");
+const linkType = ref<LinkType>("reply");
+const subgraphIdsToAttachPostTo = ref<string[]>([...dataStore.selectedSubgraphIds]);
+
+///// computed /////
+const nodePositions = computed(() => {
+    const selectedGraphId = dataStore.selectedGraphId;
+    return selectedGraphId == null
+        ? {}
+        : dataStore.graphs[selectedGraphId].nodePositions;
+});
+
+///// functions /////
+function toggleFromOrToTheNewPost(): void {
+    fromOrToNewPost.value = fromOrToNewPost.value === "from"
+        ? "to"
+        : "from";
+}
+
+function addedPost(newPost: Post): void {
+    const source = fromOrToNewPost.value === "from"
+        ? newPost.id
+        : props.post.id;
+    const target = fromOrToNewPost.value === "to"
+        ? newPost.id
+        : props.post.id;
+    if (dataStore.selectedGraphId == null) {
+        return;
+    }
+
+    dataStore.addLink({
+        source: source,
+        target: target,
+        graph: dataStore.selectedGraphId,
+        type: linkType.value,
+        subgraphIds: subgraphIdsToAttachPostTo.value
+    });
+
+    // we need to set the new post's position too, so it doesn't get added in the middle of the graph
+    let positionOfNewPost: NodePosition;
+    const originalPostPosition = nodePositions.value[props.post.id];
+    if (originalPostPosition != null) {
+        positionOfNewPost = {
+            x: originalPostPosition.x + 100,
+            y: originalPostPosition.y + 150,
         };
-    },
-    computed: {
-        selectedGraphId() {
-            return useDataStore().selectedGraphId;
-        },
-        selectedSubgraphIds() {
-            return useDataStore().selectedSubgraphIds;
-        },
-        zoom() {
-            return useDataStore().zoom;
-        },
-        titleOrBody() {
-            return useDataStore().titleOrBody;
-        },
-        subgraphsInSelectedGraph() {
-            return useDataStore().subgraphsInSelectedGraph;
-        },
+    } else {
+        positionOfNewPost = {
+            x: (Math.abs(dataStore.zoom.x) * (1 / dataStore.zoom.scale)) + 100,
+            y: (Math.abs(dataStore.zoom.y) * (1 / dataStore.zoom.scale)) + 150
+        };
+    }
+    dataStore.setPostPosition({
+        postId: newPost.id,
+        position: positionOfNewPost
+    });
 
-        nodePositions() {
-            const selectedGraphId = this.selectedGraphId;
-            return selectedGraphId == null
-                ? {}
-                : useDataStore().graphs[selectedGraphId].nodePositions;
-        }
-    },
-    created() {
-        this.subgraphIdsToAttachPostTo = this.selectedSubgraphIds;
-    },
-    methods: {
-        toggleFromOrToTheNewPost() {
-            const newValue = this.fromOrToNewPost === "from"
-                ? "to"
-                : "from";
-            this.fromOrToNewPost = newValue;
-        },
-
-        addedPost(newPost: Post) {
-            const dataStore = useDataStore();
-            const source = this.fromOrToNewPost === "from"
-                ? newPost.id
-                : this.post.id;
-            const target = this.fromOrToNewPost === "to"
-                ? newPost.id
-                : this.post.id;
-            if (this.selectedGraphId == null) {
-                return;
-            }
-
-            dataStore.addLink({
-                source: source,
-                target: target,
-                graph: this.selectedGraphId,
-                type: this.linkType,
-                subgraphIds: this.subgraphIdsToAttachPostTo
+    if (subgraphIdsToAttachPostTo.value.length > 0) {
+        for (const subgraphId of subgraphIdsToAttachPostTo.value) {
+            dataStore.addPostToSubgraph({
+                subgraphId,
+                postId: newPost.id
             });
-
-            // we need to set the new post's position too, so it doesn't get added in the middle of the graph
-            let positionOfNewPost: NodePosition;
-            const originalPostPosition = this.nodePositions[this.post.id];
-            if (originalPostPosition != null) {
-                positionOfNewPost = {
-                    x: originalPostPosition.x + 100,
-                    y: originalPostPosition.y + 150,
-                };
-            } else {
-                positionOfNewPost = {
-                    x: (Math.abs(this.zoom.x) * (1 / this.zoom.scale)) + 100,
-                    y: (Math.abs(this.zoom.y) * (1 / this.zoom.scale)) + 150
-                };
-            }
-            dataStore.setPostPosition({
-                postId: newPost.id,
-                position: positionOfNewPost
-            });
-
-            if (this.subgraphIdsToAttachPostTo.length > 0) {
-                for (const subgraphId of this.subgraphIdsToAttachPostTo) {
-                    dataStore.addPostToSubgraph({
-                        subgraphId,
-                        postId: newPost.id
-                    });
-                }
-            }
         }
     }
-});
+}
 </script>

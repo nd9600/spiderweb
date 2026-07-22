@@ -32,7 +32,7 @@
                             ⟳
                         </button>
                         <div
-                            v-if="isRenderingGraph"
+                            v-if="rootStore.isRenderingGraph"
                             class="mt-1 flex justify-center items-center"
                         >
                             <div class="spinner spinner--sm"></div>
@@ -49,19 +49,19 @@
                 </div>
             </div>
             <label
-                v-if="Object.keys(graphs).length > 1"
+                v-if="Object.keys(dataStore.graphs).length > 1"
                 class="ml-4"
             >
                 <span class="block h h--4">
                     Graphs
                 </span>
                 <select
-                    v-model="selectedGraphId"
+                    v-model="selectedGraphIdModel"
                     class="select select--secondary w-full"
-                    :size="Math.min(Object.keys(graphs).length, 3)"
+                    :size="Math.min(Object.keys(dataStore.graphs).length, 3)"
                 >
                     <option
-                        v-for="(graph, graphId) in graphs"
+                        v-for="(graph, graphId) in dataStore.graphs"
                         :key="graphId"
                         :value="graphId"
                     >
@@ -72,42 +72,42 @@
             <div class="ml-4 flex flex-col items-start">
                 <span id="graphsList"></span>
                 <h4
-                    v-if="subgraphsInSelectedGraph.length > 0"
+                    v-if="dataStore.subgraphsInSelectedGraph.length > 0"
                     class="h h--4"
                 >
                     Subgraphs
                 </h4>
                 <div
-                    v-if="subgraphsInSelectedGraph.length > 0"
+                    v-if="dataStore.subgraphsInSelectedGraph.length > 0"
                     class="flex"
                 >
                     <div class="mr-2 flex flex-col items-start">
                         <button
                             class="btn btn--secondary"
                             type="button"
-                            :disabled="selectedSubgraphIds.length === subgraphsInSelectedGraph.length"
-                            @click.stop="selectAllSubgraphs"
+                            :disabled="selectedSubgraphIdsModel.length === dataStore.subgraphsInSelectedGraph.length"
+                            @click.stop="dataStore.selectAllSubgraphs()"
                         >
                             View all subgraphs
                         </button>
                         <button
-                            v-if="selectedSubgraphIds.length > 0"
+                            v-if="selectedSubgraphIdsModel.length > 0"
                             class="my-1 ml-2 text-sm hover:underline"
                             type="button"
-                            @click.stop="selectedSubgraphIds = []"
+                            @click.stop="selectedSubgraphIdsModel = []"
                         >
                             clear
                         </button>
                     </div>
                     <label>
                         <select
-                            v-model="selectedSubgraphIds"
+                            v-model="selectedSubgraphIdsModel"
                             class="select select--secondary w-full"
                             multiple
-                            :size="Math.min(subgraphsInSelectedGraph.length, 7)"
+                            :size="Math.min(dataStore.subgraphsInSelectedGraph.length, 7)"
                         >
                             <option
-                                v-for="subgraph in subgraphsInSelectedGraph"
+                                v-for="subgraph in dataStore.subgraphsInSelectedGraph"
                                 :key="subgraph.id"
                                 :value="subgraph.id"
                             >
@@ -133,12 +133,12 @@
             <GraphViewer
                 ref="graphViewer"
                 :style="{
-                    'min-height': graphHeight + 'vh'
+                    'min-height': settingsStore.graphHeight + 'vh'
                 }"
             />
             <PostBar
                 :style="{
-                    'min-height': postBarHeight + 'vh'
+                    'min-height': settingsStore.postBarHeight + 'vh'
                 }"
                 @focusPost="focusPost"
                 @highlightPost="highlightPost"
@@ -148,8 +148,9 @@
     </div>
 </template>
 
-<script lang="ts">
-import {defineComponent} from "vue";
+<script setup lang="ts">
+///// imports /////
+import {computed, useTemplateRef} from "vue";
 import type {GraphId, PostId, SubgraphId} from "@/src/@types/StoreTypes";
 import GraphViewer from "./GraphViewer.vue";
 import PostBar from "./PostBar/PostBar.vue";
@@ -157,90 +158,72 @@ import PostBar from "./PostBar/PostBar.vue";
 import {STORAGE_KEY} from "@/src/components/constants";
 import {useDataStore, useRootStore, useSettingsStore} from "@/src/store";
 
-export default defineComponent({
+defineOptions({
     name: "TheViewer",
-    components: {
-        GraphViewer,
-        PostBar,
-    },
-    data() {
-        const storedData = localStorage.getItem(STORAGE_KEY);
+});
 
-        return {
-            localStorageSize: storedData != null
-                ? Number((storedData.length / (1000 ** 2)).toFixed(2))
-                : 0
-        };
-    },
-    computed: {
-        isRenderingGraph() {
-            return useRootStore().isRenderingGraph;
-        },
-        graphHeight() {
-            return useSettingsStore().graphHeight;
-        },
-        postBarHeight() {
-            return useSettingsStore().postBarHeight;
-        },
-        graphs() {
-            return useDataStore().graphs;
-        },
-        subgraphsInSelectedGraph() {
-            return useDataStore().subgraphsInSelectedGraph;
-        },
+///// refs and variables /////
+const rootStore = useRootStore();
+const settingsStore = useSettingsStore();
+const dataStore = useDataStore();
+const graphViewer = useTemplateRef<InstanceType<typeof GraphViewer>>("graphViewer");
+const storedData = localStorage.getItem(STORAGE_KEY);
+const localStorageSize = storedData != null
+    ? Number((storedData.length / (1000 ** 2)).toFixed(2))
+    : 0;
 
-        selectedGraphId: {
-            get() {
-                return useDataStore().selectedGraphId;
-            },
-            set(selectedGraphId: Nullable<GraphId>) {
-                if (selectedGraphId != null) {
-                    useDataStore().setSelectedGraphId(selectedGraphId);
-                }
-            }
-        },
-        selectedSubgraphIds: {
-            get() {
-                return useDataStore().selectedSubgraphIds;
-            },
-            set(selectedSubgraphIds: SubgraphId[]) {
-                useDataStore().setSelectedSubgraphIds(selectedSubgraphIds);
-            }
-        }
+///// computed /////
+const selectedGraphIdModel = computed({
+    get() {
+        return dataStore.selectedGraphId;
     },
-    methods: {
-        getGraphViewer(): InstanceType<typeof GraphViewer> | null {
-            return this.$refs.graphViewer as InstanceType<typeof GraphViewer> | null;
-        },
-        refreshGraph() {
-            this.getGraphViewer()?.refreshGraph();
-        },
-        zoomIn() {
-            this.getGraphViewer()?.zoomIn();
-        },
-        zoomOut() {
-            this.getGraphViewer()?.zoomOut();
-        },
-        focusPost(postId: PostId) {
-            this.getGraphViewer()?.focusPost(postId);
-        },
-        highlightPost(postId: PostId) {
-            this.getGraphViewer()?.highlightPost(postId);
-        },
-        unhighlightPost(postId: PostId) {
-            this.getGraphViewer()?.unhighlightPost(postId);
-        },
-        scrollToPostBar() {
-            const postBar = document.getElementById("postBar");
-            if (postBar == null) {
-                return;
-            }
-
-            window.scrollBy(0, postBar.getBoundingClientRect().top - 5);
-        },
-        selectAllSubgraphs() {
-            useDataStore().selectAllSubgraphs();
+    set(selectedGraphId: Nullable<GraphId>) {
+        if (selectedGraphId != null) {
+            dataStore.setSelectedGraphId(selectedGraphId);
         }
     }
 });
+
+const selectedSubgraphIdsModel = computed({
+    get() {
+        return dataStore.selectedSubgraphIds;
+    },
+    set(selectedSubgraphIds: SubgraphId[]) {
+        dataStore.setSelectedSubgraphIds(selectedSubgraphIds);
+    }
+});
+
+///// functions /////
+function refreshGraph(): void {
+    graphViewer.value?.refreshGraph();
+}
+
+function zoomIn(): void {
+    graphViewer.value?.zoomIn();
+}
+
+function zoomOut(): void {
+    graphViewer.value?.zoomOut();
+}
+
+function focusPost(postId: PostId): void {
+    graphViewer.value?.focusPost(postId);
+}
+
+function highlightPost(postId: PostId): void {
+    graphViewer.value?.highlightPost(postId);
+}
+
+function unhighlightPost(postId: PostId): void {
+    graphViewer.value?.unhighlightPost(postId);
+}
+
+function scrollToPostBar(): void {
+    const postBar = document.getElementById("postBar");
+    if (postBar == null) {
+        return;
+    }
+
+    window.scrollBy(0, postBar.getBoundingClientRect().top - 5);
+}
 </script>

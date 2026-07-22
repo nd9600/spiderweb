@@ -23,7 +23,7 @@
                 v-for="post in searchResults"
                 :key="post.id"
                 class="mt-2 p-1 cursor-pointer bg-red-200 hover:bg-red-300 rounded-lg"
-                @click="$emit('clickedOnResult', post)"
+                @click="emit('clickedOnResult', post)"
             >
                 <span
                     v-if="post.title.length > 0"
@@ -42,60 +42,64 @@
     </div>
 </template>
 
-<script lang="ts">
-import {defineComponent} from "vue";
+<script setup lang="ts">
+///// imports /////
+import {onMounted, ref, useTemplateRef, watch} from "vue";
 import type {Post} from "@/src/store/models/Post";
 import {useDataStore} from "@/src/store";
-export default defineComponent({
+
+defineOptions({
     name: "PostSearch",
-    emits: ["clickedOnResult"],
-    data() {
-        return {
-            searchTerm: "",
-            isLoadingSearchResults: false,
-            searchResults: [] as Post[]
-        };
-    },
-    computed: {
-        posts() {
-            return useDataStore().posts;
-        },
-    },
-    watch: {
-        searchTerm(newSearchTerm) {
-            const searchTerm = newSearchTerm.trim().toLowerCase();
-            if (searchTerm.length === 0) {
-                this.searchResults = [];
-                this.isLoadingSearchResults = false;
-                return;
-            }
-            this.isLoadingSearchResults = true;
+});
 
-            this.searchResults = Object.values(this.posts)
-                .filter(post =>
-                    post.title.toLowerCase().includes(searchTerm)
-                    || post.body.toLowerCase().includes(searchTerm)
-                ).sort((postA, postB) => {
-                    const postAStringToCompare = postA.title.length > 0
-                        ? postA.title
-                        : postA.body;
-                    const postBStringToCompare = postB.title.length > 0
-                        ? postB.title
-                        : postB.body;
+const emit = defineEmits<{
+    clickedOnResult: [post: Post];
+}>();
 
-                    if (postAStringToCompare < postBStringToCompare) {
-                        return -1;
-                    } else if (postBStringToCompare < postAStringToCompare) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                }).slice(0, 25);
-            this.isLoadingSearchResults = false;
-        }
-    },
-    mounted() {
-        (this.$refs.searchInput as HTMLInputElement).focus();
+///// refs and variables /////
+const dataStore = useDataStore();
+const searchInput = useTemplateRef<HTMLInputElement>("searchInput");
+const searchTerm = ref("");
+const isLoadingSearchResults = ref(false);
+const searchResults = ref<Post[]>([]);
+
+///// watchers /////
+watch(searchTerm, (newSearchTerm) => {
+    const searchTermToFind = newSearchTerm.trim().toLowerCase();
+    if (searchTermToFind.length === 0) {
+        searchResults.value = [];
+        isLoadingSearchResults.value = false;
+        return;
     }
+    isLoadingSearchResults.value = true;
+
+    searchResults.value = Object.values(dataStore.posts)
+        .filter((post) => {
+            return post.title.toLowerCase().includes(searchTermToFind)
+                || post.body.toLowerCase().includes(searchTermToFind);
+        })
+        .sort((postA, postB) => {
+            const postAStringToCompare = postA.title.length > 0
+                ? postA.title
+                : postA.body;
+            const postBStringToCompare = postB.title.length > 0
+                ? postB.title
+                : postB.body;
+
+            if (postAStringToCompare < postBStringToCompare) {
+                return -1;
+            } else if (postBStringToCompare < postAStringToCompare) {
+                return 1;
+            } else {
+                return 0;
+            }
+        })
+        .slice(0, 25);
+    isLoadingSearchResults.value = false;
+});
+
+///// lifecycle /////
+onMounted(() => {
+    searchInput.value?.focus();
 });
 </script>

@@ -34,7 +34,7 @@
         </label>
 
         <label
-            v-if="shouldShowPostAttacher && selectedGraphId !== null"
+            v-if="shouldShowPostAttacher && dataStore.selectedGraphId !== null"
             class="mb-2 text-xs"
         >
             <span>I </span>
@@ -53,7 +53,7 @@
         </label>
 
         <label
-            v-if="shouldShowPostAttacher && subgraphsInSelectedGraph.length > 0"
+            v-if="shouldShowPostAttacher && dataStore.subgraphsInSelectedGraph.length > 0"
             class="mb-2 flex flex-col items-start text-xs"
         >
             <span>I want to attach the post to these subgraphs ({{ subgraphIdsToAttachPostTo.length }}):</span>
@@ -61,10 +61,10 @@
                 v-model="subgraphIdsToAttachPostTo"
                 class="select select--secondary"
                 multiple
-                :size="Math.min(subgraphsInSelectedGraph.length, 3)"
+                :size="Math.min(dataStore.subgraphsInSelectedGraph.length, 3)"
             >
                 <option
-                    v-for="subgraph in subgraphsInSelectedGraph"
+                    v-for="subgraph in dataStore.subgraphsInSelectedGraph"
                     :key="subgraph.id"
                     :value="subgraph.id"
                 >
@@ -84,91 +84,80 @@
     </div>
 </template>
 
-<script lang="ts">
-import {defineComponent} from "vue";
+<script setup lang="ts">
+///// imports /////
+import {ref, useTemplateRef} from "vue";
 import type {Post} from "@/src/store/models/Post";
 import {useDataStore} from "@/src/store";
 
-export default defineComponent({
+defineOptions({
     name: "PostMaker",
-    emits: ["madePost"],
-    props: {
-        shouldShowPostAttacher: {
-            type: Boolean,
-            default: true
-        }
-    },
-    data() {
-        return {
-            showTitleInput: false,
+});
 
-            title: "",
-            body: "",
-            shouldAttachPostToGraph: true,
-            subgraphIdsToAttachPostTo: [] as string[]
-        };
-    },
-    computed: {
-        selectedGraphId() {
-            return useDataStore().selectedGraphId;
-        },
-        selectedSubgraphIds() {
-            return useDataStore().selectedSubgraphIds;
-        },
-        subgraphsInSelectedGraph() {
-            return useDataStore().subgraphsInSelectedGraph;
-        },
-    },
-    created() {
-        this.subgraphIdsToAttachPostTo = this.selectedSubgraphIds;
-    },
-    methods: {
-        toggleTitleInput() {
-            const dontLetUserHideTitleInput = this.showTitleInput
-                && this.title.trim().length > 0;
-            if (dontLetUserHideTitleInput) {
-                (this.$refs.inputTitle as HTMLInputElement).focus();
-                return;
-            }
-            this.showTitleInput = !this.showTitleInput;
-        },
+withDefaults(defineProps<{
+    shouldShowPostAttacher?: boolean;
+}>(), {
+    shouldShowPostAttacher: true,
+});
 
-        async makePost() {
-            const newPost = {
-                title: this.title,
-                body: this.body,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            };
-            const dataStore = useDataStore();
-            const newPostWithId = await dataStore.makeNewPost(newPost) as Post;
+const emit = defineEmits<{
+    madePost: [post: Post];
+}>();
 
-            if (this.shouldAttachPostToGraph && this.selectedGraphId != null) {
-                dataStore.addPostToGraph({
-                    graphId: this.selectedGraphId,
-                    postId: newPostWithId.id
-                });
-            }
+///// refs and variables /////
+const dataStore = useDataStore();
+const inputTitle = useTemplateRef<HTMLInputElement>("inputTitle");
+const showTitleInput = ref(false);
+const title = ref("");
+const body = ref("");
+const shouldAttachPostToGraph = ref(true);
+const subgraphIdsToAttachPostTo = ref<string[]>([...dataStore.selectedSubgraphIds]);
 
-            if (this.subgraphIdsToAttachPostTo.length > 0) {
-                for (const subgraphId of this.subgraphIdsToAttachPostTo) {
-                    dataStore.addPostToSubgraph({
-                        subgraphId,
-                        postId: newPostWithId.id
-                    });
-                }
-            }
+///// functions /////
+function toggleTitleInput(): void {
+    const dontLetUserHideTitleInput = showTitleInput.value
+        && title.value.trim().length > 0;
+    if (dontLetUserHideTitleInput) {
+        inputTitle.value?.focus();
+        return;
+    }
+    showTitleInput.value = !showTitleInput.value;
+}
 
-            this.resetNewPost();
-            this.$emit("madePost", newPostWithId);
-        },
-        resetNewPost() {
-            this.title = "";
-            this.body = "";
-            this.subgraphIdsToAttachPostTo = [];
+async function makePost(): Promise<void> {
+    const newPost = {
+        title: title.value,
+        body: body.value,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+    };
+    const newPostWithId = await dataStore.makeNewPost(newPost) as Post;
+
+    if (shouldAttachPostToGraph.value && dataStore.selectedGraphId != null) {
+        dataStore.addPostToGraph({
+            graphId: dataStore.selectedGraphId,
+            postId: newPostWithId.id
+        });
+    }
+
+    if (subgraphIdsToAttachPostTo.value.length > 0) {
+        for (const subgraphId of subgraphIdsToAttachPostTo.value) {
+            dataStore.addPostToSubgraph({
+                subgraphId,
+                postId: newPostWithId.id
+            });
         }
     }
-});
+
+    resetNewPost();
+    emit("madePost", newPostWithId);
+}
+
+function resetNewPost(): void {
+    title.value = "";
+    body.value = "";
+    subgraphIdsToAttachPostTo.value = [];
+}
 </script>
 
 <style scoped>

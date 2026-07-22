@@ -16,10 +16,6 @@ interface ClickerModuleState {
     wantsToChangeTarget: boolean;
 }
 
-interface ClickedPost {
-    id: PostId;
-}
-
 interface ClickedLinkEndpoint {
     id: PostId;
     x: number;
@@ -35,13 +31,6 @@ interface ClickedLink {
 interface LinkClickPayload {
     link: ClickedLink;
     coordinates: [number, number];
-}
-
-function isClickedPost(post: unknown): post is ClickedPost {
-    return typeof post === "object"
-        && post !== null
-        && "id" in post
-        && typeof post.id === "string";
 }
 
 export const useClickerStore = defineStore("clickerModule", {
@@ -71,34 +60,11 @@ export const useClickerStore = defineStore("clickerModule", {
         },
         setClickMode(clickMode: ClickMode) {
             this.clickMode = clickMode;
-        },
-        setNewLinkSource(newLinkSource: Nullable<PostId>) {
-            this.newLinkSource = newLinkSource;
-        },
-        setNewLinkTarget(newLinkTarget: Nullable<PostId>) {
-            this.newLinkTarget = newLinkTarget;
-        },
-        setNewLinkType(newLinkType: LinkType) {
-            this.newLinkType = newLinkType;
-        },
-        setNewLinkSubgraphIds(newLinkSubgraphIds: SubgraphId[]) {
-            this.newLinkSubgraphIds = newLinkSubgraphIds;
-        },
-        setLinkToEdit(linkToEdit: Nullable<LinkId>) {
-            this.linkToEdit = linkToEdit;
-        },
-        setWantsToChangeSource(wantsToChangeSource: boolean) {
-            this.wantsToChangeSource = wantsToChangeSource;
-        },
-        setWantsToChangeTarget(wantsToChangeTarget: boolean) {
-            this.wantsToChangeTarget = wantsToChangeTarget;
-        },
-        async handlePostClick(post: unknown) {
-            if (!isClickedPost(post)) {
-                console.error("no post clicked, clicked", post);
-                return;
+            if (clickMode === ClickMode.AddLink) {
+                this.newLinkSubgraphIds = [...useDataStore().selectedSubgraphIds];
             }
-
+        },
+        async handlePostClick(post: {id: PostId}) {
             const dataStore = useDataStore();
             const settingsStore = useSettingsStore();
 

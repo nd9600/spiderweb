@@ -93,6 +93,14 @@ export default [
             ],
             "vue/attribute-hyphenation": [
                 "off"
+            ],
+            "vue/v-on-event-hyphenation": [
+                "error",
+                "never"
+            ],
+            "vue/custom-event-name-casing": [
+                "error",
+                "camelCase"
             ]
         }
     },

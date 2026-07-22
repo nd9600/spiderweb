@@ -1,12 +1,12 @@
 <template>
     <section>
         <div
-            v-if="!shouldAutosave"
+            v-if="!settingsStore.shouldAutosave"
             class="mb-8 flex justify-around"
         >
             <button
                 class="btn btn--primary"
-                @click="saveStateToStorage"
+                @click="rootStore.saveStateToStorage"
             >
                 Save
             </button>
@@ -179,147 +179,138 @@
     </section>
 </template>
 
-<script lang="ts">
-import {defineComponent} from "vue";
+<script setup lang="ts">
+///// imports /////
+import {computed, ref, useTemplateRef} from "vue";
 import type {ShouldTakeDataFrom} from "@/src/@types/StoreTypes";
 import BlogpostExporter from "@/src/components/BlogpostExporter/BlogpostExporter.vue";
 import {useRootStore, useSettingsStore} from "@/src/store";
 import {parseImportedStorageObject} from "@/src/store/storage";
 
-export default defineComponent({
+defineOptions({
     name: "LoadSave",
-    components: {BlogpostExporter},
-    data() {
-        return {
-            fileToImport: null as Nullable<File>,
-            shouldImportData: false,
-            shouldImportSettings: false,
+});
 
-            shouldTakeDataFrom: null as Nullable<ShouldTakeDataFrom>,
-        };
-    },
-    computed: {
-        shouldAutosave() {
-            return useSettingsStore().shouldAutosave;
-        },
-        storageObject() {
-            return useRootStore().storageObject;
-        },
+///// refs and variables /////
+const rootStore = useRootStore();
+const settingsStore = useSettingsStore();
+const fileInput = useTemplateRef<HTMLInputElement>("fileInput");
+const fileToImport = ref<Nullable<File>>(null);
+const shouldImportData = ref(false);
+const shouldImportSettings = ref(false);
+const shouldTakeDataFrom = ref<Nullable<ShouldTakeDataFrom>>(null);
 
-        isAlreadySyncingWithFirebase() {
-            return useSettingsStore().remoteStorageMethod === "firebase";
-        },
-        shouldShowTakeDataFromSelect() {
-            return this.shouldImportSettings
-                && !this.isAlreadySyncingWithFirebase // if you're already syncing with Firebase, your local data and the data in Firebase will be the same, so you don't need to choose between them
-                && !this.shouldImportData; // if you're importing data, you'll want to use it, not take data from Firebase
-        },
+///// computed /////
+const isAlreadySyncingWithFirebase = computed(() => settingsStore.remoteStorageMethod === "firebase");
 
-        fileToImportIsValid() {
-            const fileToImport = this.fileToImport;
-            if (fileToImport == null) {
-                return false;
-            }
+const shouldShowTakeDataFromSelect = computed(() => {
+    return shouldImportSettings.value
+        && !isAlreadySyncingWithFirebase.value // if you're already syncing with Firebase, your local data and the data in Firebase will be the same, so you don't need to choose between them
+        && !shouldImportData.value; // if you're importing data, you'll want to use it, not take data from Firebase
+});
 
-            return fileToImport.type === "application/json";
-        },
-        importButtonIsDisabled() {
-            return !this.fileToImportIsValid
-                || (
-                    !this.shouldImportData && !this.shouldImportSettings
-                )
-                || (
-                    this.shouldShowTakeDataFromSelect
-                    && this.shouldTakeDataFrom === null
-                );
-        }
-    },
-    methods: {
-        saveStateToStorage() {
-            return useRootStore().saveStateToStorage();
-        },
-        clickFileInput() {
-            (this.$refs.fileInput as HTMLInputElement | undefined)?.click();
-        },
-        onFileUpload(event: Event) {
-            const target = event.target as HTMLInputElement | null;
-            const files = target?.files;
-            if (files == null || files.length === 0 || files.length > 1) {
-                return;
-            }
-            const file = files[0];
-            if (file == null) {
-                return;
-            }
-            this.fileToImport = file;
-            if (file.type !== "application/json") {
-                alert("You must upload a JSON file exported by the 'export' button");
-                return;
-            }
-        },
-        async importState() {
-            if (this.fileToImport == null) {
-                return;
-            }
+const fileToImportIsValid = computed(() => {
+    if (fileToImport.value == null) {
+        return false;
+    }
 
-            const stateString = await this.fileToImport.text();
-            let parsedState;
-            try {
-                parsedState = parseImportedStorageObject(JSON.parse(stateString));
-            } catch (error) {
-                console.log(error);
-                alert("Imported file isn't valid");
-                return;
-            }
+    return fileToImport.value.type === "application/json";
+});
 
-            if (this.shouldImportData) {
-                await useRootStore().importData(parsedState);
-            }
+const importButtonIsDisabled = computed(() => {
+    return !fileToImportIsValid.value
+        || (
+            !shouldImportData.value && !shouldImportSettings.value
+        )
+        || (
+            shouldShowTakeDataFromSelect.value
+            && shouldTakeDataFrom.value === null
+        );
+});
 
-            const willStartSyncingWithFirebaseAfterImport = parsedState.settingsModule?.remoteStorageMethod === "firebase";
-            if (this.shouldImportSettings) {
-                if (
-                    this.shouldShowTakeDataFromSelect
-                    && this.shouldTakeDataFrom !== null
-                    && willStartSyncingWithFirebaseAfterImport
-                ) {
-                    await useRootStore().importSettings({
-                        storageObject: parsedState,
-                        shouldTakeDataFrom: this.shouldTakeDataFrom
-                    });
-                } else {
-                    await useRootStore().importSettings({
-                        storageObject: parsedState,
-                        shouldTakeDataFrom: null
-                    });
-                }
-            }
-            this.fileToImport = null;
-            await useRootStore().saveStateToStorage();
-        },
+///// functions /////
+function clickFileInput(): void {
+    fileInput.value?.click();
+}
 
-        exportState() {
-            const blob = new Blob(
-                [JSON.stringify(this.storageObject)],
-                {type: "application/json"}
-            );
-            const now = new Date().toISOString()
-                .replace("T", "_")
-                .replace("Z", "");
+function onFileUpload(event: Event): void {
+    const target = event.target as HTMLInputElement | null;
+    const files = target?.files;
+    if (files == null || files.length === 0 || files.length > 1) {
+        return;
+    }
+    const file = files[0];
+    if (file == null) {
+        return;
+    }
+    fileToImport.value = file;
+    if (file.type !== "application/json") {
+        alert("You must upload a JSON file exported by the 'export' button");
+    }
+}
 
-            this.downloadData(blob, `spiderwebExport-${now}.json`);
-        },
-        downloadData(blob: Blob, filename: string) {
-            const a = document.createElement("a");
-            document.body.appendChild(a);
-            a.style = "display: none";
+async function importState(): Promise<void> {
+    if (fileToImport.value == null) {
+        return;
+    }
 
-            const url = window.URL.createObjectURL(blob);
-            a.href = url;
-            a.download = filename;
-            a.click();
-            window.URL.revokeObjectURL(url);
+    const stateString = await fileToImport.value.text();
+    let parsedState;
+    try {
+        parsedState = parseImportedStorageObject(JSON.parse(stateString));
+    } catch (error) {
+        console.log(error);
+        alert("Imported file isn't valid");
+        return;
+    }
+
+    if (shouldImportData.value) {
+        await rootStore.importData(parsedState);
+    }
+
+    const willStartSyncingWithFirebaseAfterImport = parsedState.settingsModule?.remoteStorageMethod === "firebase";
+    if (shouldImportSettings.value) {
+        if (
+            shouldShowTakeDataFromSelect.value
+            && shouldTakeDataFrom.value !== null
+            && willStartSyncingWithFirebaseAfterImport
+        ) {
+            await rootStore.importSettings({
+                storageObject: parsedState,
+                shouldTakeDataFrom: shouldTakeDataFrom.value
+            });
+        } else {
+            await rootStore.importSettings({
+                storageObject: parsedState,
+                shouldTakeDataFrom: null
+            });
         }
     }
-});
+    fileToImport.value = null;
+    await rootStore.saveStateToStorage();
+}
+
+function exportState(): void {
+    const blob = new Blob(
+        [JSON.stringify(rootStore.storageObject)],
+        {type: "application/json"}
+    );
+    const now = new Date().toISOString()
+        .replace("T", "_")
+        .replace("Z", "");
+
+    downloadData(blob, `spiderwebExport-${now}.json`);
+}
+
+function downloadData(blob: Blob, filename: string): void {
+    const a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style.display = "none";
+
+    const url = window.URL.createObjectURL(blob);
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
 </script>

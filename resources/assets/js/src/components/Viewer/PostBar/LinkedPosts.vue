@@ -12,25 +12,25 @@
                             class="p-1 cursor-pointer bg-red-200 hover:bg-red-300 rounded-lg text-xs md:text-sm"
                             title="view this post"
                             :data-link-id="linkId"
-                            @click="togglePostIdLocal(postId)"
+                            @click="togglePostId(postId)"
                         >
                             <span
-                                v-if="posts[postId].title.length > 0"
+                                v-if="dataStore.posts[postId].title.length > 0"
                                 class="font-bold"
                             >
-                                {{ posts[postId].title }}
+                                {{ dataStore.posts[postId].title }}
                             </span>
                             <p
-                                v-if="posts[postId].body.length > 0"
+                                v-if="dataStore.posts[postId].body.length > 0"
                                 class="text-xs"
                             >
-                                {{ posts[postId].body.substr(0, 200) }}{{ posts[postId].body.length > 200 ? "..." : "" }}
+                                {{ dataStore.posts[postId].body.substr(0, 200) }}{{ dataStore.posts[postId].body.length > 200 ? "..." : "" }}
                             </p>
                         </div>
                         <button
                             class="ml-2 py-1 px-2 btn btn--secondary"
                             title="remove link"
-                            @click="removeLink({id: linkId})"
+                            @click="dataStore.removeLink({id: linkId})"
                         >
                             x
                         </button>
@@ -45,7 +45,7 @@
             </template>
 
             <span>
-                {{ titleOrBody(post.id) }}
+                {{ dataStore.titleOrBody(post.id) }}
             </span>
 
             <template v-if="Object.keys(linkedPosts.from).length > 0">
@@ -65,25 +65,25 @@
                             class="p-1 cursor-pointer bg-red-200 hover:bg-red-300 rounded-lg text-xs md:text-sm"
                             title="view this post"
                             :data-link-id="linkId"
-                            @click="togglePostIdLocal(postId)"
+                            @click="togglePostId(postId)"
                         >
                             <span
-                                v-if="posts[postId].title.length > 0"
+                                v-if="dataStore.posts[postId].title.length > 0"
                                 class="font-bold"
                             >
-                                {{ posts[postId].title }}
+                                {{ dataStore.posts[postId].title }}
                             </span>
                             <p
-                                v-if="posts[postId].body.length > 0"
+                                v-if="dataStore.posts[postId].body.length > 0"
                                 class="text-xs"
                             >
-                                {{ posts[postId].body.substr(0, 200) }}{{ posts[postId].body.length > 200 ? "..." : "" }}
+                                {{ dataStore.posts[postId].body.substr(0, 200) }}{{ dataStore.posts[postId].body.length > 200 ? "..." : "" }}
                             </p>
                         </div>
                         <button
                             class="ml-2 py-1 px-2 btn btn--secondary"
                             title="remove link"
-                            @click="removeLink({id: linkId})"
+                            @click="dataStore.removeLink({id: linkId})"
                         >
                             x
                         </button>
@@ -94,48 +94,33 @@
     </section>
 </template>
 
-<script lang="ts">
-import {defineComponent, PropType} from "vue";
+<script setup lang="ts">
+///// imports /////
+import {computed} from "vue";
 import type {PostId} from "@/src/@types/StoreTypes";
 import type {Post} from "@/src/store/models/Post";
 import {useDataStore, useSettingsStore} from "@/src/store";
 
-export default defineComponent({
+defineOptions({
     name: "LinkedPosts",
-    props: {
-        post: {
-            type: Object as PropType<Post>,
-            required: true
-        }
-    },
-    computed: {
-        canOpenMultiplePosts() {
-            return useSettingsStore().canOpenMultiplePosts;
-        },
-        posts() {
-            return useDataStore().posts;
-        },
-        titleOrBody() {
-            return useDataStore().titleOrBody;
-        },
-        postIdsThatLinkToPost() {
-            return useDataStore().postIdsThatLinkToPost;
-        },
-
-        linkedPosts() {
-            return this.postIdsThatLinkToPost(this.post.id);
-        }
-    },
-    methods: {
-        togglePostIdLocal(postId: PostId) {
-            useDataStore().togglePostId({
-                id: postId,
-                canOpenMultiplePosts: this.canOpenMultiplePosts
-            });
-        },
-        removeLink(payload: {id: string}) {
-            useDataStore().removeLink(payload);
-        }
-    }
 });
+
+const props = defineProps<{
+    post: Post;
+}>();
+
+///// refs and variables /////
+const dataStore = useDataStore();
+const settingsStore = useSettingsStore();
+
+///// computed /////
+const linkedPosts = computed(() => dataStore.postIdsThatLinkToPost(props.post.id));
+
+///// functions /////
+function togglePostId(postId: PostId): void {
+    dataStore.togglePostId({
+        id: postId,
+        canOpenMultiplePosts: settingsStore.canOpenMultiplePosts
+    });
+}
 </script>

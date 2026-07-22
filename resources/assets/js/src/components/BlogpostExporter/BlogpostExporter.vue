@@ -59,7 +59,7 @@
                     <ExportedPost
                         v-for="postId in postIdsToExport"
                         :key="postId"
-                        :post="posts[postId]"
+                        :post="dataStore.posts[postId]"
                         :linkIdsToExport="linkIdsToExport"
                     />
                 </article>
@@ -68,88 +68,80 @@
     </div>
 </template>
 
-<script lang="ts">
-import {defineComponent} from "vue";
+<script setup lang="ts">
+///// imports /////
+import {computed, ref, useTemplateRef} from "vue";
 import {isInteger} from "@/src/helpers/numberHelpers";
 import ExportedPost from "./ExportedPost.vue";
 import {useDataStore} from "@/src/store";
 
-export default defineComponent({
+defineOptions({
     name: "BlogpostExporter",
-    components: {ExportedPost},
-    data() {
-        return {
-            postIdsString: ``,
-            linkIdsString: ``,
-        };
-    },
-    computed: {
-        posts() {
-            return useDataStore().posts;
-        },
-        postIds() {
-            return useDataStore().postIds;
-        },
-        linkIds() {
-            return useDataStore().linkIds;
-        },
-
-        postIdsToExport() {
-            return this.postIdsString
-                .split(",")
-                .map((s) => s.trim().split('"').join(""))
-                .filter((s) => s.length !== 0);
-        },
-
-        linkIdsToExport() {
-            return this.linkIdsString
-                .split(",")
-                .map((s) => s.trim().split('"').join(""))
-                .filter((s) => s.length !== 0);
-        },
-
-        postIdsError() {
-            const isValid = this.postIdsToExport.length > 0
-                && this.postIdsToExport
-                    .every((postId) => isInteger(postId) && this.postIds.includes(postId));
-            return {
-                isError: !isValid,
-                message: `Has post IDs: ${this.postIdsToExport.length > 0}
-Invalid post IDs: ${this.postIdsToExport.filter((postId) => !isInteger(postId) || !this.postIds.includes(postId))}`
-            };
-        },
-        linkIdsError() {
-            const isValid = this.linkIdsToExport
-                .every((linkId) => isInteger(linkId) && this.linkIds.includes(linkId));
-            return {
-                isError: !isValid,
-                message: `Invalid link IDs: ${this.linkIdsToExport.filter((linkId) => !isInteger(linkId) || !this.linkIds.includes(linkId))}`
-            };
-        }
-    },
-    methods: {
-        exportBlogPost() {
-            const blob = new Blob(
-                [(this.$refs.export as HTMLElement).innerHTML],
-                {type: "text/html"}
-            );
-            const now = new Date().toISOString()
-                .replace("T", "_")
-                .replace("Z", "");
-
-            this.downloadData(blob, `blogPost-${now}.html`);
-        },
-        downloadData(blob: Blob, filename: string) {
-            const a = document.createElement("a");
-            document.body.appendChild(a);
-            a.style = "display: none";
-
-            const url = window.URL.createObjectURL(blob);
-            a.href = url;
-            a.download = filename;
-            a.click();
-            window.URL.revokeObjectURL(url);
-        }
-    }
 });
+
+///// refs and variables /////
+const dataStore = useDataStore();
+const exportElement = useTemplateRef<HTMLElement>("export");
+const postIdsString = ref("");
+const linkIdsString = ref("");
+
+///// computed /////
+const postIdsToExport = computed(() => postIdsString.value
+    .split(",")
+    .map((s) => s.trim().split("\"").join(""))
+    .filter((s) => s.length !== 0));
+
+const linkIdsToExport = computed(() => linkIdsString.value
+    .split(",")
+    .map((s) => s.trim().split("\"").join(""))
+    .filter((s) => s.length !== 0));
+
+const postIdsError = computed(() => {
+    const isValid = postIdsToExport.value.length > 0
+        && postIdsToExport.value
+            .every((postId) => isInteger(postId) && dataStore.postIds.includes(postId));
+    return {
+        isError: !isValid,
+        message: `Has post IDs: ${postIdsToExport.value.length > 0}
+Invalid post IDs: ${postIdsToExport.value.filter((postId) => !isInteger(postId) || !dataStore.postIds.includes(postId))}`
+    };
+});
+
+const linkIdsError = computed(() => {
+    const isValid = linkIdsToExport.value
+        .every((linkId) => isInteger(linkId) && dataStore.linkIds.includes(linkId));
+    return {
+        isError: !isValid,
+        message: `Invalid link IDs: ${linkIdsToExport.value.filter((linkId) => !isInteger(linkId) || !dataStore.linkIds.includes(linkId))}`
+    };
+});
+
+///// functions /////
+function exportBlogPost(): void {
+    if (exportElement.value == null) {
+        return;
+    }
+
+    const blob = new Blob(
+        [exportElement.value.innerHTML],
+        {type: "text/html"}
+    );
+    const now = new Date().toISOString()
+        .replace("T", "_")
+        .replace("Z", "");
+
+    downloadData(blob, `blogPost-${now}.html`);
+}
+
+function downloadData(blob: Blob, filename: string): void {
+    const a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style.display = "none";
+
+    const url = window.URL.createObjectURL(blob);
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
 </script>
