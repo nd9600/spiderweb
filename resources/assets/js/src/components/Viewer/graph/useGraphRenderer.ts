@@ -1,4 +1,4 @@
-import {ref, watch, type TemplateRef} from "vue";
+import {ref, type TemplateRef} from "vue";
 import {drag as d3drag} from "d3-drag";
 import type {D3DragEvent, DragBehavior, SubjectPosition} from "d3-drag";
 import {
@@ -11,7 +11,7 @@ import type {Simulation, SimulationLinkDatum, SimulationNodeDatum} from "d3-forc
 import {pointer as d3pointer, select as d3select} from "d3-selection";
 import type {Selection} from "d3-selection";
 import {zoom as d3zoom, zoomIdentity as d3zoomIdentity} from "d3-zoom";
-import type {D3ZoomEvent, ZoomBehavior} from "d3-zoom";
+import type {D3ZoomEvent, ZoomBehavior, ZoomTransform} from "d3-zoom";
 import debounce from "lodash/debounce";
 import "d3-transition";
 
@@ -106,6 +106,42 @@ function isPhone(): boolean {
     return viewportWidth <= 576;
 }
 
+function getSvgCenter(svgElement: SVGSVGElement): [number, number] {
+    const {width, height} = svgElement.getBoundingClientRect();
+    return [
+        width / 2,
+        height / 2,
+    ];
+}
+
+function getPostFocusPoint(postId: PostId, fallbackPosition: NodePosition, svgElement: SVGSVGElement): NodePosition {
+    const textElement = document.getElementById(`text-${postId}`);
+    const nodeElement = textElement?.parentElement;
+    if (!(nodeElement instanceof SVGGraphicsElement)) {
+        return fallbackPosition;
+    }
+
+    const nodeBounds = nodeElement.getBBox();
+    if (nodeBounds.width <= 0 || nodeBounds.height <= 0) {
+        return fallbackPosition;
+    }
+
+    const svgBounds = svgElement.getBoundingClientRect();
+    const margin = 24;
+    const focusPoint = {
+        x: nodeBounds.x + (nodeBounds.width / 2),
+        y: nodeBounds.y + (nodeBounds.height / 2),
+    };
+
+    // Right-anchored labels extend left from the node. If a label is wider than the phone viewport,
+    // prefer keeping its start visible instead of centering an impossible-to-fit box.
+    if ((nodeBounds.width * INITIAL_ZOOM) > (svgBounds.width - (margin * 2))) {
+        focusPoint.x = nodeBounds.x + ((svgBounds.width / 2) - margin) / INITIAL_ZOOM;
+    }
+
+    return focusPoint;
+}
+
 function createRenderNodes(nodes: VisibleNode[]): RenderNode[] {
     return nodes.map((node): RenderNode => {
         const renderNode: RenderNode = {...node};
@@ -176,17 +212,18 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
     let hasMounted = false;
     const originalLinkStroke = 20;
     const linkStroke = ref(originalLinkStroke);
-    const zoom = ref<Zoom>({
+    let nodeTextSize = 48;
+    let zoom: Zoom = {
         x: WIDTH / 2,
         y: HEIGHT / 2,
         scale: INITIAL_ZOOM,
-    });
+    };
     const zoomBehaviour = ref<Nullable<GraphZoomBehavior>>(null);
     const debouncedSaveZoomState = debounce(
         () => {
             // Avoid immediately autosaving the zoom state we just loaded.
             if (hasMounted) {
-                dataStore.setZoom(zoom.value);
+                dataStore.setZoom(zoom);
             } else {
                 hasMounted = true;
             }
@@ -198,11 +235,13 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
         }
     );
 
-    watch(zoom, ({x, y, scale}: Zoom) => {
+    function applyZoomTransform(transform: ZoomTransform): void {
         if (rootG.value == null) {
             return;
         }
 
+        const {x, y, k: scale} = transform;
+        zoom = {x, y, scale};
         rootG.value.attr("transform", `translate(${x} ${y}) scale(${scale})`);
 
         const unshiftedTextScaleFactor = INITIAL_ZOOM / scale;
@@ -215,23 +254,32 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
             maxTextSize,
             Math.ceil(originalTextSize * textScaleFactor)
         );
+        const nextNodeTextSize = isPhone()
+            ? newTextSize / 2
+            : newTextSize;
 
-        document.documentElement.style.setProperty("--node-text-size", (isPhone() ? (newTextSize / 2) : newTextSize) + "px");
+        if (nodeTextSize !== nextNodeTextSize) {
+            nodeTextSize = nextNodeTextSize;
+            document.documentElement.style.setProperty("--node-text-size", nodeTextSize + "px");
+        }
 
         const minLinkStroke = 8;
         const maxLinkStroke = 110;
-        linkStroke.value = Math.max(
+        const nextLinkStroke = Math.max(
             minLinkStroke,
             Math.min(
                 maxLinkStroke,
                 Math.ceil(originalLinkStroke * textScaleFactor)
             )
         );
-        document.documentElement.style.setProperty("--link-stroke-width", linkStroke.value + "px");
-        nodeSelection.value?.attr("r", linkStroke.value);
+        if (linkStroke.value !== nextLinkStroke) {
+            linkStroke.value = nextLinkStroke;
+            document.documentElement.style.setProperty("--link-stroke-width", linkStroke.value + "px");
+            nodeSelection.value?.attr("r", linkStroke.value);
+        }
 
         debouncedSaveZoomState();
-    });
+    }
 
     function mount(): boolean {
         if (
@@ -292,11 +340,7 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
         zoomBehaviour.value = d3zoom<SVGSVGElement, unknown>()
             .scaleExtent([0.025, 2])
             .on("zoom", (event: D3ZoomEvent<SVGSVGElement, unknown>) => {
-                zoom.value = {
-                    x: event.transform.x,
-                    y: event.transform.y,
-                    scale: event.transform.k,
-                };
+                applyZoomTransform(event.transform);
             });
 
         if (svg.value == null) {
@@ -314,6 +358,7 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
             return;
         }
 
+        svg.value.interrupt();
         svg.value.call(zoomBehaviour.value)
             .call(
                 zoomBehaviour.value.transform,
@@ -328,6 +373,7 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
             return;
         }
 
+        svg.value.interrupt();
         svg.value.call(zoomBehaviour.value)
             .call(
                 zoomBehaviour.value.transform,
@@ -338,29 +384,30 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
     }
 
     function focusPost(postId: PostId, speed = 1): void {
-        if (svg.value == null || zoomBehaviour.value == null) {
+        if (svg.value == null || zoomBehaviour.value == null || elements.svgElement.value == null) {
             return;
         }
-
-        const xOffset = isPhone()
-            ? 550
-            : 2000;
-        const yOffset = isPhone()
-            ? 300
-            : 500;
 
         const post = nodesWithCoordinates.value[postId];
         if (post?.x == null || post?.y == null) {
             return;
         }
 
+        const svgElement = elements.svgElement.value;
+        const center = getSvgCenter(svgElement);
+        const focusPoint = getPostFocusPoint(postId, {x: post.x, y: post.y}, svgElement);
+        const targetTransform = d3zoomIdentity
+            .translate(center[0], center[1])
+            .scale(INITIAL_ZOOM)
+            .translate(-focusPoint.x, -focusPoint.y);
+
+        svg.value.interrupt();
         svg.value.transition()
             .duration(1500 / speed)
             .call(
                 zoomBehaviour.value.transform,
-                d3zoomIdentity
-                    .scale(INITIAL_ZOOM)
-                    .translate(-post.x + xOffset, -post.y + yOffset)
+                targetTransform,
+                center
             );
     }
 
@@ -369,6 +416,7 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
             return;
         }
 
+        svg.value.interrupt();
         svg.value.transition()
             .call(zoomBehaviour.value.scaleBy, 2);
     }
@@ -378,6 +426,7 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
             return;
         }
 
+        svg.value.interrupt();
         svg.value.transition()
             .call(zoomBehaviour.value.scaleBy, 0.5);
     }

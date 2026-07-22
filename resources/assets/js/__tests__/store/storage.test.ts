@@ -9,7 +9,7 @@ test("master data/settings exports can still be imported", () => {
                     title: "post",
                     body: "body",
                     createdAt: "2020-01-01T00:00:00.000Z",
-                    updatedAt: "2020-01-01T00:00:00.000Z",
+                    updatedAt: null,
                 },
             },
             links: {
@@ -33,6 +33,7 @@ test("master data/settings exports can still be imported", () => {
             subgraphs: {
                 "2": {
                     id: 2,
+                    graph: null,
                     name: "subgraph",
                     nodes: [1],
                     links: [3],
@@ -86,6 +87,7 @@ test("master data/settings exports can still be imported", () => {
     expect(imported.dataModule?.selectedPostIds).toEqual(["1"]);
     expect(imported.dataModule?.selectedGraphId).toBe("1");
     expect(imported.dataModule?.selectedSubgraphIds).toEqual(["2"]);
+    expect(imported.dataModule?.posts["1"].updatedAt).toBe("2020-01-01T00:00:00.000Z");
     expect(imported.settingsModule?.remoteStorageMethod).toBe("firebase");
     expect(imported.firebaseModule?.firebaseConfig.apiKey).toBe("api-key");
 });

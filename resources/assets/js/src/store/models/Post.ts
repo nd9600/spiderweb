@@ -11,6 +11,17 @@ export const postSchema = z.object({
 
 export type Post = z.infer<typeof postSchema>;
 
+export const importedPostSchema = z.object({
+    id: postIdSchema,
+    title: z.string(),
+    body: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string().nullish(),
+}).transform((post): Post => ({
+    ...post,
+    updatedAt: post.updatedAt ?? post.createdAt,
+}));
+
 export function createPost(
     id: PostId,
     title: string,

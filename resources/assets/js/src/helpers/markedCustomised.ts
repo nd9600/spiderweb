@@ -1,11 +1,11 @@
 import {Marked, Renderer} from "marked";
-import type {Tokens} from "marked";
+import type {RendererObject} from "marked";
 
-const renderer = new Renderer();
-const linkRenderer = renderer.link;
-renderer.link = (token: Tokens.Link) => {
-    const html = linkRenderer.call(renderer, token);
-    return html.replace(/^<a /, '<a target="_blank" rel="nofollow" ');
+const renderer: RendererObject = {
+    link(token) {
+        const html = Renderer.prototype.link.call(this, token);
+        return html.replace(/^<a /, '<a target="_blank" rel="nofollow" ');
+    },
 };
 
 const marked = new Marked({

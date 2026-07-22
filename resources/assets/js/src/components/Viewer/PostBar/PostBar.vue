@@ -4,7 +4,7 @@
             id="postBar"
             class="postBar"
         >
-            <PostBarScrollButtons/>
+            <PostBarScrollButtons />
             <div
                 id="postsContainer"
                 class="w-full flex items-start overflow-x-auto"

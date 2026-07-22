@@ -2,7 +2,7 @@ import {z} from "zod";
 import {HEIGHT, INITIAL_ZOOM, WIDTH} from "@/src/components/constants";
 import {graphSchema, importedPostMembershipMapSchema} from "./Graph";
 import {linkSchema} from "./Link";
-import {postSchema} from "./Post";
+import {importedPostSchema, postSchema} from "./Post";
 import {importedLinkMembershipMapSchema, subgraphSchema} from "./Subgraph";
 import {
     graphIdSchema,
@@ -47,7 +47,7 @@ const legacyGraphSchema = z.object({
 
 const legacySubgraphSchema = z.object({
     id: subgraphIdSchema,
-    graph: graphIdSchema.optional(),
+    graph: graphIdSchema.nullish(),
     name: z.string(),
     nodes: importedPostMembershipMapSchema,
     links: importedLinkMembershipMapSchema,
@@ -56,7 +56,7 @@ const legacySubgraphSchema = z.object({
 
 const legacyDataModuleStateSchema = z.object({
     graphs: z.record(z.string(), legacyGraphSchema),
-    posts: z.record(z.string(), postSchema),
+    posts: z.record(z.string(), importedPostSchema),
     links: z.record(z.string(), linkSchema),
     subgraphs: z.record(z.string(), legacySubgraphSchema).nullish().default({}),
     selectedPostIds: z.array(postIdSchema).default([]),
