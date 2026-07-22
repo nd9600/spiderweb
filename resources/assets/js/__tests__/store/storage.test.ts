@@ -1,6 +1,6 @@
 import {parseFirebaseStorageObject, parseImportedStorageObject} from "@/src/store/storage";
 
-test("old unversioned data exports are migrated to subgraph-owned graph ids", () => {
+test("master data/settings exports can still be imported", () => {
     const imported = parseImportedStorageObject({
         dataModule: {
             posts: {
@@ -12,7 +12,15 @@ test("old unversioned data exports are migrated to subgraph-owned graph ids", ()
                     updatedAt: "2020-01-01T00:00:00.000Z",
                 },
             },
-            links: {},
+            links: {
+                "3": {
+                    id: 3,
+                    graph: 1,
+                    source: 1,
+                    target: 1,
+                    type: "reply",
+                },
+            },
             graphs: {
                 "1": {
                     id: 1,
@@ -27,7 +35,7 @@ test("old unversioned data exports are migrated to subgraph-owned graph ids", ()
                     id: 2,
                     name: "subgraph",
                     nodes: [1],
-                    links: [],
+                    links: [3],
                 },
             },
             selectedPostIds: [1],
@@ -39,8 +47,28 @@ test("old unversioned data exports are migrated to subgraph-owned graph ids", ()
                 scale: 0.5,
             },
         },
+        settingsModule: {
+            shouldAutosave: true,
+            remoteStorageMethod: "firebase",
+            canOpenMultiplePosts: true,
+            graphHeight: 66,
+            postBarHeight: 66,
+            postWidth: 50,
+        },
+        firebaseModule: {
+            firebaseConfig: {
+                apiKey: "api-key",
+                authDomain: "example.firebaseapp.com",
+                databaseURL: "https://example.firebaseio.com",
+                projectId: "project",
+                storageBucket: "example.appspot.com",
+                messagingSenderId: "123",
+                appId: "app",
+            },
+        },
     });
 
+    expect(imported.schemaVersion).toBe(2);
     expect(imported.dataModule?.graphs["1"]).toEqual({
         id: "1",
         name: "default",
@@ -52,12 +80,14 @@ test("old unversioned data exports are migrated to subgraph-owned graph ids", ()
         graph: "1",
         name: "subgraph",
         nodes: {"1": true},
-        links: {},
+        links: {"3": true},
         colour: undefined,
     });
     expect(imported.dataModule?.selectedPostIds).toEqual(["1"]);
     expect(imported.dataModule?.selectedGraphId).toBe("1");
     expect(imported.dataModule?.selectedSubgraphIds).toEqual(["2"]);
+    expect(imported.settingsModule?.remoteStorageMethod).toBe("firebase");
+    expect(imported.firebaseModule?.firebaseConfig.apiKey).toBe("api-key");
 });
 
 test("firebase storage treats missing membership paths as empty maps", () => {
