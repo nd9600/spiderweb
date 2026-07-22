@@ -97,7 +97,7 @@ export function subscribeToFirebaseDataModule(
             handlers.selectedPostIds(postIdSchema.array().default([]).parse(snapshot.val() ?? []));
         }),
         onValue(ref(db, storagePath("dataModule/selectedGraphId")), (snapshot) => {
-            handlers.selectedGraphId(graphIdSchema.nullable().default("1").parse(snapshot.val() ?? null));
+            handlers.selectedGraphId(graphIdSchema.nullable().default(null).parse(snapshot.val() ?? null));
         }),
         onValue(ref(db, storagePath("dataModule/selectedSubgraphIds")), (snapshot) => {
             handlers.selectedSubgraphIds(subgraphIdSchema.array().default([]).parse(snapshot.val() ?? []));

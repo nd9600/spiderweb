@@ -23,3 +23,19 @@ test("removing posts from a subgraph removes their links from a subgraph too", (
         "dataModule/subgraphs/3/links/1": null,
     });
 });
+
+test("new subgraphs do not store undefined colours", () => {
+    const patch = store.makeNewSubgraph({graphId: "1", newSubgraphName: "new subgraph"});
+    const newSubgraph = store.subgraphs["4"];
+
+    expect(Object.prototype.hasOwnProperty.call(newSubgraph, "colour")).toBe(false);
+    expect(toFirebaseUpdatePatch(patch ?? [])).toEqual({
+        "dataModule/subgraphs/4": {
+            id: "4",
+            graph: "1",
+            name: "new subgraph",
+            nodes: {},
+            links: {},
+        },
+    });
+});

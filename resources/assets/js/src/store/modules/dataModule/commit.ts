@@ -2,7 +2,6 @@ import type {
     DataModuleState,
     GraphId,
     LinkId,
-    LinkType,
     NodePosition,
     PostId,
     SubgraphId,

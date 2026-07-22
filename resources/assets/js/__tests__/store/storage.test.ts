@@ -82,8 +82,8 @@ test("master data/settings exports can still be imported", () => {
         name: "subgraph",
         nodes: {"1": true},
         links: {"3": true},
-        colour: undefined,
     });
+    expect(Object.prototype.hasOwnProperty.call(imported.dataModule?.subgraphs["2"] ?? {}, "colour")).toBe(false);
     expect(imported.dataModule?.selectedPostIds).toEqual(["1"]);
     expect(imported.dataModule?.selectedGraphId).toBe("1");
     expect(imported.dataModule?.selectedSubgraphIds).toEqual(["2"]);
@@ -126,4 +126,25 @@ test("firebase storage treats missing membership paths as empty maps", () => {
     expect(parsed.dataModule.graphs["1"].nodes).toEqual({});
     expect(parsed.dataModule.subgraphs["1"].nodes).toEqual({});
     expect(parsed.dataModule.subgraphs["1"].links).toEqual({});
+});
+
+test("firebase storage treats missing selected graph as no selected graph", () => {
+    const parsed = parseFirebaseStorageObject({
+        schemaVersion: 2,
+        dataModule: {
+            posts: {},
+            links: {},
+            graphs: {},
+            subgraphs: {},
+            selectedPostIds: [],
+            selectedSubgraphIds: [],
+            zoom: {
+                x: 200,
+                y: 100,
+                scale: 0.5,
+            },
+        },
+    });
+
+    expect(parsed.dataModule.selectedGraphId).toBeNull();
 });

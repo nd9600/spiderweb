@@ -30,7 +30,7 @@ export const dataModuleStateSchema = z.object({
     links: linksSchema,
     subgraphs: subgraphsSchema,
     selectedPostIds: z.array(postIdSchema).default([]),
-    selectedGraphId: graphIdSchema.nullable().default("1"),
+    selectedGraphId: graphIdSchema.nullable().default(null),
     selectedSubgraphIds: z.array(subgraphIdSchema).default([]),
     zoom: dataModuleZoomSchema,
 });
@@ -60,7 +60,7 @@ const legacyDataModuleStateSchema = z.object({
     links: z.record(z.string(), linkSchema),
     subgraphs: z.record(z.string(), legacySubgraphSchema).nullish().default({}),
     selectedPostIds: z.array(postIdSchema).default([]),
-    selectedGraphId: graphIdSchema.nullable().default("1"),
+    selectedGraphId: graphIdSchema.nullable().default(null),
     selectedSubgraphIds: z.array(subgraphIdSchema).default([]),
     zoom: dataModuleZoomSchema,
 }).transform((legacyState): DataModuleState => {
@@ -87,14 +87,17 @@ const legacyDataModuleStateSchema = z.object({
     const subgraphs: DataModuleState["subgraphs"] = {};
     for (const [subgraphId, subgraph] of Object.entries(legacyState.subgraphs ?? {})) {
         // If ownership is missing, keep the import usable by attaching the subgraph to the selected/first graph.
-        subgraphs[subgraphId] = {
+        const parsedSubgraph: DataModuleState["subgraphs"][string] = {
             id: subgraph.id,
             graph: subgraph.graph ?? subgraphGraphIds[subgraphId] ?? legacyState.selectedGraphId ?? firstGraphId,
             name: subgraph.name,
             nodes: subgraph.nodes,
             links: subgraph.links,
-            colour: subgraph.colour,
         };
+        if (subgraph.colour != null) {
+            parsedSubgraph.colour = subgraph.colour;
+        }
+        subgraphs[subgraphId] = parsedSubgraph;
     }
 
     return {

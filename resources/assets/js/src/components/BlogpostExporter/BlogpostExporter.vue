@@ -71,7 +71,6 @@
 <script setup lang="ts">
 ///// imports /////
 import {computed, ref, useTemplateRef} from "vue";
-import {isInteger} from "@/src/helpers/numberHelpers";
 import ExportedPost from "./ExportedPost.vue";
 import {useDataStore} from "@/src/store";
 
@@ -122,11 +121,11 @@ const linkIdsError = computed(() => {
 
 ///// functions /////
 function isValidPostId(postId: string): boolean {
-    return isInteger(postId) && dataStore.posts[postId] != null;
+    return dataStore.posts[postId] != null;
 }
 
 function isValidLinkId(linkId: string): boolean {
-    return isInteger(linkId) && dataStore.links[linkId] != null;
+    return dataStore.links[linkId] != null;
 }
 
 function exportBlogPost(): void {

@@ -74,7 +74,7 @@ export default {
                 return;
             }
 
-            const newGraphId = newRecordId();
+            const newGraphId = newRecordId(Object.keys(this.graphs));
             return createDataModulePatch(this)
                 .setGraph(createGraph(newGraphId, newGraphName))
                 .commit();
@@ -159,7 +159,7 @@ export default {
             return patch.commit();
         },
         setPostPosition({postId, position}: {postId: PostId; position: NodePosition}) {
-            if (this.selectedGraphId == null) {
+            if (this.selectedGraphId == null || this.graphs[this.selectedGraphId] == null) {
                 return;
             }
 

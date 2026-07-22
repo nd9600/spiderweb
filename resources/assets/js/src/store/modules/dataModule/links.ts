@@ -87,7 +87,7 @@ export default {
                 return;
             }
 
-            const newLinkId = newRecordId();
+            const newLinkId = newRecordId(Object.keys(this.links));
             const newLink = createLink(newLinkId, graph, source, target, type);
             const patch = createDataModulePatch(this)
                 .addPostToGraph(graph, source)

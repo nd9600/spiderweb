@@ -175,7 +175,7 @@ export default {
             return patch.commit();
         },
         makeNewPost({title, body, updatedAt, createdAt}: MakeNewPostPayload) {
-            const newPostId = newRecordId();
+            const newPostId = newRecordId(Object.keys(this.posts));
             const newPost = createPost(newPostId, title, body, createdAt, updatedAt);
             createDataModulePatch(this)
                 .setPost(newPost)

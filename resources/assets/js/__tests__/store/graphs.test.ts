@@ -32,6 +32,15 @@ test("deleting graphs deletes subgraphs and links", () => {
     });
 });
 
+test("loading state preserves a null selected graph", () => {
+    store.setState({
+        ...JSON.parse(JSON.stringify(overallState.dataModule)),
+        selectedGraphId: null,
+    });
+
+    expect(store.selectedGraphId).toBeNull();
+});
+
 test("removing posts from a graph removes their positions too", () => {
     expect(Object.keys(store.graphs["1"].nodePositions).length).toEqual(2);
     store.removePostFromGraph({graphId: "1", postId: "2"});

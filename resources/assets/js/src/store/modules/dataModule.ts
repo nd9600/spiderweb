@@ -33,7 +33,7 @@ export const useDataStore = defineStore("dataModule", {
             this.subgraphs = newState.subgraphs ?? {};
 
             this.selectedPostIds = newState.selectedPostIds ?? [];
-            this.selectedGraphId = newState.selectedGraphId ?? "1";
+            this.selectedGraphId = newState.selectedGraphId;
             this.selectedSubgraphIds = newState.selectedSubgraphIds ?? [];
 
             this.zoom = newState.zoom || {

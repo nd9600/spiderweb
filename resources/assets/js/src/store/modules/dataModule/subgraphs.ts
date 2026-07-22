@@ -114,7 +114,7 @@ export default {
                 return;
             }
 
-            const newSubgraphId = newRecordId();
+            const newSubgraphId = newRecordId(Object.keys(this.subgraphs));
             return createDataModulePatch(this)
                 .setSubgraph(createSubgraph(newSubgraphId, graphId, newSubgraphName))
                 .commit();

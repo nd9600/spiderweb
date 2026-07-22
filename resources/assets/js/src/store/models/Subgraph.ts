@@ -37,12 +37,17 @@ export function createSubgraph(
     links: LinkMembershipMap = {},
     colour?: string
 ): Subgraph {
-    return {
+    const subgraph: Subgraph = {
         id,
         graph,
         name,
         nodes,
         links,
-        colour,
     };
+
+    if (colour != null) {
+        subgraph.colour = colour;
+    }
+
+    return subgraph;
 }
