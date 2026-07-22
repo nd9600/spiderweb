@@ -59,8 +59,7 @@ const dataStore = useDataStore();
 const newSubgraphName = ref("");
 
 ///// computed /////
-const subgraphsInGraph = computed(() => Object.values(dataStore.subgraphs)
-    .filter((subgraph) => subgraph.graph === props.graphId));
+const subgraphsInGraph = computed(() => dataStore.subgraphIndexes.subgraphsByGraphId[props.graphId] ?? []);
 
 ///// functions /////
 function makeNewSubgraphLocal(): void {

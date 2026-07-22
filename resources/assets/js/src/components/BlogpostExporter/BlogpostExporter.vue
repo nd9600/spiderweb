@@ -96,27 +96,39 @@ const linkIdsToExport = computed(() => linkIdsString.value
     .map((s) => s.trim().split("\"").join(""))
     .filter((s) => s.length !== 0));
 
+const invalidPostIds = computed(() => postIdsToExport.value
+    .filter((postId) => !isValidPostId(postId)));
+
+const invalidLinkIds = computed(() => linkIdsToExport.value
+    .filter((linkId) => !isValidLinkId(linkId)));
+
 const postIdsError = computed(() => {
     const isValid = postIdsToExport.value.length > 0
-        && postIdsToExport.value
-            .every((postId) => isInteger(postId) && dataStore.postIds.includes(postId));
+        && invalidPostIds.value.length === 0;
     return {
         isError: !isValid,
         message: `Has post IDs: ${postIdsToExport.value.length > 0}
-Invalid post IDs: ${postIdsToExport.value.filter((postId) => !isInteger(postId) || !dataStore.postIds.includes(postId))}`
+Invalid post IDs: ${invalidPostIds.value}`
     };
 });
 
 const linkIdsError = computed(() => {
-    const isValid = linkIdsToExport.value
-        .every((linkId) => isInteger(linkId) && dataStore.linkIds.includes(linkId));
+    const isValid = invalidLinkIds.value.length === 0;
     return {
         isError: !isValid,
-        message: `Invalid link IDs: ${linkIdsToExport.value.filter((linkId) => !isInteger(linkId) || !dataStore.linkIds.includes(linkId))}`
+        message: `Invalid link IDs: ${invalidLinkIds.value}`
     };
 });
 
 ///// functions /////
+function isValidPostId(postId: string): boolean {
+    return isInteger(postId) && dataStore.posts[postId] != null;
+}
+
+function isValidLinkId(linkId: string): boolean {
+    return isInteger(linkId) && dataStore.links[linkId] != null;
+}
+
 function exportBlogPost(): void {
     if (exportElement.value == null) {
         return;

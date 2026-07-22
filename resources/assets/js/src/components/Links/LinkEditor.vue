@@ -136,16 +136,14 @@ const clickerStore = useClickerStore();
 const source = ref<PostId>(props.link.source);
 const target = ref<PostId>(props.link.target);
 const type = ref<LinkType>(props.link.type);
+const emptySubgraphIds: SubgraphId[] = [];
 
 ///// computed /////
-const subgraphs = computed(() => Object.values(dataStore.subgraphs)
-    .filter((subgraph) => subgraph.graph === props.link.graph));
+const subgraphs = computed(() => dataStore.subgraphIndexes.subgraphsByGraphId[props.link.graph] ?? []);
 
 const subgraphsLinkIsIn = computed<SubgraphId[]>({
     get() {
-        return subgraphs.value
-            .filter((subgraph) => subgraph.links[props.link.id] === true)
-            .map((subgraph) => subgraph.id);
+        return dataStore.subgraphIndexes.subgraphIdsByLinkId[props.link.id] ?? emptySubgraphIds;
     },
     set(subgraphsLinkIsIn) {
         dataStore.setSubgraphsLinkIsIn({linkId: props.link.id, subgraphsLinkIsIn});

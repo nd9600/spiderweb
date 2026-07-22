@@ -49,7 +49,7 @@
                 </div>
             </div>
             <label
-                v-if="Object.keys(dataStore.graphs).length > 1"
+                v-if="graphCount > 1"
                 class="ml-4"
             >
                 <span class="block h h--4">
@@ -58,7 +58,7 @@
                 <select
                     v-model="selectedGraphIdModel"
                     class="select select--secondary w-full"
-                    :size="Math.min(Object.keys(dataStore.graphs).length, 3)"
+                    :size="Math.min(graphCount, 3)"
                 >
                     <option
                         v-for="(graph, graphId) in dataStore.graphs"
@@ -72,20 +72,20 @@
             <div class="ml-4 flex flex-col items-start">
                 <span id="graphsList"></span>
                 <h4
-                    v-if="dataStore.subgraphsInSelectedGraph.length > 0"
+                    v-if="subgraphsInSelectedGraph.length > 0"
                     class="h h--4"
                 >
                     Subgraphs
                 </h4>
                 <div
-                    v-if="dataStore.subgraphsInSelectedGraph.length > 0"
+                    v-if="subgraphsInSelectedGraph.length > 0"
                     class="flex"
                 >
                     <div class="mr-2 flex flex-col items-start">
                         <button
                             class="btn btn--secondary"
                             type="button"
-                            :disabled="selectedSubgraphIdsModel.length === dataStore.subgraphsInSelectedGraph.length"
+                            :disabled="selectedSubgraphIdsModel.length === subgraphsInSelectedGraph.length"
                             @click.stop="dataStore.selectAllSubgraphs()"
                         >
                             View all subgraphs
@@ -104,10 +104,10 @@
                             v-model="selectedSubgraphIdsModel"
                             class="select select--secondary w-full"
                             multiple
-                            :size="Math.min(dataStore.subgraphsInSelectedGraph.length, 7)"
+                            :size="Math.min(subgraphsInSelectedGraph.length, 7)"
                         >
                             <option
-                                v-for="subgraph in dataStore.subgraphsInSelectedGraph"
+                                v-for="subgraph in subgraphsInSelectedGraph"
                                 :key="subgraph.id"
                                 :value="subgraph.id"
                             >
@@ -173,6 +173,15 @@ const localStorageSize = storedData != null
     : 0;
 
 ///// computed /////
+const graphCount = computed(() => Object.keys(dataStore.graphs).length);
+const subgraphsInSelectedGraph = computed(() => {
+    if (dataStore.selectedGraphId == null) {
+        return [];
+    }
+
+    return dataStore.subgraphIndexes.subgraphsByGraphId[dataStore.selectedGraphId] ?? [];
+});
+
 const selectedGraphIdModel = computed({
     get() {
         return dataStore.selectedGraphId;

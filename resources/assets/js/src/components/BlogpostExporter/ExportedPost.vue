@@ -36,7 +36,7 @@
             </ul>
         </div>
 
-        <div v-html="marked(post.body)"></div>
+        <div v-html="renderedBody"></div>
 
         <div
             v-if="linksFromPost.length > 0"
@@ -72,6 +72,7 @@ import {computed} from "vue";
 import marked from "@/src/helpers/markedCustomised";
 import type {LinkId} from "@/src/@types/StoreTypes";
 import type {Post} from "@/src/store/models/Post";
+import type {LinkedPostIds} from "@/src/store/modules/dataModule";
 import {useDataStore} from "@/src/store";
 
 defineOptions({
@@ -85,11 +86,17 @@ const props = defineProps<{
 
 ///// refs and variables /////
 const dataStore = useDataStore();
+const emptyLinkedPostIds: LinkedPostIds = {
+    from: {},
+    to: {},
+};
 
 ///// computed /////
-const linkedPosts = computed(() => dataStore.postIdsThatLinkToPost(props.post.id));
+const linkedPosts = computed(() => dataStore.linksByPostId[props.post.id] ?? emptyLinkedPostIds);
+const linkIdsToExportSet = computed(() => new Set(props.linkIdsToExport));
 const linksToPost = computed(() => Object.entries(linkedPosts.value.to)
-    .filter(([linkId]) => props.linkIdsToExport.includes(linkId)));
+    .filter(([linkId]) => linkIdsToExportSet.value.has(linkId)));
 const linksFromPost = computed(() => Object.entries(linkedPosts.value.from)
-    .filter(([linkId]) => props.linkIdsToExport.includes(linkId)));
+    .filter(([linkId]) => linkIdsToExportSet.value.has(linkId)));
+const renderedBody = computed(() => marked(props.post.body));
 </script>

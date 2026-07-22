@@ -83,7 +83,7 @@
                 </button>
                 <p
                     class="font-sans markdownContent"
-                    v-html="marked(post.body)"
+                    v-html="renderedBody"
                 ></p>
             </div>
             <PostEditor
@@ -120,7 +120,7 @@
                     title="posts that link to or from this one"
                     @click="toggleBottomTab('linked-posts')"
                 >
-                    <span class="text-xs">{{ Object.keys(linkedPosts.to).length }}-{{ Object.keys(linkedPosts.from).length }} linked posts</span>
+                    <span class="text-xs">{{ linksToPostCount }}-{{ linksFromPostCount }} linked posts</span>
                 </button>
             </span>
             <span>
@@ -156,10 +156,11 @@
 <script setup lang="ts">
 ///// imports /////
 import {computed, ref} from "vue";
-import type {PostId} from "@/src/@types/StoreTypes";
+import type {PostId, SubgraphId} from "@/src/@types/StoreTypes";
 import marked from "@/src/helpers/markedCustomised";
 
 import type {Post} from "@/src/store/models/Post";
+import type {LinkedPostIds} from "@/src/store/modules/dataModule";
 import PostEditor from "@/src/components/Posts/PostEditor.vue";
 import LinkedPosts from "./LinkedPosts.vue";
 import LinkedSubgraphs from "./LinkedSubgraphs.vue";
@@ -187,14 +188,21 @@ const dataStore = useDataStore();
 const settingsStore = useSettingsStore();
 const showPostEditor = ref(false);
 const bottomTab = ref<BottomTab>("");
+const emptyLinkedPostIds: LinkedPostIds = {
+    from: {},
+    to: {},
+};
+const emptySubgraphIds: SubgraphId[] = [];
 
 ///// computed /////
-const linkedPosts = computed(() => dataStore.postIdsThatLinkToPost(props.post.id));
-const linkedSubgraphIds = computed(() => dataStore.linkedSubgraphs(props.post.id));
-const hasLinkedPosts = computed(() => Object.keys(linkedPosts.value.to).length > 0
-    || Object.keys(linkedPosts.value.from).length > 0);
+const linkedPosts = computed(() => dataStore.linksByPostId[props.post.id] ?? emptyLinkedPostIds);
+const linkedSubgraphIds = computed(() => dataStore.subgraphIndexes.subgraphIdsByPostId[props.post.id] ?? emptySubgraphIds);
+const linksToPostCount = computed(() => Object.keys(linkedPosts.value.to).length);
+const linksFromPostCount = computed(() => Object.keys(linkedPosts.value.from).length);
+const hasLinkedPosts = computed(() => linksToPostCount.value > 0 || linksFromPostCount.value > 0);
 const isPartOfASubgraph = computed(() => linkedSubgraphIds.value.length > 0);
-const isVisibleInGraph = computed(() => dataStore.postIdsInSelectedSubgraphs.includes(props.post.id));
+const isVisibleInGraph = computed(() => dataStore.postIdsInSelectedSubgraphsSet.has(props.post.id));
+const renderedBody = computed(() => marked(props.post.body));
 const minPostWidth = computed(() => {
     // this means if only 2 posts are open, each will be at least 46% wide
     //                    3 posts are open, each will be at least 30% wide, ...

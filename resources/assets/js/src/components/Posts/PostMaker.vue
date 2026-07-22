@@ -53,7 +53,7 @@
         </label>
 
         <label
-            v-if="shouldShowPostAttacher && dataStore.subgraphsInSelectedGraph.length > 0"
+            v-if="shouldShowPostAttacher && subgraphsInSelectedGraph.length > 0"
             class="mb-2 flex flex-col items-start text-xs"
         >
             <span>I want to attach the post to these subgraphs ({{ subgraphIdsToAttachPostTo.length }}):</span>
@@ -61,10 +61,10 @@
                 v-model="subgraphIdsToAttachPostTo"
                 class="select select--secondary"
                 multiple
-                :size="Math.min(dataStore.subgraphsInSelectedGraph.length, 3)"
+                :size="Math.min(subgraphsInSelectedGraph.length, 3)"
             >
                 <option
-                    v-for="subgraph in dataStore.subgraphsInSelectedGraph"
+                    v-for="subgraph in subgraphsInSelectedGraph"
                     :key="subgraph.id"
                     :value="subgraph.id"
                 >
@@ -86,7 +86,8 @@
 
 <script setup lang="ts">
 ///// imports /////
-import {ref, useTemplateRef} from "vue";
+import {computed, ref, useTemplateRef} from "vue";
+import type {SubgraphId} from "@/src/@types/StoreTypes";
 import type {Post} from "@/src/store/models/Post";
 import {useDataStore} from "@/src/store";
 
@@ -111,7 +112,16 @@ const showTitleInput = ref(false);
 const title = ref("");
 const body = ref("");
 const shouldAttachPostToGraph = ref(true);
-const subgraphIdsToAttachPostTo = ref<string[]>([...dataStore.selectedSubgraphIds]);
+const subgraphIdsToAttachPostTo = ref<SubgraphId[]>([...dataStore.selectedSubgraphIds]);
+
+///// computed /////
+const subgraphsInSelectedGraph = computed(() => {
+    if (dataStore.selectedGraphId == null) {
+        return [];
+    }
+
+    return dataStore.subgraphIndexes.subgraphsByGraphId[dataStore.selectedGraphId] ?? [];
+});
 
 ///// functions /////
 function toggleTitleInput(): void {

@@ -31,7 +31,7 @@
         </label>
 
         <label
-            v-if="dataStore.subgraphsInSelectedGraph.length > 0"
+            v-if="subgraphsInSelectedGraph.length > 0"
             class="mb-2 flex flex-col items-start text-xs"
         >
             <span>I want to attach the post to these subgraphs ({{ subgraphIdsToAttachPostTo.length }}):</span>
@@ -39,10 +39,10 @@
                 v-model="subgraphIdsToAttachPostTo"
                 class="select select--secondary"
                 multiple
-                :size="Math.min(dataStore.subgraphsInSelectedGraph.length, 3)"
+                :size="Math.min(subgraphsInSelectedGraph.length, 3)"
             >
                 <option
-                    v-for="subgraph in dataStore.subgraphsInSelectedGraph"
+                    v-for="subgraph in subgraphsInSelectedGraph"
                     :key="subgraph.id"
                     :value="subgraph.id"
                 >
@@ -65,7 +65,7 @@
 <script setup lang="ts">
 ///// imports /////
 import {computed, ref} from "vue";
-import type {LinkType, NodePosition} from "@/src/@types/StoreTypes";
+import type {LinkType, NodePosition, SubgraphId} from "@/src/@types/StoreTypes";
 import type {Post} from "@/src/store/models/Post";
 import PostMaker from "@/src/components/Posts/PostMaker.vue";
 import {useDataStore} from "@/src/store";
@@ -82,9 +82,17 @@ const props = defineProps<{
 const dataStore = useDataStore();
 const fromOrToNewPost = ref<"from" | "to">("to");
 const linkType = ref<LinkType>("reply");
-const subgraphIdsToAttachPostTo = ref<string[]>([...dataStore.selectedSubgraphIds]);
+const subgraphIdsToAttachPostTo = ref<SubgraphId[]>([...dataStore.selectedSubgraphIds]);
 
 ///// computed /////
+const subgraphsInSelectedGraph = computed(() => {
+    if (dataStore.selectedGraphId == null) {
+        return [];
+    }
+
+    return dataStore.subgraphIndexes.subgraphsByGraphId[dataStore.selectedGraphId] ?? [];
+});
+
 const nodePositions = computed(() => {
     const selectedGraphId = dataStore.selectedGraphId;
     return selectedGraphId == null

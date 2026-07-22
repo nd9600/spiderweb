@@ -101,10 +101,6 @@ function getEndpointPosition(value: GraphEndpoint): NodePosition {
     };
 }
 
-function neighbourKey(postAId: PostId, postBId: PostId): string {
-    return [postAId, postBId].sort().join(",");
-}
-
 function isPhone(): boolean {
     const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
     return viewportWidth <= 576;
@@ -125,12 +121,30 @@ function createRenderNodes(nodes: VisibleNode[]): RenderNode[] {
     });
 }
 
-function createRenderLinks(links: VisibleLink[]): RenderLink[] {
-    return links.map((link): RenderLink => ({...link}));
+function keyRenderNodesById(nodes: RenderNode[]): GraphNodesById {
+    const nodesById: GraphNodesById = {};
+    for (const node of nodes) {
+        nodesById[node.id] = node;
+    }
+
+    return nodesById;
+}
+
+function createRenderLinks(links: VisibleLink[], nodesById: GraphNodesById): RenderLink[] {
+    return links.map((link): RenderLink => ({
+        ...link,
+        source: nodesById[link.source] ?? link.source,
+        target: nodesById[link.target] ?? link.target,
+    }));
+}
+
+function shouldRunForceSimulation(nodes: RenderNode[]): boolean {
+    return nodes.some((node) => node.position == null);
 }
 
 function createForceSimulation(nodes: RenderNode[], links: RenderLink[]): GraphSimulation {
     const simulation = d3forceSimulation<RenderNode>(nodes) as GraphSimulation;
+    simulation.stop();
     simulation
         .force("link", d3forceLink<RenderNode, RenderLink>(links)
             .id((node: RenderNode) => node.id)
@@ -252,12 +266,18 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
 
         visibleGraph.value = graph;
         const nodes = createRenderNodes(graph.nodes);
-        const links = createRenderLinks(graph.links);
-        const simulation = createForceSimulation(nodes, links);
+        const nodesById = keyRenderNodesById(nodes);
+        const links = createRenderLinks(graph.links, nodesById);
+        const simulation = shouldRunForceSimulation(nodes)
+            ? createForceSimulation(nodes, links)
+            : null;
 
         bindLinks(links);
         bindNodes(nodes, simulation);
-        bindForceSimulationTick(simulation);
+        if (simulation != null) {
+            bindForceSimulationTick(simulation);
+        }
+        updateGraphPositions();
         syncNodesWithCoordinates(nodes);
 
         return true;
@@ -385,7 +405,7 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
             .call(d3drag<SVGLineElement, RenderLink>().clickDistance(4));
     }
 
-    function bindNodes(nodes: RenderNode[], simulation: GraphSimulation): void {
+    function bindNodes(nodes: RenderNode[], simulation: Nullable<GraphSimulation>): void {
         if (nodesG.value == null) {
             return;
         }
@@ -435,31 +455,35 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
 
     function bindForceSimulationTick(simulation: GraphSimulation): void {
         simulation.on("tick", () => {
-            if (linkSelection.value == null || nodeSelection.value == null || textSelection.value == null) {
-                return;
-            }
-
-            linkSelection.value
-                .attr("x1", (link: RenderLink) => getEndpointPosition(link.source).x)
-                .attr("y1", (link: RenderLink) => getEndpointPosition(link.source).y)
-                .attr("x2", (link: RenderLink) => getEndpointPosition(link.target).x)
-                .attr("y2", (link: RenderLink) => getEndpointPosition(link.target).y);
-
-            nodeSelection.value
-                .attr("cx", (node: RenderNode) => node.x ?? 0)
-                .attr("cy", (node: RenderNode) => node.y ?? 0);
-
-            textSelection.value
-                .attr("x", (node: RenderNode) => (node.x ?? 0) - 6)
-                .attr("y", (node: RenderNode) => (node.y ?? 0) - 4);
+            updateGraphPositions();
         });
     }
 
-    function createDragBehaviour(simulation: GraphSimulation): GraphDragBehavior {
+    function updateGraphPositions(): void {
+        if (linkSelection.value == null || nodeSelection.value == null || textSelection.value == null) {
+            return;
+        }
+
+        linkSelection.value
+            .attr("x1", (link: RenderLink) => getEndpointPosition(link.source).x)
+            .attr("y1", (link: RenderLink) => getEndpointPosition(link.source).y)
+            .attr("x2", (link: RenderLink) => getEndpointPosition(link.target).x)
+            .attr("y2", (link: RenderLink) => getEndpointPosition(link.target).y);
+
+        nodeSelection.value
+            .attr("cx", (node: RenderNode) => node.x ?? 0)
+            .attr("cy", (node: RenderNode) => node.y ?? 0);
+
+        textSelection.value
+            .attr("x", (node: RenderNode) => (node.x ?? 0) - 6)
+            .attr("y", (node: RenderNode) => (node.y ?? 0) - 4);
+    }
+
+    function createDragBehaviour(simulation: Nullable<GraphSimulation>): GraphDragBehavior {
         interface GraphDragEvent extends D3DragEvent<SVGElement, RenderNode, RenderNode | SubjectPosition> {}
 
         function dragStarted(event: GraphDragEvent, node: RenderNode) {
-            if (!event.active) {
+            if (simulation != null && !event.active) {
                 simulation.alphaTarget(0.3).restart();
             }
 
@@ -479,16 +503,22 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
         function dragged(event: GraphDragEvent, node: RenderNode) {
             node.fx = event.x;
             node.fy = event.y;
+            node.x = event.x;
+            node.y = event.y;
+            updateGraphPositions();
         }
 
         function dragEnded(event: GraphDragEvent, node: RenderNode) {
-            if (!event.active) {
+            if (simulation != null && !event.active) {
                 simulation.alpha(0);
                 simulation.alphaTarget(0);
             }
 
             node.fx = event.x;
             node.fy = event.y;
+            node.x = event.x;
+            node.y = event.y;
+            updateGraphPositions();
             handleNodeDragEnd(node.id, {
                 x: event.x,
                 y: event.y
@@ -502,11 +532,7 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
     }
 
     function syncNodesWithCoordinates(nodes: RenderNode[]): void {
-        const postsKeyedById: GraphNodesById = {};
-        for (const post of nodes) {
-            postsKeyedById[post.id] = post;
-        }
-        nodesWithCoordinates.value = postsKeyedById;
+        nodesWithCoordinates.value = keyRenderNodesById(nodes);
     }
 
     function handleSvgClick(event: MouseEvent): void {
@@ -576,12 +602,13 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
             d3select(parentNode as SVGGElement).raise();
         }
 
+        const neighbourIds = visibleGraph.value.neighbourIdsByPostId[postId] ?? {};
         const nonNeighbourNodes = nodeSelection.value.filter((otherPost: unknown) => {
             const post = otherPost as RenderNode;
             if (postId === post.id) {
                 return false;
             }
-            return visibleGraph.value?.neighbourIndex[neighbourKey(postId, post.id)] !== true;
+            return neighbourIds[post.id] !== true;
         });
         nonNeighbourNodes.style("opacity", 0.2);
 
@@ -590,7 +617,7 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
             if (postId === post.id) {
                 return false;
             }
-            return visibleGraph.value?.neighbourIndex[neighbourKey(postId, post.id)] !== true;
+            return neighbourIds[post.id] !== true;
         });
         nonNeighbourTexts.style("opacity", 0.2);
 

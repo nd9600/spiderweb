@@ -1,64 +1,50 @@
 import {defineStore} from "pinia";
 import {HEIGHT, INITIAL_ZOOM, WIDTH} from "@/src/components/constants";
 import type {DataModuleState} from "@/src/@types/StoreTypes";
-import {graphActions, graphGetters, graphState} from "./dataModule/graphs";
-import {linkActions, linkGetters, linkState, type LinkWithSubgraphId} from "./dataModule/links";
-import {postActions, postGetters, postState} from "./dataModule/posts";
-import {subgraphActions, subgraphGetters, subgraphState} from "./dataModule/subgraphs";
+import graphModule from "./dataModule/graphs";
+import linkModule, {type LinkWithSubgraphId} from "./dataModule/links";
+import postModule, {type LinkedPostIds, type LinksByPostId} from "./dataModule/posts";
+import subgraphModule, {type SubgraphIndexes} from "./dataModule/subgraphs";
 
-export type {LinkWithSubgraphId};
-
-function initialDataModuleState(): DataModuleState {
-    return {
-        ...graphState(),
-        ...postState(),
-        ...linkState(),
-        ...subgraphState(),
-    };
-}
-
-function setDataModuleState(state: DataModuleState, newState: DataModuleState): void {
-    if (
-        Object.keys(newState).length === 0
-    ) {
-        return;
-    }
-
-    state.graphs = newState.graphs;
-    state.posts = newState.posts;
-    state.links = newState.links;
-    state.subgraphs = newState.subgraphs ?? {};
-
-    state.selectedPostIds = newState.selectedPostIds ?? [];
-    state.selectedGraphId = newState.selectedGraphId ?? "1";
-    state.selectedSubgraphIds = newState.selectedSubgraphIds ?? [];
-
-    state.zoom = newState.zoom || {
-        x: WIDTH / 2,
-        y: HEIGHT / 2,
-        scale: INITIAL_ZOOM,
-    };
-}
-
-const dataStateActions = {
-    setState(newState: DataModuleState) {
-        setDataModuleState(this, newState);
-    },
-} satisfies ThisType<DataModuleState>;
+export type {LinkedPostIds, LinksByPostId, LinkWithSubgraphId, SubgraphIndexes};
 
 export const useDataStore = defineStore("dataModule", {
-    state: (): DataModuleState => initialDataModuleState(),
+    state: (): DataModuleState => ({
+        ...graphModule.state(),
+        ...postModule.state(),
+        ...linkModule.state(),
+        ...subgraphModule.state(),
+    }),
     getters: {
-        ...graphGetters,
-        ...postGetters,
-        ...linkGetters,
-        ...subgraphGetters,
+        ...graphModule.getters,
+        ...postModule.getters,
+        ...linkModule.getters,
+        ...subgraphModule.getters,
     },
     actions: {
-        ...dataStateActions,
-        ...graphActions,
-        ...postActions,
-        ...linkActions,
-        ...subgraphActions,
-    },
+        setState(newState: DataModuleState) {
+            if (Object.keys(newState).length === 0) {
+                return;
+            }
+
+            this.graphs = newState.graphs;
+            this.posts = newState.posts;
+            this.links = newState.links;
+            this.subgraphs = newState.subgraphs ?? {};
+
+            this.selectedPostIds = newState.selectedPostIds ?? [];
+            this.selectedGraphId = newState.selectedGraphId ?? "1";
+            this.selectedSubgraphIds = newState.selectedSubgraphIds ?? [];
+
+            this.zoom = newState.zoom || {
+                x: WIDTH / 2,
+                y: HEIGHT / 2,
+                scale: INITIAL_ZOOM,
+            };
+        },
+        ...graphModule.actions,
+        ...postModule.actions,
+        ...linkModule.actions,
+        ...subgraphModule.actions,
+    } satisfies ThisType<DataModuleState>,
 });

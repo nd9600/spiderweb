@@ -16,16 +16,16 @@
                     link
                 </option>
             </select>
-            <template v-if="dataStore.subgraphsInSelectedGraph.length > 0">
+            <template v-if="subgraphsInSelectedGraph.length > 0">
                 in the subgraphs ({{ clickerStore.newLinkSubgraphIds.length }})
                 <select
                     v-model="clickerStore.newLinkSubgraphIds"
                     class="select select--secondary max-w-full"
-                    :size="Math.min(dataStore.subgraphsInSelectedGraph.length, 3)"
+                    :size="Math.min(subgraphsInSelectedGraph.length, 3)"
                     multiple
                 >
                     <option
-                        v-for="subgraph in dataStore.subgraphsInSelectedGraph"
+                        v-for="subgraph in subgraphsInSelectedGraph"
                         :key="subgraph.id"
                         :value="subgraph.id"
                         class="truncate"
@@ -79,6 +79,7 @@
 
 <script setup lang="ts">
 ///// imports /////
+import {computed} from "vue";
 import PostSearch from "@/src/components/Posts/PostSearch.vue";
 import {useClickerStore, useDataStore} from "@/src/store";
 
@@ -89,4 +90,13 @@ defineOptions({
 ///// refs and variables /////
 const dataStore = useDataStore();
 const clickerStore = useClickerStore();
+
+///// computed /////
+const subgraphsInSelectedGraph = computed(() => {
+    if (dataStore.selectedGraphId == null) {
+        return [];
+    }
+
+    return dataStore.subgraphIndexes.subgraphsByGraphId[dataStore.selectedGraphId] ?? [];
+});
 </script>
