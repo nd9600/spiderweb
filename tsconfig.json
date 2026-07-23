@@ -2,37 +2,33 @@
     "compilerOptions": {
         "outDir": "./public/assets/js",
         "sourceMap": true,
-        "allowJs": true,
+        "allowJs": false,
         "strict": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
-//        "noImplicitAny": false,
-//        "noImplicitThis": true,
-//        "strictNullChecks": true,
-//        "alwaysStrict": true,
-//        "strictBindCallApply": true,
-//        "strictFunctionTypes": true,
-//        "strictPropertyInitialization": true,
+        "noImplicitAny": false,
+        "noImplicitThis": true,
+        "strictNullChecks": true,
+        "alwaysStrict": true,
+        "strictBindCallApply": true,
+        "strictFunctionTypes": true,
+        "strictPropertyInitialization": true,
 
         "allowSyntheticDefaultImports": true,
-        "module": "es2015",
-        "moduleResolution": "node",
+        "module": "esnext",
+        "moduleResolution": "bundler",
         "target": "es6",
         "lib": ["es2017", "dom"],
-        "baseUrl": "./resources/assets/js",
+        "skipLibCheck": true,
         "paths": {
-            "@/*": ["*"]
+            "@/*": ["./resources/assets/js/*"]
         },
         "types": [
             "node",
-            "jest"
-        ],
-        "typeRoots": [
-            "./node_modules/@types"
+            "vitest/globals"
         ]
     },
     "include": [
-        "./resources/assets/js/src/**/*.js",
         "./resources/assets/js/src/**/*.ts",
         "./resources/assets/js/src/**/*.vue",
         "./resources/assets/js/__tests__/**/*"

@@ -9,7 +9,7 @@ Spiderweb lets you
 * _link_ the posts together
 * view the graphs of posts you've made - you can look at more than one graph at a time
 
-It's completely offline, and doesn't many any HTTP requests at all - though you can optionally choose to backup your data to a [Firebase Realtime Database](https://firebase.google.com/docs/database) if you want, with [your own API keys](https://firebase.google.com/docs/web/setup?authuser=0#config-object)
+It's completely offline by default, and doesn't make any HTTP requests at all - though you can optionally choose to sync your data with a [Firebase Realtime Database](https://firebase.google.com/docs/database) if you want, with [your own API keys](https://firebase.google.com/docs/web/setup?authuser=0#config-object)
 
 ![Spiderweb's UI](https://user-images.githubusercontent.com/9141675/80801405-33e89780-8ba4-11ea-9bf6-19d115c6a402.png)
 
@@ -21,23 +21,42 @@ I'm mainly making Spiderweb for myself, but I'll happily take feature requests.
 ### Offline version
 Download a [release](https://github.com/nd9600/spiderweb/releases), then unzip it, and open `index.html` in a browser.
 
-When you start Spiderweb for the first time, you'll only have 1 graph, the `default` one. You'll want to add posts to it by clicking the little red circle in the bottom-right, then press `Add post` - you can choose whether or not you want it to attached to one (or more) of your graphs.
+When you start Spiderweb for the first time, you'll only have 1 graph, the `default` one. You'll want to add posts to it by clicking the little red circle in the bottom-right, then press `Add post` - you can choose whether or not you want it to be attached to the current graph and subgraphs.
 
 If you don't attach it to a graph straightaway, later on you can click the red circle again and press `Attach posts to graphs` - the same post can be in multiple graphs.
 
 When you have more than one post in a graph, you can link them together with "Add link between posts". You can also change or remove a link in the bottom-right menu too.
 
-You can make a new graph and change or remove any existing one (any posts that were atached to it won't be removed) in the `Graphs` tab.
+You can make a new graph and change or remove any existing one (any posts that were attached to it won't be removed) in the `Graphs` tab.
 
 The `Load/save` tab lets you import and export your data and settings.
 
 Inside the `Settings` tab you can choose 
 * whether you want your data to be saved automatically
-* if your data should be backed up to a [Firebase Realtime Database](https://firebase.google.com/docs/database) (with [your own API keys](https://firebase.google.com/docs/web/setup?authuser=0#config-object))
+* if your data should sync with a [Firebase Realtime Database](https://firebase.google.com/docs/database) (with [your own API keys](https://firebase.google.com/docs/web/setup?authuser=0#config-object))
 
 etc.
 
+## Data and storage
 
+Spiderweb keeps its main data in one Pinia store:
+* `posts` are the text/content records.
+* `graphs` are named workspaces. A graph stores which posts are in it and the saved node positions for those posts.
+* `links` connect two posts inside one graph.
+* `subgraphs` belong to one graph. They store which posts and links are visible when that subgraph is selected.
+
+The post/link/subgraph relationships are stored as ID maps like `{"post-id": true}` rather than arrays. That lets Firebase update one membership at a time, and it avoids Firebase's awkward handling of empty arrays/objects. The UI still treats those relationships like lists where needed.
+
+Local storage is still the browser's complete backup/export shape. Autosave writes the whole state to `localStorage`, and the `Load/save` tab exports the same kind of whole JSON object. Settings and Firebase config live in that local/exported state.
+
+When Firebase sync is enabled, Spiderweb stores the shared data as structured Realtime Database paths under the existing storage key:
+* `dataModule/posts`
+* `dataModule/graphs`
+* `dataModule/links`
+* `dataModule/subgraphs`
+* selected graph/posts/subgraphs and zoom
+
+Normal edits write small Firebase `update()` patches instead of rewriting the whole export JSON. Older Firebase data that was stored as one JSON string is still loaded once and then rewritten in the structured format.
 
 ---
 
@@ -55,20 +74,17 @@ I haven't made it yet, but you can host a release wherever you want yourself.
 ### Offline
 To work on the offline version:
 
-1. You need [Node](https://nodejs.org/en/) ([NVM](https://github.com/nvm-sh/nvm) is good for this) and [Gulp](https://gulpjs.com/docs/en/getting-started/quick-start), then
+1. You need [Node](https://nodejs.org/en/) ([NVM](https://github.com/nvm-sh/nvm) is good for this), then
 2. `git clone git@github.com:nd9600/spiderweb.git && cd spiderweb`
-3. `npm install && gulp && npm run dev`
-4. Copy the `assets` folder from `public/` into `dist`/
-5. Then you can open `dist/index.html` and it should load - you might need to change the URLs to the stylesheets & the JS files in the `<script>`s at the bottom to get it to work
+3. `source ~/.nvm/nvm.sh && nvm use`
+4. `npm install`
+5. `npm run dev`
+6. Open the URL Vite prints, usually `http://localhost:5173/`
 
-### Online
-To work on the online version:
+To make a standalone production build for the offline app:
 
-1. Install [PHP](https://www.php.net/), [Node](https://nodejs.org/en/) ([NVM](https://github.com/nvm-sh/nvm) is good for this)  and [Gulp](https://gulpjs.com/docs/en/getting-started/quick-start), [Composer](https://getcomposer.org/doc/00-intro.md), for PHP package management, and MySQL for your system (be sure to include any PHP extensions Composer needs, like `php-mysql` or `php-mbstring`)
-2. `git clone git@github.com:nd9600/spiderweb.git && cd spiderweb`
-3. `composer install`
-4. `npm install && gulp && npm run dev`
-5. `php artisan serve`, then it'll be available on `localhost:8000`
+1. `npm run build`
+2. Open `dist/index.html`
 
 ## Known bugs/limitations
 If you find any more bugs, I'd appreciate it if you made [an issue](https://github.com/nd9600/spiderweb/issues/new).
