@@ -1,12 +1,10 @@
-import type {Post} from "@/src/store/models/Post";
-import type {Link} from "@/src/store/models/Link";
-import type {DataModuleState} from "@/src/store/models/DataModule";
-import type {FirebaseConfig} from "@/src/store/models/Firebase";
-import type {
+export type {DataModuleState} from "@/src/store/models/DataModule";
+export type {FirebaseConfig} from "@/src/store/models/Firebase";
+export type {
     RemoteStorageMethod,
     ShouldTakeDataFrom
 } from "@/src/store/models/Settings";
-import type {
+export type {
     GraphId,
     LinkId,
     LinkType,
@@ -16,20 +14,6 @@ import type {
     Zoom
 } from "@/src/store/models/primitives";
 
-export type {
-    DataModuleState,
-    FirebaseConfig,
-    GraphId,
-    LinkId,
-    LinkType,
-    NodePosition,
-    PostId,
-    RemoteStorageMethod,
-    ShouldTakeDataFrom,
-    SubgraphId,
-    Zoom,
-};
-
 export enum ClickMode {
     OpenPosts = "openPosts",
     AddLink = "addLink",
@@ -38,7 +22,3 @@ export enum ClickMode {
     AttachPostsToGraphs = "attachPostsToGraphs",
     SearchForPosts = "searchForPosts",
 }
-
-export type PostsMap = Record<PostId, Post>;
-export type LinksMap = Record<LinkId, Link>;
-export type NodePositionsMap = Record<PostId, NodePosition>;
