@@ -5,7 +5,7 @@
         >
             <button
                 class="text-left font-bold"
-                :class="title.trim().length > 0 ? 'cursor-default' : 'cursor-pointer underline'"
+                :class="post.title.trim().length > 0 ? 'cursor-default' : 'cursor-pointer underline'"
                 @click.prevent="toggleTitleInput"
             >
                 Title
@@ -13,7 +13,7 @@
             <input
                 v-if="showTitleInput"
                 ref="inputTitle"
-                :value="title"
+                :value="post.title"
                 class="p-2 rounded border text-gray-800 placeholder-gray-600"
                 type="text"
                 placeholder="On the Origin of Species"
@@ -26,7 +26,7 @@
         <label class="mb-5 flex flex-col">
             <span class="font-bold">Body</span>
             <textarea
-                :value="body"
+                :value="post.body"
                 class="p-2 h-64 rounded border text-gray-800 placeholder-gray-600 resize-y"
                 placeholder="you can type Markdown here"
                 @input="onBodyInput"
@@ -60,18 +60,22 @@ export default defineComponent({
     },
     data() {
         return {
-            title: this.post.title,
-            body: this.post.body,
-
             showTitleInput: this.post.title.length > 0,
         };
+    },
+    watch: {
+        "post.title"(title: string) {
+            if (title.length > 0) {
+                this.showTitleInput = true;
+            }
+        }
     },
     methods: {
         ...mapActions(useDataStore, ["deletePost", "updatePostTitle", "updatePostBody"]),
 
         toggleTitleInput() {
             const dontLetUserHideTitleInput = this.showTitleInput
-                && this.title.trim().length > 0;
+                && this.post.title.trim().length > 0;
             if (dontLetUserHideTitleInput) {
                 (this.$refs.inputTitle as HTMLInputElement).focus();
                 return;

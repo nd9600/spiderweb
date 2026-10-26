@@ -38,6 +38,7 @@
                         Import data
                         <input
                             v-model="shouldImportData"
+                            :disabled="storageObjectToImport?.dataModule == null && storageObjectToImport?.postsModule == null"
                             class="ml-4"
                             type="checkbox"
                         />
@@ -65,7 +66,7 @@
                         v-if="shouldShowTakeDataFromSelect"
                         class="mt-2 pt-2 border-t border-r-0 border-b-0 border-l-0 border-gray-400"
                     >
-                        If the settings I'm importing will start syncing data with Firebase,
+                        These settings change the Firebase connection. I want to
                         <select
                             ref="shouldTakeDataFromSelect"
                             v-model="shouldTakeDataFrom"
@@ -184,8 +185,8 @@
 import {computed, ref, useTemplateRef} from "vue";
 import type {ShouldTakeDataFrom} from "@/src/@types/StoreTypes";
 import BlogpostExporter from "@/src/components/BlogpostExporter/BlogpostExporter.vue";
-import {useRootStore, useSettingsStore} from "@/src/store";
-import {parseImportedStorageObject} from "@/src/store/storage";
+import {useFirebaseStore, useRootStore, useSettingsStore} from "@/src/store";
+import {importChangesFirebaseStorage, parseImportedStorageObject, type ImportedStorageObject} from "@/src/store/storage";
 
 defineOptions({
     name: "LoadSave",
@@ -194,28 +195,27 @@ defineOptions({
 ///// refs and variables /////
 const rootStore = useRootStore();
 const settingsStore = useSettingsStore();
+const firebaseStore = useFirebaseStore();
 const fileInput = useTemplateRef<HTMLInputElement>("fileInput");
 const fileToImport = ref<Nullable<File>>(null);
+const storageObjectToImport = ref<Nullable<ImportedStorageObject>>(null);
 const shouldImportData = ref(false);
 const shouldImportSettings = ref(false);
 const shouldTakeDataFrom = ref<Nullable<ShouldTakeDataFrom>>(null);
 
 ///// computed /////
-const isAlreadySyncingWithFirebase = computed(() => settingsStore.remoteStorageMethod === "firebase");
-
 const shouldShowTakeDataFromSelect = computed(() => {
     return shouldImportSettings.value
-        && !isAlreadySyncingWithFirebase.value // if you're already syncing with Firebase, your local data and the data in Firebase will be the same, so you don't need to choose between them
-        && !shouldImportData.value; // if you're importing data, you'll want to use it, not take data from Firebase
+        && !shouldImportData.value
+        && storageObjectToImport.value != null
+        && importChangesFirebaseStorage(
+            storageObjectToImport.value,
+            settingsStore.remoteStorageMethod,
+            firebaseStore.firebaseConfig
+        );
 });
 
-const fileToImportIsValid = computed(() => {
-    if (fileToImport.value == null) {
-        return false;
-    }
-
-    return fileToImport.value.type === "application/json";
-});
+const fileToImportIsValid = computed(() => storageObjectToImport.value != null);
 
 const importButtonIsDisabled = computed(() => {
     return !fileToImportIsValid.value
@@ -233,7 +233,7 @@ function clickFileInput(): void {
     fileInput.value?.click();
 }
 
-function onFileUpload(event: Event): void {
+async function onFileUpload(event: Event): Promise<void> {
     const target = event.target as HTMLInputElement | null;
     const files = target?.files;
     if (files == null || files.length === 0 || files.length > 1) {
@@ -244,50 +244,47 @@ function onFileUpload(event: Event): void {
         return;
     }
     fileToImport.value = file;
-    if (file.type !== "application/json") {
-        alert("You must upload a JSON file exported by the 'export' button");
+    storageObjectToImport.value = null;
+    shouldTakeDataFrom.value = null;
+    try {
+        const parsedState = parseImportedStorageObject(JSON.parse(await file.text()));
+        if (fileToImport.value === file) {
+            storageObjectToImport.value = parsedState;
+            if (parsedState.dataModule == null && parsedState.postsModule == null) {
+                shouldImportData.value = false;
+            }
+        }
+    } catch (error) {
+        if (fileToImport.value === file) {
+            console.log(error);
+            alert("Imported file isn't valid");
+        }
     }
 }
 
 async function importState(): Promise<void> {
-    if (fileToImport.value == null) {
+    const parsedState = storageObjectToImport.value;
+    if (parsedState == null || importButtonIsDisabled.value) {
         return;
     }
 
-    const stateString = await fileToImport.value.text();
-    let parsedState;
-    try {
-        parsedState = parseImportedStorageObject(JSON.parse(stateString));
-    } catch (error) {
-        console.log(error);
-        alert("Imported file isn't valid");
-        return;
+    if (shouldImportSettings.value) {
+        await rootStore.importSettings({
+            storageObject: parsedState,
+            shouldTakeDataFrom: shouldImportData.value ? "local" : shouldTakeDataFrom.value,
+        });
     }
-
     if (shouldImportData.value) {
         await rootStore.importData(parsedState);
     }
-
-    const willStartSyncingWithFirebaseAfterImport = parsedState.settingsModule?.remoteStorageMethod === "firebase";
-    if (shouldImportSettings.value) {
-        if (
-            shouldShowTakeDataFromSelect.value
-            && shouldTakeDataFrom.value !== null
-            && willStartSyncingWithFirebaseAfterImport
-        ) {
-            await rootStore.importSettings({
-                storageObject: parsedState,
-                shouldTakeDataFrom: shouldTakeDataFrom.value
-            });
-        } else {
-            await rootStore.importSettings({
-                storageObject: parsedState,
-                shouldTakeDataFrom: null
-            });
-        }
+    if (shouldImportData.value || shouldTakeDataFrom.value === "local") {
+        await rootStore.saveStateToStorage();
+    } else {
+        // Loading a database or changing local settings does not require replacing the remote data.
+        rootStore.saveStateToLocalStorage();
     }
     fileToImport.value = null;
-    await rootStore.saveStateToStorage();
+    storageObjectToImport.value = null;
 }
 
 function exportState(): void {

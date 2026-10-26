@@ -1,4 +1,4 @@
-import {onBeforeUnmount, ref, type TemplateRef} from "vue";
+import {onBeforeUnmount, onDeactivated, ref, type TemplateRef} from "vue";
 import {drag as d3drag} from "d3-drag";
 import type {D3DragEvent, DragBehavior, SubjectPosition} from "d3-drag";
 import {
@@ -10,7 +10,7 @@ import {
 import type {Simulation, SimulationLinkDatum, SimulationNodeDatum} from "d3-force";
 import {pointer as d3pointer, select as d3select} from "d3-selection";
 import type {Selection} from "d3-selection";
-import {zoom as d3zoom, zoomIdentity as d3zoomIdentity} from "d3-zoom";
+import {zoom as d3zoom, zoomIdentity as d3zoomIdentity, zoomTransform as d3zoomTransform} from "d3-zoom";
 import type {D3ZoomEvent, ZoomBehavior, ZoomTransform} from "d3-zoom";
 import debounce from "lodash/debounce";
 import "d3-transition";
@@ -207,7 +207,6 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
     const nodesWithCoordinates = ref<GraphNodesById>({});
     const visibleGraph = ref<Nullable<VisibleGraph>>(null);
 
-    let hasMounted = false;
     const originalLinkStroke = 20;
     const linkStroke = ref(originalLinkStroke);
     let nodeTextSize = 48;
@@ -219,12 +218,7 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
     const zoomBehaviour = ref<Nullable<GraphZoomBehavior>>(null);
     const debouncedSaveZoomState = debounce(
         () => {
-            // Avoid immediately autosaving the zoom state we just loaded.
-            if (hasMounted) {
-                dataStore.setZoom(zoom);
-            } else {
-                hasMounted = true;
-            }
+            dataStore.setZoom(zoom);
         },
         250,
         {
@@ -237,6 +231,7 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
         debouncedSaveZoomState.cancel();
         svg.value?.interrupt().on(".zoom", null).on("wheel", null);
     });
+    onDeactivated(() => debouncedSaveZoomState.flush());
 
     function applyZoomTransform(transform: ZoomTransform): void {
         if (rootG.value == null) {
@@ -357,7 +352,18 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
     }
 
     function setZoom(storedZoom: Zoom): void {
-        if (svg.value == null || zoomBehaviour.value == null) {
+        // Store updates must not echo back as user zooms, even while the cached SVG is detached.
+        debouncedSaveZoomState.cancel();
+        if (svg.value == null || zoomBehaviour.value == null || !elements.svgElement.value?.isConnected) {
+            return;
+        }
+
+        const currentTransform = d3zoomTransform(elements.svgElement.value);
+        if (
+            currentTransform.x === storedZoom.x
+            && currentTransform.y === storedZoom.y
+            && currentTransform.k === storedZoom.scale
+        ) {
             return;
         }
 
@@ -369,6 +375,7 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
                     .translate(storedZoom.x, storedZoom.y)
                     .scale(storedZoom.scale)
             );
+        debouncedSaveZoomState.cancel();
     }
 
     function resetZoom(): void {

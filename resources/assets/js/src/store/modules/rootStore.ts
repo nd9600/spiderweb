@@ -2,6 +2,7 @@ import debounce from "lodash/debounce";
 import {defineStore} from "pinia";
 
 import {
+    importChangesFirebaseStorage,
     parseImportedStorageObject,
     STORAGE_SCHEMA_VERSION,
     type ImportedStorageObject,
@@ -322,7 +323,20 @@ export const useRootStore = defineStore("root", {
         async importSettings({storageObject, shouldTakeDataFrom}: ImportSettingsPayload) {
             const settingsStore = useSettingsStore();
             const firebaseStore = useFirebaseStore();
-            const isStorageMethodChanging = settingsStore.remoteStorageMethod !== storageObject.settingsModule?.remoteStorageMethod;
+            const isFirebaseStorageChanging = importChangesFirebaseStorage(
+                storageObject,
+                settingsStore.remoteStorageMethod,
+                firebaseStore.firebaseConfig
+            );
+            if (isFirebaseStorageChanging && shouldTakeDataFrom == null) {
+                throw new Error("Choose whether to keep local data or load data from Firebase before importing these settings");
+            }
+
+            const previousSettings = {...settingsStore.$state};
+            const previousFirebaseConfig = firebaseStore.firebaseConfig;
+            if (isFirebaseStorageChanging) {
+                stopFirebaseSync();
+            }
 
             runWithoutAutosave(() => {
                 if (storageObject.settingsModule) {
@@ -333,8 +347,18 @@ export const useRootStore = defineStore("root", {
                 }
             });
 
-            if (isStorageMethodChanging) {
-                await this.loadDataFrom(shouldTakeDataFrom);
+            try {
+                if (isFirebaseStorageChanging && shouldTakeDataFrom === "firebase") {
+                    await this.loadDataFrom("firebase");
+                }
+                // Choosing local keeps the current in-memory data, including any file being imported.
+            } catch (error) {
+                runWithoutAutosave(() => {
+                    settingsStore.setState(previousSettings);
+                    firebaseStore.firebaseConfig = previousFirebaseConfig;
+                });
+                this.startFirebaseSync();
+                throw error;
             }
 
             if (settingsStore.remoteStorageMethod !== "firebase") {

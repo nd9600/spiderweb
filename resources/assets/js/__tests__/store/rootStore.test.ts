@@ -7,6 +7,7 @@ import {useRootStore} from "@/src/store/modules/rootStore";
 import {useSettingsStore} from "@/src/store/modules/settingsModule";
 import {useFirebaseStore} from "@/src/store/modules/firebaseModule";
 import {createPost} from "@/src/store/models/Post";
+import {parseImportedStorageObject} from "@/src/store/storage";
 import overallState from "./state";
 
 vi.mock("@/src/store/firebaseStorage", () => ({
@@ -84,4 +85,67 @@ test("saving Firebase config and enabling sync loads the chosen database without
     expect(readFirebaseStorage).toHaveBeenCalledWith(config);
     expect(useDataStore().posts["1"].title).toBe("post1t");
     expect(subscribeToFirebaseDataModule).toHaveBeenLastCalledWith(config, expect.any(Object));
+});
+
+test("importing another Firebase configuration requires a data source before changing state", async () => {
+    const root = useRootStore();
+    const settings = useSettingsStore();
+    const firebase = useFirebaseStore();
+    settings.remoteStorageMethod = "firebase";
+    const previousConfig = {...firebase.firebaseConfig};
+    const storageObject = parseImportedStorageObject({
+        settingsModule: {remoteStorageMethod: "firebase", postWidth: 20},
+        firebaseModule: {firebaseConfig: {...previousConfig, databaseURL: "https://other.firebaseio.com"}},
+    });
+
+    await expect(root.importSettings({storageObject, shouldTakeDataFrom: null})).rejects.toThrow("Choose whether to keep local data");
+
+    expect(firebase.firebaseConfig).toEqual(previousConfig);
+    expect(settings.postWidth).toBe(50);
+    expect(readFirebaseStorage).not.toHaveBeenCalled();
+    expect(writeFirebaseStorage).not.toHaveBeenCalled();
+});
+
+test.each(["local", "firebase"] as const)("importing another Firebase configuration uses the chosen %s data", async (shouldTakeDataFrom) => {
+    const root = useRootStore();
+    const settings = useSettingsStore();
+    const data = useDataStore();
+    settings.remoteStorageMethod = "firebase";
+    data.posts = {"1": createPost("1", "Local post", "Local body", "2026-01-01", "2026-01-01")};
+    const storageObject = parseImportedStorageObject({
+        settingsModule: {remoteStorageMethod: "firebase"},
+        firebaseModule: {firebaseConfig: {apiKey: "test-key", databaseURL: "https://other.firebaseio.com"}},
+    });
+    if (shouldTakeDataFrom === "firebase") {
+        vi.mocked(readFirebaseStorage).mockResolvedValueOnce({schemaVersion: 2, dataModule: structuredClone(overallState.dataModule)});
+    }
+
+    await root.importSettings({storageObject, shouldTakeDataFrom});
+
+    expect(data.posts["1"].title).toBe(shouldTakeDataFrom === "local" ? "Local post" : "post1t");
+    expect(useFirebaseStore().firebaseConfig.databaseURL).toBe("https://other.firebaseio.com");
+    expect(readFirebaseStorage).toHaveBeenCalledTimes(shouldTakeDataFrom === "firebase" ? 1 : 0);
+    expect(writeFirebaseStorage).not.toHaveBeenCalled();
+});
+
+test("a failed Firebase settings import restores the previous connection and settings", async () => {
+    vi.stubGlobal("alert", vi.fn());
+    const settings = useSettingsStore();
+    const firebase = useFirebaseStore();
+    settings.remoteStorageMethod = "firebase";
+    settings.postWidth = 46;
+    const previousConfig = {...firebase.firebaseConfig};
+    const storageObject = parseImportedStorageObject({
+        settingsModule: {remoteStorageMethod: "firebase", postWidth: 20},
+        firebaseModule: {firebaseConfig: {apiKey: "test-key", databaseURL: "https://other.firebaseio.com"}},
+    });
+    vi.mocked(readFirebaseStorage).mockRejectedValueOnce(new Error("Read failed"));
+
+    await expect(useRootStore().importSettings({storageObject, shouldTakeDataFrom: "firebase"})).rejects.toThrow("Read failed");
+
+    expect(firebase.firebaseConfig).toEqual(previousConfig);
+    expect(settings.remoteStorageMethod).toBe("firebase");
+    expect(settings.postWidth).toBe(46);
+    expect(subscribeToFirebaseDataModule).toHaveBeenLastCalledWith(previousConfig, expect.any(Object));
+    expect(writeFirebaseStorage).not.toHaveBeenCalled();
 });

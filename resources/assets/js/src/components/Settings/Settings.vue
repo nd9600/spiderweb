@@ -340,9 +340,21 @@ export default defineComponent({
             return this.firebaseConfigIsValid;
         }
     },
-    created() {
-        this.remoteStorageMethodInComponent = this.remoteStorageMethod;
-        this.firebaseConfigInComponent = this.firebaseConfig;
+    watch: {
+        remoteStorageMethod: {
+            immediate: true,
+            handler(remoteStorageMethod: RemoteStorageMethod) {
+                this.remoteStorageMethodInComponent = remoteStorageMethod;
+                this.shouldTakeDataFrom = null;
+            }
+        },
+        firebaseConfig: {
+            immediate: true,
+            handler(firebaseConfig: string) {
+                this.firebaseConfigInComponent = firebaseConfig;
+                this.shouldTakeDataFrom = null;
+            }
+        }
     },
     methods: {
         async changeStorageMethod() {

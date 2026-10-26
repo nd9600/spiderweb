@@ -103,6 +103,10 @@ function maybeResetZoom(): void {
 }
 
 function renderGraph(): void {
+    if (!svgElement.value?.isConnected) {
+        return;
+    }
+
     rootStore.setIsRenderingGraph(true);
     try {
         const didRender = renderer.render(visibleGraph.value);
@@ -143,6 +147,12 @@ watch(selectedGraphId, () => {
     shouldResetZooming.value = true;
 });
 
+watch(storedZoom, (zoom) => {
+    // An import can replace the graph and its saved view together. Keep that view instead of resetting it.
+    shouldResetZooming.value = false;
+    renderer.setZoom(zoom);
+});
+
 watch(renderDependencies, () => {
     debouncedRenderGraph();
 });
@@ -161,7 +171,10 @@ onMounted(() => {
 
 // KeepAlive can detach the SVG while data changes in another tab. Render again once it is visible.
 onActivated(() => {
-    void nextTick(refreshGraph);
+    void nextTick(() => {
+        renderer.setZoom(storedZoom.value);
+        refreshGraph();
+    });
 });
 onDeactivated(() => debouncedRenderGraph.cancel());
 onBeforeUnmount(() => debouncedRenderGraph.cancel());

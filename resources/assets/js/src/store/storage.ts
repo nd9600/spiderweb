@@ -1,7 +1,7 @@
 import {z} from "zod";
 import {dataModuleStateSchema, importedDataModuleStateSchema} from "./models/DataModule";
-import {firebaseModuleStateSchema} from "./models/Firebase";
-import {settingsModuleStateSchema} from "./models/Settings";
+import {firebaseModuleStateSchema, type FirebaseConfig} from "./models/Firebase";
+import {settingsModuleStateSchema, type RemoteStorageMethod} from "./models/Settings";
 
 export const STORAGE_SCHEMA_VERSION = 2;
 
@@ -47,6 +47,28 @@ export const importedStorageObjectSchema = z.object({
 export type OfflineStorageObject = z.infer<typeof offlineStorageObjectSchema>;
 export type FirebaseStorageObject = z.infer<typeof firebaseStorageObjectSchema>;
 export type ImportedStorageObject = z.infer<typeof importedStorageObjectSchema>;
+
+export function importChangesFirebaseStorage(
+    storageObject: ImportedStorageObject,
+    currentStorageMethod: RemoteStorageMethod,
+    currentFirebaseConfig: FirebaseConfig
+): boolean {
+    const importedStorageMethod = storageObject.settingsModule?.remoteStorageMethod ?? currentStorageMethod;
+    if (importedStorageMethod !== "firebase") {
+        return false;
+    }
+    if (currentStorageMethod !== "firebase") {
+        return true;
+    }
+
+    const importedConfig = storageObject.firebaseModule?.firebaseConfig;
+    if (importedConfig == null) {
+        return false;
+    }
+
+    const configKeys = Object.keys(importedConfig) as (keyof FirebaseConfig)[];
+    return configKeys.some((key) => importedConfig[key] !== currentFirebaseConfig[key]);
+}
 
 function formatZodError(error: z.ZodError): string {
     return error.issues
