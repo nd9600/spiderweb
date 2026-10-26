@@ -4,7 +4,7 @@
             id="graphSvg"
             ref="svgElement"
             class="w-full cursor-move border bg-white"
-            @click="renderer.handleSvgClick"
+            @click="renderer?.handleSvgClick($event)"
         >
             <defs>
                 <marker
@@ -59,8 +59,9 @@ import {nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, u
 import debounce from "lodash/debounce";
 
 import {useRootStore} from "@/src/store";
+import type {PostId} from "@/src/@types/StoreTypes";
 import FloatingActionButton from "./FloatingActionButton.vue";
-import {useGraphRenderer} from "./graph/useGraphRenderer";
+import {createGraphRenderer} from "./graph/createGraphRenderer";
 import {useVisibleGraph} from "./graph/useVisibleGraph";
 
 defineOptions({
@@ -83,12 +84,7 @@ const nodesElement = useTemplateRef<SVGGElement>("nodesElement");
 
 const shouldResetZooming = ref(false);
 
-const renderer = useGraphRenderer({
-    svgElement,
-    rootElement,
-    linksElement,
-    nodesElement,
-});
+let renderer: ReturnType<typeof createGraphRenderer> | undefined;
 
 ///// functions /////
 function maybeResetZoom(): void {
@@ -98,21 +94,19 @@ function maybeResetZoom(): void {
 
     shouldResetZooming.value = false;
     void nextTick(() => {
-        renderer.resetZoom();
+        renderer?.resetZoom();
     });
 }
 
 function renderGraph(): void {
-    if (!svgElement.value?.isConnected) {
+    if (renderer == null || !svgElement.value?.isConnected) {
         return;
     }
 
     rootStore.setIsRenderingGraph(true);
     try {
-        const didRender = renderer.render(visibleGraph.value);
-        if (didRender) {
-            maybeResetZoom();
-        }
+        renderer.render(visibleGraph.value);
+        maybeResetZoom();
     } finally {
         rootStore.setIsRenderingGraph(false);
     }
@@ -134,11 +128,11 @@ function refreshGraph(): void {
 }
 
 defineExpose({
-    focusPost: renderer.focusPost,
-    highlightPost: renderer.highlightPost,
-    unhighlightPost: renderer.unhighlightPost,
-    zoomIn: renderer.zoomIn,
-    zoomOut: renderer.zoomOut,
+    focusPost: (postId: PostId, speed?: number) => renderer?.focusPost(postId, speed),
+    highlightPost: (postId: PostId) => renderer?.highlightPost(postId),
+    unhighlightPost: (postId: PostId) => renderer?.unhighlightPost(postId),
+    zoomIn: () => renderer?.zoomIn(),
+    zoomOut: () => renderer?.zoomOut(),
     refreshGraph,
 });
 
@@ -150,7 +144,7 @@ watch(selectedGraphId, () => {
 watch(storedZoom, (zoom) => {
     // An import can replace the graph and its saved view together. Keep that view instead of resetting it.
     shouldResetZooming.value = false;
-    renderer.setZoom(zoom);
+    renderer?.restoreZoom(zoom);
 });
 
 watch(renderDependencies, () => {
@@ -159,11 +153,16 @@ watch(renderDependencies, () => {
 
 ///// lifecycle /////
 onMounted(() => {
-    if (!renderer.mount()) {
+    if (svgElement.value == null || rootElement.value == null || linksElement.value == null || nodesElement.value == null) {
         return;
     }
-
-    renderer.setZoom(storedZoom.value);
+    renderer = createGraphRenderer({
+        svgElement: svgElement.value,
+        rootElement: rootElement.value,
+        linksElement: linksElement.value,
+        nodesElement: nodesElement.value,
+    });
+    renderer.restoreZoom(storedZoom.value);
     void nextTick(() => {
         refreshGraph();
     });
@@ -172,12 +171,19 @@ onMounted(() => {
 // KeepAlive can detach the SVG while data changes in another tab. Render again once it is visible.
 onActivated(() => {
     void nextTick(() => {
-        renderer.setZoom(storedZoom.value);
+        renderer?.restoreZoom(storedZoom.value);
         refreshGraph();
     });
 });
-onDeactivated(() => debouncedRenderGraph.cancel());
-onBeforeUnmount(() => debouncedRenderGraph.cancel());
+onDeactivated(() => {
+    debouncedRenderGraph.cancel();
+    renderer?.flushZoom();
+});
+onBeforeUnmount(() => {
+    debouncedRenderGraph.cancel();
+    renderer?.destroy();
+    renderer = undefined;
+});
 </script>
 
 <style>
