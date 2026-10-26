@@ -1,0 +1,118 @@
+import {z} from "zod";
+import {HEIGHT, INITIAL_ZOOM, WIDTH} from "@/src/components/constants";
+import {graphSchema, importedPostMembershipMapSchema} from "./Graph";
+import {linkSchema} from "./Link";
+import {importedPostSchema, postSchema} from "./Post";
+import {importedLinkMembershipMapSchema, subgraphSchema} from "./Subgraph";
+import {
+    graphIdSchema,
+    nodePositionSchema,
+    postIdSchema,
+    subgraphIdSchema,
+    zoomSchema,
+} from "./primitives";
+
+export const defaultZoom = {
+    x: WIDTH / 2,
+    y: HEIGHT / 2,
+    scale: INITIAL_ZOOM,
+};
+export const dataModuleZoomSchema = zoomSchema.default(defaultZoom);
+
+export const graphsSchema = z.record(z.string(), graphSchema).default({});
+export const postsSchema = z.record(z.string(), postSchema).default({});
+export const linksSchema = z.record(z.string(), linkSchema).default({});
+export const subgraphsSchema = z.record(z.string(), subgraphSchema).default({});
+
+export const dataModuleStateSchema = z.object({
+    graphs: graphsSchema,
+    posts: postsSchema,
+    links: linksSchema,
+    subgraphs: subgraphsSchema,
+    selectedPostIds: z.array(postIdSchema).default([]),
+    selectedGraphId: graphIdSchema.nullable().default(null),
+    selectedSubgraphIds: z.array(subgraphIdSchema).default([]),
+    zoom: dataModuleZoomSchema,
+});
+
+export type DataModuleState = z.infer<typeof dataModuleStateSchema>;
+
+const legacyGraphSchema = z.object({
+    id: graphIdSchema,
+    name: z.string(),
+    nodes: importedPostMembershipMapSchema,
+    nodePositions: z.record(z.string(), nodePositionSchema).default({}),
+    subgraphs: z.array(subgraphIdSchema).default([]),
+});
+
+const legacySubgraphSchema = z.object({
+    id: subgraphIdSchema,
+    graph: graphIdSchema.nullish(),
+    name: z.string(),
+    nodes: importedPostMembershipMapSchema,
+    links: importedLinkMembershipMapSchema,
+    colour: z.string().optional(),
+});
+
+const legacyDataModuleStateSchema = z.object({
+    graphs: z.record(z.string(), legacyGraphSchema),
+    posts: z.record(z.string(), importedPostSchema),
+    links: z.record(z.string(), linkSchema),
+    subgraphs: z.record(z.string(), legacySubgraphSchema).nullish().default({}),
+    selectedPostIds: z.array(postIdSchema).default([]),
+    selectedGraphId: graphIdSchema.nullable().default(null),
+    selectedSubgraphIds: z.array(subgraphIdSchema).default([]),
+    zoom: dataModuleZoomSchema,
+}).transform((legacyState): DataModuleState => {
+    // Old exports stored graph/subgraph memberships as arrays; current state uses maps for Firebase patches.
+    const graphs: DataModuleState["graphs"] = {};
+    for (const [graphId, graph] of Object.entries(legacyState.graphs)) {
+        graphs[graphId] = {
+            id: graph.id,
+            name: graph.name,
+            nodes: graph.nodes,
+            nodePositions: graph.nodePositions,
+        };
+    }
+
+    const firstGraphId = Object.keys(graphs)[0] ?? "1";
+    const subgraphGraphIds: Record<string, string> = {};
+    // Older data stored subgraph ownership on graph.subgraphs instead of subgraph.graph.
+    for (const graph of Object.values(legacyState.graphs)) {
+        for (const subgraphId of graph.subgraphs) {
+            subgraphGraphIds[subgraphId] = graph.id;
+        }
+    }
+
+    const subgraphs: DataModuleState["subgraphs"] = {};
+    for (const [subgraphId, subgraph] of Object.entries(legacyState.subgraphs ?? {})) {
+        // If ownership is missing, keep the import usable by attaching the subgraph to the selected/first graph.
+        const parsedSubgraph: DataModuleState["subgraphs"][string] = {
+            id: subgraph.id,
+            graph: subgraph.graph ?? subgraphGraphIds[subgraphId] ?? legacyState.selectedGraphId ?? firstGraphId,
+            name: subgraph.name,
+            nodes: subgraph.nodes,
+            links: subgraph.links,
+        };
+        if (subgraph.colour != null) {
+            parsedSubgraph.colour = subgraph.colour;
+        }
+        subgraphs[subgraphId] = parsedSubgraph;
+    }
+
+    return {
+        graphs,
+        posts: legacyState.posts,
+        links: legacyState.links,
+        subgraphs,
+        selectedPostIds: legacyState.selectedPostIds,
+        selectedGraphId: legacyState.selectedGraphId,
+        selectedSubgraphIds: legacyState.selectedSubgraphIds,
+        zoom: legacyState.zoom,
+    };
+});
+
+export const importedDataModuleStateSchema = z.union([
+    dataModuleStateSchema,
+    legacyDataModuleStateSchema,
+]);
