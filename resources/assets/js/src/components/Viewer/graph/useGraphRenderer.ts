@@ -1,4 +1,4 @@
-import {ref, type TemplateRef} from "vue";
+import {onBeforeUnmount, ref, type TemplateRef} from "vue";
 import {drag as d3drag} from "d3-drag";
 import type {D3DragEvent, DragBehavior, SubjectPosition} from "d3-drag";
 import {
@@ -44,7 +44,6 @@ interface LinkClickPayload {
     coordinates: [number, number];
 }
 
-/* eslint-disable no-unused-vars */
 export interface GraphElements {
     svgElement: TemplateRef<SVGSVGElement>;
     rootElement: TemplateRef<SVGGElement>;
@@ -64,7 +63,6 @@ export interface GraphRenderer {
     zoomOut(): void;
     handleSvgClick(event: MouseEvent): void;
 }
-/* eslint-enable no-unused-vars */
 
 type GraphEndpoint = RenderLink["source"];
 type GraphSvgSelection = Selection<SVGSVGElement, unknown, null, undefined>;
@@ -234,6 +232,11 @@ export function useGraphRenderer(elements: GraphElements): GraphRenderer {
             trailing: true,
         }
     );
+
+    onBeforeUnmount(() => {
+        debouncedSaveZoomState.cancel();
+        svg.value?.interrupt().on(".zoom", null).on("wheel", null);
+    });
 
     function applyZoomTransform(transform: ZoomTransform): void {
         if (rootG.value == null) {

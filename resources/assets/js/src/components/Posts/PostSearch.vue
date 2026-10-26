@@ -39,7 +39,7 @@
 <script setup lang="ts">
 ///// imports /////
 import debounce from "lodash/debounce";
-import {computed, onMounted, ref, useTemplateRef, watch} from "vue";
+import {computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch} from "vue";
 import type {Post} from "@/src/store/models/Post";
 import {useDataStore} from "@/src/store";
 
@@ -108,4 +108,5 @@ watch([searchTerm, searchablePosts], () => {
 onMounted(() => {
     searchInput.value?.focus();
 });
+onBeforeUnmount(() => updateSearchResults.cancel());
 </script>

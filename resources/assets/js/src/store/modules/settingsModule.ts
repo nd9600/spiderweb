@@ -1,13 +1,15 @@
 import {defineStore} from "pinia";
 
-import type {RemoteStorageMethod, ShouldTakeDataFrom} from "@/src/@types/StoreTypes";
+import type {FirebaseConfig, RemoteStorageMethod, ShouldTakeDataFrom} from "@/src/@types/StoreTypes";
 import {isInteger} from "@/src/helpers/numberHelpers";
 import {settingsModuleStateSchema, type SettingsModuleState} from "@/src/store/models/Settings";
 import {runWithoutAutosave, useRootStore} from "./rootStore";
+import {useFirebaseStore} from "./firebaseModule";
 
 interface SetRemoteStorageMethodPayload {
     remoteStorageMethod: RemoteStorageMethod;
     shouldTakeDataFrom: Nullable<ShouldTakeDataFrom>;
+    firebaseConfig?: FirebaseConfig;
 }
 
 function defaultSettingsState(): SettingsModuleState {
@@ -40,14 +42,29 @@ export const useSettingsStore = defineStore("settingsModule", {
         setShouldAutosave(shouldAutosave: boolean) {
             this.shouldAutosave = shouldAutosave;
         },
-        async setRemoteStorageMethod({remoteStorageMethod, shouldTakeDataFrom}: SetRemoteStorageMethodPayload) {
+        async setRemoteStorageMethod({remoteStorageMethod, shouldTakeDataFrom, firebaseConfig}: SetRemoteStorageMethodPayload) {
+            const previousStorageMethod = this.remoteStorageMethod;
+            const firebaseStore = useFirebaseStore();
+            const previousFirebaseConfig = firebaseStore.firebaseConfig;
             const thereAreDifferentDataSources = remoteStorageMethod !== "none";
             runWithoutAutosave(() => {
+                if (firebaseConfig != null) {
+                    firebaseStore.setFirebaseConfig(firebaseConfig);
+                }
                 this.remoteStorageMethod = remoteStorageMethod;
             });
 
-            if (thereAreDifferentDataSources) {
-                await useRootStore().loadDataFrom(shouldTakeDataFrom);
+            try {
+                if (thereAreDifferentDataSources) {
+                    await useRootStore().loadDataFrom(shouldTakeDataFrom);
+                }
+            } catch (error) {
+                runWithoutAutosave(() => {
+                    this.remoteStorageMethod = previousStorageMethod;
+                    firebaseStore.firebaseConfig = previousFirebaseConfig;
+                });
+                useRootStore().startFirebaseSync();
+                throw error;
             }
 
             await useRootStore().saveStateToStorage();

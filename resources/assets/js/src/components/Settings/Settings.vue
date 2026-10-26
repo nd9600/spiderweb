@@ -65,7 +65,7 @@
                     class="w-full flex flex-col items-start"
                 >
                     <label
-                        v-if="remoteStorageMethodInComponent !== remoteStorageMethod"
+                        v-if="remoteStorageMethodInComponent !== remoteStorageMethod || isFirebaseConfigChanging"
                     >
                         When I start syncing data with Firebase, I want to
                         <select
@@ -97,16 +97,16 @@
                         required
                     /></label></pre>
 
-                    <p
+                    <div
                         v-if="!firebaseConfigIsValid"
                     >
                         Firebase config invalid, it should look like
                         <pre><code class="whitespace-pre-wrap bg-red-700 text-white p-1">{"apiKey":"xx","authDomain":"x.firebaseapp.com","databaseURL":"https://x.firebaseio.com","projectId":"spiderweb-e49bd","storageBucket":"x.appspot.com","messagingSenderId":"123","appId":"xyz"}</code></pre>
-                    </p>
+                    </div>
                 </div>
 
                 <button
-                    v-if="remoteStorageMethodInComponent !== remoteStorageMethod"
+                    v-if="remoteStorageMethodInComponent !== remoteStorageMethod || isFirebaseConfigChanging"
                     class="btn btn--primary mt-2"
                     type="button"
                     :disabled="!canChangeStorageMethod"
@@ -284,18 +284,12 @@ export default defineComponent({
         remoteStorageMethod() {
             return useSettingsStore().remoteStorageMethod;
         },
-        firebaseConfig: {
-            get() {
-                return JSON.stringify(useFirebaseStore().firebaseConfig);
-            },
-            set(firebaseConfig: string) {
-                const parsedConfig = parseFirebaseConfig(firebaseConfig);
-                if (parsedConfig == null) {
-                    alert("Firebase config isn't formatted correctly, it should be like this: {\"apiKey\":\"xx\",\"authDomain\":\"x.firebaseapp.com\",\"databaseURL\":\"https://x.firebaseio.com\",\"projectId\":\"spiderweb-e49bd\",\"storageBucket\":\"x.appspot.com\",\"messagingSenderId\":\"123\",\"appId\":\"xyz\"}");
-                    return;
-                }
-                void useFirebaseStore().setFirebaseConfig(parsedConfig);
-            }
+        firebaseConfig() {
+            return JSON.stringify(useFirebaseStore().firebaseConfig);
+        },
+        isFirebaseConfigChanging() {
+            return this.remoteStorageMethodInComponent === "firebase"
+                && this.firebaseConfigInComponent !== this.firebaseConfig;
         },
 
         canOpenMultiplePosts: {
@@ -352,12 +346,16 @@ export default defineComponent({
     },
     methods: {
         async changeStorageMethod() {
-            if (this.firebaseConfig !== this.firebaseConfigInComponent) {
-                this.firebaseConfig = this.firebaseConfigInComponent;
+            const firebaseConfig = this.remoteStorageMethodInComponent === "firebase"
+                ? parseFirebaseConfig(this.firebaseConfigInComponent)
+                : undefined;
+            if (firebaseConfig === null) {
+                return;
             }
             await useSettingsStore().setRemoteStorageMethod({
                 remoteStorageMethod: this.remoteStorageMethodInComponent,
-                shouldTakeDataFrom: this.shouldTakeDataFrom
+                shouldTakeDataFrom: this.shouldTakeDataFrom,
+                firebaseConfig,
             });
         }
     }

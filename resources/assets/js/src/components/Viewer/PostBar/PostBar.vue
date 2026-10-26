@@ -10,11 +10,11 @@
                 class="w-full flex items-start overflow-x-auto"
             >
                 <Post
-                    v-for="(selectedPostId, i) in dataStore.selectedPostIds"
+                    v-for="(post, i) in selectedPosts"
                     :id="`post-${i}`"
-                    :key="selectedPostId"
+                    :key="post.id"
                     class="m-2 p-2"
-                    :post="dataStore.posts[selectedPostId]"
+                    :post="post"
                     @focusPost="emit('focusPost', $event)"
                     @highlightPost="emit('highlightPost', $event)"
                     @unhighlightPost="emit('unhighlightPost', $event)"
@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 ///// imports /////
-import {useTemplateRef} from "vue";
+import {computed, useTemplateRef} from "vue";
 import type {PostId} from "@/src/@types/StoreTypes";
 import Post from "./Post.vue";
 import PostBarScrollButtons from "./PostBarScrollButtons.vue";
@@ -46,6 +46,10 @@ const emit = defineEmits<{
 
 ///// refs and variables /////
 const dataStore = useDataStore();
+// Firebase delivers posts and selection updates separately during a remote deletion.
+const selectedPosts = computed(() => dataStore.selectedPostIds
+    .map((postId) => dataStore.posts[postId])
+    .filter((post) => post != null));
 const postBarElement = useTemplateRef<HTMLElement>("postBarElement");
 
 ///// functions /////

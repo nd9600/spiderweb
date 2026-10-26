@@ -1,4 +1,13 @@
 import {parseFirebaseStorageObject, parseImportedStorageObject} from "@/src/store/storage";
+import legacyExport from "../fixtures/legacy-export.json";
+
+test("imports the original Laravel conversion fixture into the current model", () => {
+    const imported = parseImportedStorageObject(legacyExport);
+
+    expect(imported.dataModule?.subgraphs["1"].graph).toBe("1");
+    expect(imported.dataModule?.graphs["1"].nodes).toEqual({"1": true, "2": true, "3": true, "4": true, "7": true});
+    expect(imported.dataModule?.selectedPostIds).toEqual(["4", "2"]);
+});
 
 test("master data/settings exports can still be imported", () => {
     const imported = parseImportedStorageObject({

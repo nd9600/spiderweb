@@ -1,5 +1,6 @@
 import js from "@eslint/js";
 import tsParser from "@typescript-eslint/parser";
+import tsPlugin from "@typescript-eslint/eslint-plugin";
 import globals from "globals";
 import vue from "eslint-plugin-vue";
 
@@ -7,9 +8,9 @@ export default [
     {
         ignores: [
             "dist/**",
-            "node_modules/**",
+            "dist-offline/**",
             "public/assets/**",
-            "vendor/**"
+            "node_modules/**",
         ]
     },
     js.configs.recommended,
@@ -22,8 +23,6 @@ export default [
             globals: {
                 ...globals.browser,
                 ...globals.es2021,
-                ...globals.jquery,
-                moment: "readonly"
             }
         },
         rules: {
@@ -106,15 +105,23 @@ export default [
     },
     {
         files: ["**/*.ts"],
+        plugins: {
+            "@typescript-eslint": tsPlugin,
+        },
         languageOptions: {
             parser: tsParser
         },
         rules: {
-            "no-undef": "off"
+            "no-undef": "off",
+            "no-unused-vars": "off",
+            "@typescript-eslint/no-unused-vars": "warn",
         }
     },
     {
         files: ["**/*.vue"],
+        plugins: {
+            "@typescript-eslint": tsPlugin,
+        },
         languageOptions: {
             parserOptions: {
                 parser: tsParser,
@@ -122,7 +129,9 @@ export default [
             }
         },
         rules: {
-            "no-undef": "off"
+            "no-undef": "off",
+            "no-unused-vars": "off",
+            "@typescript-eslint/no-unused-vars": "warn",
         }
     },
     {

@@ -12,9 +12,19 @@ export const offlineStorageObjectSchema = z.object({
     firebaseModule: firebaseModuleStateSchema,
 });
 
+function firebaseSelectionValues(value: unknown): unknown {
+    // exportVal preserves numeric ID maps as objects; selection lists also arrive as objects keyed by index.
+    return value != null && typeof value === "object" && !Array.isArray(value)
+        ? Object.values(value)
+        : value;
+}
+
 export const firebaseStorageObjectSchema = z.object({
     schemaVersion: z.literal(STORAGE_SCHEMA_VERSION).default(STORAGE_SCHEMA_VERSION),
-    dataModule: dataModuleStateSchema,
+    dataModule: dataModuleStateSchema.extend({
+        selectedPostIds: z.preprocess(firebaseSelectionValues, dataModuleStateSchema.shape.selectedPostIds),
+        selectedSubgraphIds: z.preprocess(firebaseSelectionValues, dataModuleStateSchema.shape.selectedSubgraphIds),
+    }),
     updatedAt: z.unknown().optional(),
 });
 

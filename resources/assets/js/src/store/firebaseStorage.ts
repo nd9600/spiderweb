@@ -41,7 +41,8 @@ function storagePath(path = ""): string {
 
 export async function readFirebaseStorage(config: FirebaseConfig): Promise<Nullable<FirebaseStorageObject | string>> {
     const snapshot = await get(ref(firebaseDbFactory(config), STORAGE_KEY));
-    const value = snapshot.val() as unknown;
+    // val() turns dense numeric keys into arrays, including ID maps and nested membership maps.
+    const value = snapshot.exportVal() as unknown;
     if (value == null) {
         return null;
     }
@@ -82,16 +83,16 @@ export function subscribeToFirebaseDataModule(
     const unsubscribes = [
         onValue(ref(db, storagePath("dataModule/posts")), (snapshot) => {
             // Firebase drops empty object paths, so every collection listener defaults missing paths to empty state.
-            handlers.posts(postsSchema.parse(snapshot.val() ?? {}));
+            handlers.posts(postsSchema.parse(snapshot.exportVal() ?? {}));
         }),
         onValue(ref(db, storagePath("dataModule/graphs")), (snapshot) => {
-            handlers.graphs(graphsSchema.parse(snapshot.val() ?? {}));
+            handlers.graphs(graphsSchema.parse(snapshot.exportVal() ?? {}));
         }),
         onValue(ref(db, storagePath("dataModule/links")), (snapshot) => {
-            handlers.links(linksSchema.parse(snapshot.val() ?? {}));
+            handlers.links(linksSchema.parse(snapshot.exportVal() ?? {}));
         }),
         onValue(ref(db, storagePath("dataModule/subgraphs")), (snapshot) => {
-            handlers.subgraphs(subgraphsSchema.parse(snapshot.val() ?? {}));
+            handlers.subgraphs(subgraphsSchema.parse(snapshot.exportVal() ?? {}));
         }),
         onValue(ref(db, storagePath("dataModule/selectedPostIds")), (snapshot) => {
             handlers.selectedPostIds(postIdSchema.array().default([]).parse(snapshot.val() ?? []));

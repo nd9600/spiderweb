@@ -195,6 +195,7 @@ export const useRootStore = defineStore("root", {
                     break;
                 }
                 case "firebase": {
+                    stopFirebaseSync();
                     this.setLoadingApp(true);
                     try {
                         const firebaseStore = useFirebaseStore();
@@ -203,8 +204,11 @@ export const useRootStore = defineStore("root", {
                     } catch (error) {
                         console.log(error);
                         alert("There was an error loading the data from Firebase, please refresh the page/change your Firebase config in 'settings', and try again");
+                        // Stop the caller from saving local data over Firebase after a failed read.
+                        throw error;
+                    } finally {
+                        this.setLoadingApp(false);
                     }
-                    this.setLoadingApp(false);
                     break;
                 }
                 default:
@@ -238,46 +242,49 @@ export const useRootStore = defineStore("root", {
             }
 
             const firebaseStore = useFirebaseStore();
-            // Each handler replaces one Pinia branch with the validated Firebase snapshot for that branch.
-            // runWithoutAutosave prevents those remote snapshots from being written straight back to Firebase.
+            // Suppress writes while applying each remote branch, then refresh the local backup.
+            const applyRemoteUpdate = (callback: () => void): void => {
+                runWithoutAutosave(callback);
+                this.scheduleAutosave();
+            };
             unsubscribeFromFirebase = subscribeToFirebaseDataModule(firebaseStore.firebaseConfig, {
                 posts(posts) {
-                    runWithoutAutosave(() => {
+                    applyRemoteUpdate(() => {
                         useDataStore().posts = posts;
                     });
                 },
                 graphs(graphs) {
-                    runWithoutAutosave(() => {
+                    applyRemoteUpdate(() => {
                         useDataStore().graphs = graphs;
                     });
                 },
                 links(links) {
-                    runWithoutAutosave(() => {
+                    applyRemoteUpdate(() => {
                         useDataStore().links = links;
                     });
                 },
                 subgraphs(subgraphs) {
-                    runWithoutAutosave(() => {
+                    applyRemoteUpdate(() => {
                         useDataStore().subgraphs = subgraphs;
                     });
                 },
                 selectedPostIds(selectedPostIds) {
-                    runWithoutAutosave(() => {
+                    applyRemoteUpdate(() => {
                         useDataStore().selectedPostIds = selectedPostIds;
                     });
                 },
                 selectedGraphId(selectedGraphId) {
-                    runWithoutAutosave(() => {
+                    applyRemoteUpdate(() => {
                         useDataStore().selectedGraphId = selectedGraphId;
                     });
                 },
                 selectedSubgraphIds(selectedSubgraphIds) {
-                    runWithoutAutosave(() => {
+                    applyRemoteUpdate(() => {
                         useDataStore().selectedSubgraphIds = selectedSubgraphIds;
                     });
                 },
                 zoom(zoom) {
-                    runWithoutAutosave(() => {
+                    applyRemoteUpdate(() => {
                         useDataStore().zoom = zoom;
                     });
                 },

@@ -9,7 +9,7 @@ Spiderweb lets you
 * _link_ the posts together
 * view the graphs of posts you've made - you can look at more than one graph at a time
 
-It's completely offline by default, and doesn't make any HTTP requests at all - though you can optionally choose to sync your data with a [Firebase Realtime Database](https://firebase.google.com/docs/database) if you want, with [your own API keys](https://firebase.google.com/docs/web/setup?authuser=0#config-object)
+The downloadable build works offline by default, and doesn't make any HTTP requests - though you can optionally choose to sync your data with a [Firebase Realtime Database](https://firebase.google.com/docs/database) if you want, with [your own API keys](https://firebase.google.com/docs/web/setup?authuser=0#config-object).
 
 ![Spiderweb's UI](https://user-images.githubusercontent.com/9141675/80801405-33e89780-8ba4-11ea-9bf6-19d115c6a402.png)
 
@@ -76,15 +76,21 @@ To work on the offline version:
 
 1. You need [Node](https://nodejs.org/en/) ([NVM](https://github.com/nvm-sh/nvm) is good for this), then
 2. `git clone git@github.com:nd9600/spiderweb.git && cd spiderweb`
-3. `source ~/.nvm/nvm.sh && nvm use`
-4. `npm install`
+3. `source ~/.nvm/nvm.sh && nvm install && nvm use`
+4. `npm ci`
 5. `npm run dev`
 6. Open the URL Vite prints, usually `http://localhost:5173/`
 
 To make a standalone production build for the offline app:
 
-1. `npm run build`
-2. Open `dist/index.html`
+1. `npm run build:offline`
+2. Open `dist-offline/index.html`. Distribute the entire `dist-offline` directory together.
+
+For hosting over HTTP, run `npm run build` and serve `dist`. This build splits the application and its dependencies into separate bundles. `npm run preview` serves it locally. The hosted build needs HTTP; use the offline build to open the app directly from disk.
+
+The frontend uses Vue 3, Pinia, TypeScript, Vite, and Tailwind CSS 3. It does not need PHP, Laravel, or a database server. Firebase is optional and configured inside the app.
+
+Run `npm run typecheck`, `npm run lint`, and `npm test` to check changes.
 
 ## Known bugs/limitations
 If you find any more bugs, I'd appreciate it if you made [an issue](https://github.com/nd9600/spiderweb/issues/new).
@@ -97,16 +103,6 @@ I'm not sure how to fix this; the way I see the `<svg>` element that holds the g
 I've made the focusing center the graph so that it looks good on a desktop and on a portrait phone, but I don't think I can get it to also show the post on a landscape phone at the same time.
 
 (imagine a little portrait phone over the top-left corner of the graph, and a landscape one; it's hard to get them to overlap and show the same bit of the graph in a way that you can actually see a post's full title)
-
-### Changing the data outside of the "Viewer" tab
-If you change the graphs (e.g. add or remove a subgraph) when you're not on the "Viewer" tab, sometimes it won't update the graph - you just need to refresh the page, or change the data while you're on the tab (by panning around the graph or something like that), then it'll be updated. 
-
-This is because the actual data gets changed, and D3 immediately tries to re-render the graph, but it can't, because it's not visible and not in the DOM yet, so it can't re-render, but it doesn't try to re-render when you _do_ go back to the tab.
-
-This is also an issue when you change the post-width and go to the Viewer tab again, the "number of posts that are visible" indicators won't update until you scroll again.
-
-#### To fix
-You can force the graph to re-render manually, by pressing the little "⟳" button in the top-left of the screen
 
 ## QTWPBFAIIHU
 Questions that would probably be frequently asked if I had users

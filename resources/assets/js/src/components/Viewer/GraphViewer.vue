@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 ///// imports /////
-import {nextTick, onMounted, ref, useTemplateRef, watch} from "vue";
+import {nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, useTemplateRef, watch} from "vue";
 import debounce from "lodash/debounce";
 
 import {useRootStore} from "@/src/store";
@@ -158,6 +158,13 @@ onMounted(() => {
         refreshGraph();
     });
 });
+
+// KeepAlive can detach the SVG while data changes in another tab. Render again once it is visible.
+onActivated(() => {
+    void nextTick(refreshGraph);
+});
+onDeactivated(() => debouncedRenderGraph.cancel());
+onBeforeUnmount(() => debouncedRenderGraph.cancel());
 </script>
 
 <style>

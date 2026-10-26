@@ -49,11 +49,11 @@
                     <p class="whitespace-pre-wrap">
                         Post IDs error: {{ postIdsError.isError }}
                         {{ postIdsError.message }}
-
                     </p>
                     <p class="whitespace-pre-wrap">
                         Link IDs error: {{ linkIdsError.isError }}
-                        {{ linkIdsError.message }}</p>
+                        {{ linkIdsError.message }}
+                    </p>
                 </div>
                 <article v-else>
                     <ExportedPost

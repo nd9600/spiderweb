@@ -6,7 +6,6 @@ import {
     type FirebaseConfig,
     type FirebaseModuleState
 } from "@/src/store/models/Firebase";
-import {useRootStore} from "./rootStore";
 
 export const useFirebaseStore = defineStore("firebaseModule", {
     state: (): FirebaseModuleState => ({
@@ -22,14 +21,12 @@ export const useFirebaseStore = defineStore("firebaseModule", {
 
             this.firebaseConfig = firebaseModuleStateSchema.parse(newState).firebaseConfig;
         },
-        async setFirebaseConfig(firebaseConfig: FirebaseConfig) {
+        setFirebaseConfig(firebaseConfig: FirebaseConfig) {
             if (firebaseConfig.apiKey === "") {
                 throw new Error("firebase config is wrong, please check it");
             }
 
             this.firebaseConfig = firebaseConfig;
-            await useRootStore().saveStateToLocalStorage();
-            await useRootStore().loadStateFromStorage();
         },
     },
 });

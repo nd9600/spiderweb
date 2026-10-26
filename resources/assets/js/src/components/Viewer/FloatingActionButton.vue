@@ -27,7 +27,7 @@
 
                 <hr class="my-2">
 
-                <LinkAdder v-if="clickerStore.clickMode === ClickMode.AddLink"/>
+                <LinkAdder v-if="clickerStore.clickMode === ClickMode.AddLink" />
                 <template v-else-if="clickerStore.clickMode === ClickMode.ChangeLink">
                     <sub
                         v-if="clickerStore.linkToEdit === null"

@@ -23,7 +23,17 @@ export default defineConfig(({mode}) => ({
     base: "./",
     publicDir: frontendPublicDir,
     plugins: [
-        vue()
+        vue(),
+        mode === "offline" && {
+            name: "offline-script",
+            transformIndexHtml: {
+                order: "post",
+                // Browsers block module scripts on file:// URLs. The offline bundle is a single classic script.
+                handler: (html) => html
+                    .replace('<script type="module" crossorigin', "<script defer")
+                    .replace('<link rel="stylesheet" crossorigin', '<link rel="stylesheet"'),
+            },
+        },
     ],
     resolve: {
         alias: {
@@ -31,20 +41,21 @@ export default defineConfig(({mode}) => ({
         },
         extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json", ".vue"]
     },
-    define: {
-        "process.env.NODE_ENV": JSON.stringify(mode)
-    },
     build: {
         outDir: path.resolve(rootDir, "dist"),
         emptyOutDir: true,
         manifest: false,
-        minify: mode === "production" ? "oxc" : false,
-        sourcemap: mode === "production",
+        minify: mode !== "development" ? "oxc" : false,
+        sourcemap: mode !== "development",
+        modulePreload: mode !== "offline",
+        // The downloadable app must fit in one script to work from a file URL.
+        chunkSizeWarningLimit: mode === "offline" ? 600 : 500,
         rolldownOptions: {
             output: {
+                format: mode === "offline" ? "iife" : "es",
                 entryFileNames: "assets/js/[name]-[hash].js",
                 chunkFileNames: "assets/js/[name]-[hash].js",
-                codeSplitting: {
+                codeSplitting: mode === "offline" ? false : {
                     groups: [
                         {
                             name: "firebase",

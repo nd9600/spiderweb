@@ -1,5 +1,5 @@
 <template>
-    <section class="w-full h-full" >
+    <section class="w-full h-full">
         <div
             v-if="loadingApp"
             class="px-4 md:px-8"
@@ -53,7 +53,10 @@
                     {{ tab.name }}
                 </button>
             </nav>
-            <div class="min-h-full py-4 px-4 md:px-8" style="background-color: #eee; color: #333;">
+            <div
+                class="min-h-full py-4 px-4 md:px-8"
+                style="background-color: #eee; color: #333;"
+            >
                 <keep-alive>
                     <component :is="currentTab" />
                 </keep-alive>
